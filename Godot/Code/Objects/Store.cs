@@ -10,10 +10,14 @@ namespace Deuteros.Code.Objects
     public partial class Store
     {
         public Dictionary<ItemTypes, int> Items { get; set; }
+		//Display Mineral list or alt(Could be items or MTX)
+        public bool AlternativeView { get; set; }
+		public Objects.MTX MTX { get; set; }
 
-        public Store()
+		public Store()
         {
             Items = new Dictionary<ItemTypes, int>();
+            MTX = new Objects.MTX();
         }
 
         public int this[ItemTypes itemType]

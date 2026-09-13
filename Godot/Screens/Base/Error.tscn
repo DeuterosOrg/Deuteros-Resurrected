@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://cc8ia5etw8m3c"]
 
-[ext_resource type="Script" path="res://Screens/Base/Error.cs" id="1_awx7g"]
+[ext_resource type="Script" path="res://Code/Platform/Base/Error.cs" id="1_awx7g"]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_awx7g")
@@ -10,6 +10,7 @@ offset_right = 325.0
 offset_bottom = 200.0
 
 [node name="OuterColorRect" type="ColorRect" parent="ErrorButton"]
+layout_mode = 0
 offset_left = 110.0
 offset_top = 74.0
 offset_right = 238.0

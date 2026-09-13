@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cqa0osg2y3h6o"
-path="res://.godot/imported/Clear.png-8ceebfed8c76b5ccce9e5f7a5c676190.ctex"
+uid="uid://q6uigllc5aeq"
+path="res://.godot/imported/TypeSwitchMTX.png-e711772fd4460ed0f37c120a6776eb99.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/Buttons/ACC/Clear.png"
-dest_files=["res://.godot/imported/Clear.png-8ceebfed8c76b5ccce9e5f7a5c676190.ctex"]
+source_file="res://Sprites/Buttons/TypeSwitchMTX.png"
+dest_files=["res://.godot/imported/TypeSwitchMTX.png-e711772fd4460ed0f37c120a6776eb99.ctex"]
 
 [params]
 

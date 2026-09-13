@@ -130,4 +130,4 @@ script = ExtResource("1_a0s0c")
 [node name="ButtonSpriteAnimation" type="AnimatedSprite2D" parent="."]
 position = Vector2(8, 4)
 sprite_frames = SubResource("SpriteFrames_2se6l")
-animation = &"Static_Locked"
+animation = &"Static_Yellow"

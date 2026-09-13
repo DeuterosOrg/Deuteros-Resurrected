@@ -11,6 +11,5 @@ namespace Deuteros.Code.Objects
 		{
 			BattleLogic.BattleTick();
 		}
-
 	}
 }

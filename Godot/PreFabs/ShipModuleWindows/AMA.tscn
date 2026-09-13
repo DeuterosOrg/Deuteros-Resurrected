@@ -35,6 +35,7 @@ offset_bottom = 16.0
 text = "Pod Type: TOOL MOUNTING"
 
 [node name="Contents" type="Label" parent="Labels/PodTypeHeaders"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 24.0
 offset_right = 187.0
@@ -42,6 +43,7 @@ offset_bottom = 32.0
 text = "Contents:"
 
 [node name="AsteroidMiningAttachment" type="Label" parent="Labels/PodTypeHeaders"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 40.0
 offset_right = 211.0
@@ -56,6 +58,7 @@ offset_right = 230.0
 offset_bottom = 110.0
 
 [node name="Warning" type="Label" parent="Labels/Warning"]
+layout_mode = 0
 offset_left = 82.0
 offset_top = 64.0
 offset_right = 146.0
@@ -82,6 +85,7 @@ offset_right = 230.0
 offset_bottom = 110.0
 
 [node name="EquipmentActive" type="Label" parent="Labels/EquipmentActive"]
+layout_mode = 0
 offset_left = 11.0
 offset_top = 56.0
 offset_right = 195.0
@@ -114,6 +118,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="NoAsteroids" type="Label" parent="Labels/Searching/None"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 64.0
 offset_right = 91.0
@@ -129,6 +134,7 @@ offset_right = 40.0
 offset_bottom = 40.0
 
 [node name="Class" type="Label" parent="Labels/Searching/Found"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 40.0
 offset_right = 91.0
@@ -137,6 +143,7 @@ text = "Class
 "
 
 [node name="Size" type="Label" parent="Labels/Searching/Found"]
+layout_mode = 0
 offset_left = 51.0
 offset_top = 40.0
 offset_right = 139.0
@@ -146,6 +153,7 @@ text = "5
 500t."
 
 [node name="MainElement" type="Label" parent="Labels/Searching/Found"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 64.0
 offset_right = 131.0
@@ -153,6 +161,7 @@ offset_bottom = 88.0
 text = "Main Element is"
 
 [node name="Type" type="Label" parent="Labels/Searching/Found"]
+layout_mode = 0
 offset_left = 3.0
 offset_top = 72.0
 offset_right = 91.0

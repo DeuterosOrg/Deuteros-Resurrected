@@ -198,14 +198,11 @@ namespace Deuteros.Code.Platform.Screens
 		private void AddACC_Pressed()
 		{
 			Objects.Store stores;
+
 			if (Ground)
-			{
 				stores = CurrentPlanet.PlanetResources.Stores;
-			}
 			else
-			{
 				stores = CurrentPlanet.Station.Resources.Stores;
-			}
 
 			if (stores[ItemTypes.a__c__c] > 0)
 			{
@@ -222,7 +219,6 @@ namespace Deuteros.Code.Platform.Screens
 
 				stores[Enums.ItemTypes.a__c__c]--;
 			}
-
 
 			UpdateState();
 		}
@@ -300,6 +296,29 @@ namespace Deuteros.Code.Platform.Screens
 				newShuttle.LocationView = false;
 				newShuttle.Name = CurrentPlanet.PlanetId.ToScreenString(" ")+" Shuttle";
 
+				Objects.Store stores;
+
+				if (Ground)
+					stores = CurrentPlanet.PlanetResources.Stores;
+				else
+					stores = CurrentPlanet.Station.Resources.Stores;
+
+				if (stores[ItemTypes.a__c__c] > 0)
+				{
+					newShuttle.ACC = new Objects.ACC();
+					newShuttle.ACC.Ship = Ship;
+					newShuttle.ACC.Source = CurrentPlanet.PlanetId;
+					newShuttle.ACC.Destination = CurrentPlanet.PlanetId;
+					newShuttle.ACC.Active = false;
+					newShuttle.ACC.CycleMode = false;
+					newShuttle.ACC.SourceItems = new List<ItemTypes>();
+					newShuttle.ACC.DestinationItems = new List<ItemTypes>();
+					newShuttle.ACC.CurrentSource = ItemTypes.iron;
+					newShuttle.ACC.CurrentDestination = ItemTypes.iron;
+
+					stores[Enums.ItemTypes.a__c__c]--;
+				}
+
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newShuttle);
 
 				GameCore.SingletonInstance.TriggerShipCreated(newShuttle);
@@ -330,6 +349,29 @@ namespace Deuteros.Code.Platform.Screens
 				newIOS.LocationView = false;
 				newIOS.Name = "IOS3" + GameCore.SingletonInstance.GameData.ActiveSaveFile.IOSCount.ToString().PadLeft(5, '0');
 
+				Objects.Store stores;
+
+				if (Ground)
+					stores = CurrentPlanet.PlanetResources.Stores;
+				else
+					stores = CurrentPlanet.Station.Resources.Stores;
+
+				if (stores[ItemTypes.a__c__c] > 0)
+				{
+					newIOS.ACC = new Objects.ACC();
+					newIOS.ACC.Ship = Ship;
+					newIOS.ACC.Source = CurrentPlanet.PlanetId;
+					newIOS.ACC.Destination = CurrentPlanet.PlanetId;
+					newIOS.ACC.Active = false;
+					newIOS.ACC.CycleMode = false;
+					newIOS.ACC.SourceItems = new List<ItemTypes>();
+					newIOS.ACC.DestinationItems = new List<ItemTypes>();
+					newIOS.ACC.CurrentSource = ItemTypes.iron;
+					newIOS.ACC.CurrentDestination = ItemTypes.iron;
+
+					stores[Enums.ItemTypes.a__c__c]--;
+				}
+
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newIOS);
 
 				GameCore.SingletonInstance.TriggerShipCreated(newIOS);
@@ -359,6 +401,29 @@ namespace Deuteros.Code.Platform.Screens
 				newSCG.DestinationStarLocation = CurrentPlanet.ParentStar;
 				newSCG.LocationView = false;
 				newSCG.Name = "SCG3" + GameCore.SingletonInstance.GameData.ActiveSaveFile.SCGCount.ToString().PadLeft(5, '0');
+
+				Objects.Store stores;
+
+				if (Ground)
+					stores = CurrentPlanet.PlanetResources.Stores;
+				else
+					stores = CurrentPlanet.Station.Resources.Stores;
+
+				if (stores[ItemTypes.a__c__c] > 0)
+				{
+					newSCG.ACC = new Objects.ACC();
+					newSCG.ACC.Ship = Ship;
+					newSCG.ACC.Source = CurrentPlanet.PlanetId;
+					newSCG.ACC.Destination = CurrentPlanet.PlanetId;
+					newSCG.ACC.Active = false;
+					newSCG.ACC.CycleMode = false;
+					newSCG.ACC.SourceItems = new List<ItemTypes>();
+					newSCG.ACC.DestinationItems = new List<ItemTypes>();
+					newSCG.ACC.CurrentSource = ItemTypes.iron;
+					newSCG.ACC.CurrentDestination = ItemTypes.iron;
+
+					stores[Enums.ItemTypes.a__c__c]--;
+				}
 
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newSCG);
 

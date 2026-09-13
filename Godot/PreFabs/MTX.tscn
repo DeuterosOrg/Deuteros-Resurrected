@@ -1,0 +1,292 @@
+[gd_scene load_steps=8 format=3 uid="uid://bckrqusm4ui3m"]
+
+[ext_resource type="Script" path="res://Code/Platform/Screens/MTX.cs" id="1_427n8"]
+[ext_resource type="Texture2D" uid="uid://dbi606dga6jcx" path="res://Sprites/SceneSprites/MTX/Background.png" id="1_bus2s"]
+[ext_resource type="Texture2D" uid="uid://weyd8f8l00u0" path="res://Sprites/SceneSprites/Ships/Interior/ACC/RightArrow.png" id="2_wxete"]
+[ext_resource type="Texture2D" uid="uid://xb17wa78vk6a" path="res://Sprites/SceneSprites/Ships/Interior/ACC/GreenDiamond.png" id="3_85vs5"]
+[ext_resource type="Script" path="res://Code/Objects/MTXRow.cs" id="3_w4cdw"]
+[ext_resource type="Texture2D" uid="uid://b6fuo7xdmjap8" path="res://Sprites/SceneSprites/Ships/Interior/ACC/BrownDiamond.png" id="4_yxcnu"]
+[ext_resource type="Texture2D" uid="uid://ckvvfrcp5iey7" path="res://Sprites/SceneSprites/Ships/Interior/ACC/Cross.png" id="5_ndyb2"]
+
+[node name="MTX" type="Node2D"]
+script = ExtResource("1_427n8")
+
+[node name="Imagery" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Background" type="TextureRect" parent="Imagery"]
+layout_mode = 0
+offset_left = 48.0
+offset_top = 16.0
+offset_right = 320.0
+offset_bottom = 184.0
+texture = ExtResource("1_bus2s")
+
+[node name="Config" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 64.0
+offset_top = 44.0
+offset_right = 208.0
+offset_bottom = 166.0
+
+[node name="ResourceList" type="ScrollContainer" parent="Config"]
+layout_mode = 0
+offset_right = 144.0
+offset_bottom = 123.0
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 3
+
+[node name="ResourceContainer" type="VBoxContainer" parent="Config/ResourceList"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 0
+
+[node name="00" type="Control" parent="Config/ResourceList/ResourceContainer"]
+custom_minimum_size = Vector2(0, 8)
+layout_mode = 2
+script = ExtResource("3_w4cdw")
+
+[node name="LeftArrow" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_right = 8.0
+offset_bottom = 8.0
+texture_normal = ExtResource("2_wxete")
+
+[node name="LeftCross" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_left = 8.0
+offset_right = 16.0
+offset_bottom = 8.0
+texture_normal = ExtResource("5_ndyb2")
+
+[node name="LeftDiamond" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_left = 8.0
+offset_right = 16.0
+offset_bottom = 8.0
+texture_normal = ExtResource("3_85vs5")
+
+[node name="Name" type="Label" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_left = 16.0
+offset_right = 80.0
+offset_bottom = 8.0
+text = "Titanium"
+
+[node name="Count" type="Label" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_left = 96.0
+offset_right = 136.0
+offset_bottom = 8.0
+text = "36288"
+
+[node name="RightCross" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+offset_left = 136.0
+offset_right = 144.0
+offset_bottom = 8.0
+texture_normal = ExtResource("5_ndyb2")
+
+[node name="RightDiamond" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
+offset_left = 136.0
+offset_right = 144.0
+offset_bottom = 8.0
+texture_normal = ExtResource("4_yxcnu")
+
+[node name="Buttons" type="Control" parent="Config"]
+anchors_preset = 0
+offset_top = 123.0
+offset_right = 137.0
+offset_bottom = 139.0
+
+[node name="Restore" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_right = 24.0
+offset_bottom = 16.0
+flat = true
+
+[node name="SwitchStore" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 24.0
+offset_right = 48.0
+offset_bottom = 16.0
+flat = true
+
+[node name="Clear" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 48.0
+offset_right = 72.0
+offset_bottom = 16.0
+flat = true
+
+[node name="TransmitAll" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 72.0
+offset_right = 96.0
+offset_bottom = 16.0
+flat = true
+
+[node name="Balance" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 96.0
+offset_right = 120.0
+offset_bottom = 16.0
+flat = true
+
+[node name="ScrollUp" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 123.0
+offset_top = -1.0
+offset_right = 137.0
+offset_bottom = 7.0
+flat = true
+
+[node name="ScrollDown" type="Button" parent="Config/Buttons"]
+layout_mode = 0
+offset_left = 123.0
+offset_top = 8.0
+offset_right = 137.0
+offset_bottom = 16.0
+flat = true
+
+[node name="Destination" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_left = 216.0
+offset_top = 28.0
+offset_right = 314.0
+offset_bottom = 182.0
+
+[node name="SystemButtons" type="VBoxContainer" parent="Destination"]
+layout_mode = 0
+offset_right = 24.0
+offset_bottom = 143.0
+theme_override_constants/separation = 0
+
+[node name="The_Sun" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Proxima" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Centauri" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Barnard" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Lalande" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Sirius" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Cygni" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Procyon" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 16)
+layout_mode = 2
+flat = true
+
+[node name="Tau_Ceti" type="Button" parent="Destination/SystemButtons"]
+custom_minimum_size = Vector2(0, 15)
+layout_mode = 2
+flat = true
+
+[node name="StationButtons" type="HFlowContainer" parent="Destination"]
+layout_mode = 0
+offset_left = 24.0
+offset_right = 88.0
+offset_bottom = 142.0
+theme_override_constants/h_separation = 0
+theme_override_constants/v_separation = 0
+
+[node name="00" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="01" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="02" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="03" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="04" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="05" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="06" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="07" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="08" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="09" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="10" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="11" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="12" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="13" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="14" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="15" type="TextureButton" parent="Destination/StationButtons"]
+custom_minimum_size = Vector2(32, 18)
+layout_mode = 2
+
+[node name="SystemName" type="Label" parent="Destination"]
+layout_mode = 0
+offset_left = 24.0
+offset_top = 144.0
+offset_right = 96.0
+offset_bottom = 152.0

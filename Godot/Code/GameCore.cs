@@ -293,6 +293,7 @@ namespace Deuteros.Code
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Research.UpdateResearch;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
+			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
 

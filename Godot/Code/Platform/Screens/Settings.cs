@@ -17,9 +17,10 @@ public partial class Settings : Node2D
 	public Button EarthStationTo7 { get; set; }
 	public Button ProdInEarthOrbit { get; set; }
 	public Button IOSModulesReady { get; set; }
-	
+	public Button ActivateMTX { get; set; }
 	public Button MaxResources { get; set; }
-	
+	public Button BuildTitanStation { get; set; }
+
 
 	public Label MaxResourcesText { get; set; }
 	public Label SoundToggleText { get; set; }
@@ -36,6 +37,8 @@ public partial class Settings : Node2D
 		SoundToggle = (Button)GetNode("SoundToggle");
 		ProdInEarthOrbit = (Button)GetNode("EarthOrbitProduction");
 		IOSModulesReady = (Button)GetNode("IOSModulesReady");
+		ActivateMTX = (Button)GetNode("ActivateMTX");
+		BuildTitanStation = (Button)GetNode("BuildTitanStation");
 		SoundToggle.Connect("button_up", new Callable(this, nameof(SoundToggle_ButtonUp)));
 
 
@@ -44,6 +47,8 @@ public partial class Settings : Node2D
 		MaxResources.Pressed += MaxResources_Pressed;
 		ProdInEarthOrbit.Pressed += ProdInEarthOrbit_Pressed;
 		IOSModulesReady.Pressed += IOSModulesReady_Pressed;
+		ActivateMTX.Pressed += ActivateMTX_Pressed;
+		BuildTitanStation.Pressed += BuildTitanStation_Pressed;
 
 		SoundToggleText = (Label)GetNode("SoundToggle/SoundToggleText");
 		MaxResourcesText = (Label)GetNode("MaxResources/MaxResourcesText");
@@ -52,6 +57,29 @@ public partial class Settings : Node2D
 		SoundToggleText.Text = SoundOn ? "ON" : "OFF";
 
 		base._Ready();
+	}
+
+	private void BuildTitanStation_Pressed()
+	{
+		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan].Station.Built)
+		{
+			var titan = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan];
+			titan.PlanetResources.Derricks = 8;
+			titan.BaseBuildParts = 2;
+			titan.Station.Built = true;
+			titan.Station.BuildParts = 8;
+			titan.Station.Factory.AOC = true;
+			titan.Station.MtxInstalled = true;
+		}
+	}
+
+	private void ActivateMTX_Pressed()
+	{
+		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
+		{
+			GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
+			GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth].Station.MtxInstalled = true;
+		}
 	}
 
 	private void IOSModulesReady_Pressed()
@@ -71,8 +99,6 @@ public partial class Settings : Node2D
 			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.bandaid).Research.Locked = false;
 			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.grapple).Research.Locked = false;
 			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.r_frame).Research.Locked = false;
-
-
 
 			gameData.GetItem(Enums.ItemTypes.a__m__a).Research.Researched = true;
 			gameData.GetItem(Enums.ItemTypes.a__m__a).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
@@ -151,7 +177,6 @@ public partial class Settings : Node2D
 
 			GameCore.SingletonInstance.TriggerStationPiecePlaced(Enums.StellarBodies.earth);
 		}
-
 
 		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Shuttle_Unlock))
 		{

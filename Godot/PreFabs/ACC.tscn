@@ -14,7 +14,7 @@
 [ext_resource type="Texture2D" uid="uid://n0ladgakox6a" path="res://Sprites/Buttons/ACC/Engage.png" id="10_hr2vs"]
 [ext_resource type="Texture2D" uid="uid://c7cy3lfsksaqp" path="res://Sprites/Buttons/ACC/Disengage.png" id="11_5fu8q"]
 [ext_resource type="Texture2D" uid="uid://cp7tuum46ir1o" path="res://Sprites/Buttons/ACC/Cycle.png" id="12_6oc3e"]
-[ext_resource type="Texture2D" uid="uid://cqa0osg2y3h6o" path="res://Sprites/Buttons/ACC/Clear.png" id="13_xnrnc"]
+[ext_resource type="Texture2D" uid="uid://cqa0osg2y3h6o" path="res://Sprites/Buttons/Clear.png" id="13_xnrnc"]
 [ext_resource type="Texture2D" uid="uid://rmafiuast6mc" path="res://Sprites/SceneSprites/Ships/Interior/ACC/HEDBlank.png" id="15_my0dw"]
 
 [node name="Acc" type="Node2D"]

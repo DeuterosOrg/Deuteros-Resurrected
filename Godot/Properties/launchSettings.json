@@ -1,14 +1,14 @@
 {
   "profiles": {
-    "Deuteros": {
-      "commandName": "Project"
-    },
-    "Debug In Godot": {
-      "commandName": "Executable",
-      "executablePath": "E:\\GodotInstalls\\4.2.1\\Godot_v4.2.1-stable_mono_win64.exe",
-      "commandLineArgs": "--path . --verbose",
-      "workingDirectory": ".",
-      "nativeDebugging": true
-    }
+	"Deuteros": {
+	  "commandName": "Project"
+	},
+	"Debug In Godot": {
+	  "commandName": "Executable",
+	  "executablePath": "E:\\GodotInstalls\\4.2.1\\Godot_v4.2.1-stable_mono_win64.exe",
+	  "commandLineArgs": "--path . --verbose",
+	  "workingDirectory": ".",
+	  "nativeDebugging": true
+	}
   }
 }
