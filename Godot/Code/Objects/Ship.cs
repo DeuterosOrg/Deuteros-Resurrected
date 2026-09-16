@@ -52,7 +52,7 @@ namespace Deuteros.Code.Objects
         {
             if (Engine && Fuel > 0 && ShipState != Ship_States.CrewRepairing)
             {
-                if (Pilot != null) Pilot.ActionsTaken++;
+                if (Pilot != null) Pilot.AddAction();
 
                 //clear the Shuttle/Ship State to prevent scrolling in ship bay when ship is not there
                 if (ShipType == Ship_Types.Shuttle)
@@ -85,7 +85,7 @@ namespace Deuteros.Code.Objects
         {
             if (ShipState == Ship_States.UnDocked && Engine && DestinationPlanetLocation != PlanetLocation)
             {
-                if (Pilot != null) Pilot.ActionsTaken++;
+                if (Pilot != null) Pilot.AddAction();
 
                 EngineEngaged = true;
                 ShipState = Ship_States.InTransit;

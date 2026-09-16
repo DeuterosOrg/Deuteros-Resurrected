@@ -145,7 +145,7 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.r_frame && CurrentPlanet.BaseBuildParts < 2 && Ship.Pilot != null && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 					{
-						if (Ship.Pilot != null) Ship.Pilot.ActionsTaken++;
+						if (Ship.Pilot != null) Ship.Pilot.AddAction();
 
 						CurrentPlanet.BaseBuildParts++;
 
@@ -274,7 +274,7 @@ namespace Deuteros.Code.Platform.Screens
 
 					if ((Ship.ShipType != Ship_Types.Shuttle || (Ship.ShipType == Ship_Types.Shuttle && !((Shuttle)Ship).OnGround)) && Ship.ShipState == Ship_States.UnDocked  && Ship.Modules[modulePressed].ItemStored == ItemTypes.of_frame && CurrentPlanet.Station.Built == false && Ship.Pilot != null && Ship.PlanetLocation!=StellarBodies.asteroids)
 					{
-						if (Ship.Pilot != null) Ship.Pilot.ActionsTaken++;
+						if (Ship.Pilot != null) Ship.Pilot.AddAction();
 
 						if (CurrentPlanet.Station.BuildParts == 0)
 							CurrentPlanet.Station.StationOrdinal = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station != null).MaxBy(p => p.Station.StationOrdinal).Station.StationOrdinal + 1;

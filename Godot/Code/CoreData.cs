@@ -54,6 +54,7 @@ namespace Deuteros.Code
 			newGameSave.CurrentPlanet = Enums.StellarBodies.earth;
 			newGameSave.Unlocks = new List<Enums.Game_Unlocks>();
 			newGameSave.Ships = new List<IShip>();
+			newGameSave.News = new News();
 			newGameSave.CurrentDay = 0;
             newGameSave.AtWar = false;
             newGameSave.WarDeclaredDay = 0;
@@ -114,7 +115,7 @@ namespace Deuteros.Code
                 enemyFleet.Pilot = new Staff();
 
                 //make pilot an admiral
-                enemyFleet.Pilot.ActionsTaken = 50;
+                enemyFleet.Pilot.AddAction(50);
                 newGameSave.Ships.Add(enemyFleet);
             }
 

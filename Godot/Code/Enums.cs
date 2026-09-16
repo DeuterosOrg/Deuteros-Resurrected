@@ -442,10 +442,11 @@ namespace Deuteros.Code
             Meteor_Warning,
             Meteor_Strike,
             Sonic_Weapon,
-            Eureka
-        }
+            Eureka,
+			None
+		}
 
-        public enum ModuleFrameText
+		public enum ModuleFrameText
         {
             Station_Deploy,
             Station_Deploy_Complete,

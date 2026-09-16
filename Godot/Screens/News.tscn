@@ -1,17 +1,133 @@
-[gd_scene load_steps=3 format=3 uid="uid://cqlhxpg2h3gxk"]
+[gd_scene load_steps=5 format=3 uid="uid://cqlhxpg2h3gxk"]
 
-[ext_resource type="Script" path="res://Code/Platform/Screens/NoScript.cs" id="1_sd4xw"]
-[ext_resource type="Texture2D" uid="uid://mjrmk8b30a7l" path="res://Sprites/Scenes/News.png" id="2"]
+[ext_resource type="Script" path="res://Code/Platform/Screens/News.cs" id="1_8fnrb"]
+[ext_resource type="Texture2D" uid="uid://d2urnbja3l1wq" path="res://Sprites/SceneSprites/News/Background.png" id="2_elgxg"]
+[ext_resource type="Texture2D" uid="uid://cs8d7k2qu4a6f" path="res://Sprites/SceneSprites/News/icon.png" id="3_7utsx"]
+[ext_resource type="Theme" uid="uid://bag2vb6bnxnrx" path="res://Themes/DarkBiegeFont5.tres" id="4_v06ri"]
 
-[node name="Node2D" type="Node2D"]
-script = ExtResource("1_sd4xw")
+[node name="News" type="Node2D"]
+script = ExtResource("1_8fnrb")
 
-[node name="News" type="TextureRect" parent="."]
-offset_left = 77.0
-offset_top = 1.0
-offset_right = 320.0
-offset_bottom = 195.0
-mouse_filter = 2
-texture = ExtResource("2")
-expand_mode = 1
-stretch_mode = 5
+[node name="Images" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="Background" type="TextureRect" parent="Images"]
+offset_left = 56.0
+offset_top = 49.0
+offset_right = 312.0
+offset_bottom = 157.0
+texture = ExtResource("2_elgxg")
+
+[node name="Icon" type="TextureButton" parent="Images"]
+layout_mode = 0
+offset_left = 175.0
+offset_top = 161.0
+offset_right = 192.0
+offset_bottom = 177.0
+texture_normal = ExtResource("3_7utsx")
+
+[node name="NewsLines" type="Control" parent="."]
+layout_mode = 3
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="00" type="Label" parent="NewsLines"]
+layout_mode = 0
+offset_left = 64.0
+offset_top = 57.0
+offset_right = 280.0
+offset_bottom = 65.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="01" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 65.0
+offset_right = 280.0
+offset_bottom = 73.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="02" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 73.0
+offset_right = 280.0
+offset_bottom = 81.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="03" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 81.0
+offset_right = 280.0
+offset_bottom = 89.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="04" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 89.0
+offset_right = 280.0
+offset_bottom = 97.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="05" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 97.0
+offset_right = 280.0
+offset_bottom = 105.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="06" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 105.0
+offset_right = 280.0
+offset_bottom = 113.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="07" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 113.0
+offset_right = 280.0
+offset_bottom = 121.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="08" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 121.0
+offset_right = 280.0
+offset_bottom = 129.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="09" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 129.0
+offset_right = 280.0
+offset_bottom = 137.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="10" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 137.0
+offset_right = 280.0
+offset_bottom = 145.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."
+
+[node name="11" type="Label" parent="NewsLines"]
+offset_left = 64.0
+offset_top = 145.0
+offset_right = 280.0
+offset_bottom = 153.0
+theme = ExtResource("4_v06ri")
+text = "389: Ganymede Shuttle Lost."

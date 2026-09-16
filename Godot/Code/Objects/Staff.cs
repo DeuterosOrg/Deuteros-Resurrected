@@ -8,7 +8,7 @@ namespace Deuteros.Code.Objects
     public partial class Staff
     {
         public string Leader { get; set; }
-        public int ActionsTaken { get; set; }
+        private int ActionsTaken { get; set; }
         public int Count { get; set; }
         public Enums.StaffType Type { get; set; }
 
@@ -17,6 +17,38 @@ namespace Deuteros.Code.Objects
             ActionsTaken = 0;
         }
 
+        public void AddAction()
+        {
+			if (Type == Enums.StaffType.Research)
+			{
+                if (ActionsTaken == 5)
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Doctor");
+                else if (ActionsTaken == 8)
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Professor");
+			}
+			else if (Type == Enums.StaffType.Production)
+			{
+				if (ActionsTaken == 5)
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Engineer");
+				else if (ActionsTaken == 11)
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Expert");
+			}
+			else if (Type == Enums.StaffType.Marines)
+			{
+				if (ActionsTaken == 9)
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Captain");
+				else if (ActionsTaken == 39)
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Admiral");
+			}
+
+			ActionsTaken++;
+        }
+
+		public void AddAction(int count)
+		{
+			ActionsTaken += count;
+		}
+		
         public int GetLevel()
         {
             if (Type == Enums.StaffType.Research)

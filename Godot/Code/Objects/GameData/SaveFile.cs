@@ -17,7 +17,8 @@ namespace Deuteros.Code.Objects.GameData
         public bool TimeSkip { get; set; }
         public ulong TimeSkipStart { get; set; }
         public bool TimeSkipDay { get; set; }
-        public List<IShip> Ships { get; set; }
+		public News News { get; set; }
+		public List<IShip> Ships { get; set; }
         public Enums.StellarBodies CurrentPlanet { get; set; }
         public List<Enums.Game_Unlocks> Unlocks { get; set; }
         public bool AtWar { get; set; }

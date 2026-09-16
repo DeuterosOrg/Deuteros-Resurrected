@@ -214,8 +214,10 @@ namespace Deuteros.Code.Objects
 			if (!Active && Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply))
 			{
 				Active = true;
+				
 				//Just in case
-				((InterStellarShip)Ship).AsteroidScanResults = null;
+				if (Ship.ShipType != Ship_Types.Shuttle)
+					((InterStellarShip)Ship).AsteroidScanResults = null;
 
 				if (Ship.ShipState == Ship_States.Docked)
 				{

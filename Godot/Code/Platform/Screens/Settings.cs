@@ -244,7 +244,7 @@ public partial class Settings : Node2D
 			earth.ResearchStaff = new Staff();
 			earth.ResearchStaff.Leader = "Von Braun";
 			earth.ResearchStaff.Count = 250;
-			earth.ResearchStaff.ActionsTaken = 20;
+			earth.ResearchStaff.AddAction(20);
 
 			earth.ResearchStaff.Type = Enums.StaffType.Research;
 		}
@@ -254,7 +254,7 @@ public partial class Settings : Node2D
 			earth.Factory.Builder = new Staff();
 			earth.Factory.Builder.Leader = "Bob";
 			earth.Factory.Builder.Count = 200;
-			earth.Factory.Builder.ActionsTaken = 20;
+			earth.Factory.Builder.AddAction(20);
 			earth.Factory.Builder.Type = Enums.StaffType.Production;
 		}
 
@@ -263,7 +263,7 @@ public partial class Settings : Node2D
 			var newMarine = new Staff();
 			newMarine.Leader = GameCore.SingletonInstance.GameData.GetNextPersonName();
 			newMarine.Count = 41;
-			newMarine.ActionsTaken = 30;
+			newMarine.AddAction(30);
 			newMarine.Type = Enums.StaffType.Marines;
 
 			earth.PlanetResources.AddStaff(newMarine);

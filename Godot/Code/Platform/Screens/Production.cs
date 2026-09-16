@@ -332,7 +332,7 @@ namespace Deuteros.Code.Platform.Screens
 
 								currentPlanet.AddItems(currentFactory.CurrentProductionItem().Product.ItemType, 1);
 
-								if (!currentFactory.AOC) currentFactory.Builder.ActionsTaken++;
+								if (!currentFactory.AOC) currentFactory.Builder.AddAction();
 								currentFactory.ProdCycle = 0;
 
 								GameCore.SingletonInstance.TriggerProductionFinished(currentFactory);

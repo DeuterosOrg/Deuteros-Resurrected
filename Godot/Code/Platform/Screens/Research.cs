@@ -253,7 +253,7 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						currentItem.Researched = true;
 						currentItem.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-						earth.ResearchStaff.ActionsTaken++;
+						earth.ResearchStaff.AddAction();
 
 						GameCore.SingletonInstance.GameData.GetItem(currentItem.ItemType).Locked = false;
 

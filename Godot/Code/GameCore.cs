@@ -398,11 +398,13 @@ namespace Deuteros.Code
 				_menuScreen.Location.Text = GetCurrentPlanet().PlanetId.ToScreenString(" ") + " Orbital";
 			}
 		}
+
 		public void ShowBulletin(BulletinTypes bulletin)
 		{
 			GameCore.SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
 			_menuScreen.Location.Text = "News Bulletins";
 			((Bulletins)_currentScreen).DisplayBulletin(bulletin);
+			GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin = bulletin;
 		}
 
 		public void ChangeScene(Enums.Scenes sceneToLoad, List<Enums.SceneVariables> sceneVariables)
