@@ -52,7 +52,14 @@ namespace Deuteros.Code.Platform.Screens
 				MTX.LoadScene(CurrentStore, SwitchStoreType_ButtonUp);
 
 				if (CurrentStore.AlternativeView)
+				{
 					MTX.UpdateState();
+				}
+				else
+				{
+					RefreshButtons();
+					DrawData();
+				}
 			}
 			else
 			{
@@ -78,6 +85,7 @@ namespace Deuteros.Code.Platform.Screens
 				SelectedButton = clickedButton;
 				SelectedButton.Selected = true;
 
+				RefreshButtons();
 				DrawData();
 			}
 		}
@@ -94,7 +102,6 @@ namespace Deuteros.Code.Platform.Screens
 			else
 			{
 				RefreshButtons();
-
 				DrawData();
 			}
 		}

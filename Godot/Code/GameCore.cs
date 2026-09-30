@@ -348,9 +348,6 @@ namespace Deuteros.Code
 		public override void _Process(double delta)
 		{
 			UpdateTime();
-
-			if (_menuScreen != null)
-				_menuScreen.HoverInfo.Text = HoverText;
 		}
 
 		public static void ShowError(BaseSubScene scene, string ErrorText)

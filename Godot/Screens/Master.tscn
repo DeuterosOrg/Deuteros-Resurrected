@@ -10,8 +10,6 @@ script = ExtResource("1_udj03")
 
 [node name="MainScene" type="Node2D" parent="."]
 
-[node name="MainMenu" type="Node2D" parent="."]
-
 [node name="VirtualCursorView" type="CanvasLayer" parent="."]
 script = ExtResource("2_2sjdf")
 CursorTexture = ExtResource("3_kigfk")

@@ -85,6 +85,7 @@ offset_bottom = 8.0
 text = "36288"
 
 [node name="RightCross" type="TextureButton" parent="Config/ResourceList/ResourceContainer/00"]
+layout_mode = 0
 offset_left = 136.0
 offset_right = 144.0
 offset_bottom = 8.0
