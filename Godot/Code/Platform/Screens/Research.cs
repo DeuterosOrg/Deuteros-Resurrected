@@ -228,7 +228,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				var level = earth.ResearchStaff.GetLevel();
 
-				if (level >= currentItem.TechLevel)
+				if (level >= currentItem.TechLevel && currentItem.ResearchPercentageComplete < currentItem.ResearchLimit)
 				{
 					var teamSize = earth.ResearchStaff.Count;
 
@@ -240,7 +240,11 @@ namespace Deuteros.Code.Platform.Screens
 						if (currentItem.ResearchPercentageComplete < 100)
 						{
 							currentItem.ResearchPercentageComplete += 11;
-							if (currentItem.ResearchPercentageComplete > 100)
+
+							if (currentItem.ResearchPercentageComplete > currentItem.ResearchLimit)
+								currentItem.ResearchPercentageComplete = currentItem.ResearchLimit;
+
+                            if (currentItem.ResearchPercentageComplete > 100)
 								currentItem.ResearchPercentageComplete = 100;
 						}
 					}

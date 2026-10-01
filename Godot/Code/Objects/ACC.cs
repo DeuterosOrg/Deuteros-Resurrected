@@ -153,15 +153,17 @@ namespace Deuteros.Code.Objects
 			//We're undocked at the asteroids
 			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids)
 			{
-				//Check if we have an AMA on-board and the relevant equipment and crew
-				if (Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a) && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0)
+				var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
+
+                    //Check if we have an AMA on-board and the relevant equipment and crew
+                if (Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a) && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0)
 				{
 					//Our cargo hold is full and we are undocked, so we need to go home
 					if (!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250))
 						Ship.EngageEngine();
 					//We are not full, so check for a minable asteroid that is of the correct type and is large enough
 					//Also check the asteroid has not previously been mined - This means we just took off for it, so we should not land on it again
-					else if (((InterStellarShip)Ship).AsteroidScanResults != null && Ship.ACC.DestinationItems.Contains(((InterStellarShip)Ship).AsteroidScanResults.Type) && ((InterStellarShip)Ship).AsteroidScanResults.Class >= 6 && !((InterStellarShip)Ship).AsteroidScanResults.HasBeenMined)
+					else if (scanResults != null && Ship.ACC.DestinationItems.Contains(scanResults.Type) && scanResults.Class >= 6 && !scanResults.HasBeenMined)
 					{
 						//Reset lastminedday
 						Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
@@ -217,7 +219,7 @@ namespace Deuteros.Code.Objects
 				
 				//Just in case
 				if (Ship.ShipType != Ship_Types.Shuttle)
-					((InterStellarShip)Ship).AsteroidScanResults = null;
+					((InterStellarShip)Ship).ItemScanResults = null;
 
 				if (Ship.ShipState == Ship_States.Docked)
 				{

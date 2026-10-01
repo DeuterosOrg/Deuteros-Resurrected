@@ -40,8 +40,11 @@ namespace Deuteros.Code.Platform.Screens
 		Control EquipmentStock { get; set; }
 		Control StaffList { get; set; }
 		Control GrappleWindowControl { get; set; }
+        Label GrappleWindowTitle { get; set; }
+        Label GrappleWindowQuantities { get; set; }
+        Label GrappleWindowComplete { get; set; }
 
-		Label[] EquipmentStockNameLabels { get; set; } = new Label[11];
+        Label[] EquipmentStockNameLabels { get; set; } = new Label[11];
 		Label[] EquipmentStockCountLabels { get; set; } = new Label[11];
 		Label FuelType { get; set; }
 		Label FuelInStock { get; set; }
@@ -112,8 +115,11 @@ namespace Deuteros.Code.Platform.Screens
 			GrappleWindowControl = GetNode<Control>("GrappleWindow");
 
 			GrappleWindow = GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier");
+			GrappleWindowTitle = GetNode<Label>("GrappleWindow/GrappleEmptier/Title");
+            GrappleWindowQuantities = GetNode<Label>("GrappleWindow/GrappleEmptier/Quantites");
+            GrappleWindowComplete = GetNode<Label>("GrappleWindow/GrappleEmptier/Complete");
 
-			for (int i = 0; i < 11; i++)
+            for (int i = 0; i < 11; i++)
 			{
 				EquipmentStockNameLabels[i] = GetNode<Label>("EquipmentStock/BackgroundBox/PanelContainer/GridContainer/NameColumn/" + i.ToString().PadLeft(2, '0'));
 				EquipmentStockCountLabels[i] = GetNode<Label>("EquipmentStock/BackgroundBox/PanelContainer/GridContainer/CountColumn/" + i.ToString().PadLeft(2, '0'));
@@ -176,7 +182,7 @@ namespace Deuteros.Code.Platform.Screens
 			FuelGaugeMinus.Pressed += FuelGaugeMinus_Pressed;
 			FuelGaugePlus.Pressed += FuelGaugePlus_Pressed;
 
-			GrappleWindow.Closed = GrappleClosed;
+            GrappleWindow.Closed = GrappleClosed;
 
 			CargoService.Visible = false;
 			EquipmentStock.Visible = false;
@@ -495,10 +501,32 @@ namespace Deuteros.Code.Platform.Screens
 		private void GrappleClosed(object DataObject)
 		{
 			var currentModule = Ship.Modules[(int)DataObject];
+			if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
+			{
+				var heldAsteroid = ((Asteroid)currentModule.HeldItem);
 
-			ResourceList.Stores[currentModule.HeldAsteroid.Type] = Math.Min(50000, ResourceList.Stores[currentModule.HeldAsteroid.Type] + currentModule.HeldAsteroid.Mass);
+				ResourceList.Stores[heldAsteroid.Type] = Math.Min(50000, ResourceList.Stores[heldAsteroid.Type] + heldAsteroid.Mass);
+			}
+			else if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
+			{
+                var unknownItem = ((UnknownItem)currentModule.HeldItem);
+				switch (unknownItem.ItemType)
+				{
+                    case UnknownItemTypes.AlienArtifact:
+                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.alien_artifact);
+                        break;
 
-			currentModule.HeldAsteroid = null;
+                    case UnknownItemTypes.CommsPod:
+                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.commspod);
+						break;
+
+                    case UnknownItemTypes.Blazer:
+                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.pulse_blaster_laser);
+                        break;
+                }
+            }
+
+            currentModule.HeldItem = null;
 
 			GameCore.UnLockScreen();
 		}
@@ -874,10 +902,25 @@ namespace Deuteros.Code.Platform.Screens
 			else if (currentModule.ModuleType == Enums.Module_Types.Tool)
 			{
 				//We have a grapple with an item in it
-				if (currentModule.ItemStored == ItemTypes.grapple && currentModule.HeldAsteroid != null)
+				if (currentModule.ItemStored == ItemTypes.grapple && currentModule.HeldItem != null)
 				{
 					GrappleWindowControl.Visible = true;
-					GrappleWindow.DataObject = torsoSection;
+					if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
+					{
+						var asteroidtype = ((Asteroid)currentModule.HeldItem).Type;
+                        GrappleWindowTitle.Text = "Asteroid Break-Up\r\nSequence.";
+                        GrappleWindowQuantities.Text = "100 "+asteroidtype.ToScreenString()+" 50000";
+                        GrappleWindowComplete.Text = "Sequence Complete.";
+
+                    }
+                    else
+					{
+                        GrappleWindowTitle.Text = "Object Removed For\r\nResearch Analysis...";
+                        GrappleWindowQuantities.Text = "";
+                        GrappleWindowComplete.Text = "";
+
+                    }
+                    GrappleWindow.DataObject = torsoSection;
 					GrappleWindow.StartCloseTimer(5f);
 
 					GameCore.LockScreen();

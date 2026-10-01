@@ -14,7 +14,8 @@ namespace Deuteros.Code.Objects
         public bool DFCC { get; set; }
         public bool Scanning { get; set; }
         public bool Mining { get; set; }
-		public Asteroid AsteroidScanResults { get; set; }
+		public Asteroid AsteroidScanResults { get { if (ItemScanResults != null && ItemScanResults is Asteroid) return (Asteroid)ItemScanResults; else return null; } }
+        public GrappleItem ItemScanResults { get; set; }
         public bool MethanoidOwned { get; set; }
 
         public bool PTL { get; set; }

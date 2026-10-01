@@ -71,7 +71,8 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private void MineButton_Pressed()
 		{
-			if (Ship.ShipState == Ship_States.UnDocked && ((InterStellarShip)Ship).AsteroidScanResults != null && ((InterStellarShip)Ship).AsteroidScanResults.Class >= 6)
+			var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
+            if (Ship.ShipState == Ship_States.UnDocked && scanResults != null && scanResults.Class >= 6)
 			{
 				Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
 				Ship.Dock();
@@ -117,9 +118,10 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			//We're at the asteroids scanning, scanning happens automatically as part of shipinterior we just show the results here
 			else if (Ship.ShipState == Ship_States.UnDocked && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0 && Ship.PlanetLocation == StellarBodies.asteroids)
 			{
-				if (((InterStellarShip)Ship).AsteroidScanResults != null)
-				{
-					var currentAsteroid = ((InterStellarShip)Ship).AsteroidScanResults;
+				if (((InterStellarShip)Ship).AsteroidScanResults != null && (((InterStellarShip)Ship).AsteroidScanResults is Asteroid))
+
+                {
+					var currentAsteroid = (Asteroid)((InterStellarShip)Ship).AsteroidScanResults;
 
 					Searching.Visible = true;
 					SearchingFound.Visible = true;

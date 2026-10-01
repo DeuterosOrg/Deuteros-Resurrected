@@ -9,6 +9,7 @@ namespace Deuteros.Code.Objects
     public partial class Star
     {
         public Enums.StellarBodies StarId { get; set; }
+        public Enums.StellarBodies ArtifactLocation { get; set; }
         public List<int> PlanetDistanceList { get; set; }
 
         public Star(Enums.StellarBodies planetId)

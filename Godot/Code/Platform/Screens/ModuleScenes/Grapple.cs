@@ -72,13 +72,26 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private void GrabButton_Pressed()
 		{
-			if (Ship.ShipState == Ship_States.UnDocked && ((InterStellarShip)Ship).AsteroidScanResults != null && ((InterStellarShip)Ship).AsteroidScanResults.Mass <= 250)
+			if (Ship.ShipState == Ship_States.UnDocked)
 			{
-				var heldAsteroid = ((InterStellarShip)Ship).AsteroidScanResults;
-				ShipModule.HeldAsteroid = heldAsteroid;
-				((InterStellarShip)Ship).AsteroidScanResults = null;
 
-				UpdateState();
+                if ((((InterStellarShip)Ship).AsteroidScanResults != null) && ((InterStellarShip)Ship).AsteroidScanResults.Mass <= 250)
+				{
+					var heldAsteroid = ((InterStellarShip)Ship).AsteroidScanResults;
+					ShipModule.HeldItem = heldAsteroid;
+					((InterStellarShip)Ship).ItemScanResults = null;
+				}
+				else if (((InterStellarShip)Ship).ItemScanResults != null)
+				{
+                    var heldItem = ((InterStellarShip)Ship).ItemScanResults;
+                    ShipModule.HeldItem = heldItem;
+
+					//artifact has been captured
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[Ship.StarLocation].ArtifactLocation = StellarBodies.none;
+
+                    ((InterStellarShip)Ship).ItemScanResults = null;
+                }
+                UpdateState();
 
 				UpdateParent?.Invoke();
 			}
@@ -86,9 +99,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private void ReleaseButton_Pressed()
 		{
-			if (ShipModule.HeldAsteroid != null)
+			if (ShipModule.HeldItem != null)
 			{
-				ShipModule.HeldAsteroid = null;
+				ShipModule.HeldItem = null;
 
 				UpdateState();
 
@@ -105,15 +118,24 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public void UpdateState()
 		{
-			if (Ship.Pilot != null && Ship.Pilot.GetLevel() == 1 || Ship.ShipState != Ship_States.UnDocked || Ship.PlanetLocation != StellarBodies.asteroids)
+			if (Ship.Pilot != null && Ship.Pilot.GetLevel() == 1 || Ship.ShipState != Ship_States.UnDocked)
 			{
 				Disabled.Visible = true;
 				Enabled.Visible = false;
 
-				if (ShipModule.HeldAsteroid != null)
+				if (ShipModule.HeldItem != null)
 				{
-					ToolContentsLabel.Text = ShipModule.HeldAsteroid.Mass + " " + ShipModule.HeldAsteroid.Type.ToScreenString();
-				}
+					if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
+					{
+						var heldAsteroid = (Asteroid)ShipModule.HeldItem;
+
+						ToolContentsLabel.Text = heldAsteroid.Mass + " " + heldAsteroid.Type.ToScreenString();
+					}
+                    else if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
+					{
+                        ToolContentsLabel.Text = "Unknown";
+                    }
+                }
 				else
 				{
 					ToolContentsLabel.Text = "None";
@@ -124,12 +146,23 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 				Disabled.Visible = false;
 				Enabled.Visible = true;
 
-				if (ShipModule.HeldAsteroid != null)
+				if (ShipModule.HeldItem != null)
 				{
-					AsteroidSprite.Texture = SpriteManager.LoadImage(NavSpriteBasePath + "Asteroid_" + ShipModule.HeldAsteroid.MassName.ToString() + ".png");
-					ContentsLabel.Text = "Asteroid\r\n" + ShipModule.HeldAsteroid.Mass.ToString() + "t.\r\n" + ShipModule.HeldAsteroid.Type.ToScreenString();
-				}
-				else
+					if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
+					{
+						var heldAsteroid = (Asteroid)ShipModule.HeldItem;
+
+						AsteroidSprite.Texture = SpriteManager.LoadImage(NavSpriteBasePath + "Asteroid_" + heldAsteroid.MassName.ToString() + ".png");
+						ContentsLabel.Text = "Asteroid\r\n" + heldAsteroid.Mass.ToString() + "t.\r\n" + heldAsteroid.Type.ToScreenString();
+					}
+					else if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
+					{
+						AsteroidSprite.Texture = null;
+                        ContentsLabel.Text = "Unknown";
+                    }
+
+                }
+                else
 				{
 					AsteroidSprite.Texture = null;
 					ContentsLabel.Text = "None";
@@ -143,8 +176,16 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 					MassLabel.Text = currentAsteroid.Mass.ToString() + "t.";
 					ElementLabel.Text = "Main Element\r\n" + currentAsteroid.Type.ToScreenString();
 				}
-				else
-				{
+                else if (((InterStellarShip)Ship).ItemScanResults != null)
+                {
+                    var currentItem = ((InterStellarShip)Ship).ItemScanResults;
+                    ScannerStatusLabel.Text = "Unknown Object";
+
+                    MassLabel.Text = "";
+                    ElementLabel.Text = "";
+                }
+                else
+                {
 					ScannerStatusLabel.Text = "No Object\r\nIn Vicinity";
 					ScannerStatusLabel.Text = "No Object\r\nIn Vicinity";
 					MassLabel.Text = "";

@@ -18,6 +18,7 @@ namespace Deuteros.Code.Objects
         public int ResearchValue { get; set; }
         public int ResearchPercentageComplete { get; set; }
         public int ResearchOrder { get; set; }
+        public int ResearchLimit { get; set; }
 
         public ResearchItem()
         { }
@@ -32,6 +33,7 @@ namespace Deuteros.Code.Objects
             ResearchValue = 64;
             ResearchPercentageComplete = 1;
             Locked = true;
+            ResearchLimit = 100;
         }
     }
 }

@@ -13,7 +13,7 @@ namespace Deuteros.Code.Objects
         public Staff StaffStored { get; set; }
         //Used for count of items and amount of ore
         public int ItemCount { get; set; }
-		public Asteroid HeldAsteroid { get; set; }
+		public GrappleItem HeldItem { get; set; }
         //The last day an attached AMA mined resources
         public uint LastMinedDay { get; set; }
 
@@ -23,7 +23,7 @@ namespace Deuteros.Code.Objects
             ModuleType = Enums.Module_Types.None;
             StaffStored = null;
             ItemCount = 0;
-            HeldAsteroid = null;
+            HeldItem = null;
 		}
     }
 }
