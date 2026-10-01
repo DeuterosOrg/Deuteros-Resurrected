@@ -228,7 +228,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_max5p")
 }],
 "loop": true,
-"name": &"animation",
+"name": &"animated",
 "speed": 5.0
 }, {
 "frames": [{
@@ -372,7 +372,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_5rgso")
 }],
 "loop": true,
-"name": &"animation",
+"name": &"animated",
 "speed": 5.0
 }, {
 "frames": [{
@@ -444,7 +444,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_2w4od")
 }],
 "loop": true,
-"name": &"animation",
+"name": &"animated",
 "speed": 5.0
 }, {
 "frames": [{
@@ -516,7 +516,7 @@ animations = [{
 "texture": SubResource("AtlasTexture_5q656")
 }],
 "loop": true,
-"name": &"animation",
+"name": &"animated",
 "speed": 5.0
 }, {
 "frames": [{
@@ -668,20 +668,19 @@ HoverText = "News Bulletins"
 z_index = 1
 position = Vector2(12, 8)
 sprite_frames = SubResource("SpriteFrames_ush4h")
-animation = &"static"
+animation = &"animated"
 
 [node name="Save" parent="Top" instance=ExtResource("5")]
 offset_top = 32.0
 offset_right = 24.0
 offset_bottom = 48.0
 TargetScene = 5
-HoverText = "Disk Access"
 
 [node name="SaveAnimation" type="AnimatedSprite2D" parent="Top/Save"]
 z_index = 1
 position = Vector2(12, 8)
 sprite_frames = SubResource("SpriteFrames_0bq4i")
-animation = &"static"
+animation = &"animated"
 
 [node name="Earth" parent="Top" instance=ExtResource("5")]
 offset_left = 1.0
@@ -695,7 +694,7 @@ HoverText = "Earth City"
 z_index = 1
 position = Vector2(12, 8)
 sprite_frames = SubResource("SpriteFrames_8ed5t")
-animation = &"static"
+animation = &"animated"
 
 [node name="Time" parent="Top" instance=ExtResource("7")]
 offset_left = 0.0
@@ -715,26 +714,29 @@ offset_left = 24.0
 offset_top = 0.0
 offset_right = 48.0
 offset_bottom = 16.0
+script = ExtResource("20_b3go3")
+TargetScene = 13
+SceneVariables = []
 HoverText = "Master Control"
 
 [node name="MasterControlAnimation" type="AnimatedSprite2D" parent="Top/MasterControl"]
 z_index = 1
 position = Vector2(12, 8)
 sprite_frames = SubResource("SpriteFrames_4esgw")
-animation = &"static"
+animation = &"animated"
 
 [node name="Stock" parent="Top" instance=ExtResource("5")]
 offset_top = 16.0
 offset_right = 24.0
 offset_bottom = 32.0
-TargetScene = 6
+TargetScene = 7
 HoverText = "StockTaker"
 
 [node name="StockAnimation" type="AnimatedSprite2D" parent="Top/Stock"]
 z_index = 1
 position = Vector2(11, 7)
 sprite_frames = SubResource("SpriteFrames_npoil")
-animation = &"static"
+animation = &"animated"
 
 [node name="DepositAnalysis" type="Button" parent="Top"]
 offset_left = 24.0
@@ -750,8 +752,7 @@ HoverText = "Deposit Analysis"
 z_index = 1
 position = Vector2(12, 8)
 sprite_frames = SubResource("SpriteFrames_kxv8y")
-animation = &"static"
-frame_progress = 0.216941
+animation = &"animated"
 
 [node name="Boxes" type="Node2D" parent="."]
 position = Vector2(1, 3)

@@ -1,11 +1,12 @@
 using Deuteros.Code.Objects;
+using Deuteros.Code.Platform.Base;
 using Godot;
 using System;
 using System.Collections.Generic;
 
 namespace Deuteros.Code.Platform.Screens
 {
-	public partial class MainMenu : Node2D
+	public partial class MainMenu : BaseSubScene
 	{
 		public Label HoverInfo { get; set; }
 		public Label Location { get; set; }
@@ -13,11 +14,24 @@ namespace Deuteros.Code.Platform.Screens
 		public Label Time { get; set; }
 		public List<Objects.MenuButton> MenuButtons { get; set; }
 
-        public AnimatedSprite2D EarthAnimation { get; set; }
+		public SceneChangeButton EarthButton { get; set; }
+		public SceneChangeButton MasterControlButton { get; set; }
+		public SceneChangeButton NewsButton { get; set; }
+		public SceneChangeButton SaveButton { get; set; }
+		public TimerSwitchButton TimeButton { get; set; }
+		public SceneChangeButton StockButton { get; set; }
+		public SceneChangeButton DepositAnalysisButton { get; set; }
+		
+		public AnimatedSprite2D EarthAnimation { get; set; }
         public AnimatedSprite2D MasterControlAnimation { get; set; }
+		public AnimatedSprite2D NewsAnimation { get; set; }
+		public AnimatedSprite2D SaveAnimation { get; set; }
+		public AnimatedSprite2D TimeAnimation { get; set; }
+		public AnimatedSprite2D StockAnimation { get; set; }
+		public AnimatedSprite2D DepositAnalysisAnimation { get; set; }
 
-        // Called when the node enters the scene tree for the first time.
-        public override void _Ready()
+		// Called when the node enters the scene tree for the first time.
+		public override void _Ready()
 		{
 			MenuButtons = new List<Objects.MenuButton>();
 			HoverInfo = GetNode<Label>("HoverInfo");
@@ -25,10 +39,31 @@ namespace Deuteros.Code.Platform.Screens
 			Star = GetNode<Label>("Boxes/StarName/Star");
 			Time = GetNode<Label>("Time/TimeBox/Time");
 
+			EarthButton = GetNode<SceneChangeButton>("Top/Earth");
+			MasterControlButton = GetNode<SceneChangeButton>("Top/MasterControl");
+			NewsButton = GetNode<SceneChangeButton>("Top/News");
+			SaveButton = GetNode<SceneChangeButton>("Top/Save");
+			TimeButton = GetNode<TimerSwitchButton>("Top/Time");
+			StockButton = GetNode<SceneChangeButton>("Top/Stock");
+			DepositAnalysisButton = GetNode<SceneChangeButton>("Top/DepositAnalysis");
+
 			EarthAnimation = GetNode<AnimatedSprite2D>("Top/Earth/EarthAnimation");
             MasterControlAnimation = GetNode<AnimatedSprite2D>("Top/MasterControl/MasterControlAnimation");
+			NewsAnimation = GetNode<AnimatedSprite2D>("Top/News/NewsAnimation");
+			SaveAnimation = GetNode<AnimatedSprite2D>("Top/Save/SaveAnimation");
+			TimeAnimation = GetNode<AnimatedSprite2D>("Top/Time/TimeAnimation");
+			StockAnimation = GetNode<AnimatedSprite2D>("Top/Stock/StockAnimation");
+			DepositAnalysisAnimation = GetNode<AnimatedSprite2D>("Top/DepositAnalysis/DepositAnalysisAnimation");
 
-            GameCore.SingletonInstance.UnlockAdded += SingletonInstance_UnlockAdded;
+			EarthButton.Pressed += UpdateAnimations;
+			MasterControlButton.Pressed += UpdateAnimations;
+			NewsButton.Pressed += UpdateAnimations;
+			SaveButton.Pressed += UpdateAnimations;
+			TimeButton.Pressed += UpdateAnimations;
+			StockButton.Pressed += UpdateAnimations;
+			DepositAnalysisButton.Pressed += UpdateAnimations;
+
+			GameCore.SingletonInstance.UnlockAdded += SingletonInstance_UnlockAdded;
 
 			UpdateTime(Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay, Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay);
 
@@ -38,6 +73,8 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				Location.Text = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet.ToString().ToUpperInvariant();
 			}
+
+			UpdateAnimations();
 
 			base._Ready();
 		}
@@ -69,22 +106,38 @@ namespace Deuteros.Code.Platform.Screens
 			Time.Text = outputYear;
 		}
 
+		public void UpdateAnimations()
+		{
+			MasterControlAnimation.Play("static");
+			EarthAnimation.Play("static");
+			NewsAnimation.Play("static");
+			SaveAnimation.Play("static");
+			TimeAnimation.Play("static");
+			StockAnimation.Play("static");
+			DepositAnalysisAnimation.Play("static");
+
+			if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Training ||
+				GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Ground ||
+				GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Research ||
+				(GameCore.SingletonInstance.GetCurrentPlanet().PlanetId == Enums.StellarBodies.earth && GameCore.SingletonInstance.SceneVariables.Contains(Enums.SceneVariables.Ground))
+				)
+				EarthAnimation.Play("animated");
+			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Overview)
+				MasterControlAnimation.Play("animated");
+			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.News)
+				NewsAnimation.Play("animated");
+			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.SaveScreen)
+				SaveAnimation.Play("animated");
+			else if (Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
+				TimeAnimation.Play("animated");
+			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Store)
+				StockAnimation.Play("animated");
+			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.ResourceMap)
+				DepositAnalysisAnimation.Play("animated");
+		}
+
 		public void SetupMenus()
 		{
-            if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Training ||
-                GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Ground ||
-                GameCore.SingletonInstance.currentScene == Enums.Scenes.Earth_Research ||
-                (GameCore.SingletonInstance.GetCurrentPlanet().PlanetId == Enums.StellarBodies.earth && GameCore.SingletonInstance.SceneVariables.Contains(Enums.SceneVariables.Ground))
-                )
-                EarthAnimation.Play("animation");
-            else
-                EarthAnimation.Play("static");
-
-            if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Overview)
-                MasterControlAnimation.Play("animation");
-            else
-                MasterControlAnimation.Play("static");
-            
 			var column = "A";
 			var row = 1;
 

@@ -9,7 +9,7 @@ namespace Deuteros.Code.Platform
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
-            this.Connect("button_up", new Callable(this, nameof(TimerSwitch_ButtonUp)));
+            this.Pressed += TimerSwitch_ButtonUp;
 
             base._Ready();
         }
