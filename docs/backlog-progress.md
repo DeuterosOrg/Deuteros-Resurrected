@@ -1,0 +1,67 @@
+# Open-backlog progress
+
+Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), including missing features and research questions. This ledger records local work; it does not change Asana status. Updated 2026-10-02.
+
+## Completion rules
+
+- Report implementation and verification separately. Source presence alone is not completion.
+- A bug needs a reproduced failure, targeted fix, regression evidence and relevant interactive acceptance.
+- A feature needs explicit acceptance behavior and end-to-end verification, including normal progression when applicable.
+- Research/inventory tasks need traceable findings and an explicit account of anything still unknown.
+- Record task-specific blockers and continue independent work. Do not invent original behavior to make a row look finished.
+- Windows verification follows the [agent brief](windows-agent-brief.md). No PR, push or Asana changes are authorized by this ledger.
+
+At this point, eight Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows.
+
+## Task ledger
+
+| Task | Local status | Next acceptance step |
+| --- | --- | --- |
+| [1216065854613348](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613348) — removing AMA sometimes does not work correctly | Fix implemented; regression verified | Complete Windows acceptance; see [existing results](validation-results.md). |
+| [1216065854613325](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613325) — selecting both sides no the ACC to balance stocks doesnt work | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1216065854613323](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613323) — acc source/destination are reversed | Fix implemented; regression verified | Complete Windows acceptance; see [existing results](validation-results.md). |
+| [1216065854613319](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613319) — right click to go to overview screen is not working on some pages eg ship bay, orbital stores | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1214891399253086](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1214891399253086) — Shuttle Bay jiggles when you first enter it. as if to move back to the front of the shuttle. | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
+| [1214891399253092](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1214891399253092) — Production team is a light blue in the Shuttle bay, vs the Dark Blue in the Game (Amiga) | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
+| [1215691951441144](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441144) — missing production animation | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680621](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680621) — missing graphic (menu icon) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680623](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680623) — missing graphic (moon base) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680634](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680634) — missing stats from station page | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680646](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680646) — missing graphic (deposit analysis page) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680642](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680642) — missing AOC graphic | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215716464570921](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570921) — unloading grapple issue | Fix implemented; regression verified | Complete Windows acceptance; see [existing results](validation-results.md). |
+| [1215716464570907](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570907) — dismantling ship does not move pilot to shuttle bay | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
+| [1216065854613317](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613317) — if a ship is landed/docked then activating ACC does not immediately take effect | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691951441138](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441138) — commspod unlock | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691951441136](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441136) — menu buttons need to update dynamically when in the ship interior screen according to ships location | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215683087492485](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215683087492485) — Add MTX module | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676231](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676231) — News system and screen | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676237](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676237) — Modern settings menu | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676239](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676239) — Cheats/Bugs toggles | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676241](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676241) — SCGs | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676245](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676245) — Stores Screen | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691951441128](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441128) — Methanoid Resource Trading | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691951441134](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441134) — Alien messages | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680656](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680656) — pilot needed warning screen | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680686](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680686) — selecting a production item button on production page should select the same button on the stores page to show the supplies for that item | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215716464570897](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570897) — grapple needs to be able to handle 'unknown objects' | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1216073204565506](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216073204565506) — implement engine damage to ships with no DFCC | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215683087492491](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215683087492491) — Create missing sound list | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215683087492495](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215683087492495) — Create missing animation list | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676215](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676215) — DayTick event splitting | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215685674676229](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676229) — Self-destruct mechanism | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215685674676235](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676235) — Saves system and screen | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680640](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680640) — missing time advance animation | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680662](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680662) — hovertext missing for buttons in ship bay | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680670](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680670) — hovertext missing on ship/station overview screen | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
+| [1215716385204514](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716385204514) — ship with DFCC should show number of drones on overview page | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
+| [1215716464570913](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570913) — warlord status for pilots | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215763655607738](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215763655607738) — rename ship capability | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215683087492480](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215683087492480) — Some odd behaviour on the ACC needs investigating | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215685674676219](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676219) — Supply pod has a button that can empty it at any time | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215685674676221](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676221) — AMA - Investigate source code | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215685674676225](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676225) — Order of events - Investigate source code | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215685674676259](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676259) — Investigate colouring system for planet/station backgrounds | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215716464570901](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570901) — ship with dfcc fitted should require more fuel | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215716464570923](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570923) — time should advance .01 of a day every 300 secs (approx) | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215716464570927](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570927) — staff attrition | Researching | Locate original-code or observed-behavior evidence before implementing rules. |

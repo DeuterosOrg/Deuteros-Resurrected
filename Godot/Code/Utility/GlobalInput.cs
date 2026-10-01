@@ -34,7 +34,7 @@ namespace Deuteros.Code.Utility
             {
                 Texture = CursorTexture,
                 MouseFilter = Control.MouseFilterEnum.Ignore,
-                ZIndex = 999999
+                ZIndex = (int)RenderingServer.CanvasItemZMax
             };
             _cursor.StretchMode = TextureRect.StretchModeEnum.Keep;
             AddChild(_cursor);

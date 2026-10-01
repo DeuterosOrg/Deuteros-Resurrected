@@ -330,7 +330,8 @@ namespace Deuteros.Code.Platform.Screens
 							if (currentFactory.CurrentProductionItem().Complete)
 							{
 
-								currentPlanet.AddItems(currentFactory.CurrentProductionItem().Product.ItemType, 1);
+								var outputStore = currentFactory.Ground ? currentPlanet.PlanetResources.Stores : currentPlanet.Station.Resources.Stores;
+								outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
 
 								if (!currentFactory.AOC) currentFactory.Builder.AddAction();
 								currentFactory.ProdCycle = 0;
@@ -367,14 +368,16 @@ namespace Deuteros.Code.Platform.Screens
 								}*/
 								else if (currentFactory.CurrentProductionItem().AOCRepeat)
 								{
-									var nextItem = currentFactory.ProductionQueue.FirstOrDefault(T => T != currentFactory.CurrentProductionItem() && (CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)));
 									var currItem = currentFactory.CurrentProductionItem();
+									currItem.Active = false;
+									var nextItem = currentFactory.ProductionQueue.FirstOrDefault(T => T != currItem && CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground));
+									if (nextItem == null && CheckResourceAvailable(currentPlanet, currItem.Product, currentFactory.Ground))
+										nextItem = currItem;
 									currItem.Production_Complete = 1;
 									currItem.Production_Value = currItem.Product.Research.ResearchValue;
 
 									if (nextItem != null)
 									{
-										currItem.Active = false;
 										RemoveResourceByItem(currentPlanet, nextItem.Product, currentFactory.Ground);
 										nextItem.Active = true;
 									}

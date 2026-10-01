@@ -838,22 +838,25 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						DestinationStarMap.Visible = false;
 
-						var newDestination = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationStarMap.CurrentLocation];
-
-						//Update the ACC
-						//The ACC destination is the location, so set the source instead
-						if (Ship.ACC != null)
+						// Closing a system or galaxy view cancels selection and preserves the course.
+						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.TryGetValue(DestinationStarMap.CurrentLocation, out var newDestination))
 						{
-							if (Ship.ACC.Destination == Ship.PlanetLocation)
-								Ship.ACC.Source = newDestination.PlanetId;
-							else
-								Ship.ACC.Destination = newDestination.PlanetId;
+							// On the return leg, update the ACC source instead of its destination.
+							if (Ship.ACC != null)
+							{
+								if (Ship.ACC.Destination == Ship.PlanetLocation && Ship.ACC.Source != Ship.ACC.Destination)
+									Ship.ACC.Source = newDestination.PlanetId;
+								else
+									Ship.ACC.Destination = newDestination.PlanetId;
+							}
+
+							Ship.DestinationPlanetLocation = newDestination.PlanetId;
+							Ship.DestinationStarLocation = newDestination.ParentStar;
 						}
 
-						Ship.DestinationPlanetLocation = newDestination.PlanetId;
-						Ship.DestinationStarLocation = newDestination.ParentStar;
-
 						StarMap.RemoveChild(DestinationStarMap);
+						DestinationStarMap.QueueFree();
+						DestinationStarMap = null;
 
 					} 
 					//We has the ACC open - No need to do anything, just close it
@@ -1085,13 +1088,8 @@ namespace Deuteros.Code.Platform.Screens
                     ship.ACC?.Update(Ship_States.UnDocked);
 				}
 			}
-			foreach (var ship in GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships)
-			{
-				if (ship.FallingCount == 5 || (ship.ShipType!=Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2))
-					//ship destroyed
-					//TODO need to play sound
-					GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(ship);
-			}
+			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.RemoveAll(ship =>
+				ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2));
 		}
 		#endregion
 	}

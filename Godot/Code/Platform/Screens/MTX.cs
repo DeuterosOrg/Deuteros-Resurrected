@@ -400,9 +400,10 @@ namespace Deuteros.Code.Platform.Screens
 						{
 							if (targetStation.Resources.Stores[currentMTX.CurrentItem] != currentStation.Resources.Stores[currentMTX.CurrentItem])
 							{
-								var targetBalanceAmount = (targetStation.Resources.Stores[currentMTX.CurrentItem] + currentStation.Resources.Stores[currentMTX.CurrentItem] / 2);
-								targetStation.Resources.Stores[currentMTX.CurrentItem] = targetBalanceAmount;
-								currentStation.Resources.Stores[currentMTX.CurrentItem] = targetBalanceAmount;
+								var total = targetStation.Resources.Stores[currentMTX.CurrentItem] + currentStation.Resources.Stores[currentMTX.CurrentItem];
+								// Keep any indivisible remainder at the sending station.
+								targetStation.Resources.Stores[currentMTX.CurrentItem] = total / 2;
+								currentStation.Resources.Stores[currentMTX.CurrentItem] = total - total / 2;
 							}
 						}
 						else if(currentMTX.SendItems.Contains(currentMTX.CurrentItem))

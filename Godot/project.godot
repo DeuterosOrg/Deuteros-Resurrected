@@ -36,6 +36,15 @@ window/main_scene="res://Screens/Master.tscn"
 
 project/assembly_name="Deuteros"
 
+[editor]
+
+; Godot 4.2.1 binary conversion leaks scene instances during fresh exports.
+export/convert_text_resources_to_binary=false
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/validation_import/plugin.cfg")
+
 [filesystem]
 
 import/blender/enabled=false
@@ -43,7 +52,7 @@ import/blender/enabled=false
 [gui]
 
 theme/custom="res://Themes/DefaultTheme.tres"
-theme/custom_font="res://Themes/WhiteFont5.tres"
+theme/custom_font="res://Fonts/deuteros.ttf"
 theme/default_font_antialiasing=0
 
 [logging]

@@ -20,12 +20,13 @@ namespace Deuteros.Code.Objects.GameData
 		public BulletinContainer BulletinTexts { get; set; }
 		public Dictionary<Enums.ItemTypes, int> ResourceLevels_Survey_Multiplier { get; set; }
         public Dictionary<Enums.ItemTypes, int> ResourceRate_Per_Derrick { get; set; }
-        public Color Red { get; set; } = new Color(255, 0, 0, 255);
-        public Color Green { get; set; } = new Color(0, 136, 0, 255);
-        public Color Blue { get; set; } = new Color(0, 34, 136, 255);
-        public Color Beige { get; set; } = new Color(153, 170, 119, 255);
-        public Color Dark_Beige { get; set; } = new Color(85, 102, 51, 255);
-        public Color Yellow { get; set; } = new Color(255, 255, 0, 255);
-        public Color LightBlue { get; set; } = new Color(170, 204, 238, 255);
+        // HTML values preserve the original byte RGB palette; Color's numeric constructor uses 0–1 floats.
+        public Color Red { get; set; } = new Color("#ff0000");
+        public Color Green { get; set; } = new Color("#008800");
+        public Color Blue { get; set; } = new Color("#002288");
+        public Color Beige { get; set; } = new Color("#99aa77");
+        public Color Dark_Beige { get; set; } = new Color("#556633");
+        public Color Yellow { get; set; } = new Color("#ffff00");
+        public Color LightBlue { get; set; } = new Color("#aaccee");
     }
 }

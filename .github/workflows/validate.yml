@@ -1,0 +1,54 @@
+name: Build and regression tests
+
+on:
+  push:
+    branches: [develop]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-22.04, windows-2022]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned Godot .NET
+        run: python scripts/install_godot.py
+      - name: Test validation failure detection
+        run: python -m unittest discover -s scripts -p "test_*.py"
+      - name: Install export templates
+        if: runner.os == 'Windows'
+        run: python scripts/install_godot.py --templates
+      - name: Build, import, regressions, startup and optional Windows export
+        run: python scripts/validate.py ${{ runner.os == 'Windows' && '--export-windows' || '' }}
+      - name: Upload validation evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: validation-${{ matrix.os }}
+          path: artifacts/validation/
+          if-no-files-found: warn
+      - name: Upload Windows build
+        if: runner.os == 'Windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: deuteros-windows
+          path: artifacts/windows/

@@ -53,7 +53,7 @@ public partial class FleetTransfers : BaseSubScene
 		}
 		else if (_player is SCG)
 		{
-			drones = p.Station.Resources.Stores[Enums.ItemTypes.ios_drone];
+			drones = p.Station.Resources.Stores[Enums.ItemTypes.star_drone];
 		}
 
 		OrbitalDronePoolLabel.Text = " Orbital\n  Drone\n  Pool\n  " + drones;

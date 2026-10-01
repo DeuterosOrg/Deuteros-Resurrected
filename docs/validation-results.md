@@ -1,0 +1,58 @@
+# Contribution and validation results
+
+Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
+
+## Reproduced gameplay fixes
+
+Every case below has a regression against actual game code or scene controls. Failures were observed before the corresponding fixes.
+
+| Problem | Result and regression |
+| --- | --- |
+| MTX balancing creates resources | Even, odd, empty and near-capacity transfers preserve combined stock. |
+| Repeating AOC produces without paying again | Each cycle consumes its recipe; production waits when stock is depleted and resumes after replenishment. |
+| Earth production follows the selected screen | Ground and orbital factories deliver to their own stores. |
+| Multiple ship losses abort the day update | Destroyed ships are removed without mutating an active enumeration. |
+| Automatically fitted ACC references the wrong vessel | New and replacement shuttle, IOS and SCG controllers reference their own ship. |
+| Empty menu slots retain old actions | Empty/unavailable entries clear actions and disable; valid entries re-enable. |
+| Course selection crashes from system/galaxy view | Cancel preserves navigation; valid outbound/return routes still work. |
+| SCG transfers display IOS drone stock | Display and transfers use the star-drone inventory. |
+| Attacked SCG icon is missing | Correct asset path loads the existing icon. |
+| Equipment selection duplicates installed AMA | Unavailable replacement leaves equipment and stores unchanged; removal returns one unit. Asana [1216065854613348](https://app.asana.com/0/1214891399253076/1216065854613348). |
+| Second grapple unload requires reopening the bay | Both pods unload consecutively, credit stock once and release input; regression waits for both real timers. Asana [1215716464570921](https://app.asana.com/0/1214891399253076/1215716464570921). |
+| First IOS ACC route reverses origin/destination | First course preserves source; labels and cargo loading agree at both endpoints. Asana [1216065854613323](https://app.asana.com/0/1214891399253076/1216065854613323). |
+
+## Build and review evidence
+
+- Native Apple Silicon toolchain: checksum-verified Godot 4.2.1 .NET, SDK 6.0.428, runtime 6.0.36.
+- A fresh source copy without `.godot/` compiled with **0 errors and 14 existing warnings**. Initial import, strict second import, **26 regression cases** and startup smoke passed. The canonical suite now starts a fresh process per case, preventing prior worlds, day-event subscriptions and queued node deletion from contaminating later cases.
+- The full local validation command passed all 26 isolated cases, startup smoke and Windows release export. The resulting `artifacts/windows/Deuteros.exe` is a roughly 142 MiB x64 Windows binary; test resources are excluded.
+- Five Python tests verify that log-only engine errors, assertion failures and missing completion markers fail validation.
+- Independent source review found no critical or important defect in the gameplay changes, regressions or validation scripts.
+- Windowed macOS check reached title, Earth, training and Escape/settings screens with working mouse navigation and font rendering. This is limited smoke coverage, not a full playthrough.
+- Full [Asana reconciliation](asana-triage.md) covers all **48 open tasks**, source locations, evidence gaps and next acceptance checks.
+
+## Follow-on backlog batch — 2026-10-02
+
+Full local `python3 scripts/validate.py --export-windows` passed **41 isolated regression cases**, startup smoke and Windows release export after this batch. These are local regression results; native Windows and visual acceptance remain outstanding.
+
+| Asana task | Implemented behavior | Regression coverage |
+| --- | --- | --- |
+| 1214891399253086 | Ship bay opens directly at the remembered position instead of bouncing from a saved offset. | Real scene/tween confirms no unwanted cockpit movement. |
+| 1215716464570907 | Dismantling returns pilot, cryo teams, fuel, pod hardware/contents, ACC and drones together. Capacity shortages or held grapple salvage prevent dismantling without losing anything. | Shuttle/IOS/SCG returns, staff capacity, aggregated fuel/store capacity, held salvage; replacement ACC conservation retained. Chassis/engines are not refunded because current installation leaves those stocks unchanged. |
+| 1215691800680670 | Overview hover text shows station location and ship name/location, including transit destination. | Station/ship hover signals, changing locations and stale hover cleanup. |
+| 1215716385204514 | Overview DFCC ships display live drone counts, including zero. | IOS/SCG counts update and hide when DFCC or the ship is removed. |
+| 1214891399253092 | Shared palette byte RGB values are normalized correctly, restoring dark-blue production staff. | Real roster background and cryopod text, unchanged intended marine red, all shared palette entries. |
+
+## Known runtime limitations
+
+The combined diagnostic suite intermittently reports `SwapGCHandleForType: Handle is not initialized`. Fresh-process isolation addresses test-state retention; it does **not** establish that the production resource-lifetime problem is fixed. Strict error detection remains enabled. [Godot issue 112067](https://github.com/godotengine/godot/issues/112067) describes a similar texture-wrapper failure, but its proposed cause is not proven for this project.
+
+A broader navigation smoke (start game → Earth ground → training → Escape/settings → close) reproduces Ogg resource leaks or a `!rc_owner` shutdown hang on macOS. Clearing the audio player's stream did not resolve it. An isolated, checksum-verified Godot 4.3 / SDK 4.3.0 comparison compiled and passed the original 26-case suite, but repeated navigation still reproduced shutdown failures. Therefore no engine upgrade or speculative audio/cache change is included. [Godot issue 89188](https://github.com/godotengine/godot/issues/89188) is related context, not proof of an identical cause.
+
+Fresh-export scene leaks were traced separately to the engine's optional binary scene conversion. Keeping text resources eliminates those export leaks; only the exact documented editor teardown diagnostic is permitted during import/export. All other engine errors fail validation.
+
+Linux/Windows CI has been authored and its YAML parsed locally, but it has not run remotely. Actual Windows gameplay, original-game fidelity, full day-event ordering and save/load are not certified by this suite. Before release, exercise the Windows executable and the affected screens on Windows.
+
+## Follow-up priorities
+
+Continue with deposit/store-cap conservation, bounded overview rendering, save/load design and daily event ordering. Resolve original-game evidence questions before changing economics, travel, combat or timing. The parallel port's decoded research is useful; its documented provisional behavior is not an acceptance specification.

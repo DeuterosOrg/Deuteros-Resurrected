@@ -256,9 +256,6 @@ namespace Deuteros.Code
 
 		public GameCore()
 		{
-			var fontLoadLabel = new Label();
-			DefaultFont = fontLoadLabel.GetThemeFont("");
-			fontLoadLabel.QueueFree();
 			HoverText = "";
 
 			Config = new GameConfig();

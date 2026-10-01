@@ -192,9 +192,11 @@ namespace Deuteros.Code.Platform.Screens
 
             ScreenState = GetScreenState();
 
-			ScrollToScreen();
-
 			UpdateState();
+
+			// Restore the bay position after container layout, without animating from the scene's saved offset.
+			ScrollContainer.ScrollHorizontal = 0;
+			ScrollContainer.SetDeferred(ScrollContainer.PropertyName.ScrollHorizontal, ScreenState * ScreenWidth);
 
 			RefreshButtons();
 
@@ -269,8 +271,66 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void DismantleShip()
 		{
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(Ship);
+			if (!ShipPresent || Ship == null)
+				return;
 
+			// Grapple unloading also handles alien discoveries; keep that existing workflow intact.
+			if (Ship.Modules.Any(module => module.HeldItem != null))
+			{
+				GameCore.ShowError(this, "Unload Grapples\nBefore Dismantling");
+				return;
+			}
+
+			var returningStaff = Ship.Modules.Where(module => module.StaffStored != null)
+				.Select(module => module.StaffStored).ToList();
+			if (Ship.Pilot != null)
+				returningStaff.Add(Ship.Pilot);
+
+			if (returningStaff.Count > ResourceList.Staff.Count(staff => staff == null))
+			{
+				GameCore.ShowError(this, "Not Enough Staff Slots\nTo Dismantle Ship");
+				return;
+			}
+
+			var returningItems = new Dictionary<ItemTypes, int>();
+			void ReturnItem(ItemTypes item, int count)
+			{
+				if (item == ItemTypes.none || count <= 0) return;
+				returningItems.TryGetValue(item, out var current);
+				returningItems[item] = current + count;
+			}
+
+			ReturnItem(Ship.FuelType, Ship.Fuel);
+			if (Ship.ACC != null) ReturnItem(ItemTypes.a__c__c, 1);
+			foreach (var module in Ship.Modules)
+			{
+				ReturnItem(module.ItemStored, module.ItemCount);
+				switch (module.ModuleType)
+				{
+					case Module_Types.Supply: ReturnItem(ItemTypes.supply_pod, 1); break;
+					case Module_Types.Tool: ReturnItem(ItemTypes.tool_pod, 1); break;
+					case Module_Types.Cryo: ReturnItem(ItemTypes.cryo_pod, 1); break;
+				}
+			}
+			if (Ship is InterStellarShip stellar)
+				ReturnItem(Ship.ShipType == Ship_Types.IOS ? ItemTypes.ios_drone : ItemTypes.star_drone, stellar.DroneCount);
+
+			// Chassis and engine installation currently leave their items in stores, so do not duplicate them.
+			// Check the combined returns first (fuel can also be carried in supply pods).
+			if (returningItems.Any(item => item.Value > 50000 - ResourceList.Stores[item.Key]))
+			{
+				GameCore.ShowError(this, "Not Enough Space In Stores\nTo Dismantle Ship");
+				return;
+			}
+
+			foreach (var item in returningItems)
+				ResourceList.Stores[item.Key] += item.Value;
+			foreach (var staff in returningStaff)
+				ResourceList.AddStaff(staff);
+
+			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(Ship);
+			Ship = null;
+			UpdateScreenState(0);
 			UpdateState();
 			RefreshButtons();
 		}
@@ -312,7 +372,7 @@ namespace Deuteros.Code.Platform.Screens
 				if (stores[ItemTypes.a__c__c] > 0)
 				{
 					newShuttle.ACC = new Objects.ACC();
-					newShuttle.ACC.Ship = Ship;
+					newShuttle.ACC.Ship = newShuttle;
 					newShuttle.ACC.Source = CurrentPlanet.PlanetId;
 					newShuttle.ACC.Destination = CurrentPlanet.PlanetId;
 					newShuttle.ACC.Active = false;
@@ -365,7 +425,7 @@ namespace Deuteros.Code.Platform.Screens
 				if (stores[ItemTypes.a__c__c] > 0)
 				{
 					newIOS.ACC = new Objects.ACC();
-					newIOS.ACC.Ship = Ship;
+					newIOS.ACC.Ship = newIOS;
 					newIOS.ACC.Source = CurrentPlanet.PlanetId;
 					newIOS.ACC.Destination = CurrentPlanet.PlanetId;
 					newIOS.ACC.Active = false;
@@ -418,7 +478,7 @@ namespace Deuteros.Code.Platform.Screens
 				if (stores[ItemTypes.a__c__c] > 0)
 				{
 					newSCG.ACC = new Objects.ACC();
-					newSCG.ACC.Ship = Ship;
+					newSCG.ACC.Ship = newSCG;
 					newSCG.ACC.Source = CurrentPlanet.PlanetId;
 					newSCG.ACC.Destination = CurrentPlanet.PlanetId;
 					newSCG.ACC.Active = false;
@@ -905,6 +965,7 @@ namespace Deuteros.Code.Platform.Screens
 				if (currentModule.ItemStored == ItemTypes.grapple && currentModule.HeldItem != null)
 				{
 					GrappleWindowControl.Visible = true;
+					GrappleWindow.Visible = true;
 					if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
 					{
 						var asteroidtype = ((Asteroid)currentModule.HeldItem).Type;
@@ -994,6 +1055,10 @@ namespace Deuteros.Code.Platform.Screens
 			var equipmentList = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.ItemCategory == ItemCategory.item && T.Research.Researched && T.ToolPod).OrderBy(T => T.Research.ResearchOrder).ToArray();
 
 			var itemType = equipmentList[itemIndex].ItemType;
+
+			// Keep the installed equipment when the requested replacement is unavailable.
+			if (Ship.Modules[ScreenState - 1].ItemStored != itemType && ResourceList.Stores[itemType] <= 0)
+				return;
 
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
 			{

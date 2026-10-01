@@ -1,0 +1,126 @@
+# Original behavior evidence
+
+Research snapshot: **2026-10-02**. This follows the eight `original-evidence-needed` reports in [Asana triage](asana-triage.md), plus self-destruct and Warlord. The triage source baseline remains **`9817216`**; this document does not reclassify or close tasks and does not certify the current implementation.
+
+The parallel repository is an evidence archive, not a second independent specification. Its current checkout is `ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9`; local `origin/inv/save` retains the reverse-engineering pack at `6fabd73bbc7fff0eb08825b2dd6043f618e596a4`, and `origin/inv/synthesis` retains the survey at `faf3a30beb07868e06e01ebb306f63b2b42affed`. Links below pin those commits. Inspect archived files locally with `git show <commit>:<path>`; switching branches is unnecessary.
+
+**Confidence:** high means a cited instruction sequence or table supports the narrow rule; medium means recorded player observation or an incomplete semantic mapping; low means inherited implementation, hypothesis, or secondhand walkthrough claim. No emulator session, build, or new runtime test was performed for this document.
+
+## What the evidence unlocks
+
+| Task | Evidence confidence | Implementable result / remaining gate |
+| --- | --- | --- |
+| [1215683087492480 — grapple-only ACC](https://app.asana.com/0/1214891399253076/1215683087492480) | Low | Original grapple-only decision is missing; parallel ACC repeats C# behavior. |
+| [1215685674676219 — empty supply pod](https://app.asana.com/0/1214891399253076/1215685674676219) | Low | Discard versus unload, permitted states, and button behavior need observation. |
+| [1215685674676221 — AMA algorithm](https://app.asana.com/0/1214891399253076/1215685674676221) | Low | Five-day / 16–35 / 1-in-20 constants are C#-derived, not original proof. |
+| [1215685674676225 — event order](https://app.asana.com/0/1214891399253076/1215685674676225) | High for named call sites; incomplete overall | Partial master-tick order recovered; full subsystem mapping remains open. |
+| [1215685674676259 — planet/background colours](https://app.asana.com/0/1214891399253076/1215685674676259) | High for scene palette loading; low for planet mapping | Scene palette loader is decoded; planet-specific palette selection and values are missing. |
+| [1215716464570901 — DFCC fuel](https://app.asana.com/0/1214891399253076/1215716464570901) | Low | No original multiplier or drone-count formula located. |
+| [1215716464570923 — idle clock](https://app.asana.com/0/1214891399253076/1215716464570923) | High for raw clock cadence | Normal mode adds one raw unit per 315.6 seconds at PAL 50 Hz, subject to a consumer handshake; confirm fractional display and pause behavior. |
+| [1215716464570927 — staff attrition](https://app.asana.com/0/1214891399253076/1215716464570927) | High for numeric kernel; medium for cryo semantics | Exact countdown/RNG kernel recovered; map freeze/stage identities and time units before full integration. |
+| [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
+| [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
+
+## 1215716464570927 — staff attrition
+
+**Original routine:** `FUN_2376C`, roster `$197C2`, 170 records of eight bytes. The [instruction listing](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/197C0_record_list.md#L64-L107) supports this kernel:
+
+1. Return unless `$20292` is set; clear it once consumed.
+2. Skip records whose type byte is zero, whose bit 5 is set, or whose low three bits are 0 or 7.
+3. Subtract one from the unsigned 16-bit countdown at record `+4`. A starting value of **1 becomes 0 without an attrition attempt**; a starting value of **0 underflows and attempts attrition**.
+4. On underflow, call `FUN_1F42C`, mask with 1, and subtract that result from the member count at `+2` only if the count is nonzero. Call RNG again and reset the countdown to `RNG & 15`. Zero members never wrap to 255.
+
+The [clock disassembly](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/1378E_clock_resolution.md#L102-L117) sets this gate when **`$202C2`**, increased by the broadcast delta, reaches 10,000; it then subtracts 10,000. `$2027C` is the separate mode-rate accumulator. The older roster document's introductory `$2027C` attribution is incorrect.
+
+**Corrections to the research prose:** the roster document's old “resource shipment” interpretation is superseded by the [current roster identification](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/sim/state.gd#L14-L40). The [attrition note's](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/Deuteros-RE-Pack-2026-05-21/02-REFERENCE/team-attrition.md#L70-L114) estimate of one death per 15 gate firings misses the subtract-before-underflow step. Assuming uniform independent RNG, a rearm of 0–15 takes 1–16 gate firings, averaging 8.5; a 50% loss therefore averages **17 gate firings per lost member**, while the team has members. Implement the instruction sequence, not this statistical approximation.
+
+**Remaining facts:** the bit-5 skip is certain, but its mapping to loading/unloading a cryopod is inferred, not established by write cross-references. The semantic identity of immune stage 7 is unknown; do not equate it to Warlord or apply a blanket immunity to an invented class. Initial countdown assignment and exact integration into remake day units need confirmation. The routine has no minimum of one member and no recovery branch; that does not establish whether other original routines replace an empty team.
+
+**Acceptance tests:** gate clear leaves all fields/RNG unchanged; each skipped record retains its countdown; 1→0 makes no RNG calls; 0 uses both RNG calls even for a zero-size eligible team; loss at count 1 can reach 0; rearm endpoints 0/15; saving/loading preserves countdown and gate remainder. Observe one roster record before/after cryopod loading to establish the missing semantic mapping.
+
+## 1215716464570923 — idle time
+
+**Original routines:** VBL ISR `$202DC`; broadcast loop `$2042C`; displayed-clock update `$2043A`; consumer `$22BB0`. The [resolved clock investigation](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/1378E_clock_resolution.md#L83-L149) gives:
+
+| Mode | Accumulator increase per VBL | Threshold `$2027E` | Raw increment `$20280` | Earliest cadence at PAL 50 Hz |
+| --- | ---: | ---: | ---: | ---: |
+| Normal | 4 | 63,120 (`$F690`) | 1 | 315.6 seconds |
+| Fast | 4 | 60 (`$3C`) | 100 | 0.3 seconds |
+| Faster | 4 | 16 (`$10`) | 100 | 0.08 seconds |
+
+The pending flag `$20291` prevents another accumulation/broadcast until the consumer clears it, so the numbers are cadence with the consumer keeping up, not a guarantee during every modal or screen. `$1378E` and the 25 broadcast cells `$13792..$137F5` receive the same increment; five saved states independently match. This is distinct from `$1378A`, which counts unpaused real seconds and is copied to save metadata `$1C2CC`.
+
+**Remaining facts:** the decoded compact day-label formula is `((t / 10000) % 10) * 100 + (t % 10000) / 100`, using integer division. That demonstrates 100 raw units per integer day-label increment; it does not itself show the fractional text renderer. A raw unit representing 0.01 day is consistent with the task, but confirm the visible fractional field. The explicit `$202C6` pause check shown in the notes gates the real-seconds path; the broadcast path instead checks `$20291`. Do not assume the same pause gate without tracing the consumer/menu behavior. The note's later ratio discussion incorrectly multiplies raw-units/second by 100 again; use the disassembly and mode constants above.
+
+**Acceptance tests:** preserve sub-interval remainder across frames and save/load; no advancement at 315.59 seconds and one raw unit at 315.6 in normal PAL-equivalent operation; 100 raw units roll fractional display into the next day once confirmed; pause/menu/blocked-news behavior matches a recorded original session. A modern clock may avoid the original UI handshake deliberately, but record that as a design choice.
+
+## 1215685674676225 — event order
+
+The master tick occupies `$23CD0..$23E28`. The [resolver analysis](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/EventResolver-Decompile-v2.md#L14-L26) identifies eight entity walkers and approximately six follow-up subsystems. Recovered call sites establish these relative positions:
+
+| Call site | Callee | Supported interpretation |
+| --- | --- | --- |
+| `$23CDE` | `FUN_231E0` → `FUN_23234` | Per-entity mineral tick; [mineral decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/Deuteros-RE-Pack-2026-05-21/02-REFERENCE/minerals.md#L5-L7). Older combat labels for `23234` are superseded. |
+| `$23D02` | `FUN_3684A` | Call exists; do not assign a gameplay subsystem from the [combat-search hypothesis](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/combat_hunt_v4.md#L45-L55). |
+| `$23D08` | `FUN_38A56` | Methanoid scheduling, explicitly before lane action processing; [scheduler decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/1C282_methanoid_slots.md#L201-L221). |
+| `$23D0E` | `FUN_38CBC` | Methanoid per-slot action processing; [AI decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/Deuteros-RE-Pack-2026-05-21/02-REFERENCE/methanoid-ai.md#L290-L294). |
+
+`FUN_2376C` is documented as a late attrition call. `FUN_235E2` walks two banks through resolver `FUN_232E0`; its complete position relative to all named gameplay systems is not established here. Do not publish a complete original order from this partial sequence. The parallel order Training→Production→Ships→Research→Mining is expressly [invented](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/DIVERGENCES.md#L25).
+
+**Next verification:** trace every call/conditional branch within `$23CD0..$23E28`, map research, production, arrivals/refuelling and training to handlers, and record one tick where all complete together. Compare event ordering and resulting inventories; the active screen must not decide simulation order in the remake. A deterministic modern order can be implemented now, but must remain labeled a choice until mapped.
+
+## 1215685674676259 — planet and station background colours
+
+The [palette investigation](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/planet_sprite_colouring.md#L70-L129) decodes a **scene** palette loader at overlay `$25070..$250F8`: relocate the scene's palette pointer at `$250A4`, store it at `$21266`, then call `graphics.library` `LoadRGB4` for 16 colours on both viewports. This establishes palette-based scene rendering. It does **not** establish the asserted five-entry planet lookup: the investigator explicitly could not find the link from planet colour data to `$21266`. Claims later in that note that each planet colour “almost certainly” chooses a full palette remain hypotheses.
+
+**Missing facts:** the actual planet/station palette words, mapping to bodies/colour IDs, which palette indices change, and treatment of moons/occupied stations. Neither the scene loader nor the generic half-brightness routine proves a planet-specific RGB tint or bitmask. The dim routine `$406A2` computes `(word & 0x0EEE) >> 1`; its role is menu/overlay dimming.
+
+**Next verification:** watch writes to `$21266` and palette memory while switching a fixed scene among contrasting planets, then repeat with station present/absent and a moon/parent. Save the 16 raw RGB4 words and matching screenshot for each. The notes propose Disk 2 offsets `$29400` and `$2BC00..$37400` as extraction leads; those locations are hypotheses, not recovered planet tables.
+
+**Related task 1214891399253092 (production-team blue):** the [decoded UI palette](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/planet_sprite_colouring.md#L195-L230) at `$1ED24` contains index 8 `$0028` = `#002288` and index 9 `$00CF` = `#00CCFF`. These are precise candidate colours. The dump alone does not prove which index the production-team sprite uses; compare its pixels/palette index before changing all shared blue UI elements.
+
+## 1215685674676229 — self-destruct mechanism
+
+The newest relevant [M2 Addendum 7, 2026-08-26](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/docs/m2-findings.md#L219-L244) records player testimony accompanying a Proxima snapshot: capturing an SDM-rigged Methanoid station destroyed **both the station and capturing fleet**. This provides an acceptance scenario for that observed outcome. It supersedes the parallel port's [older invented rule](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/DIVERGENCES.md#L48) that only enemy capture of a player station detonates and player recapture never triggers it.
+
+**Missing facts:** whether detonation is unconditional, first-contact-only or affected by prior exposure/defusing; when player-installed SDMs arm; whether the carrier/pilot/cargo are included in “fleet”; and behavior of friendly recapture. The note's simultaneous FIFO type 8 / primary 0 is only a hypothesis for an SDM notice. Do not give event type 8 universal detonation semantics or implement symmetry solely from this one observation.
+
+**Next verification:** retain a save before the first rigged enemy-station capture, record every ship/drone/pilot and station state before/after, repeat after SDM research/exposure, then test an enemy taking a player-rigged station. Recover the state bit and detonation writer while stepping capture resolution. Add deterministic regressions for each demonstrated case.
+
+## 1215716464570913 — Warlord rank
+
+The [specification survey](https://github.com/WizzoUK2/deuteros-parallel/blob/faf3a30beb07868e06e01ebb306f63b2b42affed/outputs/Deuteros-Spec-Survey.md#L96-L123) attributes Warlord to walkthroughs, with the claim that Admirals gain it by flying to Proxima and back; its cited manual rank list stops at Admiral. This is a research lead, not an original routine or measured threshold.
+
+The decoded ordinary rank helper `FUN_22E26` stops at low-bit stage 3. Table `$22DEE` has type-0 durations `10,30,0,0`; [instruction/table evidence](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/197C0_record_list.md#L130-L158). This supports ordinary progression only. It neither disproves a separate Warlord path nor proves immune stage 7 means Warlord.
+
+**Missing facts:** rank encoding, exact promotion trigger and threshold, whether a specific destination/return/battle is required, benefits, and persistence/display. **Next verification:** track one Admiral roster record through an uncontested SCG trip to Proxima and return, stopping at arrival/departure; compare with an Admiral gaining equivalent in-system actions. If promotion occurs, watch the writer changing its type/stage or status. Separately test combat participation. Do not add an arbitrary battle-win count based on the title.
+
+## 1215685674676221 — AMA algorithm
+
+The parallel [asteroid implementation](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/sim/asteroids.gd#L3-L19) names this remake's C# as its source. Its [five-day period, class-six minimum and 16–35 yield](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/sim/asteroids.gd#L52-L58), and first-day 1-in-20 roll, are therefore not independent original-game evidence. The decoded planetary mineral table `$1C398` concerns ground extraction; it does not establish asteroid mining constants.
+
+**Missing facts:** eligible asteroid sizes, yield distribution, cycle timing, first-day behavior, effect of pilot rank, depletion, filling multiple/mixed pods, overflow disposal, and automatic departure. **Next verification:** save before attachment to a known asteroid; log original raw clock, asteroid identity/mass and each pod after every broadcast through at least two yields. Repeat with different pilot ranks and cargo states (empty; nearly full; wrong mineral; two pods). For probability/range claims, decode the RNG caller and mask/range operation; a handful of observations cannot prove a distribution.
+
+## 1215683087492480 — grapple-only ACC
+
+The parallel [ACC asteroid branch](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/sim/acc.gd#L290-L310) explicitly ports C# `ACC.cs:154–172` and requires an AMA. No original ACC handler or grapple-only emulator observation was located. This cannot validate the report that activation unexpectedly disengages.
+
+**Missing fact:** whether the original ACC captures a selected small rock with a grapple, waits for a qualifying scan, continues a route, or intentionally deactivates; and how resource filters/full grapples affect it. **Next verification:** in the original, fit a grapple without AMA, use a qualified pilot and empty grapple, scan a capturable rock matching the selected resource, and activate ACC; record immediate action plus the next two broadcasts. Repeat no scan, wrong resource, oversized rock, held rock and a control ship with AMA. This distinguishes a missing action from an equipment prerequisite.
+
+## 1215685674676219 — empty supply pod button
+
+No decoded original supply-pod button handler or recorded jettison experiment was found in the inspected notes/data. Parallel cargo servicing and grapple dumping concern different actions. The task description establishes the requested affordance, but does not resolve resource accounting or all allowed states.
+
+**Missing facts:** discard versus transfer to local stores; whether empties one selected pod or all pods; whether travelling/mining/docking/ACC disable it; confirmation/animation and how a now-empty pod is typed. **Next verification:** record original selected pod and local/remote stores before/after clicking at a station, in ordinary orbit, in transit and attached to an asteroid. Repeat with ACC active and two unlike cargo pods. Add tests for exactly one affected pod, no phantom stock credit, empty-item state and preserved neighboring pods once those outcomes are known.
+
+## 1215716464570901 — DFCC fuel
+
+The inspected decoded tables and findings establish DFCC as an item but do not supply a fuel rule. No original drain routine, divisor, per-drone term, or state-specific cost was found. A constant multiplier inferred from the title would be invented. Parallel travel/ACC behavior is C#-derived and its tests are not original validation.
+
+**Missing facts:** whether merely installing DFCC increases burn; dependence on carried drone count/type; IOS versus SCG; transit versus idle orbit/asteroid work; partial last fuel unit and blocked docking. **Next verification:** from one original save, compare identical route/raw-clock intervals with DFCC absent, fitted with zero drones, one drone and a full fleet; repeat IOS/SCG. Record actual fuel deltas and action boundaries, then watch the fuel-field writer. Keep blocked-docking behavior separately checked, rather than multiplying a burn that should not occur.
+
+## Evidence limits and next artifacts
+
+The inspected repository-local `SourceData/Deuteros.html` provides mineral/body and recipe reference material, and `SourceMaterials/Notes.txt` has selected tables/implementation notes; neither supplied the missing mechanics above. Both `SourceMaterials/GameManuals/*.pdf` files in this checkout are Git LFS pointers rather than PDF contents. A read-only attempt to obtain `Manual.pdf` at the baseline revision returned HTTP 404, so no manual-page claim here depends on reading those absent PDFs. The survey's manual/walkthrough summaries remain secondary evidence.
+
+Highest-value next artifacts are: a cryopod roster before/after dump; a normal-mode fractional-clock/pause recording; the full master-tick call trace; five representative scene palettes; controlled DFCC fuel deltas; and an SDM capture save with exact casualty accounting. Store original-game observations with save identity, emulator/video mode, raw addresses, before/after values and reproduction steps. These can turn the remaining research gates into acceptance tests without importing the parallel remake's assumptions.

@@ -307,7 +307,8 @@ namespace Deuteros.Code.Platform.Screens
 
                 Planet = SpriteManager.LoadImageToTextureRect(StarMapSpriteBasePath + "//Planet_" + currentPlanet.PlanetImageName() + ".png", Planet);
 
-                PlanetGoBack.Pressed -= PlanetGoBackAction;
+                if (PlanetGoBackAction != null)
+                    PlanetGoBack.Pressed -= PlanetGoBackAction;
                 PlanetGoBackAction = () => PlanetGoBack_Pressed(currentPlanet.ParentStar);
                 PlanetGoBack.Pressed += PlanetGoBackAction;
 

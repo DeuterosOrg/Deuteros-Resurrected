@@ -153,6 +153,8 @@ namespace Deuteros.Code.Platform.Screens
 					currentButton.HoverText = "";
 					currentButton.SceneVariables = new Godot.Collections.Array<Enums.SceneVariables>();
 					currentButton.TargetScene = Enums.Scenes.None;
+					currentButton.ClickActions = null;
+					currentButton.Disabled = true;
 				}
 				else
 				{
@@ -161,6 +163,7 @@ namespace Deuteros.Code.Platform.Screens
 					currentButton.SceneVariables = menuButton.SceneVariables;
 					currentButton.TargetScene = menuButton.SceneToLoad;
 					currentButton.ClickActions = menuButton.ClickActions;
+					currentButton.Disabled = false;
 				}
 
 				row++;

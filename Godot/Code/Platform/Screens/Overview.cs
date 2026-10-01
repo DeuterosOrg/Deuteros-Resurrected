@@ -25,6 +25,8 @@ public partial class Overview : BaseSubScene
 	List<TextureButton> StationButtons = new List<TextureButton>();
 	List<TextureButton> IOSButtons = new List<TextureButton>();
 	List<TextureButton> SCGButtons = new List<TextureButton>();
+	Dictionary<TextureButton, string> HoverTexts = new Dictionary<TextureButton, string>();
+	TextureButton HoveredButton;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -46,9 +48,46 @@ public partial class Overview : BaseSubScene
 			}
 		}
 
+		foreach (var button in StationButtons.Concat(IOSButtons).Concat(SCGButtons))
+		{
+			button.MouseEntered += () =>
+			{
+				HoveredButton = button;
+				GameCore.HoverText = HoverTexts.GetValueOrDefault(button, "");
+			};
+			button.MouseExited += () =>
+			{
+				if (HoveredButton == button)
+				{
+					HoveredButton = null;
+					GameCore.HoverText = "";
+				}
+			};
+		}
+		foreach (var button in IOSButtons.Concat(SCGButtons))
+		{
+			button.AddChild(new Godot.Label
+			{
+				Name = "DroneCount",
+				OffsetLeft = 8,
+				OffsetTop = 3,
+				OffsetRight = 30,
+				OffsetBottom = 14,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				MouseFilter = Control.MouseFilterEnum.Ignore
+			});
+		}
+
 		UpdateState();
 
 		base._Ready();
+	}
+
+	public override void _ExitTree()
+	{
+		if (HoveredButton != null)
+			GameCore.HoverText = "";
+		base._ExitTree();
 	}
 
 	private void Overview_Pressed()
@@ -113,6 +152,7 @@ public partial class Overview : BaseSubScene
 		StationButtons.ForEach(T => T.Visible = false);
 		IOSButtons.ForEach(T => T.Visible = false);
 		SCGButtons.ForEach(T => T.Visible = false);
+		HoverTexts.Clear();
 
 		var stationCount = 0;
 		var iosCount = 0;
@@ -127,6 +167,7 @@ public partial class Overview : BaseSubScene
 
 				curStationButton.Visible = true;
 				curStationButton.SetMeta("planetid",Variant.From<int>((Int32)station.PlanetId));
+				HoverTexts[curStationButton] = station.PlanetId.ToScreenString(" ");
 
 				if (!station.Built)
 					curStationButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Station_UnderConstruction.png");
@@ -145,6 +186,7 @@ public partial class Overview : BaseSubScene
 
 			curIOSButton.Visible = true;
 			curIOSButton.SetMeta("shipid", ios.ShipID.ToString());
+			UpdateShipDetails(curIOSButton, ios);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[ios.PlanetLocation].ActiveMethanoid ||
                 GameCore.SingletonInstance.GameData.PlanetUnderAttack(ios.PlanetLocation)))
@@ -177,10 +219,11 @@ public partial class Overview : BaseSubScene
 
 			curSCGButton.Visible = true;
 			curSCGButton.SetMeta("shipid", scg.ShipID.ToString());
+			UpdateShipDetails(curSCGButton, scg);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[scg.PlanetLocation].ActiveMethanoid ||
                 GameCore.SingletonInstance.GameData.PlanetUnderAttack(scg.PlanetLocation)))
-				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderSttack.png");
+				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderAttack.png");
 			else if (scg.ShipState == Ship_States.Docking)
 				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_Docking.png");
 			else if (scg.ShipState == Ship_States.Launching)
@@ -202,5 +245,23 @@ public partial class Overview : BaseSubScene
 
 			scgCount++;
 		}
+
+		if (HoveredButton != null)
+		{
+			GameCore.HoverText = HoverTexts.GetValueOrDefault(HoveredButton, "");
+			if (!HoveredButton.Visible)
+				HoveredButton = null;
+		}
+	}
+
+	private void UpdateShipDetails(TextureButton button, InterStellarShip ship)
+	{
+		var location = ship.PlanetLocation.ToScreenString(" ");
+		if (ship.ShipState == Ship_States.InTransit)
+			location += " to " + ship.DestinationPlanetLocation.ToScreenString(" ");
+		HoverTexts[button] = ship.Name + ": " + location;
+		var count = button.GetNode<Godot.Label>("DroneCount");
+		count.Text = ship.DroneCount.ToString();
+		count.Visible = ship.DFCC;
 	}
 }
