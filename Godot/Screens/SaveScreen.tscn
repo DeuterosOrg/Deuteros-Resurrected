@@ -1,17 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://bly47yo5xdow4"]
+[gd_scene load_steps=2 format=3 uid="uid://bly47yo5xdow4"]
 
-[ext_resource type="Script" path="res://Code/Platform/Screens/NoScript.cs" id="1_7lp4p"]
-[ext_resource type="Texture2D" uid="uid://da0fk2yjenn8p" path="res://Sprites/Scenes/SaveScreen.png" id="2"]
+[ext_resource type="Script" path="res://Code/Platform/Screens/SaveScreen.cs" id="1_7lp4p"]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_7lp4p")
-
-[node name="SaveScreen" type="TextureRect" parent="."]
-offset_left = 70.0
-offset_top = -2.0
-offset_right = 320.0
-offset_bottom = 198.0
-mouse_filter = 2
-texture = ExtResource("2")
-expand_mode = 1
-stretch_mode = 5

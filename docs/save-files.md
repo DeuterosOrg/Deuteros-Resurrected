@@ -1,0 +1,19 @@
+# Save files
+
+Open the disk icon in the left menu. Five slots are available. Saving to an occupied slot asks before replacing it; loading asks before replacing the current game. Loading returns to Master Control with time advancement stopped. In an early game with no stations, use the Earth icon to return to the ground screen.
+
+Files are stored in Godot's `user://saves` directory as `slot-1.json` through `slot-5.json`. The previous contents of an overwritten slot are retained as `slot-N.json.bak`. Save files and backups belong to the player, not the source repository. To recover a backup, close the game, preserve the current file, and copy the `.bak` file to its matching `.json` filename.
+
+## Format and load boundary
+
+Version 1 stores the current world's planets, stocks, crews and experience, training, production/research progress, ships, cargo, ACC settings, news, unlocks, war state and enemy scheduling position. Shared item/research references and ACC-to-ship references are preserved. Text/palette definitions come from the game version; transient input locks and running fast-forward timers are not restored.
+
+The loader accepts only the known model subtypes. It rejects unknown versions/types, missing fields, invalid references and selected invalid states before replacing the active world. This format is specific to this remake; it does not import original Amiga save files. Changes to persisted fields require a version/migration decision and regression coverage.
+
+A save is serialized and validated before disk replacement. Its temporary file is flushed, then moved into an empty slot or replaces an existing slot with a backup. A failed write leaves the previous slot intact. Native Windows replacement/backup behavior remains part of the Windows acceptance pass.
+
+## Verification
+
+The engine regressions cover private staff/news state, all ship subtypes, active research/production references, training, cargo, ACC ownership/cursors, corruption rejection, overwrite backups and failure preservation. Actual screen callbacks exercise save, overwrite/cancel, load/cancel, corrupt-file feedback advancing the restored game, and a mid-flight ship arriving on schedule. Mac pointer checks cover visible controls and loading; Windows gameplay and long progression still require acceptance.
+
+Day updates now run the simulation event before the display event. The simulation resolves planets from the active save each tick; loading does not leave old worlds subscribed. Existing UI-driven actions, such as choosing a manual production recipe, remain screen behavior. The fixed simulation order preserves this repository's previous order, rather than claiming a complete reconstruction of the original game's timing.

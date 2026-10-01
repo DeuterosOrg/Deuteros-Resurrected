@@ -108,6 +108,12 @@ namespace Deuteros.Tests
             RunShipBayBacklogRegressions();
             RunOverviewBacklogRegressions();
             RunPaletteRegressions();
+            RunDayTickRegressions();
+            RunSaveRegressions();
+            RunProductionSelectionRegressions();
+            await RunNavigationRegressions();
+            await RunSaveUiRegressions();
+            RunAccFuelRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

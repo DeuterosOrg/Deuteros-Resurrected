@@ -89,6 +89,9 @@ namespace Deuteros.Code.Platform.Screens
 				SelectedButton.Selected = false;
 
 			SelectedButton = clickedButton;
+			var recipeStore = Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
+			recipeStore.SelectedRecipe = clickedButton.ObjectData.ItemType;
+			recipeStore.AlternativeView = false;
 
 			if (!CurrentFactory.AOC)
 				SelectedButton.Selected = true;

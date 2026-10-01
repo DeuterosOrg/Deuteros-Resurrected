@@ -79,11 +79,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			if (!clickedButton.ObjectData.Locked)
 			{
-				if (SelectedButton != null)
-					SelectedButton.Selected = false;
-
-				SelectedButton = clickedButton;
-				SelectedButton.Selected = true;
+				CurrentStore.SelectedRecipe = clickedButton.ObjectData.ItemType;
 
 				RefreshButtons();
 				DrawData();
@@ -98,29 +94,16 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				MTX.Visible = CurrentStore.AlternativeView;
 				TradStore.Visible = !CurrentStore.AlternativeView;
+				if (CurrentStore.AlternativeView)
+					MTX.UpdateState();
 			}
-			else
-			{
-				RefreshButtons();
-				DrawData();
-			}
+			RefreshButtons();
+			DrawData();
 		}
 
 		protected override void ResearchFinished(Objects.ResearchItem researchItem)
 		{
-			Item selectedItem = null;
-
-			if (SelectedButton != null)
-				selectedItem = SelectedButton.ObjectData;
-
 			RefreshButtons();
-
-			if (selectedItem != null)
-			{
-				SelectedButton = Buttons.Single(T => T.ObjectData != null && T.ObjectData.ItemType == selectedItem.ItemType);
-				SelectedButton.Selected = true;
-			}
-
 			DrawData();
 		}
 
@@ -132,6 +115,9 @@ namespace Deuteros.Code.Platform.Screens
 				nameof(StoreButton_Clicked),
 				"/Code/Platform/StoreButton.cs",
 				"StoreButton");
+			SelectedButton = Buttons.FirstOrDefault(button => button.ObjectData?.ItemType == CurrentStore.SelectedRecipe);
+			if (SelectedButton != null)
+				SelectedButton.Selected = true;
 		}
 
 		// Called every update.
@@ -156,6 +142,7 @@ namespace Deuteros.Code.Platform.Screens
 			int padlength = 1;
 
 			ResourceListLabel.Text = "";
+			BuildAmountLabel.Text = "";
 
 			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => !T.Locked && (T.ItemCategory == Enums.ItemCategory.item) == CurrentStore.AlternativeView))
 			{
@@ -194,15 +181,9 @@ namespace Deuteros.Code.Platform.Screens
 			if (SelectedButton != null)
 			{
 				var recipeText = "Enough supplies for {0} {1}s";
-				var maxCount = 200;
 				var recipeItem = SelectedButton.ObjectData as Item;
-
-				foreach (var material in recipeItem.BuildRequirements)
-				{
-					var maxProd = CurrentStore[material.ItemType] / material.ItemCount;
-					if (maxProd < maxCount)
-						maxCount = maxProd;
-				}
+				var maxCount = recipeItem.BuildRequirements
+					.Select(material => CurrentStore[material.ItemType] / material.ItemCount).DefaultIfEmpty(0).Min();
 
 				BuildAmountLabel.Text = string.Format(recipeText, maxCount, recipeItem.FullName);
 			}

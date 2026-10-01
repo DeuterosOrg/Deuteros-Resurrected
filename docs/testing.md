@@ -49,3 +49,5 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 The canonical startup smoke covers the entry scene only. Active background-audio shutdown currently has a separately reproduced macOS failure; see [validation results](validation-results.md). Passing the suite does not certify all scene lifetimes.
 
 Before release, run the exported Windows build on Windows, exercise new-game progression and affected screens, and record findings. A macOS cross-export cannot certify Windows rendering or input.
+
+The expanded suite also checks active-world day updates, versioned save round trips and screen actions, production/store selection, bay hover, right-click modal precedence and HeD ACC cycling. Pointer hover tests use a SubViewport because native headless mouse-over tracks the OS pointer independently of injected events. The production recipe fixture excludes background audio; audio/navigation shutdown remains a separate manual acceptance scenario, not a suppressed test error.

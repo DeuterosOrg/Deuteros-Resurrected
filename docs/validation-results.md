@@ -43,6 +43,24 @@ Full local `python3 scripts/validate.py --export-windows` passed **41 isolated r
 | 1215716385204514 | Overview DFCC ships display live drone counts, including zero. | IOS/SCG counts update and hide when DFCC or the ship is removed. |
 | 1214891399253092 | Shared palette byte RGB values are normalized correctly, restoring dark-blue production staff. | Real roster background and cryopod text, unchanged intended marine red, all shared palette entries. |
 
+## Save, navigation and simulation batch — 2026-10-02
+
+The full local command passed **75 isolated engine regressions**, startup smoke and Windows release export. Compilation reported 14 existing warnings and zero errors; all five Python validator tests passed. Raw logs are under `artifacts/validation/`; selected RED logs and the native save-screen smoke are retained in its ignored `evidence/backlog-batch-2/` directory.
+
+| Asana task | Implemented behavior | Regression coverage |
+| --- | --- | --- |
+| 1216065854613319 | Right-click reaches Overview over bay/store controls, after descendant modal handlers. | Actual viewport input over controls; station eligibility; pause/overlay/cursor/UI locks; first click dismisses modal; real grapple timer cannot be interrupted. |
+| 1215691800680662 | Ship bay hover labels cover navigation, fuel, crew, ACC, interior access and contextual pod actions. | All hulls/mounts, crew and pod states, stale-text cleanup; actual GUI hit testing in a SubViewport for texture, repeating and roster controls. |
+| 1215691800680686 | Production selection persists in the matching ground/orbital inventory and is restored in stores with current recipe capacity. | Actual product/menu controls, both inventories, AOC, equipment/MTX round trips, capacity above 200 and depleted ingredients. |
+| 1215685674676215 | Separate simulation/display events preserve the existing fixed simulation order. Planet updates resolve the active world; constructors no longer subscribe stale worlds. | Replacement world leaves old stocks unchanged, training runs once, and display observers see finished mining. This establishes ordering without an additional priority-event framework. |
+| 1215685674676235 | Five versioned save slots with load/overwrite confirmation, backups and validation before activation. | Private experience/news, all ship types, ACC/item/research references, training/progress, corruption, backup/write failure, actual screen callbacks, restored-world advancement and a mid-flight ship reaching its destination. See [save files](save-files.md). |
+
+Additional review fixes include the persisted enemy scheduling cursor, freeing closed ACC views and the detached MTX row template, removing invalid direct Tween construction, and including HeD fuel in both ACC cargo cycles. The old HeD cycle hung with empty stock; six regressions now cover both endpoints, termination, loading, conservation and save round trips. The HeD defect is an additional review finding. Task 1215683087492480 specifically concerns grapple-only ACC behavior at asteroids and remains a separate research item.
+
+The recipe fixture removes its Production audio child before entering the scene, isolating recipe behavior from the separately documented audio shutdown failure. Runtime errors remain fatal to validation. One save fixture initially left fast-forward enabled on a synthetic partially equipped world; its teardown failed after assertions. The fixture now stops the clock after checking that serialization did not mutate it, and the full suite was rerun successfully.
+
+Native macOS pointer checks reached the new save screen, saved an empty slot, cancelled a load, then confirmed a load into Master Control. The font and footer layout were corrected after visual inspection. Closing the native window ended the process without logged engine/resource errors, but Godot returned exit code 1; this is not a claim of a clean automated shutdown or Windows acceptance.
+
 ## Known runtime limitations
 
 The combined diagnostic suite intermittently reports `SwapGCHandleForType: Handle is not initialized`. Fresh-process isolation addresses test-state retention; it does **not** establish that the production resource-lifetime problem is fixed. Strict error detection remains enabled. [Godot issue 112067](https://github.com/godotengine/godot/issues/112067) describes a similar texture-wrapper failure, but its proposed cause is not proven for this project.
@@ -51,8 +69,8 @@ A broader navigation smoke (start game → Earth ground → training → Escape/
 
 Fresh-export scene leaks were traced separately to the engine's optional binary scene conversion. Keeping text resources eliminates those export leaks; only the exact documented editor teardown diagnostic is permitted during import/export. All other engine errors fail validation.
 
-Linux/Windows CI has been authored and its YAML parsed locally, but it has not run remotely. Actual Windows gameplay, original-game fidelity, full day-event ordering and save/load are not certified by this suite. Before release, exercise the Windows executable and the affected screens on Windows.
+Linux/Windows CI has been authored and its YAML parsed locally, but it has not run remotely. Actual Windows gameplay, original-game fidelity, the full original day-event order and long save/load progression are not certified by this suite. Before release, exercise the Windows executable and the affected screens on Windows.
 
 ## Follow-up priorities
 
-Continue with deposit/store-cap conservation, bounded overview rendering, save/load design and daily event ordering. Resolve original-game evidence questions before changing economics, travel, combat or timing. The parallel port's decoded research is useful; its documented provisional behavior is not an acceptance specification.
+Continue through the remaining backlog, including ACC balancing/activation, settings/news, missing art/features and Windows acceptance. Deposit/store-cap conservation and bounded overview rendering remain separate review findings. Resolve original-game evidence questions before changing economics, travel, combat or timing. The parallel port's decoded research is useful; its documented provisional behavior is not an acceptance specification.

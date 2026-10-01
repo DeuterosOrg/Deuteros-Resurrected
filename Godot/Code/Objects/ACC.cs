@@ -112,7 +112,7 @@ namespace Deuteros.Code.Objects
 
 								CurrentDestination++;
 
-								if (CurrentDestination > ItemTypes.meh_fuel)
+								if (CurrentDestination > ItemTypes.hed_fuel)
 									CurrentDestination = ItemTypes.iron;
 
 							} while (CurrentDestination != currentItemType && module.ItemCount == 0);
@@ -132,7 +132,7 @@ namespace Deuteros.Code.Objects
 
 								CurrentSource++;
 
-								if (CurrentSource > ItemTypes.meh_fuel)
+								if (CurrentSource > ItemTypes.hed_fuel)
 									CurrentSource = ItemTypes.iron;
 
 							} while (CurrentSource != currentItemType && module.ItemCount == 0);

@@ -1,4 +1,4 @@
-﻿using Deuteros.Code.Objects;
+using Deuteros.Code.Objects;
 using Deuteros.Code.Objects.GameData;
 using Deuteros.Code.Objects.Interfaces;
 using Deuteros.Code.Platform.Screens.ModuleScenes;
@@ -18,7 +18,7 @@ namespace Deuteros.Code.Platform
 
         //build frequencies based on star system (in reverse for some reason)
         static uint[] BuildFrequencies = { 0x2bc, 0x3e8, 0x3b6, 0x384, 0x384, 0x320, 0x2bc, 0x2bc, 0x320 };
-        static int CurrentStar = 0;
+
 
         private static void ProcessEnemyFleets()
         {
@@ -33,10 +33,10 @@ namespace Deuteros.Code.Platform
 
             }
 
-            CurrentStar++;
-            if (CurrentStar == 9) CurrentStar = 0;
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            save.EnemyStarCursor = (save.EnemyStarCursor + 1) % save.BaseGameData.Stars.Count;
 
-            Star star2 = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Values.ToList()[CurrentStar];
+            Star star2 = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Values.ToList()[save.EnemyStarCursor];
             EnemyFleet enemyFleet2 = (EnemyFleet)GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.ShipType != Enums.Ship_Types.Shuttle && ((InterStellarShip)s).MethanoidOwned && ((InterStellarShip)s).StarLocation == star2.StarId);
 
             if (enemyFleet2 != null)

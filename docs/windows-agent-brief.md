@@ -20,7 +20,7 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The latest full local run on **2026-10-02 passed 41 cases**, startup smoke and Windows export. Eight Asana-linked fixes now have local regression evidence; Windows/visual acceptance remains pending.
+The latest full local run on **2026-10-02 passed 75 cases**, startup smoke and Windows export. Thirteen Asana-linked fixes now have local regression evidence; Windows/visual acceptance remains pending.
 
 The initial batch addressed twelve gameplay/UI defects, including AMA equipment duplication, reversed initial IOS ACC endpoints and consecutive grapple unloading. The latter three correspond to open Asana reports. Use the linked results for the full list; do not report all 48 as fixed.
 
@@ -66,7 +66,15 @@ Run both the source game and the Windows export:
 5. Repeat **start → Earth ground → training → Escape/settings → close** at least three times with sound enabled. Confirm the process exits and inspect the game log, not just the disappearing window. Record hangs, exceptions and retained-resource messages.
 6. Development shortcuts can establish a targeted fixture, but do not use them as evidence that normal research/unlock progression works. Record exactly which shortcuts were used.
 
-The startup smoke only exercises the entry scene. It does not cover the above audio/navigation shutdown path. Save/load is currently an open feature, not an already-working acceptance baseline.
+The startup smoke only exercises the entry scene. It does not cover the above audio/navigation shutdown path. Save/load now has local regression coverage; verify it natively using the steps below and [save-file notes](save-files.md).
+
+## Additional acceptance for the save/navigation batch
+
+- Save a game with active training/research/production, equipped ships, cargo and ACC routes. Advance and change it, then load it and check the original quantities, progress, crew ranks and news. Advance again; old worlds must not keep running. Reopen the exported game and load the same slot.
+- Cancel overwrite/load, then confirm each. Check the previous save's `.bak`, corrupt-file feedback, and a write-denied directory without losing the existing slot. Record Windows filesystem results.
+- Select a production item on ground and in orbit, then open stores through the menu. Check matching highlight, local recipe capacity and return from equipment/MTX views.
+- Right-click actual bay/store controls, then modal windows and timed grapple unloading. Verify dismissal/locks take precedence. Check bay hover labels through the physical mouse, including repeating fuel buttons and roster rows.
+- Select HeD fuel in both ACC endpoints, including depleted inventories. Verify cycling finishes, loads available HeD and survives saving/loading.
 
 ## Known failures to investigate
 

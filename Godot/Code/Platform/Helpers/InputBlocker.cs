@@ -52,21 +52,7 @@ namespace Deuteros.Code.Platform.Helpers
 
         public override void _UnhandledInput(InputEvent @event)
         {
-            if (!Blocked)
-            {
-                var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
-
-                if (!cursor.IsLocked && @event is InputEventMouseButton)
-                {
-                    if (((InputEventMouseButton)@event).ButtonIndex == MouseButton.Right && ((InputEventMouseButton)@event).Pressed)
-                    {
-                        if (Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Select(p => p).Where(p => p.Station.BuildParts > 0 && !p.ActiveMethanoid).ToList().Count() > 0)
-                            Deuteros.Code.GameCore.SingletonInstance.ChangeScene(Enums.Scenes.Overview, new List<Enums.SceneVariables>());
-                    }
-                }
-
-                return;
-            }
+            if (!Blocked) return;
 
             GetViewport().SetInputAsHandled(); // eats keyboard/gamepad too
         }

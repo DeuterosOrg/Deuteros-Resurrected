@@ -66,6 +66,10 @@ namespace Deuteros.Code.Platform.Screens
 
 		public int ScreenState { get; set; }
 
+		private Control hoveredControl;
+		private Func<string> hoveredLabel;
+		private string lastHoverText;
+
 		public override void _Ready()
 		{
 			ScrollContainer = GetNode<ScrollContainer>("ShipContainer/ScrollContainer2");
@@ -199,8 +203,95 @@ namespace Deuteros.Code.Platform.Screens
 			ScrollContainer.SetDeferred(ScrollContainer.PropertyName.ScrollHorizontal, ScreenState * ScreenWidth);
 
 			RefreshButtons();
+			BindHoverLabels();
 
 			base._Ready();
+		}
+
+		private void BindHover(Control control, Func<string> label)
+		{
+			control.MouseEntered += () =>
+			{
+				if (!control.IsVisibleInTree() || (control is BaseButton button && button.Disabled)) return;
+				hoveredControl = control;
+				hoveredLabel = label;
+				UpdateHover();
+			};
+			control.MouseExited += () => { if (hoveredControl == control) ClearHover(); };
+			control.VisibilityChanged += () => { if (hoveredControl == control && !control.IsVisibleInTree()) ClearHover(); };
+			control.TreeExiting += () => { if (hoveredControl == control) ClearHover(); };
+		}
+
+		private void ClearHover()
+		{
+			if (GameCore.HoverText == lastHoverText) GameCore.HoverText = "";
+			hoveredControl = null;
+			hoveredLabel = null;
+			lastHoverText = null;
+		}
+
+		private void UpdateHover()
+		{
+			if (hoveredControl == null) return;
+			if (!hoveredControl.IsVisibleInTree() || (hoveredControl is BaseButton button && button.Disabled))
+			{
+				ClearHover();
+				return;
+			}
+			lastHoverText = hoveredLabel() ?? "";
+			GameCore.HoverText = lastHoverText;
+		}
+
+		public override void _Process(double delta) => UpdateHover();
+
+		private string StaffHover(int index)
+		{
+			var staff = ResourceList.Staff[index];
+			if (staff == null) return ShipPresent && Ship.Pilot != null ? "Remove ship's crew" : "";
+			if (staff.Type == StaffType.Marines) return ShipPresent ? "Assign ship's crew" : "";
+			if (staff.Type == StaffType.Production && Ground && Earth && GameCore.Earth.Factory.Builder == null)
+				return "Assign crew to production";
+			return "";
+		}
+
+		private string PodHover(int index, Module_Types type, string name)
+		{
+			if (!ShipPresent || index >= Ship.Modules.Count) return "";
+			var module = Ship.Modules[index];
+			if (module.ModuleType != type) return "Install " + name;
+			if (module.ItemCount > 0 || module.StaffStored != null || module.HeldItem != null)
+				return "Unload pod before removal";
+			return "Remove " + name;
+		}
+
+		private void BindHoverLabels()
+		{
+			BindHover(Nav_Dismantle, () => "Dismantle ship");
+			BindHover(Nav_Create_Shuttle, () => "Build shuttle");
+			BindHover(Nav_Create_IOS, () => "Build IOS");
+			BindHover(Nav_Create_SCG, () => "Build SCG");
+			BindHover(Nav_Cockpit, () => "Crew section");
+			BindHover(Nav_Engine, () => "Engine mounting");
+			BindHover(FuelGaugeMinus, () => ShipPresent ? "Unload fuel" : "");
+			BindHover(FuelGaugePlus, () => ShipPresent ? "Fuel ship" : "");
+			BindHover(CockpitInstance.GetNode<Control>("Buttons/AddACC"), () => "Fit A.C.C.");
+			BindHover(CockpitInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
+			BindHover(EngineInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
+			for (int i = 0; i < 4; i++)
+			{
+				var index = i;
+				BindHover(CockpitInstance.StaffList.GetNode<Control>("Staff/Buttons/0" + (i + 1)), () => StaffHover(index));
+			}
+			for (int i = 0; i < TorsoInstances.Count; i++)
+			{
+				var index = i;
+				BindHover(Nav_Torsos[i], () => ShipPresent && index < Ship.Modules.Count ? "Pod mount " + (index + 1) : "");
+				var torso = TorsoInstances[i];
+				BindHover(torso.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
+				BindHover(torso.AddSupplyPod, () => PodHover(index, Module_Types.Supply, "supply pod"));
+				BindHover(torso.AddToolPod, () => PodHover(index, Module_Types.Tool, "tool pod"));
+				BindHover(torso.AddCryoPod, () => PodHover(index, Module_Types.Cryo, "team pod"));
+			}
 		}
 
 		private void AddACC_Pressed()

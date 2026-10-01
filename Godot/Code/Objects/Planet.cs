@@ -31,7 +31,6 @@ namespace Deuteros.Code.Objects
         {
             PlanetId = planetId;
             Order = order;
-            Deuteros.Code.GameCore.SingletonInstance.DayPassed += DayTick;
             Station = new SpaceStation(planetId);
             ActiveMethanoid = false;
             MoonParentPlanetId = Enums.StellarBodies.none;
@@ -48,7 +47,7 @@ namespace Deuteros.Code.Objects
         }
 
         //Triggered from gamecore
-        public void DayTick(uint previousDay, uint currentDay)
+        public virtual void DayTick(uint previousDay, uint currentDay)
         {
             int daysDifference = (int)Math.Floor((decimal)(currentDay - previousDay));
 

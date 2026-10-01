@@ -12,6 +12,7 @@ namespace Deuteros.Code.Objects
         public Dictionary<ItemTypes, int> Items { get; set; }
 		//Display Mineral list or alt(Could be items or MTX)
         public bool AlternativeView { get; set; }
+        public ItemTypes SelectedRecipe { get; set; }
 		public Objects.MTX MTX { get; set; }
 
 		public Store()

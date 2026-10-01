@@ -1,4 +1,4 @@
-﻿using Deuteros.Code.Objects.Interfaces;
+using Deuteros.Code.Objects.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,6 +26,7 @@ namespace Deuteros.Code.Objects.GameData
         public int MethanoidTradeCount { get; set; }
         public int StarSystemsCaptured { get; set; }
         public uint EnemyBuildDay { get; set; }
+        public int EnemyStarCursor { get; set; }
         public int IOSCount { get { return Ships.Count(T => T.ShipType == Enums.Ship_Types.IOS); } }
         public int SCGCount { get { return Ships.Count(T => T.ShipType == Enums.Ship_Types.SCG); } }
     }

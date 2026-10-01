@@ -11,7 +11,6 @@ namespace Deuteros.Code.Platform
 	{
 		public Unlocker()
 		{
-			GameCore.SingletonInstance.DayPassed += SingletonInstance_DayPassed;
 			GameCore.SingletonInstance.ProductionFinished += SingletonInstance_ProductionFinished;
 			GameCore.SingletonInstance.ResearchFinished += SingletonInstance_ResearchFinished;
 			GameCore.SingletonInstance.ShipCreated += SingletonInstance_ShipCreated;
@@ -52,7 +51,7 @@ namespace Deuteros.Code.Platform
 			}
 		}
 
-		private void SingletonInstance_DayPassed(uint previousDay, uint currentDay)
+		public void DayTick(uint previousDay, uint currentDay)
 		{
 			if (
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 17 &&

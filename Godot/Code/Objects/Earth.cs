@@ -16,7 +16,6 @@ namespace Deuteros.Code.Objects
 
         public Earth(Enums.StellarBodies planetId, int order) : base(planetId, order)
         {
-            Deuteros.Code.GameCore.SingletonInstance.DayPassed += DayTick;
             GroundSelected = true;
             Factory = new Factory();
         }
@@ -30,8 +29,9 @@ namespace Deuteros.Code.Objects
         }
 
         //Triggered from gamecore
-        public new void DayTick(uint previousDay, uint currentDay)
+        public override void DayTick(uint previousDay, uint currentDay)
         {
+            base.DayTick(previousDay, currentDay);
             TrainingData.ChildDayTick(previousDay, currentDay);
         }
     }

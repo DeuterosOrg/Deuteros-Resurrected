@@ -51,8 +51,6 @@ namespace Deuteros.Code.Platform.Screens
 			SystemButtons = new List<Button>();
 			ResourceRows = new List<MTXRow>();
 
-			ScrollTween = new Tween();
-
 			SystemName = GetNode<Label>("Destination/SystemName");
 
 			RestoreButton = GetNode<Button>("Config/Buttons/Restore");
@@ -117,6 +115,8 @@ namespace Deuteros.Code.Platform.Screens
 
 				ResourceContainer.AddChild(newItemRow);
 			}
+			TemplateResourceRow.Free();
+			TemplateResourceRow = null;
 
 			RestoreButton.Pressed += RestoreButton_Pressed;
 			SwitchStoreButton.Pressed += SwitchStoreButton_Pressed;
@@ -130,8 +130,6 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				systemButton.Pressed += () => SystemButton_Pressed(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[(Enums.StellarBodies)((int)systemButton.GetMeta("StarType"))].StarId);
 			}
-
-			ScrollTween.Finished += ScrollTween_Finished;
 
 			base._Ready();
 		}

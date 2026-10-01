@@ -913,8 +913,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void CloseACC()
 		{
+			if (ACCScreen == null) return;
 			ACCScreen.Visible = false;
 			ACC.RemoveChild(ACCScreen);
+			ACCScreen.QueueFree();
+			ACCScreen = null;
 
 			UpdateState();
 		}

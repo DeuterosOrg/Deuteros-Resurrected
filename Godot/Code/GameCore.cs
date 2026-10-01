@@ -231,6 +231,8 @@ namespace Deuteros.Code
 
 		//Data stored in the GameCore is temporary
 		public delegate void DayPassedDelegate(uint previousDay, uint currentDay);
+		private event DayPassedDelegate SimulationDayPassed;
+		// Screen notification: the active world's simulation has finished this day.
 		public event DayPassedDelegate DayPassed;
 
 		public delegate void PlanetChangedDelegate(Objects.Interfaces.IPlanet newPlanet);
@@ -286,20 +288,47 @@ namespace Deuteros.Code
 
 			_screenLocker = GetNode<InputBlocker>("/root/Master/InputBlocker");
 
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Production.UpdateProduction;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Research.UpdateResearch;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.MTX.UpdateMTX;
+			// Model updates are registered once, in their existing gameplay order.
+			SimulationDayPassed += _unlocker.DayTick;
+			SimulationDayPassed += UpdatePlanets;
+			SimulationDayPassed += Code.Platform.Screens.Production.UpdateProduction;
+			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
+			SimulationDayPassed += Code.Platform.Screens.Research.UpdateResearch;
+			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
+			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
 			ChangeScene(Enums.Scenes.IntroScreen, new List<Enums.SceneVariables>());
 		}
 
+		public override void _Input(InputEvent @event)
+		{
+			// Master receives input after descendant screens, so their modal dismissals take priority.
+			if (@event is not InputEventMouseButton mouse || mouse.ButtonIndex != MouseButton.Right || !mouse.Pressed)
+				return;
+			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen || currentScene == Scenes.Overview)
+				return;
+			if (GetNode<GlobalInput>("VirtualCursorView").IsLocked)
+				return;
+			if (!GameData.ActiveSaveFile.BaseGameData.Planets.Values.Any(planet => planet.Station.BuildParts > 0 && !planet.ActiveMethanoid))
+				return;
+
+			GetViewport().SetInputAsHandled();
+			ChangeScene(Scenes.Overview, new List<SceneVariables>());
+		}
+
 		private void TriggerDay(uint previousDay, uint currentDay)
 		{
+			SimulationDayPassed?.Invoke(previousDay, currentDay);
 			DayPassed?.Invoke(previousDay, currentDay);
+		}
+
+		private void UpdatePlanets(uint previousDay, uint currentDay)
+		{
+			// Resolve the active world each day; constructors must not register old models.
+			foreach (Planet planet in GameData.ActiveSaveFile.BaseGameData.Planets.Values)
+				planet.DayTick(previousDay, currentDay);
 		}
 
 		private void TriggerPlanetChange(Objects.Interfaces.IPlanet newPlanet)

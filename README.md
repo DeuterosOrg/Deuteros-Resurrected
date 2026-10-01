@@ -54,6 +54,10 @@ Use the mouse to select screens and interact with controls. The top navigation b
 - `scripts/`: portable installation and validation commands.
 - `SourceData/`, `SourceMaterials/`: historical reference material.
 
+## Save and load
+
+The disk menu now provides five local save slots, overwrite/load confirmation and backups. See [save files](docs/save-files.md) for storage, recovery and format details.
+
 ## Windows export
 
 For native Windows verification and continued backlog work, follow the [Windows agent brief](docs/windows-agent-brief.md).
