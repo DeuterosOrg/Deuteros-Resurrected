@@ -313,6 +313,7 @@ namespace Deuteros.Code.Platform.Screens
 
                                         // Commit together before response playback can be interrupted.
                                         foreach (var module in newitemlist.Keys) module.ItemStored = newitemlist[module];
+                                        Ship.Fuel = 250; // Original accepted-trade gift, in gauge units.
                                         GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
                                         var response = ModuleFrameText.Methanoid_Trade1;
                                         if (itemlist.Count > 1)

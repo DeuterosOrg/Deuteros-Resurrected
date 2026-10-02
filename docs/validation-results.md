@@ -393,3 +393,10 @@ Cases **333–337** cover both inventories after save/load, invalid production s
 **Fresh canonical Mac validation passed 337/337 isolated cases**, strict import, startup smoke and Windows cross-export. All nine Python tests passed; compilation has 14 existing warnings and zero errors. This run also covers the committed marine-rank correction (330–332). The export contains 1,103 pack entries and no test resources; hash/size are retained with the raw evidence under ignored `artifacts/validation/evidence/research-only-recipes/`. Original failures, the fuel-regression failure, focused passes and previous aggregate/export are preserved there. No gameplay error exemptions were added.
 
 This is a concrete Stores correction, not acceptance of the entire underspecified Stores feature. Counts remain **31/48 task-level implementations, 0/48 fully accepted**. Native Windows remains at the independently verified **329-case `d057b9d` baseline**; these newer changes require Windows verification. The native Mac case-315 shutdown failure remains unresolved.
+
+
+## Accepted trade fuel gift — 2026-10-02
+
+The [original acceptance instruction](original-trade-evidence.md) fills the ship's fuel gauge to 250. Its field identity is now independently established by the manual fuel routines. The remake omitted that gift; strengthened cases **220 and 233** reproduced both ordinary and interrupted-response failures (expected 250, actual 100).
+
+Acceptance now settles fuel alongside cargo and the counter before response playback. Refused, ineligible, abandoned or stale offers cannot give fuel. All **16 trade cases (220–235)** pass after correction; compilation retains 14 existing warnings and zero errors. Raw before/after evidence is under ignored `artifacts/validation/evidence/trade-refuel/`. This is a focused follow-up after the full 337-case Mac run at `f148677`, not a replacement aggregate or freshly tested Windows export. Native Windows currently remains at `d057b9d` (329 cases). Counts stay **31/48 implemented, 0/48 fully accepted**; original trade timing and physical acceptance remain open.

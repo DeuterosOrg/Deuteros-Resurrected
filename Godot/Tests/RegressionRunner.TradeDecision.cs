@@ -96,6 +96,7 @@ namespace Deuteros.Tests
             Equal(true, question.GetCombinedMinimumSize().X <= dialog.Size.X - 20, "question fits panel at native scale");
             Equal(ItemTypes.iron, ship.Modules[1].ItemStored, "question does not exchange cargo");
             Equal(5, Save.MethanoidTradeCount, "question does not count as consent");
+            Equal(100, ship.Fuel, "unaccepted offer does not refuel");
             Equal(true, GetTree().Paused, "pending decision pauses underlying simulation");
             Press(interior, "Modules/01");
             Equal(dialog, OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision"), "repeat module input keeps the same decision");
@@ -104,6 +105,7 @@ namespace Deuteros.Tests
             Press(dialog, "Accept");
             await InputFrames();
             Equal(6, Save.MethanoidTradeCount, "accept counted once");
+            Equal(250, ship.Fuel, "accepted original trade fills the fuel gauge");
             Equal(ItemTypes.silica, ship.Modules[1].ItemStored, "accepted exchange");
             Equal(123, ship.Modules[1].ItemCount, "quantity preserved");
             Equal(ItemTypes.commspod, ship.Modules[0].ItemStored, "equipment preserved");
@@ -122,6 +124,7 @@ namespace Deuteros.Tests
             Equal(ItemTypes.iron, ship.Modules[1].ItemStored, "decline preserves item");
             Equal(123, ship.Modules[1].ItemCount, "decline preserves amount");
             Equal(false, Save.AtWar, "decline does not trigger war");
+            Equal(100, ship.Fuel, "refusal gives no fuel gift");
         });
 
         private async Task TradeMineralPairs() => await WithTrade(async (ship, interior) =>
@@ -157,6 +160,7 @@ namespace Deuteros.Tests
             await InputFrames();
             Equal(false, OverlayManager.Instance.IsOpen, "empty cargo is not an offer");
             Equal(5, Save.MethanoidTradeCount, "empty cargo does not count");
+            Equal(100, ship.Fuel, "ineligible cargo gives no fuel gift");
         });
 
         private async Task TradeAbandon() => await WithTrade(async (ship, interior) =>
@@ -179,6 +183,7 @@ namespace Deuteros.Tests
             Equal(false, OverlayManager.Instance.IsOpen, "scene exit removes its decision");
             Equal(false, GetTree().Paused, "scene exit restores processing");
             Equal(5, Save.MethanoidTradeCount, "detached scene cannot settle trade");
+            Equal(100, ship.Fuel, "detached scene gives no fuel gift");
             Equal(ItemTypes.iron, ship.Modules[1].ItemStored, "detached scene leaves cargo intact");
         });
 
@@ -254,10 +259,12 @@ namespace Deuteros.Tests
             var dialog = await OpenTradeChoice(interior);
             Press(dialog, "Accept");
             Equal(6, Save.MethanoidTradeCount, "consent commits count before response");
+            Equal(250, ship.Fuel, "fuel settles with cargo before response playback");
             Equal(ItemTypes.silica, ship.Modules[1].ItemStored, "consent commits cargo before response");
             GameCore.SingletonInstance.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
             await ToSignal(GetTree().CreateTimer(0.3), SceneTreeTimer.SignalName.Timeout);
             Equal(6, Save.MethanoidTradeCount, "interruption does not count twice");
+            Equal(250, ship.Fuel, "interruption preserves accepted fuel");
             Equal(123, ship.Modules[1].ItemCount, "interruption preserves exact cargo amount");
             Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "response interruption releases lock");
         });
@@ -287,6 +294,7 @@ namespace Deuteros.Tests
             Equal(ItemTypes.gold, ship.Modules[1].ItemStored, "stale snapshot cannot overwrite new goods");
             Equal(17, ship.Modules[1].ItemCount, "changed quantity preserved");
             Equal(5, Save.MethanoidTradeCount, "invalidated offer is not an acceptance");
+            Equal(100, ship.Fuel, "stale offer gives no fuel gift");
             Equal(false, OverlayManager.Instance.IsOpen, "invalidated decision closes");
         });
     }

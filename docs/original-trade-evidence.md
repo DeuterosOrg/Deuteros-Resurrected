@@ -45,7 +45,7 @@ The input loop has **two actionable selections**: selector 1 branches to accept 
 
 The handler examines three packed cargo words starting at ship offset `+0x16`; eligible words have `(word & 0xC000) == 0x4000` and a nonzero low byte. The old note calls these “armed weapons”, but the code alone establishes the encoding test, not that interpretation. `$7C24A` replaces only bits 8–13 through the table, preserving `word & 0xC0FF`, including the quantity byte.
 
-Using this repository's mineral IDs, the table matches the existing seven pairs: iron/silica, titanium/copper, aluminium/carbon, hydrogen/methane, deuterium/helium, palladium/gold, platinum/silver. IDs 15 and 16 map to themselves. Do not turn unchanged fuel IDs into a different exchange, or infer support for equipment outside this table. Acceptance also writes `250` to ship byte `+6`; establish that field's meaning before importing a refill or other side effect.
+Using this repository's mineral IDs, the table matches the existing seven pairs: iron/silica, titanium/copper, aluminium/carbon, hydrogen/methane, deuterium/helium, palladium/gold, platinum/silver. IDs 15 and 16 map to themselves. Do not turn unchanged fuel IDs into a different exchange, or infer support for equipment outside this table. Acceptance at `$7C150` writes `250` to ship byte `+6` (bytes `117c00fa0006`). The independently traced [manual fuel routines](original-dfcc-fuel-evidence.md) identify that field as gauge units: `$367F4` adds loaded fuel there and `$3676C` writes the decremented gauge during unloading. This establishes a full-tank gift on acceptance, without consuming player stock.
 
 ## Correction to the later research summary
 
@@ -53,8 +53,10 @@ Using this repository's mineral IDs, the table matches the existing seven pairs:
 
 ## Implementation and acceptance still needed
 
-`ShipInterior.cs` now offers Accept/Decline through a modal cargo preview. Acceptance exchanges supported supplies and increments once; refusal leaves cargo unchanged and decrements with a zero floor. The war gate uses >=16 and `AtWar` prevents another peaceful encounter. Empty/unsupported cargo cannot advance the count. Original `0xFFFF` state is represented by the remake's existing `AtWar` flag rather than changing the save format.
+`ShipInterior.cs` now offers Accept/Decline through a modal cargo preview. Acceptance exchanges supported supplies, fills the 250-unit fuel gauge and increments once; refusal leaves cargo unchanged and decrements with a zero floor. The war gate uses >=16 and `AtWar` prevents another peaceful encounter. Empty/unsupported cargo cannot advance the count. Original `0xFFFF` state is represented by the remake's existing `AtWar` flag rather than changing the save format.
 
 Cases 220–235 cover decisions, all table entries 1–16, quantities, repeat input, stale cargo, pointer/keyboard input, interrupted typing, scene exit and the war boundary. Case 150 now explicitly accepts through the control after normal comms research/manufacture/fitting. Cargo and counter settle together before response playback. Escape or external overlay dismissal abandons the choice without a decision or launch; this is a modern UI behavior, distinct from explicit Decline. The choice pauses the simulation; no original-timeout parity is claimed.
 
-Before claiming full original parity, establish decision timing, the ship `+6` field and how the original three cargo words correspond to this remake's IOS/SCG layouts. Keep those evidence gaps separate from implementation and native Windows acceptance; do not invent an arbitrary timeout or silently spread the exchange to unsupported modules.
+The fuel gift was added after the field was identified; strengthened cases 220 and 233 reproduced the missing refill before correction. All 16 trade cases pass afterwards, including no gift for unaccepted, refused, ineligible, stale or interrupted pre-decision offers. An accepted response interruption preserves the committed gift.
+
+Before claiming full original parity, establish decision timing and how the original three cargo words correspond to this remake's IOS/SCG layouts. Keep those evidence gaps separate from implementation and native Windows acceptance; do not invent an arbitrary timeout or silently spread the exchange to unsupported modules.
