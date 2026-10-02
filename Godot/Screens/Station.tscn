@@ -1,7 +1,10 @@
-[gd_scene load_steps=3 format=3 uid="uid://bm1d5drxu0vqd"]
+[gd_scene load_steps=6 format=3 uid="uid://bm1d5drxu0vqd"]
 
-[ext_resource type="Script" path="res://Code/Platform/Screens/NoScript.cs" id="1_4cp7s"]
+[ext_resource type="Script" path="res://Code/Platform/Screens/Station.cs" id="1_4cp7s"]
 [ext_resource type="Texture2D" uid="uid://beayuxr5na6cl" path="res://Sprites/Scenes/Station.png" id="1_6v8v5"]
+[ext_resource type="Theme" path="res://Themes/BiegeFont5.tres" id="3_product"]
+[ext_resource type="Theme" path="res://Themes/YellowFont5.tres" id="4_shuttle"]
+[ext_resource type="Theme" path="res://Themes/RedFont5.tres" id="5_derricks"]
 
 [node name="Station" type="Node2D"]
 script = ExtResource("1_4cp7s")
@@ -12,3 +15,29 @@ offset_top = 36.0
 offset_right = 320.0
 offset_bottom = 148.0
 texture = ExtResource("1_6v8v5")
+mouse_filter = 2
+
+[node name="Labels" type="Node2D" parent="."]
+
+[node name="Product" type="Label" parent="Labels"]
+offset_left = 56.0
+offset_top = 40.0
+offset_right = 192.0
+offset_bottom = 64.0
+theme = ExtResource("3_product")
+mouse_filter = 1
+clip_text = true
+
+[node name="Shuttle" type="Label" parent="Labels"]
+offset_left = 256.0
+offset_top = 32.0
+offset_right = 320.0
+offset_bottom = 56.0
+theme = ExtResource("4_shuttle")
+
+[node name="Derricks" type="Label" parent="Labels"]
+offset_left = 56.0
+offset_top = 152.0
+offset_right = 176.0
+offset_bottom = 176.0
+theme = ExtResource("5_derricks")

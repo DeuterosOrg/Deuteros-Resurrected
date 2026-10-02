@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dm6c3u7eka7hc"]
+[gd_scene load_steps=13 format=3 uid="uid://dm6c3u7eka7hc"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/Production.cs" id="1_7mj6f"]
 [ext_resource type="Texture2D" uid="uid://clcj5c7woisxx" path="res://Sprites/Scenes/Production.png" id="2"]
@@ -10,6 +10,12 @@
 [ext_resource type="Texture2D" uid="uid://c7knvkf0f66yw" path="res://Sprites/SceneSprites/Buttons.png" id="4_tahoa"]
 [ext_resource type="Texture2D" uid="uid://11pif8j3he8r" path="res://Sprites/Items/Production/derrick_1.png" id="5_t6bcq"]
 [ext_resource type="Texture2D" uid="uid://bc52dl6g8a6o3" path="res://Sprites/Items/Research/a__o__c.png" id="6_timql"]
+[ext_resource type="Texture2D" path="res://Sprites/References/AocPanelReference.png" id="11_aoc_reference"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_aoc"]
+atlas = ExtResource("11_aoc_reference")
+region = Rect2(458, 366, 256, 60)
+filter_clip = true
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_7mj6f")
@@ -38,6 +44,17 @@ offset_top = 152.0
 offset_right = 320.0
 offset_bottom = 182.0
 texture = ExtResource("3_tqxy8")
+
+[node name="AocPanel" type="TextureRect" parent="Sprites"]
+visible = false
+texture_filter = 1
+offset_left = 192.0
+offset_top = 152.0
+offset_right = 320.0
+offset_bottom = 182.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_aoc")
+expand_mode = 1
 
 [node name="ButtonsImage" type="TextureRect" parent="Sprites"]
 offset_left = 272.0

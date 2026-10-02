@@ -22,13 +22,13 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The latest full local run on **2026-10-02 passed all 153 isolated cases**, startup smoke and Windows cross-export. Five Python validator tests also passed. This is local headless/export evidence; Windows gameplay and visual acceptance remain pending.
+The last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The current suite has **162 cases** and **24 Asana-linked fixes with local regression evidence**. Its latest full attempt timed out at case 150 after 180 seconds while Research entered the tree; cases 1–149 passed. A separate continuation passed cases 151–162, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **161/162 across two runs, not a passing aggregate**. Windows gameplay and visual acceptance remain pending.
 
 Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in the latest full run, but no proven fix exists for the earlier intermittent failure. Preserve both results when assessing readiness.
 
-### Latest gameplay batch — 2026-10-02
+### Salvage and bulletin batch — 2026-10-02
 
-The News/bulletin, OF pilot-warning and unknown-object batch expands the runner to **153 cases** and the ledger to **21 Asana-linked fixes with local regression evidence**. See [batch evidence](validation-results.md#news-of-pilot-warning-and-alien-technology-batch--2026-10-02) for the latest aggregate result and exact limits; none of the 48 tasks is declared fully accepted.
+The News/bulletin, OF pilot-warning and unknown-object batch expanded the runner to **153 cases** and the ledger to **21 Asana-linked fixes with local regression evidence** at that point. See [batch evidence](validation-results.md#news-of-pilot-warning-and-alien-technology-batch--2026-10-02) for the latest aggregate result and exact limits; none of the 48 tasks is declared fully accepted.
 
 - Cases 124–128 cover News history/replay and bulletin input-lock ownership. Broader News report coverage remains unspecified.
 - Cases 129–134 cover OF pilot warnings, state preservation and cleanup. Compare the native layout and pointer behavior with the Asana reference.
@@ -105,7 +105,17 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 - Change sound/volume, window scale and fullscreen; reopen settings and restart the executable to check persistence. Restore defaults. Confirm/cancel progression presets and repeat them without duplicate world state; verify the resumed view updates. These shortcuts are not normal progression evidence. Original-bug compatibility toggles are not specified or implemented.
 - Use [media inventory](media-gap-inventory.md) for missing sound/animation sourcing and wiring; original audiovisual fidelity remains unverified.
 
+## Additional acceptance for station displays
+
+- Station overview: compare local orbital production with ground production, check completion without reopening, and follow shuttle takeoff/landing/removal. Check zero and nonzero deployed derricks; rigs in stores must not count. Labels describe the current simulation; only idle wording is confirmed by the original screenshot.
+- Production: verify the full AOC plaque replaces staff labels and the removal control during idle and active automation, including the day an AOC finishes. Check manual production remains intact. The plaque uses the exact task reference; its static light does not certify original animation timing.
+- Deposit analysis: select planets, return to system view, select moons and change systems. A body's own built/incomplete station should appear below the selection, disappear after loss and remain hidden in course selection. Compare placement with the linked [visual references](visual-reference-notes.md).
+
+Cases 154–162 cover these transitions. Native Mac captures passed and corrected one clipped shuttle label. See [batch results](validation-results.md#station-status-and-missing-graphics-batch--2026-10-02) for screenshot reproduction commands and fixture limits. Repeat in the Windows source game and export.
+
 ## Known failures to investigate
+
+- Latest full-run case 150 again stalled at Research entry after the gift was analysed. A Mac process sample found the main thread waiting on a native recursive mutex and the .NET finalizer waiting on a managed lock. No root cause or fix is proven. Reproduce the normal comms progression and retain diagnostics; do not disable the case or treat the successful 153-case batch as current aggregate validation.
 
 - On Mac, the audio/navigation path can leak Ogg resources or hang with `!rc_owner`. An isolated Godot 4.3 comparison also failed; an engine upgrade alone is not a demonstrated fix.
 - Combined regression runs and the latest isolated case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). Case 65 cycles course/ACC/grapple/AMA panels and checks modal destruction. A diagnostic rerun passed without a fix; treat the original strict failure as unresolved. Fresh-process isolation does not remove this production resource-lifetime risk. Reproduce with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs even when a later run passes; add phase/GC-count diagnostics before changing resource ownership.

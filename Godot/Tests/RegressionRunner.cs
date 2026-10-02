@@ -123,6 +123,7 @@ namespace Deuteros.Tests
             await RunNewsRegressions();
             await RunPilotWarningRegressions();
             await RunUnknownObjectRegressions();
+            await RunStationStatusRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -29,6 +29,7 @@ namespace Deuteros.Code.Platform.Screens
 
         public TextureRect Planet { get; set; }
         public TextureRect StarSystem { get; set; }
+        private TextureRect resourceStation;
 
         public Label SunLabel { get; set; }
         public Label SelectedLocationLabel { get; set; }
@@ -54,6 +55,7 @@ namespace Deuteros.Code.Platform.Screens
 
             Planet = GetNode<TextureRect>("PlanetHolder/Planet");
             StarSystem = GetNode<TextureRect>("StarSystemHolder/StarSystem");
+            resourceStation = GetNode<TextureRect>("ResourceStation");
 
             PlanetGoBack = GetNode<Button>("PlanetHolder/GoBack");
             StarSystemGoBack = GetNode<Button>("StarSystemHolder/GoBack");
@@ -211,6 +213,7 @@ namespace Deuteros.Code.Platform.Screens
 
         public void UpdateMap()
         {
+            resourceStation.Visible = false;
             //Blank out all the optional labels
             StarCountLabel.Text = "";
             StarSummaryLabel.Text = "";
@@ -357,12 +360,30 @@ namespace Deuteros.Code.Platform.Screens
 
         private void ShowDeposits(IPlanet selectedPlanet)
         {
+            UpdateStationIcon(selectedPlanet);
             DepositsLabel.Text = "Deposits";
 
             for (int i = 0; i < selectedPlanet.PlanetResources.Materials.Count(); i++)
             {
                 DepositLabels[i].Text = selectedPlanet.PlanetResources.Materials[i].MaterialType.ToScreenString(" ");
             }
+        }
+
+        protected override void DayTick(uint previousDay, uint currentDay)
+        {
+            // Refresh station state without rebinding the map's navigation controls.
+            var selection = SelectedMoon != Enums.StellarBodies.none ? SelectedMoon : SelectedPlanet;
+            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+            UpdateStationIcon(CurrentLocation != Enums.StellarBodies.none && planets.TryGetValue(selection, out var planet) ? planet : null);
+        }
+
+        private void UpdateStationIcon(IPlanet planet)
+        {
+            var station = planet?.Station;
+            resourceStation.Visible = ShowResources && station != null && (station.Built || station.BuildParts > 0);
+            if (!resourceStation.Visible) return;
+            var image = station.Built ? "Station_1" : "Station_UnderConstruction";
+            resourceStation.Texture = GD.Load<Texture2D>("res://Sprites/Buttons/Overview/" + image + ".png");
         }
     }
 }

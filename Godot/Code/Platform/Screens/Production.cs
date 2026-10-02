@@ -26,6 +26,8 @@ namespace Deuteros.Code.Platform.Screens
 		Label StaffCountLabel { get; set; }
 		TextureRect SmallItemImageTextureRect { get; set; }
 		TextureRect ItemProgressImageTextureRect { get; set; }
+		TextureRect TeamFrameImage { get; set; }
+		TextureRect AocPanel { get; set; }
 
 		TextureButton RemoveStaff { get; set; }
 
@@ -43,6 +45,8 @@ namespace Deuteros.Code.Platform.Screens
 
 			SmallItemImageTextureRect = GetNode<TextureRect>("Sprites/SmallItemImage");
 			ItemProgressImageTextureRect = GetNode<TextureRect>("Sprites/ItemProgressImage");
+			TeamFrameImage = GetNode<TextureRect>("Sprites/TeamFrameImage");
+			AocPanel = GetNode<TextureRect>("Sprites/AocPanel");
 
 			RemoveStaff = GetNode<TextureButton>("RemoveStaff");
 
@@ -260,6 +264,10 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void DrawData()
 		{
+			AocPanel.Visible = CurrentFactory.AOC;
+			TeamFrameImage.Visible = !CurrentFactory.AOC;
+			StaffNameLabel.Visible = StaffRankLabel.Visible = StaffCountLabel.Visible = !CurrentFactory.AOC;
+			RemoveStaff.Visible = !CurrentFactory.AOC;
 			if (CurrentFactory.Builder != null)
 			{
 				StaffCountLabel.Text = CurrentFactory.Builder.Count.ToString();

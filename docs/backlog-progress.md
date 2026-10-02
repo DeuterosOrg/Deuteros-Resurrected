@@ -11,7 +11,7 @@ Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), 
 - Record task-specific blockers and continue independent work. Do not invent original behavior to make a row look finished.
 - Windows verification follows the [agent brief](windows-agent-brief.md). No PR, push or Asana changes are authorized by this ledger.
 
-At this point, 21 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows.
+At this point, 24 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows.
 
 ## Task ledger
 
@@ -26,9 +26,9 @@ At this point, 21 Asana-linked fixes have local regression evidence; none of the
 | [1215691951441144](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691951441144) — missing production animation | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
 | [1215691800680621](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680621) — missing graphic (menu icon) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
 | [1215691800680623](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680623) — missing graphic (moon base) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
-| [1215691800680634](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680634) — missing stats from station page | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
-| [1215691800680646](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680646) — missing graphic (deposit analysis page) | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
-| [1215691800680642](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680642) — missing AOC graphic | Queued | Apply the acceptance investigation in the [baseline triage](asana-triage.md). |
+| [1215691800680634](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680634) — missing stats from station page | Fix implemented; regression verified | Station readouts use local orbital production, shuttle state and deployed derricks; same-day updates and native Mac layout checked. Verify on Windows. |
+| [1215691800680646](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680646) — missing graphic (deposit analysis page) | Fix implemented; regression verified | Deposit map uses existing station art for the selected planet/moon, clears missing stations and follows construction/loss. Native Mac layout checked; verify on Windows. |
+| [1215691800680642](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215691800680642) — missing AOC graphic | Fix implemented; regression verified | Exact reference plaque replaces staff UI in AOC mode, including same-day completion. Native Mac layout checked; repeat on Windows. Static indicator only; animation timing unverified. |
 | [1215716464570921](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570921) — unloading grapple issue | Fix implemented; regression verified | Complete Windows acceptance; see [existing results](validation-results.md). |
 | [1215716464570907](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570907) — dismantling ship does not move pilot to shuttle bay | Fix implemented; regression verified | Complete Windows/visual acceptance; see [batch results](validation-results.md).
 | [1216065854613317](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216065854613317) — if a ship is landed/docked then activating ACC does not immediately take effect | Existing behavior regression verified | Immediate activation at both endpoints and missing-fuel resumption pass for shuttle/IOS; reproduce the original report on Windows before closure. |
