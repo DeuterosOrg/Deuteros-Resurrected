@@ -2,9 +2,9 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **411/411**, strict import, source smoke and Windows export at `d3f00ac60a32eaf21f42446c214e82fe5fa973f7`; nine Python tests pass. Logs and package audit: `artifacts/validation/evidence/artifact-delivery/full-run-d3f00ac/`. The Mac-built executable has 1,219 pack entries, all 64 illustrations and no tests; SHA-256 `2ce44a0c7b25a9844414e1f205128c1df4b1f7de4757969afd7f7401829142b2`. The latest completed Windows checkpoint remains 409 cases.
+Latest completed Mac checkpoint (2026-10-02): **421/421**, strict import, source smoke and Windows export at `f5a9cbb994b2f904426c0744856405328f243a16`; nine Python tests pass. The Windows runner also exited zero after all 421 cases, source smoke and export. Its packaged smoke and individual-log collection are pending renewed SSH authentication; the last fully audited Windows package remains `a54e899` (409 cases).
 
-The newer `ef21e5e` [device-manufacture correction](original-alien-message-evidence.md) passes focused cases 412–416, native Mac rendering/save-resume and sixteen production compatibility cases. Its full run stopped after 335 passes at case 336's outdated assumption that every recipe displays a finite material capacity. Revision `f5a9cbb` corrects that expectation and adds original hull fitting (focused/native cases 417–421 pass). Full **421-case runs are underway on Mac and Windows**; keychain access is restored. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
+The latest changes restore eight-delivery artifact recovery, zero-material orbital manufacture and original hull tool fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
 ## Reproduced gameplay fixes
 
@@ -605,3 +605,13 @@ Full Mac and native Windows validation each passes **409/409**, strict import, s
 Both aggregate processes and the Windows collector exited zero; all downloaded logs were audited locally. Evidence: `artifacts/validation/evidence/dialogue-colours/` and `artifacts/windows-handoff/a54e899-evidence/`. Bundle SHA-256: `769112021774e8687291ae6a75e71208e795641df62919300dd04a354bdc0ba0`.
 
 Counts remain **34/48 with implementation evidence and 0/48 fully accepted**; alien transmission scheduling and desktop acceptance remain open. The stable `8cdd458` human handoff is unchanged.
+
+## Artifact recovery, manufacture and tool fitting — 2026-10-02
+
+Runtime **`f5a9cbb994b2f904426c0744856405328f243a16`** includes direct recovery credit, legacy credit conversion, zero-material orbital manufacture and the original five/eleven/eleven tool lists for Shuttle/IOS/SCG. Both display and selection share the eligibility rule. The device fits one SCG slot; legacy incompatible equipment survives until a valid replacement returns it. [Original evidence](original-alien-message-evidence.md) records the verified behavior and remaining campaign work.
+
+All **421 cases**, nine Python tests, strict import, source startup and Windows export pass on Mac. Compilation reports 14 existing warnings and zero errors. Every case log was audited and archived under `artifacts/validation/evidence/tool-fitting/full-run-f5a9cbb/`. The Mac-built executable is **149,321,200 bytes**, SHA-256 **`a6894f2f26bf6ac0356090d671e069a9f8a7740c3bfeae394985adfb884a68ef`**; its pack has **1,219 entries, all 64 illustrations and no tests**. Documentation-only HEAD `2856168` has no runtime/tooling differences from the tested commit.
+
+The fresh Windows runner also exited zero after **421/421**, nine Python tests, strict import, source startup and export. Its aggregate log is `artifacts/windows-handoff/validate-f5a9cbb.log`. A subsequent SSH authentication refusal prevented the separate packaged smoke, hash audit and individual-log download; these are still pending. Bundle SHA-256 is `29380ed8eb0ff2d2f76d5d318d11f7eafbde5ce2ce679cea4c2565457fe58ee9`.
+
+Native Mac cases 417–421 and reviewed screenshots cover visible last rows, legacy replacement and manufacture-to-fitting/save-load. This does not establish normal campaign or Windows desktop acceptance. The stable `8cdd458` human handoff remains unchanged; transmission scheduling, capture assignment, device activation and ending integration remain open. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**.

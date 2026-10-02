@@ -23,7 +23,7 @@ Transmission countdowns count eligible simulation updates. Do not describe them 
 
 Keep progression decisions in one small model helper called by these existing paths. No event framework, service interface or second scene-navigation system is needed.
 
-`ArtifactRecovery` handles direct credit and legacy conversion using existing persisted research fields. Cases 135/410/411 and full 411-case Mac validation cover recovery. Cases 412–416 verify the zero-material orbital recipe, saved production and both manual/AOC factory gates; 417–421 cover original hull lists, legacy equipment and the manufacture-to-fitting path. Full 421-case validation is running on both hosts. No message-history fields or speculative ending behavior have been added.
+`ArtifactRecovery` handles direct credit and legacy conversion using existing persisted research fields. Cases 135/410/411 and full 411-case Mac validation cover recovery. Cases 412–416 verify the zero-material orbital recipe, saved production and both manual/AOC factory gates; 417–421 cover original hull lists, legacy equipment and the manufacture-to-fitting path. Full 421-case runners pass on both hosts; Mac logs/package are audited and Windows packaged smoke/collection remain pending. No message-history fields or speculative ending behavior have been added.
 
 ## Saved-state rules
 

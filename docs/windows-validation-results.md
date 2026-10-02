@@ -6,7 +6,7 @@ Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `buil
 
 ## Automated results
 
-**Newer revision currently validating:** `f5a9cbb994b2f904426c0744856405328f243a16` is running the full 421-case suite in a fresh Windows checkout. SSH access is restored and its private bundle was uploaded and verified. The prior Mac-only checkpoint `d3f00ac` passed 411 cases; the results below remain the last completed Windows checkpoint until the new run and packaged smoke finish.
+**Newer revision awaiting final audit:** the fresh Windows runner at `f5a9cbb994b2f904426c0744856405328f243a16` exited zero after **421/421 cases**, nine Python tests, strict import, source startup and release export. Its aggregate log is `artifacts/windows-handoff/validate-f5a9cbb.log`. The separate packaged smoke and individual-log/hash collection could not start because a new SSH connection was refused. Mac's 421-case run and package audit are complete. The fully audited Windows results below remain at `a54e899` until collection finishes.
 
 **Fresh native Windows validation passed in one run:** compilation, strict import, **409/409 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
 
