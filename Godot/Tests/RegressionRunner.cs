@@ -184,6 +184,11 @@ namespace Deuteros.Tests
             await CheckAsync("News replay rotates the original decoding mask without advancing transmission progress", TransmissionReplayMask);
             await CheckAsync("Ship attack and loss transitions publish persistent News once", NewsShipEvents);
             await CheckAsync("Fleet station attack and capture publish ordered News once", NewsStationEvents);
+            await CheckAsync("Battle defeat frees its window and closes the destroyed ship controls", BattleLossCleanup);
+            await CheckAsync("Leaving battle returns reserved drones and cancels its pending timer", () => BattleInterrupted(false));
+            await CheckAsync("Replacing the world during battle cannot mutate the new save", () => BattleInterrupted(true));
+            await CheckAsync("Leaving just-completed battle cannot rescue a defeated ship", BattleCompletedThenLeave);
+            await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
