@@ -109,6 +109,8 @@ The [palette investigation](https://github.com/WizzoUK2/deuteros-parallel/blob/6
 
 ## 1215685674676229 — self-destruct mechanism
 
+**2026-10-02 follow-up:** [The original arming, switch, defusing/capture and station-removal paths are now traced](original-self-destruct-evidence.md). Countdown integration and original-screen acceptance remain open; the initial evidence and uncertainty below are retained.
+
 The newest relevant [M2 Addendum 7, 2026-08-26](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/docs/m2-findings.md#L219-L244) records player testimony accompanying a Proxima snapshot: capturing an SDM-rigged Methanoid station destroyed **both the station and capturing fleet**. This provides an acceptance scenario for that observed outcome. It supersedes the parallel port's [older invented rule](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/DIVERGENCES.md#L48) that only enemy capture of a player station detonates and player recapture never triggers it.
 
 **Missing facts:** whether detonation is unconditional, first-contact-only or affected by prior exposure/defusing; when player-installed SDMs arm; whether the carrier/pilot/cargo are included in “fleet”; and behavior of friendly recapture. The note's simultaneous FIFO type 8 / primary 0 is only a hypothesis for an SDM notice. Do not give event type 8 universal detonation semantics or implement symmetry solely from this one observation.
