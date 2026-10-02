@@ -345,3 +345,12 @@ Mining now skips incompatible/full pods, recognizes zero-count pods regardless o
 Focused cases **305–313** pass. **Fresh full Mac validation passed 313/313 isolated cases in one run**, strict import, startup smoke and Windows cross-export. Compilation retains 14 existing warnings and zero errors. Six Python tests passed when that run started; the separate Windows tooling change subsequently expanded them to nine, all passing. No gameplay errors were exempted. Raw evidence and previous logs/export are under ignored `artifacts/validation/evidence/ama-cargo/`.
 
 These are daily-state fixtures, not physical controls or normal campaign acceptance. The first native Windows baseline covers the earlier `44e37ba` revision and 309 cases; it does not validate this newer correction. A fresh native run and desktop acceptance remain pending. The task-level implementation count stays **31/48** because the broader AMA yield, timing and eligibility research remains incomplete.
+
+
+## Native Windows baseline and RCEdit setup — 2026-10-02
+
+Revision **`3004d9b`** passed fresh native Windows validation: **313/313 regressions**, strict import, source startup smoke and Windows release export in one canonical run. All nine Python tests pass, including three new RCEdit integrity/cache tests. A separate smoke check executed the packaged Windows game through an external test driver; its pack contains 1,103 entries and no test resources. See [the full Windows report](windows-validation-results.md) for environment, hashes and limits.
+
+The initial `44e37ba` run passed 309 regressions and source smoke but failed export because RCEdit was missing. That attempt is preserved. The installer now downloads checksum-pinned RCEdit 2.0.0 alongside the Windows Godot binary when installing templates, and the validator adds its directory to the child PATH. A corrupted download never becomes `rcedit.exe`; modified cached binaries are rejected. The fresh Windows run exercised the real download and automatic PATH setup. No errors were excluded to obtain a passing result.
+
+The Windows checkout was clean before import. Afterwards, 344 import sidecars appeared in status with line-ending notices, but normalized `git diff --exit-code` was empty. Source content matches the tested revision. Desktop controls, audible output, GPU rendering and normal campaign progression remain unverified; the local implementation count remains **31/48**, with no task declared fully accepted or closed in Asana.
