@@ -389,6 +389,9 @@ namespace Deuteros.Tests
                 Press(ActiveScreen<ShipInterior>(), "Modules/01");
                 GD.Print("COMMS PHASE: trade activated");
                 await InputFrames();
+                var trade = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision");
+                Press(trade, "Accept");
+                await InputFrames();
                 Equal(1, Save.MethanoidTradeCount, "first real trade interaction recorded");
                 Equal(ItemTypes.silica, ship.Modules[2].ItemStored, "trade exchanges offered iron");
                 Equal(123, ship.Modules[2].ItemCount, "trade preserves cargo quantity");

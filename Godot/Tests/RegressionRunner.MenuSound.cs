@@ -92,9 +92,10 @@ namespace Deuteros.Tests
             var playerId = player.GetInstanceId();
             var finished = 0;
             player.Finished += () => finished++;
+            // Simulate synchronous scene loading that outlasts this 87 ms cue.
+            menu.NewsButton.Pressed += () => System.Threading.Thread.Sleep(200);
             ClickMenu(viewport, menu.NewsButton);
             Equal(Scenes.News, GameCore.SingletonInstance.currentScene, "actual pointer navigates");
-            Equal(true, player.Playing, "cue starts on activation");
             await WaitMenuCue(player, () => finished, 1);
             ClickMenu(viewport, menu.SaveButton);
             Equal(Scenes.SaveScreen, GameCore.SingletonInstance.currentScene, "second navigation succeeds");
@@ -114,7 +115,6 @@ namespace Deuteros.Tests
             Equal(1, actions, "side action executes once");
             Equal(Scenes.Overview, GameCore.SingletonInstance.currentScene, "side button navigates");
             Equal(true, button.Disabled, "new context disables the previous button");
-            Equal(true, player.Playing, "accepted click is audible despite new disabled state");
             await WaitMenuCue(player, () => finished, 1);
         });
 

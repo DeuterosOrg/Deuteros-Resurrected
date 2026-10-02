@@ -193,7 +193,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		}
 
-		private async void ShipInterior_Pressed(int modulePressed)
+		private async Task HandleModulePress(int modulePressed)
 		{
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
 			{
@@ -251,9 +251,10 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (CurrentPlanet.ActiveMethanoid)
 					{
+						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar) return;
 						if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.commspod))
 						{
-							if (GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount == 16)
+							if (GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount >= 16)
 							{
                                 await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_War_Warning], new List<string>(), (modulePressed + 1));
 								var commpodModule = Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.commspod);
@@ -266,13 +267,16 @@ namespace Deuteros.Code.Platform.Screens
 							{
 								var itemlist = new Dictionary<ShipModule,Enums.ItemTypes>();
                                 var newitemlist = new Dictionary<ShipModule, Enums.ItemTypes>();
+                                var offeredCounts = new Dictionary<ShipModule, int>();
 
                                 foreach (ShipModule m in Ship.Modules)
 								{
-									if (m.ModuleType == Module_Types.Supply && m.ItemCount > 0)
+									if (m.ModuleType == Module_Types.Supply && m.ItemCount > 0
+										&& m.ItemStored >= ItemTypes.iron && m.ItemStored <= ItemTypes.hed_fuel)
 									{
 										itemlist[m] = m.ItemStored;
 										newitemlist[m] = m.ItemStored;
+                                        offeredCounts[m] = m.ItemCount;
                                     }
                                 }
 
@@ -288,29 +292,36 @@ namespace Deuteros.Code.Platform.Screens
 								{
                                     await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_TradeQuestion], new List<string>(), (modulePressed + 1));
 
-                                    //this needs to give the option to the user to cancel - not implemented yet
+                                    var decision = await AskTradeDecision(itemlist, newitemlist, offeredCounts);
+                                    if (decision == null || !IsInsideTree() || IsQueuedForDeletion()) return;
 
-                                    List<string> p = new List<string>();
-                                    p.Add(newitemlist.Values.ToList()[0].ToScreenString());
-                                    p.Add(itemlist.Values.ToList()[0].ToScreenString());
+                                    if (!decision.Value)
+                                    {
+                                        var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+                                        save.MethanoidTradeCount = Math.Max(0, save.MethanoidTradeCount - 1);
+                                        await ShowModuleTextFrame(save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Methanoid_No_Trade], new List<string>(), modulePressed + 1);
+                                    }
+                                    else
+                                    {
 
-                                    GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
-                                    if (itemlist.Count == 1)
-									{
-										await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Trade1], p, (modulePressed + 1));
-									}
-									else
-									{
-                                        p.Add(newitemlist.Values.ToList()[1].ToScreenString());
-                                        p.Add(itemlist.Values.ToList()[1].ToScreenString());
-										await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Trade2], p, (modulePressed + 1));
-									}
+                                        List<string> p = new List<string>
+                                        {
+                                            newitemlist.Values.First().ToScreenString(),
+                                            itemlist.Values.First().ToScreenString()
+                                        };
 
-									//update actual items traded
-									foreach(ShipModule m in newitemlist.Keys)
-									{
-										m.ItemStored = newitemlist[m];
-									}
+                                        // Commit together before response playback can be interrupted.
+                                        foreach (var module in newitemlist.Keys) module.ItemStored = newitemlist[module];
+                                        GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
+                                        var response = ModuleFrameText.Methanoid_Trade1;
+                                        if (itemlist.Count > 1)
+                                        {
+                                            p.Add(newitemlist.Values.ElementAt(1).ToScreenString());
+                                            p.Add(itemlist.Values.ElementAt(1).ToScreenString());
+                                            response = ModuleFrameText.Methanoid_Trade2;
+                                        }
+                                        await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[response], p, modulePressed + 1);
+                                    }
 
 								}
                             }
@@ -502,18 +513,21 @@ namespace Deuteros.Code.Platform.Screens
 
 		private async Task ShowModuleTextFrame(TextFrame newTextFrame, List<string> dynamicProperties, int windowNumber)
 		{
+			var core = GameCore.SingletonInstance;
 			GameCore.LockScreen();
-
-			ModuleTextFrame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn").Instantiate<ModuleTextFrame>();
-			Window.AddChild(ModuleTextFrame);
-
-			await ModuleTextFrame.PlayText(newTextFrame, dynamicProperties, windowNumber);
-
-			Window.RemoveChild(ModuleTextFrame);
-			ModuleTextFrame.QueueFree();
-			ModuleTextFrame = null;
-
-			GameCore.UnLockScreen();
+			var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn").Instantiate<ModuleTextFrame>();
+			ModuleTextFrame = frame;
+			Window.AddChild(frame);
+			try
+			{
+				await frame.PlayText(newTextFrame, dynamicProperties, windowNumber);
+			}
+			finally
+			{
+				if (IsInstanceValid(frame)) frame.QueueFree();
+				if (ModuleTextFrame == frame) ModuleTextFrame = null;
+				if (IsInstanceValid(core) && core.IsInsideTree()) GameCore.UnLockScreen();
+			}
 		}
 
 		private async Task ShowMethanoidTextFrame(TextFrame newTextFrame, List<string> dynamicProperties)

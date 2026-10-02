@@ -8,6 +8,14 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 {
 	public partial class ModuleTextFrame : BaseSubScene
 	{
+		private readonly CancellationTokenSource lifetime = new CancellationTokenSource();
+
+		public override void _ExitTree()
+		{
+			lifetime.Cancel();
+			TypeSound?.Stop();
+			base._ExitTree();
+		}
 		public RichTextLabel Text { get; set; }
 		public Label WindowNumber { get; set; }
 
@@ -116,10 +124,16 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private async Task WaitMs(int ms)
 		{
-			await ToSignal(
-				GetTree().CreateTimer(ms / 1000.0),
-				SceneTreeTimer.SignalName.Timeout
-			);
+			lifetime.Token.ThrowIfCancellationRequested();
+			var timer = GetTree().CreateTimer(ms / 1000.0);
+			var completion = new TaskCompletionSource<bool>();
+			void Finish() => completion.TrySetResult(true);
+			timer.Timeout += Finish;
+			using (lifetime.Token.Register(() => completion.TrySetCanceled(lifetime.Token)))
+			{
+				try { await completion.Task; }
+				finally { if (IsInstanceValid(timer)) timer.Timeout -= Finish; }
+			}
 		}
 	}
 }

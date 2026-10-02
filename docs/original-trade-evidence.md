@@ -1,6 +1,6 @@
 # Original Methanoid trade rules
 
-Verified **2026-10-02** for Asana **1215691951441128**, against the original Disk 1 image, independently of the parallel port's implementation. This establishes rules for the unfinished accept/decline flow; it does not claim that flow is implemented or accepted on Windows.
+Verified **2026-10-02** for Asana **1215691951441128**, against the original Disk 1 image, independently of the parallel port's implementation. This establishes rules for the accept/decline flow. The decision, counter and exchange paths now have local regression evidence; original timeout behavior and native Windows acceptance remain incomplete.
 
 ## Source and reproduction
 
@@ -53,6 +53,8 @@ Using this repository's mineral IDs, the table matches the existing seven pairs:
 
 ## Implementation and acceptance still needed
 
-`ShipInterior.cs` currently asks the question, exchanges automatically, increments the count and only checks equality with 16. Add an explicit choice, preserve the entire cargo state on refusal, and resolve each encounter once. Cover zero/nonzero refusal counts, every supported pair, empty and mixed cargo, quantities, repeat input, modal cancellation/scene exit, saved state and both sides of the war boundary. Extend the existing comms progression test to accept through the new control.
+`ShipInterior.cs` now offers Accept/Decline through a modal cargo preview. Acceptance exchanges supported supplies and increments once; refusal leaves cargo unchanged and decrements with a zero floor. The war gate uses >=16 and `AtWar` prevents another peaceful encounter. Empty/unsupported cargo cannot advance the count. Original `0xFFFF` state is represented by the remake's existing `AtWar` flag rather than changing the save format.
+
+Cases 220–235 cover decisions, all table entries 1–16, quantities, repeat input, stale cargo, pointer/keyboard input, interrupted typing, scene exit and the war boundary. Case 150 now explicitly accepts through the control after normal comms research/manufacture/fitting. Cargo and counter settle together before response playback. Escape or external overlay dismissal abandons the choice without a decision or launch; this is a modern UI behavior, distinct from explicit Decline. The choice pauses the simulation; no original-timeout parity is claimed.
 
 Before claiming full original parity, establish decision timing, the ship `+6` field and how the original three cargo words correspond to this remake's IOS/SCG layouts. Keep those evidence gaps separate from implementation and native Windows acceptance; do not invent an arbitrary timeout or silently spread the exchange to unsupported modules.
