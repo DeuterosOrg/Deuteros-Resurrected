@@ -144,6 +144,7 @@ namespace Deuteros.Tests
             RunAccCycleRegressions();
             RunStaffRankRegressions();
             await RunResearchOnlyRecipeRegressions();
+            RunSdmInstallationRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

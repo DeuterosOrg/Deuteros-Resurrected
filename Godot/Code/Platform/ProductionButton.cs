@@ -28,7 +28,9 @@ namespace Deuteros.Code.Platform
 				else
 					currentFactory = currentPlanet.Station.Factory;
 
-				if (ObjectData.ItemType == Enums.ItemTypes.m__t__x && !currentFactory.Ground && currentPlanet.Station.MtxInstalled)
+				if (!currentFactory.Ground &&
+					((ObjectData.ItemType == Enums.ItemTypes.m__t__x && currentPlanet.Station.MtxInstalled) ||
+					 (ObjectData.ItemType == Enums.ItemTypes.s__d__m && currentPlanet.Station.SdmInstalled)))
 				{
 					HoverText = ObjectData.FullName + " - Installed";
 					AnimationState = Enums.SidePanel_Button_State_Animations.Static_Locked;

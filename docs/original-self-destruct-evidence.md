@@ -1,6 +1,6 @@
 # Original self-destruct controls and station loss
 
-Evidence for Asana task **1215685674676229**, checked 2026-10-02. These are static instruction traces, not an emulator acceptance run or an implemented feature.
+Evidence for Asana task **1215685674676229**, checked 2026-10-02. These are static instruction traces, not an emulator acceptance run. Local installation now has regression evidence; arming, defusing and destruction integration remain incomplete.
 
 ## Reproduce the trace
 
@@ -18,7 +18,7 @@ At `$35DB8–$35DD2`, hostile station type 9 plus nonzero Hyperlight discovery/p
 
 ## Manufacturing installs the mechanism
 
-Manual production completion at `$233BE–$233EC` recognizes zero-based item `$12` (the SDM). It selects a word in `$1305E` using the production record's byte `+7D`, sets bit 5, refreshes the interface, and bypasses the ordinary stock-credit call at `$233FA`. The automated completion path repeats this at `$2347A–$234A8`. Its queue selector `$23558–$23574` tests that same bit and branches to queue removal when already installed. Thus completion installs the local facility capability instead of creating transferable SDM stock, and automatic repeat stops once installed. Mapping the indexed capability word to the remake's planet/station fields should be checked alongside the installation tests. Raw extract: ignored `artifacts/research/mtx/self-destruct-installation.txt`.
+Manual production completion at `$233BE–$233EC` recognizes zero-based item `$12` (the SDM). It selects a word in `$1305E` using the production record's byte `+7D`, sets bit 5, refreshes the interface, and bypasses the ordinary stock-credit call at `$233FA`. The automated completion path repeats this at `$2347A–$234A8`. Its queue selector `$23558–$23574` tests that same bit and branches to queue removal when already installed. Thus completion installs the local facility capability instead of creating transferable SDM stock, and automatic repeat stops once installed. Initializer `$2FD74` selects the planet/station record by index (`index * $F6`), writes that index to record `+7D` at `$2FDB2`, and selects `$1305E + index * 2` at `$2FDF6–$2FDFE`. This confirms the capability belongs to the producing local record, rather than every station. The remake maps it to that planet's existing `Station.SdmInstalled` field. Raw extract: ignored `artifacts/research/mtx/self-destruct-installation.txt`.
 
 ## Countdown and loss
 
@@ -28,6 +28,12 @@ There is also a simulation-step removal pass `$35E02`, called at `$23D28`: a hig
 
 `$3601A` removes the station ownership/map entry and station type, updates base state, removes its docked IOS/SCG and relevant shuttle, and processes resident staff loss. It emits station-loss news type 7. This supports loss of a docked capturing ship and crew, not an unsupported assertion that every ship anywhere in the planet's orbit is destroyed.
 
+## Implemented installation
+
+Paid orbital production now sets the producing station's existing `SdmInstalled` flag without adding stock. Manual and AOC controls reject duplicate installations; existing repeat orders are cleared once installed. Paid construction suspends at a missing or captured station and resumes without another debit. The recipe control locks and identifies installed hardware. Existing pre-fix SDM inventory is preserved; it is not silently consumed or retroactively converted.
+
+Cases 338–347 cover local ownership, independent MTX hardware, one recipe charge, manual/AOC repeat handling, ground rejection, station interruption and save/load. Full Mac validation passes 347 cases; [validation details](validation-results.md#sdm-local-installation--2026-10-02) retain the failed reproductions and limits. This does not yet supply the arming/defusing gameplay.
+
 ## Remaining implementation work
 
-Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the local installation mapping and the exact neighboring-ship casualty boundary. Then implement persistent arming, safe disarming/capture, destruction cleanup and save/load with deterministic regression coverage. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
+Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. Then implement persistent arming, safe disarming/capture, destruction cleanup and save/load with deterministic regression coverage. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.

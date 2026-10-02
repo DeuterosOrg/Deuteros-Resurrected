@@ -113,8 +113,8 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CheckProductionStart()
 		{
-			if (SelectedButton?.ObjectData?.ItemType == Enums.ItemTypes.m__t__x
-				&& !CanInstallMtx(CurrentPlanet, Ground)) return;
+			if (SelectedButton?.ObjectData != null && IsStationInstallation(SelectedButton.ObjectData.ItemType)
+				&& !CanInstallStationItem(CurrentPlanet, SelectedButton.ObjectData.ItemType, Ground)) return;
 			{
 				//There is no staff
 				if (!CurrentFactory.AOC && (CurrentFactory.Builder == null || CurrentFactory.Builder.Count == 0))
@@ -254,7 +254,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (factory == CurrentFactory)
 			{
 				SelectedButton = null;
-				foreach (var button in Buttons.Where(b => b.ObjectData?.ItemType == Enums.ItemTypes.m__t__x))
+				foreach (var button in Buttons.Where(b => b.ObjectData != null && IsStationInstallation(b.ObjectData.ItemType)))
 					button.Redraw(false);
 			}
 		}
@@ -331,9 +331,19 @@ namespace Deuteros.Code.Platform.Screens
 
 		#region Statics
 
-		private static bool CanInstallMtx(IPlanet planet, bool ground)
+		private static bool IsStationInstallation(Enums.ItemTypes type) =>
+			type == Enums.ItemTypes.m__t__x || type == Enums.ItemTypes.s__d__m;
+
+		private static bool StationItemInstalled(IPlanet planet, Enums.ItemTypes type) => type switch
 		{
-			return !ground && planet.Station.Built && !planet.ActiveMethanoid && !planet.Station.MtxInstalled;
+			Enums.ItemTypes.m__t__x => planet.Station.MtxInstalled,
+			Enums.ItemTypes.s__d__m => planet.Station.SdmInstalled,
+			_ => false
+		};
+
+		private static bool CanInstallStationItem(IPlanet planet, Enums.ItemTypes type, bool ground)
+		{
+			return !ground && planet.Station.Built && !planet.ActiveMethanoid && !StationItemInstalled(planet, type);
 		}
 
 		public static void UpdateProduction(uint previousDay, uint currentDay)
@@ -351,10 +361,11 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (currentFactory != null)
 					{
-						if (!currentFactory.Ground && currentPlanet.Station.MtxInstalled)
-							currentFactory.ProductionQueue.RemoveAll(order => order.Product.ItemType == Enums.ItemTypes.m__t__x);
-						if (currentFactory.CurrentProductionItem()?.Product.ItemType == Enums.ItemTypes.m__t__x
-							&& !CanInstallMtx(currentPlanet, currentFactory.Ground)) continue;
+						if (!currentFactory.Ground)
+							currentFactory.ProductionQueue.RemoveAll(order => StationItemInstalled(currentPlanet, order.Product.ItemType));
+						var currentItem = currentFactory.CurrentProductionItem()?.Product;
+						if (currentItem != null && IsStationInstallation(currentItem.ItemType)
+							&& !CanInstallStationItem(currentPlanet, currentItem.ItemType, currentFactory.Ground)) continue;
 
 						if (currentFactory.CurrentProductionItem() == null && currentFactory.AOC)
 						{
@@ -376,10 +387,13 @@ namespace Deuteros.Code.Platform.Screens
 							{
 
 								var outputStore = currentFactory.Ground ? currentPlanet.PlanetResources.Stores : currentPlanet.Station.Resources.Stores;
-								var installsMtx = currentFactory.CurrentProductionItem().Product.ItemType == Enums.ItemTypes.m__t__x
-									&& !currentFactory.Ground;
-								if (installsMtx)
-									currentPlanet.Station.MtxInstalled = true;
+								var completedType = currentFactory.CurrentProductionItem().Product.ItemType;
+								var installsStationItem = IsStationInstallation(completedType) && !currentFactory.Ground;
+								if (installsStationItem)
+								{
+									if (completedType == Enums.ItemTypes.m__t__x) currentPlanet.Station.MtxInstalled = true;
+									else currentPlanet.Station.SdmInstalled = true;
+								}
 								else
 									outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
 
@@ -416,7 +430,7 @@ namespace Deuteros.Code.Platform.Screens
 										RemoveResourceByItem(currentPlanet, currentFactory.CurrentProductionItem().Product, currentFactory.Ground);
 									}
 								}*/
-								else if (installsMtx)
+								else if (installsStationItem)
 								{
 									currentFactory.ProductionQueue.Remove(currentFactory.CurrentProductionItem());
 								}
@@ -471,7 +485,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			// Research-only technology is not a manufacturing recipe, including in older saves.
 			if (productionItem.BuildRequirements == null) return false;
-			if (productionItem.ItemType == Enums.ItemTypes.m__t__x && !CanInstallMtx(productionPlanet, ground))
+			if (IsStationInstallation(productionItem.ItemType) && !CanInstallStationItem(productionPlanet, productionItem.ItemType, ground))
 				return false;
 			Objects.Store currentStore;
 
