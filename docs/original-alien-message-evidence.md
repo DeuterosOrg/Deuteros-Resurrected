@@ -58,7 +58,7 @@ Selector `$32B7E–$32BDA` indexes the longword table at `$32B1E` by `(ship hull
 | IOS (2) | `$8A3A8222` | 1, 5, 9, 15, 17, 19, 20, 21, 25, 27, 31 |
 | SCG (3) | `$CA1A8023` | 0, 1, 5, 15, 17, 19, 20, 25, 27, 30, 31 |
 
-Thus item 0 (the completed device) is **SCG-only**. A.M.A. (21) is IOS-only and Prison Pod (30) SCG-only. Each starship list has eleven entries, matching the eleven visible selector rows. The remake currently shares one eleven-item list across hulls; simply adding the device would create twelve choices and an unreachable or out-of-range final row. Both rendering and selection must use the same hull eligibility rule, while old incorrectly fitted equipment remains removable.
+Thus item 0 (the completed device) is **SCG-only**. A.M.A. (21) is IOS-only and Prison Pod (30) SCG-only. Each starship list has eleven entries, matching the eleven visible selector rows. The remake previously shared one eleven-item list across hulls; simply adding the device would create twelve choices and an unreachable or out-of-range final row. Rendering and selection now share the original normal-hull eligibility rule, while old incorrectly fitted equipment remains removable.
 
 Selection `$32F44–$33016` returns existing equipment, requires replacement stock, debits it through `$2415C`, and writes the mounted item ID. Only Derrick (index 1) uses the multi-unit branch; item 0 follows the single-unit path. No device-specific mass check occurs in this selection block. Modified hull codes, broader mass behavior and visual acceptance remain separate checks. `tool-hull-eligibility.txt` and `tool-selection.txt` preserve the instruction extracts.
 
@@ -76,11 +76,19 @@ Case **135** reproduced the real grapple unload leaving completion at 1%; it now
 
 Manufacture is restored at **`ef21e5ea9487ec66215472eff86acc5502ca8611`**: completing recovery exposes the original `Unknown` device recipe, with zero materials, mass 2000 and orbital-only production. Legacy saves acquire missing names/recipe and the orbital restriction without replacing research progress or queued item references. Stores identifies a zero-material recipe explicitly. Both manual and AOC controls enforce the factory restriction; pending AOC orders and loaded paid ground orders cannot bypass it.
 
-Cases **412–416** reproduce the missing recipe, misleading zero-supplies label, automated ground-order bypass and paid ground-order completion. All pass focused headless/native Mac checks; manual/AOC manufacture resumes from an actually loaded save. Sixteen existing production/MTX/SDM compatibility cases pass. Native screenshots were inspected for readable recipe/name rendering. Full 416-case validation is running; Windows execution remains pending keychain access. Evidence is under `artifacts/validation/evidence/artifact-manufacture/`.
+Cases **412–416** reproduce the missing recipe, misleading zero-supplies label, automated ground-order bypass and paid ground-order completion. All pass focused headless/native Mac checks; manual/AOC manufacture resumes from an actually loaded save. Sixteen existing production/MTX/SDM compatibility cases pass. Native screenshots were inspected for readable recipe/name rendering. The initial full run stopped at case 336, whose older expectation required a material-capacity label for every recipe. That specific expectation is corrected at `f5a9cbb`; the failed log is retained. Evidence is under `artifacts/validation/evidence/artifact-manufacture/`.
+
+## Fitting correction
+
+At **`f5a9cbb994b2f904426c0744856405328f243a16`**, normal-hull tool lists match the decoded table and retain original item order regardless of discovery order. The device and Prison Pod fit SCGs; Blaser and A.M.A. fit IOS hulls. Both starship lists stay within eleven rows. Equipment is classified by item identity, not editable saved indices or obsolete tool flags. Only Derricks stack; other equipment consumes one stock unit per fitting.
+
+Legacy incompatible equipment remains aboard until replaced or removed; an unavailable replacement changes neither cargo nor stock. Both highlight and replacement paths handle an item absent from the new list. Fitted labels now use the same item names as the selector, including `Unknown`.
+
+Cases **417–421** pass focused headless/native Mac validation, including all three hull lists and last rows, old A.M.A. removal, Blaser legacy flags, Derrick stacks, and recovery→manufacture→SCG fitting→save/load. Native screenshots were inspected. Existing DFCC fuel cases 296/300 now select the visible named control rather than calculating a row from the old list; all fuel/stock assertions remain. Full **421-case runs are underway on both hosts**. Evidence: `artifacts/validation/evidence/tool-fitting/`.
 
 ## Remake work still required
 
-The remake still has no saved transmission stage/countdown or alien News replay. `CoreData` still preassigns nine artifacts, including Earth; capture-driven assignment, device fitting/activation and the ending are unfinished. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
+The remake still has no saved transmission stage/countdown or alien News replay. `CoreData` still preassigns nine artifacts, including Earth; capture-driven assignment, device activation and the ending are unfinished. Modified-hull conversion and broader mass behavior also need original-path integration. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
 
 Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, direct completion credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Device activation also depends on the [Warlord promotion path](original-warlord-evidence.md). Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
 

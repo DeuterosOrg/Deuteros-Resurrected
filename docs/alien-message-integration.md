@@ -1,6 +1,6 @@
 # Alien transmission integration
 
-Implementation design for Asana 1215691951441134, based on [the original trace](original-alien-message-evidence.md). Direct recovery credit, legacy credit conversion and device manufacture are implemented; transmission scheduling, capture assignment, device fitting/use and the ending remain outstanding. Preserve the existing Windows desktop handoff and complete each change in an isolated checkout while aggregate validation runs.
+Implementation design for Asana 1215691951441134, based on [the original trace](original-alien-message-evidence.md). Direct recovery credit, legacy credit conversion, device manufacture and normal-hull fitting are implemented; transmission scheduling, capture assignment, device activation and the ending remain outstanding. Preserve the existing Windows desktop handoff and complete each change in an isolated checkout while aggregate validation runs.
 
 ## Intended result
 
@@ -23,7 +23,7 @@ Transmission countdowns count eligible simulation updates. Do not describe them 
 
 Keep progression decisions in one small model helper called by these existing paths. No event framework, service interface or second scene-navigation system is needed.
 
-`ArtifactRecovery` handles direct credit and legacy conversion using existing persisted research fields. Cases 135/410/411 and full 411-case Mac validation cover recovery. Cases 412–416 verify the original zero-material orbital recipe, saved production and both manual/AOC factory gates; full validation of that follow-up is running. No message-history fields or speculative ending behavior have been added.
+`ArtifactRecovery` handles direct credit and legacy conversion using existing persisted research fields. Cases 135/410/411 and full 411-case Mac validation cover recovery. Cases 412–416 verify the zero-material orbital recipe, saved production and both manual/AOC factory gates; 417–421 cover original hull lists, legacy equipment and the manufacture-to-fitting path. Full 421-case validation is running on both hosts. No message-history fields or speculative ending behavior have been added.
 
 ## Saved-state rules
 

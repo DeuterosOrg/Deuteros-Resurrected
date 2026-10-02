@@ -2,9 +2,9 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **411/411**, strict import, source smoke and Windows export at `d3f00ac60a32eaf21f42446c214e82fe5fa973f7`; nine Python tests pass. Logs and package audit: `artifacts/validation/evidence/artifact-delivery/full-run-d3f00ac/`. The Mac-built executable has 1,219 pack entries, all 64 illustrations and no tests; SHA-256 `2ce44a0c7b25a9844414e1f205128c1df4b1f7de4757969afd7f7401829142b2`. Windows execution remains at the verified 409-case checkpoint while Mac keychain access prevents upload.
+Latest completed Mac checkpoint (2026-10-02): **411/411**, strict import, source smoke and Windows export at `d3f00ac60a32eaf21f42446c214e82fe5fa973f7`; nine Python tests pass. Logs and package audit: `artifacts/validation/evidence/artifact-delivery/full-run-d3f00ac/`. The Mac-built executable has 1,219 pack entries, all 64 illustrations and no tests; SHA-256 `2ce44a0c7b25a9844414e1f205128c1df4b1f7de4757969afd7f7401829142b2`. The latest completed Windows checkpoint remains 409 cases.
 
-The newer `ef21e5e` [device-manufacture correction](original-alien-message-evidence.md) passes focused cases 412–416, native Mac rendering/save-resume and sixteen production compatibility cases. Full 416-case validation is running. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
+The newer `ef21e5e` [device-manufacture correction](original-alien-message-evidence.md) passes focused cases 412–416, native Mac rendering/save-resume and sixteen production compatibility cases. Its full run stopped after 335 passes at case 336's outdated assumption that every recipe displays a finite material capacity. Revision `f5a9cbb` corrects that expectation and adds original hull fitting (focused/native cases 417–421 pass). Full **421-case runs are underway on Mac and Windows**; keychain access is restored. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
 ## Reproduced gameplay fixes
 

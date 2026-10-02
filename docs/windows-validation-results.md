@@ -6,7 +6,7 @@ Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `buil
 
 ## Automated results
 
-**Newer revision awaiting Windows validation:** `d3f00ac60a32eaf21f42446c214e82fe5fa973f7` passes 411 cases, import, source smoke and Windows export on Mac. Its private bundle was prepared but not uploaded: the Mac login keychain denied signing access after the Windows server accepted the SSH key. No Windows run has started for that revision. The results below remain the last completed Windows checkpoint.
+**Newer revision currently validating:** `f5a9cbb994b2f904426c0744856405328f243a16` is running the full 421-case suite in a fresh Windows checkout. SSH access is restored and its private bundle was uploaded and verified. The prior Mac-only checkpoint `d3f00ac` passed 411 cases; the results below remain the last completed Windows checkpoint until the new run and packaged smoke finish.
 
 **Fresh native Windows validation passed in one run:** compilation, strict import, **409/409 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
 
