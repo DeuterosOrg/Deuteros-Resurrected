@@ -42,7 +42,9 @@ namespace Deuteros.Tests
             foreach (var name in new[] { "Lost Shuttle", "Lost IOS", "Lost SCG" })
                 Equal(1, Save.News.GetNews(100).Count(n => n.Contains(name) && n.Contains("Destroyed")), "each named loss reported once");
             Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(1, 2);
-            Equal(3, Save.News.GetNews(100).Count, "removed ships cannot repeat reports");
+            Equal(9, Save.News.GetNews(100).Count, "removed ships and their crews cannot repeat reports");
+            news.DrawData();
+            Equal("", news.NewsLabels[11].TooltipText, "short history has no stale hover text");
             var victim = (InterStellarShip)LoadedDismantleShip(Ship_Types.IOS);
             victim.Name = "Hostile Orbit";
             victim.ACC = null;
@@ -59,9 +61,11 @@ namespace Deuteros.Tests
             GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
             news.DrawData();
             Equal(true, news.NewsLabels[0].Text.Contains("Hostile Orbit Destroyed"), "saved latest loss appears first");
+            Equal(true, news.NewsLabels[1].Text.Contains("Crew Killed."), "passenger loss appears under vessel report");
+            Equal(true, news.NewsLabels[2].Text.Contains("Pilot Killed."), "pilot loss remains visible");
             Equal(Save.News.GetNews(1).Single(), news.NewsLabels[0].TooltipText, "full report is retained for hover when a name overflows");
             Equal(TextServer.OverrunBehavior.TrimEllipsis, news.NewsLabels[0].TextOverrunBehavior, "overflow is indicated instead of drawing outside the panel");
-            Equal("", news.NewsLabels[11].TooltipText, "unused rows have no stale hover text");
+            Equal(Save.News.GetNews(12).First(), news.NewsLabels[11].TooltipText, "full history retains the oldest visible report");
             await CaptureDisplayEvidence("news-ship-losses");
         }
 
@@ -90,11 +94,11 @@ namespace Deuteros.Tests
             Equal(true, target.ActiveMethanoid, "actual capture commits");
             Equal(false, Save.Ships.Contains(victim), "capture removes player's ship");
             var reports = Save.News.GetNews(100);
-            Equal(3, reports.Count, "one attack, one ship loss, one station capture");
-            Equal(true, reports[1].Contains("Captured Ship Destroyed"), "ship loss precedes station capture");
-            Equal(true, reports[2].Contains("Mars CAPTURED"), "station capture is the final report");
+            Equal(5, reports.Count, "one attack, two crew losses, one ship loss, one station capture");
+            Equal(true, reports[3].Contains("Captured Ship Destroyed"), "ship loss precedes station capture");
+            Equal(true, reports[4].Contains("Mars CAPTURED"), "station capture is the final report");
             fleet.ProcessFleet();
-            Equal(3, Save.News.GetNews(100).Count, "inactive fleet cannot repeat capture reports");
+            Equal(5, Save.News.GetNews(100).Count, "inactive fleet cannot repeat capture reports");
             news.DrawData();
             Equal(true, news.NewsLabels[0].Text.Contains("Mars CAPTURED"), "capture is visible newest first");
             await CaptureDisplayEvidence("news-station-capture");

@@ -217,6 +217,8 @@ namespace Deuteros.Tests
             await CheckAsync("Training light switch dims safely and restores controls", TrainingLighting);
             await CheckAsync("Training door audio follows transitions once and preserves button feedback", TrainingDoorAudio);
             await CheckAsync("Training doors preserve independent animation and lock ownership", TrainingDoorLifecycle);
+            CheckUi("Ship loss reports pilots and cryopod crews once with saved history", CrewShipLossNews);
+            CheckUi("Station destruction and capture report lost crews without killing survivors", CrewStationLossNews);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

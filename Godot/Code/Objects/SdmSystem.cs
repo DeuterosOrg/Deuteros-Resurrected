@@ -100,7 +100,7 @@ namespace Deuteros.Code.Objects
             foreach (var ship in lost)
             {
                 save.Ships.Remove(ship);
-                save.News.AddNews(ship.Name + " lost in station self-destruct.");
+                save.News.AddShipLoss(ship, "lost in station self-destruct.");
             }
             foreach (var fleet in save.Ships.OfType<EnemyFleet>().Where(f => f.DestinationPlanetLocation == planet.PlanetId))
             {
@@ -108,6 +108,9 @@ namespace Deuteros.Code.Objects
                 fleet.AttackDay = fleet.AttackCount = 0;
                 fleet.DestinationPlanetLocation = StellarBodies.none;
             }
+            var crew = planet.Station.Resources.Staff.Append(planet.Station.Factory.Builder);
+            if (planet.PlanetId != StellarBodies.earth) crew = crew.Concat(planet.PlanetResources.Staff);
+            save.News.AddCrewLoss(crew);
             planet.Station = new SpaceStation(planet.PlanetId);
             planet.ActiveMethanoid = false;
             if (planet.PlanetId != StellarBodies.earth)

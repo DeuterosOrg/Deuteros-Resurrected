@@ -23,9 +23,18 @@ namespace Deuteros.Code.Objects
 			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay.ToString().PadRight(3, ' ') + ": " + NewsItem);
 		}
 
-        public void AddShipLoss(Interfaces.IShip ship)
+        public void AddCrewLoss(IEnumerable<Staff> teams)
         {
-            if (ship is not EnemyFleet) AddNews(ship.Name + " Destroyed.");
+            foreach (var team in teams.Where(t => t != null).Distinct())
+                AddNews(team.GetLevelString() + " " + team.Leader + " Killed.");
+        }
+
+        public void AddShipLoss(Interfaces.IShip ship, string cause = "Destroyed.")
+        {
+            if (ship is EnemyFleet) return;
+            AddCrewLoss((ship.Modules?.Where(m => m.ModuleType == Enums.Module_Types.Cryo)
+                .Select(m => m.StaffStored) ?? Enumerable.Empty<Staff>()).Prepend(ship.Pilot));
+            AddNews(ship.Name + " " + cause);
         }
 
 		public List<string> GetNews(int count)

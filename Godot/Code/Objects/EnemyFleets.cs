@@ -89,9 +89,14 @@ namespace Deuteros.Code.Objects
                 ship = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == attackedPlanet.PlanetId && s.GetType() != typeof(EnemyFleet));
             }
 
-            //remove all stack from planet and station
+            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddCrewLoss(
+                attackedPlanet.Station.Resources.Staff.Concat(attackedPlanet.PlanetResources.Staff)
+                    .Append(attackedPlanet.Station.Factory.Builder));
+
+            //remove all staff from planet and station
             attackedPlanet.Station.Resources.RemoveAllStaff();
             attackedPlanet.PlanetResources.RemoveAllStaff();
+            attackedPlanet.Station.Factory.Builder = null;
 
             attackedPlanet.PlanetResources.Derricks = Random.Shared.Next(8);
 
