@@ -14,6 +14,7 @@ namespace Deuteros.Code.Objects
 		public int ShuttleState { get; set; }
 		public int StarShipState { get; set; }
 		public bool SdmInstalled { get; set; }
+        public int SdmCountdown { get; set; }
 		public bool MtxInstalled { get; set; }
         public int StationOrdinal { get; set; }
 

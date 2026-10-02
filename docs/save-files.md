@@ -35,3 +35,7 @@ Day updates now run the simulation event before the display event. The simulatio
 ## Staff attrition compatibility
 
 Version 1 now includes `Staff.AttritionCountdown`. Missing values from older saves default to zero, matching original team allocation; explicit null is invalid. Loading preserves member counts and applies no historical attrition. The next crossed 100-day boundary begins normal processing. Current saves retain each countdown and the global phase through `CurrentDay`, including teams inside cryopods. Older game builds reject this new field; retain pre-upgrade backups.
+
+## Self-destruct compatibility
+
+Version 1 now includes `SpaceStation.SdmCountdown` and `SaveFile.SdmTimerRemainder`. Older saves missing either field default it to zero; loading does not invent an armed station. Current saves preserve the countdown and subsecond phase, including the simulation skip bit. Explicit nulls, countdowns outside 0–255, non-finite phases and phases outside [0, 1) are invalid. Switch positions are screen state derived on entry, rather than a second saved source of truth. Older builds reject these new fields; preserve backups. See [gameplay limits](self-destruct-implementation.md).

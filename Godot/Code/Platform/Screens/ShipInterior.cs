@@ -604,16 +604,6 @@ namespace Deuteros.Code.Platform.Screens
 				return;
 			if (Ship.ShipType == Ship_Types.Shuttle || ((InterStellarShip)Ship).AttackedCount == 0)
 			{
-				if (Ship.ShipType != Ship_Types.Shuttle &&
-					GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
-					GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid)
-				{
-					var planet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
-
-					planet.ActiveMethanoid = false;
-					planet.Station.StationOrdinal = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => p != planet && !p.ActiveMethanoid && p.Station != null).MaxBy(p => p.Station.StationOrdinal).Station.StationOrdinal + 1;
-
-				}
 
 				Ship.Dock();
 				UpdateState();
@@ -674,7 +664,7 @@ namespace Deuteros.Code.Platform.Screens
 			UpdateState();
 		}
 
-		private void UpdateState()
+		internal void UpdateState()
 		{
 			if (Ship.ShipState != Ship_States.InTransit)
 				CurrentPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
@@ -1108,6 +1098,7 @@ namespace Deuteros.Code.Platform.Screens
 						if (ship.ShipType == Ship_Types.Shuttle || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
 						{
 							ship.ShipState = Ship_States.Docked;
+                            SdmSystem.Docked(ship);
 							ship.ACC?.Update(Ship_States.Docking);
 						}
 					}

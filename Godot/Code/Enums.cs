@@ -321,7 +321,8 @@ namespace Deuteros.Code
             Overview,
             None,
             Station,
-            IntroScreen
+            IntroScreen,
+            SelfDestruct
         }
 
         //Variables to pass to scenes to notify them of button types

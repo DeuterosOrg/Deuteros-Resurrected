@@ -1,6 +1,6 @@
 # Original self-destruct controls and station loss
 
-Evidence for Asana task **1215685674676229**, checked 2026-10-02. These are static instruction traces, not an emulator acceptance run. Local installation now has regression evidence; arming, defusing and destruction integration remain incomplete.
+Evidence for Asana task **1215685674676229**, checked 2026-10-02. These are static instruction traces, not an emulator acceptance run. Local installation and the new control/capture/expiry paths have focused regression evidence; see [implementation and remaining limits](self-destruct-implementation.md). Original-runtime and desktop acceptance remain incomplete.
 
 ## Reproduce the trace
 
@@ -55,8 +55,8 @@ Reproduction extract: ignored `artifacts/research/mtx/self-destruct-base-recover
 
 Paid orbital production now sets the producing station's existing `SdmInstalled` flag without adding stock. Manual and AOC controls reject duplicate installations; existing repeat orders are cleared once installed. Paid construction suspends at a missing or captured station and resumes without another debit. The recipe control locks and identifies installed hardware. Existing pre-fix SDM inventory is preserved; it is not silently consumed or retroactively converted.
 
-Cases 338–347 cover local ownership, independent MTX hardware, one recipe charge, manual/AOC repeat handling, ground rejection, station interruption and save/load. Full Mac and Windows validation passes 349 cases; [validation details](validation-results.md#sdm-local-installation--2026-10-02) retain the failed reproductions and limits. This does not yet supply the arming/defusing gameplay.
+Cases 338–347 cover local ownership, independent MTX hardware, one recipe charge, manual/AOC repeat handling, ground rejection, station interruption and save/load. Full Mac and Windows validation passes 349 cases; [validation details](validation-results.md#sdm-local-installation--2026-10-02) retain the failed reproductions and limits. The subsequent [gameplay implementation](self-destruct-implementation.md) adds arming/defusing and expiry; its verification is recorded separately.
 
 ## Remaining implementation work
 
-Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. Then implement persistent arming, safe disarming/capture, destruction cleanup and save/load with deterministic regression coverage. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
+Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. The remake now implements persistent arming, disarming/capture, destruction cleanup and save/load with focused regression coverage. Finish the original alarm and reconcile the documented ground-team lifecycle and timing boundaries. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.

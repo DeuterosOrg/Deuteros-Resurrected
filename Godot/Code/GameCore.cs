@@ -303,6 +303,7 @@ namespace Deuteros.Code
 			SimulationDayPassed += StaffAttrition.DayTick;
 			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
 			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
+			SimulationDayPassed += SdmSystem.DayTick;
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
@@ -382,7 +383,23 @@ namespace Deuteros.Code
 		// Called every frame. 'delta' is the elapsed time since the previous frame.
 		public override void _Process(double delta)
 		{
+			SdmSystem.AdvanceTime(delta);
 			UpdateTime();
+		}
+
+		public void StationDestroyed(IPlanet planet)
+		{
+			if (_currentScreen == null || GameData.ActiveSaveFile.CurrentPlanet != planet.PlanetId) return;
+			if (_currentScreen is ShipInterior interior && GameData.ActiveSaveFile.Ships.Contains(interior.Ship))
+			{
+				interior.UpdateState();
+				return;
+			}
+			if (currentScene == Scenes.Overview || currentScene == Scenes.News || currentScene == Scenes.SaveScreen
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+			// Exit now so the removed ship/station screen cannot observe the following DayPassed.
+			_currentScreen.GetParent().RemoveChild(_currentScreen);
+			ChangeScene(Scenes.Overview, new List<SceneVariables>());
 		}
 
 		public static void ShowError(BaseSubScene scene, string ErrorText)
@@ -547,6 +564,14 @@ namespace Deuteros.Code
 
 				UpdateLocationText(orbit);
 				_menuScreen.Star.Text = GetCurrentPlanet().ParentStar.ToScreenString(" ");
+				_menuScreen.SetupMenus();
+			}
+
+			if (_menuScreen != null && orbit && !ground && SdmSystem.CanAccess(GameData.ActiveSaveFile, GetCurrentPlanet()))
+			{
+				_menuScreen.MenuButtons[3] = new Objects.MenuButton(Menu_Buttons.SDM, Scenes.SelfDestruct, true,
+					new Godot.Collections.Array<SceneVariables> { Enums.SceneVariables.Orbit }, null,
+					() => SdmSystem.CanAccess(GameData.ActiveSaveFile, GetCurrentPlanet()), "Self-destruct");
 				_menuScreen.SetupMenus();
 			}
 
