@@ -53,6 +53,10 @@ namespace Deuteros.Tests
             var text = Save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Station_Deploy];
             var originalLines = text.Lines;
             if (emptyCrew) text.Lines = new List<Line>();
+            var core = GameCore.SingletonInstance;
+            var wasProcessing = core.IsProcessing();
+            // Compare UI mutations while the independent real-time SDM clock is held steady.
+            core.SetProcess(false);
             var before = Deuteros.Code.Utility.SaveStorage.Serialize(Save);
             try
             {
@@ -87,6 +91,7 @@ namespace Deuteros.Tests
                 if (OverlayManager.Instance.IsOpen) OverlayManager.Instance.CloseOverlay();
                 await InputFrames();
                 GetTree().Paused = false;
+                core.SetProcess(wasProcessing);
             }
         }
 
@@ -140,11 +145,21 @@ namespace Deuteros.Tests
                 var interior = await DeploymentInterior(scenario == "ground" ? Ship_Types.Shuttle : Ship_Types.IOS,
                     false, scenario == "transit" ? Ship_States.InTransit : Ship_States.UnDocked,
                     scenario == "ground", scenario == "complete", scenario == "asteroid");
-                var before = Deuteros.Code.Utility.SaveStorage.Serialize(Save);
-                Press(interior, "Modules/00");
-                await InputFrames();
-                Equal(false, OverlayManager.Instance.IsOpen, "no irrelevant pilot warning in " + scenario);
-                Equal(before, Deuteros.Code.Utility.SaveStorage.Serialize(Save), "ineligible deployment preserves state in " + scenario);
+                var core = GameCore.SingletonInstance;
+                var wasProcessing = core.IsProcessing();
+                core.SetProcess(false);
+                try
+                {
+                    var before = Deuteros.Code.Utility.SaveStorage.Serialize(Save);
+                    Press(interior, "Modules/00");
+                    await InputFrames();
+                    Equal(false, OverlayManager.Instance.IsOpen, "no irrelevant pilot warning in " + scenario);
+                    Equal(before, Deuteros.Code.Utility.SaveStorage.Serialize(Save), "ineligible deployment preserves state in " + scenario);
+                }
+                finally
+                {
+                    core.SetProcess(wasProcessing);
+                }
             }
         }
     }
