@@ -17,7 +17,7 @@ This is a source review, not a claim that the tasks are fixed. All 48 open task 
 
 Use this repository's source to establish current behavior. The separate [deuteros-parallel](https://github.com/WizzoUK2/deuteros-parallel) repository is supporting research, not an automatic implementation specification. Its `DIVERGENCES.md`, `docs/m2-findings.md`, data tables and tests distinguish decoded values, live observations, deliberate choices and provisional behavior.
 
-In particular, the parallel project's subsystem order, travel formula, trade cadence/terms and Hydroid timers are provisional or invented. Later `m2-findings.md` addenda correct earlier event/war interpretations; read the latest addendum before adopting a claim. Original binary-table evidence and recorded emulator observations can support narrowly scoped acceptance criteria, but parallel tests alone cannot prove original-game fidelity.
+In particular, the parallel project's subsystem order, travel formula, trade cadence/terms and Hydroid timers are provisional or invented. Later `m2-findings.md` addenda correct earlier event/war interpretations; read the latest addendum before adopting a claim. Original binary-table evidence and recorded emulator observations can support narrowly scoped acceptance criteria, but parallel tests alone cannot prove original-game fidelity. The subsequent [direct trade-byte investigation](original-trade-evidence.md) corrects the later port summary too: acceptance increments the counter; explicit refusal decrements it, floored at zero. An all-accept playthrough cannot establish refusal behavior.
 
 ## Reproduce (14)
 

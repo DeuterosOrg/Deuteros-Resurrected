@@ -213,6 +213,8 @@ Use Craig's `WizzoUK2/deuteros-parallel` research where available. Read its `DIV
 
 Engine-damage task **1216073204565506** now has a specific evidence gate: the task confirms both wartime triggers but does not say whether a damaged ship can travel home or how replacement works. See [engine evidence](original-behavior-evidence.md#1216073204565506--engine-damage-without-dfcc). Resolve that recovery path before adding a damage flag or changing attack/destruction timing.
 
+For **1215691951441128 — Methanoid Resource Trading**, read the [verified original instructions](original-trade-evidence.md) before adding the missing choice. Acceptance increments the counter; explicit refusal decrements it with a zero floor. The later parallel-port claim that both outcomes increment is contradicted by these bytes. The war gate is **>=16**, and original decision expiry assigns 18; its wall-clock timing and the cargo layout still need mapping. Current gameplay still auto-accepts. Extend case 150 to select acceptance when implementing the choice, and test decline, quantities, repeat input, scene exit and the war boundary independently.
+
 ## Deliverable
 
 Create `docs/windows-validation-results.md` with the tested commit/dirty state, Windows/GPU details, tool versions, commands, case counts, source/export results, manual scenarios and exact unresolved failures. Include Asana IDs and evidence for every newly verified task. Store raw logs/screenshots under `artifacts/windows-validation/`; keep binaries and generated caches out of commits.

@@ -4,7 +4,7 @@ Research snapshot: **2026-10-02**. This follows the eight `original-evidence-nee
 
 The parallel repository is an evidence archive, not a second independent specification. Its current checkout is `ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9`; local `origin/inv/save` retains the reverse-engineering pack at `6fabd73bbc7fff0eb08825b2dd6043f618e596a4`, and `origin/inv/synthesis` retains the survey at `faf3a30beb07868e06e01ebb306f63b2b42affed`. Links below pin those commits. Inspect archived files locally with `git show <commit>:<path>`; switching branches is unnecessary.
 
-**Confidence:** high means a cited instruction sequence or table supports the narrow rule; medium means recorded player observation or an incomplete semantic mapping; low means inherited implementation, hypothesis, or secondhand walkthrough claim. No original-game emulator session was performed. The MTX addendum below independently checks bytes from the archived disk image; remake regression evidence is recorded separately in the validation results.
+**Confidence:** high means a cited instruction sequence or table supports the narrow rule; medium means recorded player observation or an incomplete semantic mapping; low means inherited implementation, hypothesis, or secondhand walkthrough claim. No original-game emulator session was performed. The MTX addendum and [trade investigation](original-trade-evidence.md) independently check bytes from the archived disk image; remake regression evidence is recorded separately in the validation results.
 
 ## What the evidence unlocks
 
@@ -22,6 +22,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
 | [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. Implemented with cases 174–190; Windows acceptance remains pending. |
 | [1216073204565506 — engine damage](https://app.asana.com/0/1214891399253076/1216073204565506) | Task-defined triggers; recovery unknown | Wartime arrival and an attack on the current orbit are specified; damaged travel and replacement behavior need evidence. |
+| [1215691951441128 — Methanoid trading](https://app.asana.com/0/1214891399253076/1215691951441128) | High for verified instruction paths/table | [Accept/decline, exchange and war-gate rules recovered](original-trade-evidence.md). Refusal decrements; later port prose claiming all outcomes increment is contradicted by original bytes. Timeout duration and full cargo-field semantics remain open. |
 
 ## 1215683087492485 — MTX installation
 
