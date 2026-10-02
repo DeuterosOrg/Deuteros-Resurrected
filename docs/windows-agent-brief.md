@@ -2,9 +2,9 @@
 
 ## Start here
 
-**Latest verified revision: `8cdd458e9fe661bc78872b9b28e78c77001634a1` (2026-10-02).** Mac and native Windows each pass **349/349 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **31/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
+**Latest verified revision: `55316b638e50718ca874143c592f041feee4a6b4` (2026-10-02).** Mac and native Windows each pass **359/359 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **32/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
 
-1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` should retain that revision in its report, then test the newer changes separately.
+1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
 3. **Validate, then test the desktop.** Use the setup below and a fresh export of the recorded commit. Prioritize actual mouse/keyboard, audible sound, settings, save/load and repeated physical window closing, then the feature checks. Record source and export separately, with staged fixtures distinguished from normal progression. Automated input is not physical acceptance.
 4. **Return a separate report.** Write `docs/windows-desktop-results-<sha>.md` with PASS/FAIL/NOT TESTED, evidence paths, steps and fixture shortcuts. Keep logs/screenshots under ignored `artifacts/windows-validation/`. Return the report summary, commit SHA and Git bundle path through Craig. Coordinate gameplay-file ownership before making concurrent fixes.
@@ -24,6 +24,12 @@ The historical native Mac case-315 failure is preserved. A controlled debug inpu
 For SDM, research and manufacture at a friendly orbital station. One paid build must install locally, create no new stock and stop AOC repeat. Check Installed hover, duplicate rejection, saving/reloading mid-build and completion, and interruption by station loss/capture. Ground factories must reject it. Existing SDM stock is preserved. Cases 338–347 cover installation; arming, defusing and destruction remain unfinished and must not be reported as accepted.
 
 Check Captain remains visible through action 39 and Admiral begins at 40. Completed Hyperlight must not become a manufacturing recipe or crash ground/orbital Stores, including legacy stale selections. Automatic fuel refining must continue. Accepting an eligible peaceful trade fills fuel to 250; refusal, cancellation and stale offers must not. Cases 330–337 and strengthened 220–235 support these corrections.
+
+### Staff attrition follow-up
+
+At `55316b6`, staff attrition joins the normal simulation. Test the 99→100 and later 100-day boundaries with active researchers, ground/orbital builders, waiting teams and ship pilots. A positive saved countdown decreases once; 1→0 does not lose a member. Zero permits a 0/1 loss and rearms to 0–15; loss is random, so do not require every boundary to kill someone. A depleted team stays at zero until replenished. Verify displayed counts, research/production suspension and resumption through training.
+
+Load/swap/unload cryopod teams, save/reload before a boundary, and confirm frozen countdowns survive while other teams age. Existing saves without `AttritionCountdown` start at zero without historical losses; preserve backups because older builds reject the new field. Cases 350–359 provide automated coverage. Record staged setup separately from normal campaign progression and keep results for older desktop revisions separate. Original special stage 7, RNG sequence and fractional/star clocks remain documented limits.
 
 ### Supply-pod discard acceptance
 
