@@ -45,7 +45,8 @@ namespace Deuteros.Tests
             };
             ship.Pilot.Leader = "Pilot"; ship.Pilot.AddAction(9);
             ship.ACC = new ACC { Ship = ship, Active = true, Source = StellarBodies.earth, Destination = StellarBodies.earth,
-                SourceItems = new List<ItemTypes>(), DestinationItems = new List<ItemTypes>() };
+                SourceItems = new List<ItemTypes>(), DestinationItems = new List<ItemTypes>(),
+                CurrentSource = ItemTypes.iron, CurrentDestination = ItemTypes.iron };
             Save.Ships.Add(ship);
             earth.PlanetResources.Stores[ItemTypes.meh_fuel] = 100;
             var completed = 0;
