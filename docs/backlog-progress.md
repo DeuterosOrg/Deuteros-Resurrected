@@ -11,7 +11,7 @@ Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), 
 - Record task-specific blockers and continue independent work. Do not invent original behavior to make a row look finished.
 - Windows verification follows the [agent brief](windows-agent-brief.md). No PR, push or Asana changes are authorized by this ledger.
 
-At this point, 31 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. The [313-case suite also passes natively on Windows](windows-validation-results.md), including source startup, release export and packaged smoke; desktop and normal progression checks remain outstanding. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows. The [Godot 4.2.2 script-lifetime correction](validation-results.md#godot-422-script-lifetime-fix--2026-10-02) supports reliable validation of these fixes; it is not counted as an additional Asana completion.
+At this point, 31 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. The [329-case suite also passes natively on Windows](windows-validation-results.md), including source startup, release export and packaged smoke; desktop and normal progression checks remain outstanding. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows. The [Godot 4.2.2 script-lifetime correction](validation-results.md#godot-422-script-lifetime-fix--2026-10-02) supports reliable validation of these fixes; it is not counted as an additional Asana completion.
 
 ## Task ledger
 

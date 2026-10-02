@@ -4,7 +4,7 @@
 
 **Updated 2026-10-02; latest follow-up corrects ACC Complete Cycle.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
 
-**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **329/329 headless regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed desktop Windows acceptance. Native Windows automation passed the earlier 313-case revision; the new Complete Cycle patch and separate native Mac shutdown failure require verification. See [latest validation](validation-results.md#acc-complete-cycle--2026-10-02).
+**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **329/329 headless regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed desktop Windows acceptance. Native Windows automation now passes all 329 cases at `d057b9d`; physical desktop checks and the separate native Mac shutdown failure remain outstanding. See [latest validation](validation-results.md#acc-complete-cycle--2026-10-02).
 
 1. **Pick up the branch safely.** Inspect local changes and remotes, fetch from the remote Craig pushed to, and check out the contribution without discarding work. Do not substitute `develop` if it is missing. Read [backlog progress](backlog-progress.md) and [validation results](validation-results.md).
 2. **Build and validate.** Follow [the PowerShell setup](#windows-setup-and-automated-validation): Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**. Run validator unit tests and full validation with Windows export. Preserve each attempt; investigate failures before retesting.
@@ -21,7 +21,7 @@ Complete Windows testing before recommending a team PR. Keep publication and Asa
 
 On a revision containing cases **314–329**, verify Cycle from each endpoint and during transit/fuel waits. It should finish one leg, unload, retain overflow, and stop without refuelling or loading return cargo. Engage should cancel the finish request; save/reload should preserve it. Check the Finishing and Refueling labels. Repeat with shuttle and IOS, then close the source and exported game normally.
 
-A separate **native Mac case 315 failed during shutdown** with `!rc_owner` after its assertions passed; case 314 exited cleanly and the full 329-case headless run passed. Keep this failure visible in your report. The prior 313-case native Windows success does not verify this newer patch or physical close behavior. Preserve every attempt and investigate any crash/hang before retesting.
+A separate **native Mac case 315 failed during shutdown** with `!rc_owner` after its assertions passed; case 314 exited cleanly and the full 329-case headless run passed. Keep this failure visible in your report. Windows now passes all 329 cases at `d057b9d`, including case 315, but this does not establish physical close behavior or resolve the native Mac failure. Preserve every attempt and investigate any crash/hang before retesting.
 
 ### Supply-pod discard acceptance
 
@@ -74,11 +74,11 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The latest Complete Cycle batch passes **329/329 headless Mac cases**, import, startup and cross-export, plus nine Python tests. A separate native Mac teardown failed at case 315; [details and limits](validation-results.md#acc-complete-cycle--2026-10-02) remain part of the current result. Windows automation still covers revision `3004d9b` and 313 cases.
+The latest Complete Cycle batch passes **329/329 headless Mac cases**, import, startup and cross-export, plus nine Python tests. A separate native Mac teardown failed at case 315; [details and limits](validation-results.md#acc-complete-cycle--2026-10-02) remain part of the current result. Windows automation now passes all 329 cases at `d057b9d`, including release export and packaged startup.
 
-The latest Mac suite has **313 cases**, including four AMA cargo regressions. **313/313, strict import, startup smoke and cross-export passed**; the later tooling update has nine passing Python tests. See [the result](validation-results.md#ama-compatible-cargo--2026-10-02). The local task count remains **31/48** because wider AMA research is incomplete. Windows results below cover their explicitly named revisions.
+The preceding AMA Mac suite had **313 cases**, including four AMA cargo regressions. **313/313, strict import, startup smoke and cross-export passed**; the later tooling update has nine passing Python tests. See [the result](validation-results.md#ama-compatible-cargo--2026-10-02). The local task count remains **31/48** because wider AMA research is incomplete. Windows results below cover their explicitly named revisions.
 
-Native Windows now has a [passing full baseline](windows-validation-results.md) at **`3004d9b`**: **313/313 regressions**, nine Python tests, strict import, source smoke and release export passed in one run. The packaged executable also passed an external headless smoke check. The earlier missing-RCEdit export failure is preserved; the committed installer/validator correction is verified. Continue desktop acceptance on this revision or a separately validated newer one.
+Native Windows now has a [passing full baseline](windows-validation-results.md) at **`d057b9d`**: **329/329 regressions**, nine Python tests, strict import, source smoke and release export passed in one run. The packaged executable also passed an external headless smoke check. The earlier missing-RCEdit export failure is preserved; the committed installer/validator correction is verified. Continue desktop acceptance on this revision or a separately validated newer one.
 
 The preceding Mac suite had **309 cases**, including five grapple-only ACC regressions. **Full validation passed 309/309 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 306/308/309 pass. There are **31 task-level implementations** requiring Windows acceptance. See [the latest result](validation-results.md#grapple-only-asteroid-acc--2026-10-02) and [original control trace](original-asteroid-acc-evidence.md).
 

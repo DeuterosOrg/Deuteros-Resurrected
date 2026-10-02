@@ -367,3 +367,10 @@ Six focused cases reproduced the old failures before the correction. Cases **314
 **Separate native Mac validation failed.** Case 314 passed and exited cleanly. Case 315 passed gameplay assertions but emitted `FATAL: Condition "!rc_owner" is true` in Godot's `_instance_binding_reference_callback` during shutdown, then hit the 60-second timeout. The native batch stopped; planned cases 319/320/327/328/329 were not run. macOS crash report `Godot-2026-10-02-091514.ips` records a main-thread `EXC_BREAKPOINT/SIGTRAP`, followed by the validator's timeout kill. A debugger probe was denied attachment by macOS, so the exact retained-resource cause is unresolved. This failure is not exempted or replaced by the green headless aggregate.
 
 Evidence, including the earlier logs/export, is retained under ignored `artifacts/validation/evidence/acc-cycle/`. This patch changes no shutdown code. Native Windows still has the separately verified **313-case `3004d9b` baseline**; the new 329-case revision and physical source/export acceptance remain pending. The task-level implementation count remains **31/48**, with **0/48 fully accepted**.
+
+
+## Windows Complete Cycle baseline — 2026-10-02
+
+Revision **`d057b9d`** passed a fresh native Windows aggregate: **329/329 isolated cases**, strict import, source startup and release export, plus all nine Python tests. A separate packaged-game smoke check passed; the pack has 1,103 entries and no test resources. The executable is 149,116,208 bytes, SHA-256 `13a279e225f5e9f8847e0ac526de573ee99c2f3f90cd5a0acd35e0f295c8f7cd`. The isolated checkout has no normalized content differences after import; 344 line-ending-only sidecars remain preserved.
+
+This includes the Complete Cycle correction and Windows headless case 315. It does not resolve the separate native Mac teardown failure or prove physical controls/audio/window closing. See [the current Windows report](windows-validation-results.md). Earlier 313-case success and the missing-RCEdit failure remain archived. Counts remain **31/48 task-level implementations, 0/48 fully accepted**; no PR, push or Asana changes were made.
