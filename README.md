@@ -8,13 +8,13 @@ Development and bug reports are tracked in [Deuteros Development on Asana](https
 
 Install these matching versions:
 
-- **Godot 4.2.1 .NET** (the standard GDScript-only editor cannot build this project).
+- **Godot 4.2.2 .NET** (the standard GDScript-only editor cannot build this project).
 - **.NET SDK 6.0.428**, pinned by `global.json`.
 - **Python 3.9+** for the portable validation and download scripts.
 
-The version pins reproduce the existing project. A supported engine/.NET upgrade should be evaluated separately from gameplay fixes.
+Godot 4.2.2 fixes a reproduced C# script-loading deadlock in 4.2.1; see the [diagnosis and validation](docs/validation-results.md#godot-422-script-lifetime-fix--2026-10-02). Larger engine/.NET upgrades need separate compatibility testing.
 
-Download [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) for your machine's architecture. The SDK includes the required runtime. Install the matching Godot binary from the [official release](https://github.com/godotengine/godot/releases/tag/4.2.1-stable), or use our checksum-verified installer:
+Download [.NET 6.0](https://dotnet.microsoft.com/en-us/download/dotnet/6.0) for your machine's architecture. The SDK includes the required runtime. Install the matching Godot binary from the [official release](https://github.com/godotengine/godot/releases/tag/4.2.2-stable), or use our checksum-verified installer:
 
 ```sh
 python3 scripts/install_godot.py

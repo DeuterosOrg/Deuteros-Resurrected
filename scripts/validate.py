@@ -60,7 +60,7 @@ def run(name, command, logs, marker=None, importing=False, timeout=180, bootstra
     if result.returncode:
         raise RuntimeError(f"{name} exited {result.returncode}; see {log}\n" + "\n".join(clean.splitlines()[-20:]))
     if (importing or editor) and EDITOR_TEARDOWN in clean:
-        print("  Known Godot 4.2.1 editor teardown diagnostic recorded; gameplay errors are not exempt.")
+        print("  Known Godot 4.2.2 editor teardown diagnostic recorded; gameplay errors are not exempt.")
     for line in clean.splitlines():
         if any(value in line for value in ("Warning(s)", "Error(s)", "REGRESSION RESULT:", "SMOKE OK", "IMPORT OK")):
             print("  " + line.strip())
@@ -69,17 +69,17 @@ def run(name, command, logs, marker=None, importing=False, timeout=180, bootstra
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--godot", default=os.environ.get("GODOT", "godot"), help="Godot 4.2.1 .NET executable")
+    parser.add_argument("--godot", default=os.environ.get("GODOT", "godot"), help="Godot 4.2.2 .NET executable")
     parser.add_argument("--skip-import", action="store_true", help="Use an already imported project during development")
     parser.add_argument("--export-windows", action="store_true", help="Also build a Windows release (matching .NET export templates required)")
     args = parser.parse_args()
     godot = shutil.which(args.godot)
     dotnet = shutil.which("dotnet")
     if not godot or not dotnet:
-        parser.error("Install Godot 4.2.1 .NET and .NET SDK 6.0.428; put both on PATH or supply --godot. See README.md.")
+        parser.error("Install Godot 4.2.2 .NET and .NET SDK 6.0.428; put both on PATH or supply --godot. See README.md.")
     version = subprocess.check_output([godot, "--version"], text=True).strip()
-    if not version.startswith("4.2.1.stable.mono"):
-        parser.error("Expected Godot 4.2.1 .NET, found " + version)
+    if not version.startswith("4.2.2.stable.mono"):
+        parser.error("Expected Godot 4.2.2 .NET, found " + version)
     logs = ROOT / "artifacts" / "validation"
     logs.mkdir(parents=True, exist_ok=True)
     run("build", [dotnet, "build", "Godot/Deuteros.csproj", "--nologo"], logs)

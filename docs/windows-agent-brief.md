@@ -10,7 +10,7 @@ After Craig pushes `codex/build-tests-and-gameplay-fixes`, work from that branch
 
 Read these files first:
 
-- Root `AGENTS.md` — preserve it. Its original testing/export description predates this contribution; use the current commands below and in the README.
+- Root `AGENTS.md` — preserve it. Its original engine pin and testing/export description predate this contribution; use Godot 4.2.2 and the current commands below and in the README.
 - [README](../README.md), [CONTRIBUTING](../CONTRIBUTING.md), and [testing details](testing.md).
 - [Validation results](validation-results.md) — verified work and unresolved runtime failures.
 - [Asana reconciliation](asana-triage.md) — all 48 task IDs, source locations and acceptance questions.
@@ -20,10 +20,10 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 ## Start here on Windows
 
-Use the latest pushed head of **`codex/build-tests-and-gameplay-fixes`** and record the actual checked-out SHA. The station-display batch was `c7b3968`; MTX route safety was `77d296f`, followed by the installation/Stores batch. Reconcile subsequent changes with the progress ledger before using the counts below.
+Use the latest pushed head of **`codex/build-tests-and-gameplay-fixes`** and record the actual checked-out SHA. The station-display batch was `c7b3968`; MTX route safety was `77d296f`, installation/Stores was `78c6c48`, followed by the Godot 4.2.2 script-lifetime fix. Reconcile subsequent changes with the progress ledger before using the counts below.
 
 1. Inspect local changes, fetch the branch from the configured remote, and check out its latest pushed state without discarding local work. Preserve root `AGENTS.md`.
-2. Run the pinned setup and full validation below. Investigate case 150 first if it stalls; retain failure evidence before any diagnostic rerun.
+2. Run the pinned setup and full validation below. Investigate any stall or strict engine failure; retain failure evidence before any diagnostic rerun.
 3. Complete the source-game and exported-game acceptance passes. Record each scenario as passed, failed or not tested, with the commit and reproduction steps.
 4. Write `docs/windows-validation-results.md`, update task evidence in the local ledger, then continue unresolved backlog items. Keep Windows validation and subsequent gameplay changes in separate commits.
 
@@ -33,9 +33,11 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
+The current engine/SDK pin is **Godot 4.2.2** and the suite now has **191 cases**. The patch contains the upstream fix for the captured script-registration deadlock. New stress case 191 timed out on 4.2.1 and passed on 4.2.2; focused cases 150, 153 and 65 also passed. **Clean-cache validation passed 191/191 isolated cases**, startup smoke and a fresh Windows cross-export. Five Python validator tests passed; compilation has 14 existing warnings and zero errors. Native Mac cases 187/190 passed and their captures were inspected; native Windows gameplay remains untested. See [engine evidence](validation-results.md#godot-422-script-lifetime-fix--2026-10-02). This runtime correction does not increase the 25 Asana-linked implementation count.
+
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The current suite has **190 cases** and **25 Asana-linked fixes with local regression evidence**. Its latest full attempt passed cases 1–149, then case 150 timed out after 180 seconds while Research entered the tree. A continuation passed 151–152 but case 153 timed out at its 45-second focused limit. Without retrying either failure, a second continuation passed 154–190, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **188/190 across three runs, not a passing aggregate**. The preceding 162- and 173-case attempts also stalled at case 150. Windows gameplay and visual acceptance remain pending.
+Before the engine patch, the last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The MTX installation batch had **190 cases** and **25 Asana-linked fixes with local regression evidence**. Its final 4.2.1 full attempt passed cases 1–149, then case 150 timed out after 180 seconds while Research entered the tree. A continuation passed 151–152 but case 153 timed out at its 45-second focused limit. Without retrying either failure, a second continuation passed 154–190, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **188/190 across three runs, not a passing aggregate**. The preceding 162- and 173-case attempts also stalled at case 150. Windows gameplay and visual acceptance remain pending.
 
 Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in the latest full run, but no proven fix exists for the earlier intermittent failure. Preserve both results when assessing readiness.
 
@@ -46,7 +48,7 @@ The News/bulletin, OF pilot-warning and unknown-object batch expanded the runner
 - Cases 124–128 cover News history/replay and bulletin input-lock ownership. Broader News report coverage remains unspecified.
 - Cases 129–134 cover OF pilot warnings, state preservation and cleanup. Compare the native layout and pointer behavior with the Asana reference.
 - Cases 135–149 and 151 cover unknown-object capture, research discovery, cargo/artifact conservation, crew/weight limits, gift handling and idempotent unlocks.
-- Case 150 follows the comms gift through normal research, production, fitting and trade. It passed targeted validation but has also intermittently stalled while Research enters the tree; no proven fix exists for that stall. Removing Research audio did not eliminate it. Case 152 verifies removal of a detached Research placeholder button; this is a separate confirmed leak fix.
+- Case 150 follows the comms gift through normal research, production, fitting and trade. It passed targeted validation but has also intermittently stalled while Research enters the tree; the later 4.2.2 patch addresses its captured script-registration deadlock. Removing Research audio did not eliminate the old-engine stall. Case 152 verifies removal of a detached Research placeholder button; this is a separate confirmed leak fix.
 - Case 153 follows the actual war-warning Fusion Laser gift through analysis and normal research to drone technology. Prior trades, travel, staff and equipped ships are staged fixtures; narrative text is shortened. Repeat the full gameplay path natively.
 
 Earlier typing-audio leaks were reproduced in a standalone engine probe. The test helper now waits for stopped playback to drain on the mixer before immediate process exit, with a bounded wait and strict error checks. This does not certify native audio/navigation shutdown. Rebuild before investigating any case, never use a stale assembly after compilation fails, and preserve failed logs even when a diagnostic rerun passes.
@@ -57,7 +59,7 @@ Raw Mac logs and binaries are under ignored `artifacts/` and will not arrive wit
 
 ## Windows setup and automated validation
 
-Use **Godot 4.2.1 .NET**, **.NET SDK 6.0.428 x64**, and **Python 3.9+**. Install the SDK from Microsoft's official .NET 6 download page if it is missing. `global.json` pins the SDK; the standard, non-.NET Godot build is unsuitable.
+Use **Godot 4.2.2 .NET**, **.NET SDK 6.0.428 x64**, and **Python 3.9+**. Install the SDK from Microsoft's official .NET 6 download page if it is missing. `global.json` pins the SDK; the standard, non-.NET Godot build is unsuitable.
 
 Run in PowerShell from the repository root:
 
@@ -71,7 +73,7 @@ dotnet --version
 python --version
 python scripts/install_godot.py --templates
 if ($LASTEXITCODE -ne 0) { throw "Godot installation failed" }
-$env:GODOT = (Resolve-Path ".tools/godot-4.2.1/Godot_v4.2.1-stable_mono_win64/Godot_v4.2.1-stable_mono_win64_console.exe").Path
+$env:GODOT = (Resolve-Path ".tools/godot-4.2.2/Godot_v4.2.2-stable_mono_win64/Godot_v4.2.2-stable_mono_win64_console.exe").Path
 & $env:GODOT --version
 python -m unittest discover -s scripts -p "test_*.py"
 if ($LASTEXITCODE -ne 0) { throw "Validator tests failed" }
@@ -138,19 +140,17 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 
 Cases 154–162 cover these transitions. Native Mac captures passed and corrected one clipped shuttle label. See [batch results](validation-results.md#station-status-and-missing-graphics-batch--2026-10-02) for screenshot reproduction commands and fixture limits. Repeat in the Windows source game and export.
 
-## Known failures to investigate
+## Runtime checks and historical failures
 
-- Latest full-run case 150 again stalled at Research entry after the gift was analysed. A Mac process sample found the main thread waiting on a native recursive mutex and the .NET finalizer waiting on a managed lock. No root cause or fix is proven. Reproduce the normal comms progression and retain diagnostics; do not disable the case or treat the successful 153-case batch as current aggregate validation.
-
-  A later managed stack capture narrows the main thread to `Research._Ready` → `Buttons.CreateButtons` → `GD.Load` → `ScriptManagerBridge.GetOrCreateScriptBridgeForPath` / `CreateScriptBridgeForType` / `godotsharp_internal_new_csharp_script`. The finalizer is in `GodotObject.Finalize` → `godotsharp_internal_refcounted_disposed` → `ScriptManagerBridge.RemoveScriptBridge`. Investigate that script-registration lifetime and lock interaction before changing audio code. Button prefabs already attach their concrete scripts; `Buttons.CreateButtons` additionally loads and calls `SetScript` on each instance, but whether that redundancy causes this stall is unproven. Capture managed stacks from a stalled Windows process with [Microsoft's dotnet-stack tool](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-stack), `dotnet-stack report --process-id <pid>`, alongside the engine log.
+- The case-150 Research-entry deadlock was traced to opposing native/managed script locks and is addressed by the pinned 4.2.2 patch ([upstream fix](https://github.com/godotengine/godot/pull/87669)). On 4.2.1, instrumentation stopped inside the **prefab load**, before the separate script load or `SetScript`. Do not rewrite the generic buttons or remove audio to work around that old-engine failure. Repeat normal comms progression and case 191 on Windows. If a stall recurs on 4.2.2, preserve the engine log and capture a managed stack with [Microsoft's dotnet-stack tool](https://learn.microsoft.com/en-us/dotnet/core/diagnostics/dotnet-stack): `dotnet-stack report --process-id <pid>`.
 
 - On Mac, the audio/navigation path can leak Ogg resources or hang with `!rc_owner`. An isolated Godot 4.3 comparison also failed; an engine upgrade alone is not a demonstrated fix.
-- Case 153 (war-warning Fusion Laser gift → analysis → research → drone unlock) timed out at 45 seconds in the latest continuation after earlier passing runs. Its last logs contain bulletin/input-lock activity; no managed trace was captured. Investigate it independently until evidence establishes whether it shares case 150's cause. Preserve the failed log and capture a stack before changing lifecycle code.
+- Case 153 (war-warning Fusion Laser gift → analysis → research → drone unlock) timed out at 45 seconds in the final 4.2.1 continuation. It passed focused and full-suite 4.2.2 checks. Its failed 4.2.1 log contains bulletin/input-lock activity; no managed trace was captured. Its historical cause is unproven; investigate any recurrence independently. Preserve the failed log and capture a stack before changing lifecycle code.
 - Earlier combined regression runs and an isolated case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). Case 65 cycles course/ACC/grapple/AMA panels and checks modal destruction. It passed in the latest full attempt without a proven fix; treat the earlier strict failure as unresolved. Fresh-process isolation does not remove this production resource-lifetime risk. Reproduce with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs even when a later run passes; add phase/GC-count diagnostics before changing resource ownership.
 - Godot 4.2.1's binary scene conversion leaked instances during fresh exports. `export/convert_text_resources_to_binary=false` avoids that path; retain it unless a tested replacement removes the need.
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 
-For the latest batch, also exercise News replay/cancellation with sound enabled; OF deployment with missing, empty and valid crews; occupied grapples receiving gifts; and the complete comms progression without unlock cheats. Compare the OF warning with the source linked in [visual reference notes](visual-reference-notes.md). If typing-audio leaks recur, preserve them separately from the intermittent Research-entry stall, case 65 and the older navigation shutdown failure; a shared cause has not been established.
+For the salvage batch, also exercise News replay/cancellation with sound enabled; OF deployment with missing, empty and valid crews; occupied grapples receiving gifts; and the complete comms progression without unlock cheats. Compare the OF warning with the source linked in [visual reference notes](visual-reference-notes.md). If typing-audio leaks recur, preserve them separately from the intermittent Research-entry stall, case 65 and the older navigation shutdown failure; a shared cause has not been established.
 
 ## Additional acceptance for MTX installation and routes
 

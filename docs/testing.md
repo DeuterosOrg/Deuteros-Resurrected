@@ -2,7 +2,7 @@
 
 ## Reproducible baseline
 
-Use Godot **4.2.1 .NET** and .NET SDK **6.0.428**. The project targets `net6.0` for desktop; `global.json` pins the SDK. Installers and export templates must match the engine version. Python 3.9+ runs the repository scripts without third-party Python packages.
+Use Godot **4.2.2 .NET** and .NET SDK **6.0.428**. The project targets `net6.0` for desktop; `global.json` pins the SDK. Installers and export templates must match the engine version. The 4.2.2 patch fixes a reproduced C# script creation/finalizer deadlock; see [engine evidence](validation-results.md#godot-422-script-lifetime-fix--2026-10-02). Python 3.9+ runs the repository scripts without third-party Python packages.
 
 ```sh
 python3 scripts/install_godot.py
