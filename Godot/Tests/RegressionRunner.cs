@@ -214,6 +214,8 @@ namespace Deuteros.Tests
             CheckUi("Enemy production follows remaining hostile systems and preserves its saved deadline", EnemyProductionRemainingSystems);
             CheckUi("Enemy production resumes after zero systems and crossed deadlines", EnemyProductionOverdueDeadline);
             CheckUi("Hyperlight countdown finishes before detecting changed hostile ownership", HyperlightRecaptureCountdownOrder);
+            await CheckAsync("Training light switch dims safely and restores controls", TrainingLighting);
+            await CheckAsync("Training door audio follows transitions once and preserves button feedback", TrainingDoorAudio);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

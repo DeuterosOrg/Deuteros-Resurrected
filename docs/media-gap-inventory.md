@@ -6,7 +6,7 @@ Source audit: **2026-10-02**, current C# checkout. This supplies the inventories
 
 ## Sounds
 
-All **12** runtime audio files were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, one typing WAV, and the recovered SDM alarm WAV. Eleven have playback paths; the training-door WAV is loaded but never assigned to a player or played. Original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
+All **12** runtime audio files were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, one typing WAV, and the recovered SDM alarm WAV. All twelve now have playback paths; the training-door follow-up corrects the previously loaded but unplayed WAV. Original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
 
 | Supplied asset under `Godot/Sounds/` | Runtime evidence | Status |
 | --- | --- | --- |
@@ -19,7 +19,7 @@ All **12** runtime audio files were checked against scene references and dynamic
 | `Background/Store.ogg` | `Screens/Store.tscn` instances the background prefab with enum 6; its MTX child shares that player | Wired; native Windows listening pending |
 | `Button/sMainMenu_Button.wav` | `Screens/Base/MenuBase.tscn/MenuClickSound` persists across navigation; `MainMenu.cs` binds top/side menu activation and time hold | Wired; S2 native Windows listening pending |
 | `Button/sTrainingRoom_Button.wav` | `Screens/Earth/Training.tscn/SoundPlayer`; `Training.cs` assigns it once and plays it in button callbacks | Wired; native listening pending |
-| `Button/sTrainingRoom_Door.wav` | `Training.cs` loads `DoorSound`, but no consumer assigns or plays it; animation callbacks only settle door state and unlock the screen | **Missing wiring**; prior inventory incorrectly described stream switching. Trace original door triggers and test simultaneous transitions. |
+| `Button/sTrainingRoom_Door.wav` | `Training.cs` uses a separate `DoorSoundPlayer` on the Game bus; one cue starts each batch of opening/closing transitions, and exit stops both feedback players | Wired in the training follow-up; case 469 verifies simultaneous transitions, unchanged-state silence, button feedback and exit. Native listening/original timing remain pending. |
 | `Typing.wav` | `Screens/Bulletins.tscn/TypeSound` + `Bulletins.cs`; `PreFabs/ShipModuleWindows/ModuleTextFrame.tscn/AudioStreamPlayer` + `ModuleTextFrame.PlayText` | Wired per-character feedback |
 | `SdmAlarm.wav` | Persistent `MenuBase/SdmAlarm`; selected armed local station owns sound priority; [source and limits](original-self-destruct-evidence.md#alarm-source-and-playback-limits) | Wired; original timing/listening comparison pending |
 
@@ -92,3 +92,9 @@ The initial neutral moon-preview fallback has been superseded by the [orbital pa
 ## Evidence and handoff limits
 
 The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1/S2 native Windows listening and Windows acceptance for recovered A3 frames. Complete the remaining A3 fallback review and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.
+
+### Training feedback follow-up
+
+A physical Mac light-switch click reproduced an invalid `Node` to `Node2D` cast. Case 468 reproduces it; matching the scene's door/control containers to their intended canvas type fixes the exception and brightness inheritance. Native pixel checks additionally reproduced controls remaining dim after only the outer node was corrected. The complete correction retains arrow brightness while dimming the room and restores normal state on toggle/exit.
+
+Case 469 separately reproduced missing door playback. A dedicated player preserves the existing button sample, plays once per batch of actual door transitions and stops on exit. Opening a static screen and repeated unchanged updates stay silent. Both cases pass focused headless/native checks; no listening verdict or full Windows acceptance is claimed. Original six-step timing, staggered animation interruption and broader training screen-lock ownership remain follow-up checks.

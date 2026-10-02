@@ -23,9 +23,9 @@ mouse_filter = 2
 texture = ExtResource("2_7nv2c")
 stretch_mode = 5
 
-[node name="Doors" type="Node" parent="."]
+[node name="Doors" type="Node2D" parent="."]
 
-[node name="Marines" type="Node" parent="Doors"]
+[node name="Marines" type="Node2D" parent="Doors"]
 
 [node name="MinusButton" type="TextureRect" parent="Doors/Marines"]
 offset_left = 264.0
@@ -77,7 +77,7 @@ horizontal_alignment = 2
 [node name="TrainingDoors" parent="Doors/Marines" instance=ExtResource("6_t8wod")]
 position = Vector2(258, 96)
 
-[node name="Production" type="Node" parent="Doors"]
+[node name="Production" type="Node2D" parent="Doors"]
 
 [node name="MinusButton" type="TextureRect" parent="Doors/Production"]
 offset_left = 200.0
@@ -129,7 +129,7 @@ horizontal_alignment = 2
 [node name="TrainingDoors" parent="Doors/Production" instance=ExtResource("6_t8wod")]
 position = Vector2(194, 96)
 
-[node name="Research" type="Node" parent="Doors"]
+[node name="Research" type="Node2D" parent="Doors"]
 
 [node name="MinusButton" type="TextureRect" parent="Doors/Research"]
 offset_left = 136.0
@@ -194,6 +194,9 @@ RepeatRate = 0.005
 SoundToPlay = 1
 
 [node name="SoundPlayer" type="AudioStreamPlayer" parent="."]
+bus = &"Game"
+
+[node name="DoorSoundPlayer" type="AudioStreamPlayer" parent="."]
 bus = &"Game"
 
 [node name="TraineeCountLabel" type="Label" parent="."]
