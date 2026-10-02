@@ -198,7 +198,7 @@ namespace Deuteros.Tests
                 var panel = interior.GetNode<Control>("ACCScreen").GetChildren().OfType<AccPanel>().Single();
                 Press(panel, $"Window/{(destination ? "DestinationButtons" : "SourceButtons")}/Col01/00");
                 Press(panel, "Window/Buttons/" + (cycle ? "Cycle" : "Engage"));
-                Equal(true, ship.ACC.Active, "ACC immediately active");
+                Equal(!cycle, ship.ACC.Active, "requested continuous mode");
                 Equal(cycle, ship.ACC.CycleMode, "requested cycle mode");
                 Equal((uint)42, Save.CurrentDay, "activation needs no day tick");
                 Equal(0, interior.GetNode<Control>("ACCScreen").GetChildCount(), "controller closes immediately");

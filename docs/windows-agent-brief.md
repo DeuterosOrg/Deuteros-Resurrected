@@ -2,9 +2,9 @@
 
 ## Windows Codex starting brief
 
-**Updated 2026-10-02; latest follow-up fixes AMA cargo compatibility and Windows export setup.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
+**Updated 2026-10-02; latest follow-up corrects ACC Complete Cycle.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
 
-**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **313/313 regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed native Windows acceptance. These are prior results to reproduce, not Windows results.
+**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **329/329 headless regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed desktop Windows acceptance. Native Windows automation passed the earlier 313-case revision; the new Complete Cycle patch and separate native Mac shutdown failure require verification. See [latest validation](validation-results.md#acc-complete-cycle--2026-10-02).
 
 1. **Pick up the branch safely.** Inspect local changes and remotes, fetch from the remote Craig pushed to, and check out the contribution without discarding work. Do not substitute `develop` if it is missing. Read [backlog progress](backlog-progress.md) and [validation results](validation-results.md).
 2. **Build and validate.** Follow [the PowerShell setup](#windows-setup-and-automated-validation): Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**. Run validator unit tests and full validation with Windows export. Preserve each attempt; investigate failures before retesting.
@@ -16,6 +16,12 @@ Complete Windows testing before recommending a team PR. Keep publication and Asa
 **Launch instruction:** “Read `docs/windows-agent-brief.md` and execute its Windows validation and backlog workflow.” Pushing makes this file available; it does not launch Codex. The Windows session must be started with this instruction.
 
 ## Feature acceptance details
+
+### Complete Cycle and shutdown follow-up
+
+On a revision containing cases **314–329**, verify Cycle from each endpoint and during transit/fuel waits. It should finish one leg, unload, retain overflow, and stop without refuelling or loading return cargo. Engage should cancel the finish request; save/reload should preserve it. Check the Finishing and Refueling labels. Repeat with shuttle and IOS, then close the source and exported game normally.
+
+A separate **native Mac case 315 failed during shutdown** with `!rc_owner` after its assertions passed; case 314 exited cleanly and the full 329-case headless run passed. Keep this failure visible in your report. The prior 313-case native Windows success does not verify this newer patch or physical close behavior. Preserve every attempt and investigate any crash/hang before retesting.
 
 ### Supply-pod discard acceptance
 
@@ -67,6 +73,8 @@ Task **1215683087492485 — Add MTX module** now includes local installation on 
 Pushing this branch makes the brief available to the Windows agent; it does not start Codex or automatically run the validation workflow. The current CI push trigger targets `develop`; PR and manual workflow triggers are separate.
 
 ## Current evidence
+
+The latest Complete Cycle batch passes **329/329 headless Mac cases**, import, startup and cross-export, plus nine Python tests. A separate native Mac teardown failed at case 315; [details and limits](validation-results.md#acc-complete-cycle--2026-10-02) remain part of the current result. Windows automation still covers revision `3004d9b` and 313 cases.
 
 The latest Mac suite has **313 cases**, including four AMA cargo regressions. **313/313, strict import, startup smoke and cross-export passed**; the later tooling update has nine passing Python tests. See [the result](validation-results.md#ama-compatible-cargo--2026-10-02). The local task count remains **31/48** because wider AMA research is incomplete. Windows results below cover their explicitly named revisions.
 

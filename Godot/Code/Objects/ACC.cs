@@ -80,7 +80,7 @@ namespace Deuteros.Code.Objects
 			}
 		}
 
-		public void LoadSupply()
+		public void LoadSupply(bool unloadOnly = false)
 		{
 			if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
@@ -106,7 +106,7 @@ namespace Deuteros.Code.Objects
 			}
 
 			// Asteroid runs return their ore but do not load outbound supplies.
-			if (Ship.DestinationPlanetLocation == StellarBodies.asteroids) return;
+			if (unloadOnly || Ship.DestinationPlanetLocation == StellarBodies.asteroids) return;
 
 			Store otherStores = null;
 			if (Ship.ShipType == Ship_Types.Shuttle)
@@ -161,6 +161,8 @@ namespace Deuteros.Code.Objects
 			//We're undocked at the asteroids
 			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids)
 			{
+				// Original scan automation requires Engage, not Complete Cycle.
+				if (CycleMode) return;
 				var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
 				var hasAma = Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
 				// Original engaged ACC stops at a scan without AMA, before mineral/size filters.
@@ -222,6 +224,12 @@ namespace Deuteros.Code.Objects
 			//If we're docked, and the old state was either docking or landing, then we're due a resupply
 			else if (Ship.ShipState == Ship_States.Docked && (oldState == Ship_States.Docking || oldState == Ship_States.Landing))
 			{
+				if (CycleMode)
+				{
+					LoadSupply(unloadOnly: true);
+					Active = CycleMode = Refuelling = false;
+					return;
+				}
 				if (Refuel())
 				{
 					LoadSupply();
@@ -230,29 +238,22 @@ namespace Deuteros.Code.Objects
 			}
 		}
 
-		public void Activate()
+		public void Activate(bool completeCycle = false)
 		{
-			if (StopInvalidRoute()) return;
-			if (!Active && Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply))
-			{
-				Active = true;
-				
-				//Just in case
-				if (Ship.ShipType != Ship_Types.Shuttle)
-					((InterStellarShip)Ship).ItemScanResults = null;
+			if (StopInvalidRoute() || !Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply)) return;
+			var wasRunning = Active || CycleMode;
+			Active = !completeCycle;
+			CycleMode = completeCycle;
+			// Changing commands during a journey or fuel wait preserves the current operation.
+			if (wasRunning) return;
 
-				if (Ship.ShipState == Ship_States.Docked)
-				{
-					if (Refuel())
-					{
-						LoadSupply();
-						Ship.TakeOff();
-					}
-				}
-				else if (Ship.ShipState == Ship_States.UnDocked)
-				{
-					//TODO - BUG - When undocked the active status sets Active to true, but does not start the ship moving?
-				}
+			if (Ship.ShipType != Ship_Types.Shuttle)
+				((InterStellarShip)Ship).ItemScanResults = null;
+
+			if (Ship.ShipState == Ship_States.Docked && Refuel())
+			{
+				LoadSupply();
+				Ship.TakeOff();
 			}
 		}
 

@@ -96,8 +96,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CycleButton_Pressed()
 		{
-			CurrentACC.Activate();
-			CurrentACC.CycleMode = CurrentACC.Active;
+			CurrentACC.Activate(completeCycle: true);
 
 			DisplayShipInterior();
 		}

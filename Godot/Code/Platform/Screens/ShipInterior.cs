@@ -693,14 +693,14 @@ namespace Deuteros.Code.Platform.Screens
 			else if (Ship.GetType() == typeof(Shuttle) && Ship.ShipState == Ship_States.TakingOff)
 				Status.Text = "Climbing From\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.GetType() == typeof(Shuttle) && ((Shuttle)Ship).OnGround)
-				if (Ship.ACC != null && Ship.ACC.Active && Ship.Fuel < 50)
+				if (Ship.ACC != null && (Ship.ACC.Active || Ship.ACC.CycleMode) && Ship.ACC.Refuelling)
 					Status.Text = "Refueling at\n" + Ship.PlanetLocation.ToScreenString(" ");
 				else
 					Status.Text = "In Ground Bay\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.ShipState == Ship_States.Launching)
 				Status.Text = "Launching From\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.ShipState == Ship_States.Docked)
-				if (Ship.ACC != null && Ship.ACC.Active && Ship.Fuel < 50)
+				if (Ship.ACC != null && (Ship.ACC.Active || Ship.ACC.CycleMode) && Ship.ACC.Refuelling)
 					Status.Text = "Refueling at\n" + Ship.PlanetLocation.ToScreenString(" ");
 				else
 					Status.Text = "Docked Above\n" + Ship.PlanetLocation.ToScreenString(" ");
@@ -760,10 +760,10 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				OpenACC.Visible = true;
 
-				if (Ship.ACC.Active)
-					ACCStatus.Text = "A.C.C Is \nEngaged";
-				else if (Ship.ACC.CycleMode)
+				if (Ship.ACC.CycleMode)
 					ACCStatus.Text = "A.C.C Is \nFinishing";
+				else if (Ship.ACC.Active)
+					ACCStatus.Text = "A.C.C Is \nEngaged";
 				else if (!Ship.ACC.Active)
 					ACCStatus.Text = "A.C.C Is \nDisengaged";
 			}
