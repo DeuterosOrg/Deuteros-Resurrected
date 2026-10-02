@@ -92,11 +92,20 @@ namespace Deuteros.Tests
                     stores.MTX.GetNode<Button>("Config/Buttons/SwitchStore").EmitSignal(BaseButton.SignalName.Pressed);
                 }
 
-                var beforeRepeat = SaveStorage.Serialize(Save);
-                screen = (Settings)OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
-                ConfirmSettingsPreset(screen, choice);
-                await InputFrames();
-                Equal(beforeRepeat, SaveStorage.Serialize(Save), "repeat does not duplicate ships, teams, research, unlocks or stock");
+                // Compare the preset's mutations while holding real-time simulation still.
+                // Frames needed to close the overlay otherwise advance the saved SDM timer phase.
+                var core = GameCore.SingletonInstance;
+                var wasProcessing = core.IsProcessing();
+                core.SetProcess(false);
+                try
+                {
+                    var beforeRepeat = SaveStorage.Serialize(Save);
+                    screen = (Settings)OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                    ConfirmSettingsPreset(screen, choice);
+                    await InputFrames();
+                    Equal(beforeRepeat, SaveStorage.Serialize(Save), "repeat does not duplicate ships, teams, research, unlocks or stock");
+                }
+                finally { core.SetProcess(wasProcessing); }
                 Equal(false, OverlayManager.Instance.IsOpen, "repeat closes settings");
                 Equal(false, GetTree().Paused, "repeat restores input");
             });
