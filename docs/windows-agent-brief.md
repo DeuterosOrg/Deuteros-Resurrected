@@ -327,3 +327,8 @@ Prepare the eventual PR summary around player-visible fixes, linked Asana IDs an
 ## Fuel refining follow-up: f913679
 
 This candidate passes all 450 Mac regressions, source startup and an audited Windows cross-export; it has not run on Windows. Preserve the existing `8cdd458` desktop pass and use a separately supplied checkout/build. Verify Earth MeH/HeD, orbital MeH/HeD and completed friendly undamaged non-Earth ground MeH. Two supplied stations must both refine over two phases. Check input exhaustion/refill, capture, first-frame station construction and save/load without phase resets; cases 445–450 describe exact batches and boundary quantities. ACC waiting for fuel must consume newly refined stock on the next update. Retain save backups: older executables may reject the new saved phase/allocation fields. Full original fractional-clock fidelity remains outstanding.
+
+
+## Simulation-order follow-up (`08eda4d`, Mac 452-case checkpoint)
+
+Use a separate checkout from the stable `8cdd458` desktop handoff. The full Mac suite and Windows cross-export are audited; this revision has not run on Windows. Cases 451–452 cover training before all mining, research and crew attrition before arrivals, and ordered promotion News. Exercise simultaneous graduation, factory/research completion and ACC arrival/departure in source and exported builds; preserve before/after saves and logs. Full original fractional/star clocks and discovery priority remain separate open work.

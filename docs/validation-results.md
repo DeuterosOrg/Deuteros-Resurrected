@@ -2,7 +2,7 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **443/443** at `e68c6bb5f8390e89b54d8f0c46c97dd79b78edbe`, with nine Python tests, strict import, startup and audited Windows cross-export. The subsequent manual AMA fuel correction has focused headless/native checks (case 444), not a full 444-case aggregate. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-02): **452/452** at `08eda4dd068d0ee65dc60c3c5c26006d85c4cfd8`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
 The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
@@ -675,3 +675,12 @@ Revision **`f913679bf513d2ca9b44ecc1b2820df133bf34f1`** corrects persistent star
 Cases **445–450**, revised **337**, and native **445/447–450** pass. Full Mac validation passes **450/450**, nine Python tooling tests, strict import, source startup and Windows cross-export. Every case log and the package were audited: **1,222 entries, 64 item illustrations, zero test resources**, executable **149,350,816 bytes**, SHA-256 `a1138cf30cdf5d083cd753d157ac89b41451342fc3206796bf5f3040a5ddcfed`. Evidence: `artifacts/validation/evidence/refining/full-run-f913679/`; the red starvation and focused/native logs remain alongside it. Fresh build retains 14 existing warnings; incremental aggregate build reports zero warnings/errors.
 
 This candidate has not executed on Windows. The existing `8cdd458` desktop handoff stays separate. Event-order and original timing acceptance remain open; counts stay **34/48 with implementation evidence, 0/48 fully accepted**.
+
+
+## Training, research and arrival order (452-case checkpoint)
+
+Training now runs once before Earth and local extraction; research and crew attrition precede ship arrivals. Cases 451–452 reproduce premature ACC departure, mining before graduation and arrival before crew attrition. They verify simultaneous production/research completion, promotion order, frozen crew and the actual arrival path. Focused and native checks pass.
+
+Full Mac validation at `08eda4dd068d0ee65dc60c3c5c26006d85c4cfd8` passes **452/452**, nine Python tests, strict import, startup and Windows cross-export. All case logs and package contents are audited: **1,222 entries, 64 illustrations, zero test resources**. Executable: **149,350,832 bytes**, SHA-256 `0ec3d36d073e77b460776ee55e87947ff2cb9189bd43a9d1e1c9ed6b4b1d66c4`. Evidence: `artifacts/validation/evidence/simulation-order/full-run-08eda4d/`.
+
+Integrated locally; no push or PR. Windows execution, original fractional/star clocks and pending-event priority remain outstanding. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**. The `8cdd458` desktop handoff is unchanged.
