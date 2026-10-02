@@ -1,18 +1,21 @@
 # Windows agent brief
 
-## Pickup checklist
+## Windows Codex starting brief
 
-Handoff updated **2026-10-02**. The latest follow-up corrects DFCC fuel stock costs (cases **294–304**); read [its validation record](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). Engine damage and recovery has cases **277–293**; see [its validation record](validation-results.md#engine-damage-and-recovery--2026-10-02). Gameplay checkpoint **`600ae24`** added selected supply-pod discard. The latest runtime follow-up adds a finalizer drain before engine shutdown and new case **276**, following controlled reproduction of the case-183/184 failures. Read [the shutdown diagnosis](shutdown-finalizer-evidence.md) and [latest validation record](validation-results.md#shutdown-finalizer-drain--2026-10-02). Record the actual pushed/tested SHA and working-tree state; later commits may change the suite count.
+**Updated 2026-10-02; implementation checkpoint `aa86c2c`.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
 
-**First objective:** establish a native Windows baseline, investigate any failure, then verify the player-visible fixes in a fresh Windows export before recommending a team PR. Work toward all 48 tasks using the ledger; 30 currently have local implementation evidence, and none has completed native Windows acceptance.
+**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **304/304 regressions**, startup smoke and Windows cross-export passing, with **30/48 task-level implementations**. None has completed native Windows acceptance. These are prior results to reproduce, not Windows results.
 
-1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
-2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
-3. Investigate the exact stage if validation fails. The preceding **263-case** attempt failed at case 61. A reproduced injected-input lifetime error is now corrected in the test helpers, with new stress case **264**; consult the current results below. The preceding 264-case full attempt instead failed at **case 23** with a native signal-11 teardown crash and leaked C# script resources. The preceding 275-case attempt and continuation failed teardown at **cases 183 and 184** with `!rc_owner` and leaked resources. A separate finalizer-drain correction now addresses a reproduced cleanup gap; case 276 protects it. Preserve the old failures and validate actual Windows shutdown.
-4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
-5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **30/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
+1. **Pick up the branch safely.** Inspect local changes and remotes, fetch from the remote Craig pushed to, and check out the contribution without discarding work. Do not substitute `develop` if it is missing. Read [backlog progress](backlog-progress.md) and [validation results](validation-results.md).
+2. **Build and validate.** Follow [the PowerShell setup](#windows-setup-and-automated-validation): Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**. Run validator unit tests and full validation with Windows export. Preserve each attempt; investigate failures before retesting.
+3. **Test actual Windows gameplay.** Follow [interactive acceptance](#interactive-acceptance-pass) and the feature checks below in both source and fresh export. Prioritize physical navigation/audio/window close, save/load, MTX, ship assembly, supply-pod discard, engine damage and DFCC fuel. Label staged fixtures separately from normal progression.
+4. **Return evidence, then continue fixes.** Create `docs/windows-validation-results.md` using [the report template](#deliverable), update the local task ledger, and continue unresolved tasks in focused commits. Record unavailable desktop/hardware checks as **NOT TESTED**, then continue independent work.
 
-The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
+Complete Windows testing before recommending a team PR. Keep publication and Asana changes for Craig's instruction. Ignored Mac artifacts do not travel with Git; regenerate logs and builds locally.
+
+**Launch instruction:** “Read `docs/windows-agent-brief.md` and execute its Windows validation and backlog workflow.” Pushing makes this file available; it does not launch Codex. The Windows session must be started with this instruction.
+
+## Feature acceptance details
 
 ### Supply-pod discard acceptance
 
