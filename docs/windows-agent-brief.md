@@ -345,3 +345,7 @@ Use a separate checkout from the stable `8cdd458` handoff. Mac regressions, nati
 ## Enemy production follow-up (`64412e0`, Mac 466-case checkpoint)
 
 The full Mac run and cross-export are audited; Windows execution remains pending. In a separate checkout, verify production cadence responds to remaining hostile systems and resumes after recapture from zero systems. Save/reload before the next batch and verify no early or duplicate production; a crossed deadline should produce one batch and schedule forward. Cases 465/466 cover all counts, legacy unused counters and peace. The current whole-day clock still truncates fractional intervals. Repeat actual ship rename/cancel, empty cargo and physical close with Rename open; Mac checks passed, but source and Windows package results need separate records. Preserve the existing `8cdd458` handoff.
+
+## Discovery countdown follow-up
+
+The latest Mac-audited checkpoint is **`29eb9a7cc2be17b379200a575fb20c054caf5b89`**, with 467/467 regressions, strict import, startup and Windows cross-export. It includes the enemy-production correction and preserves an active Hyperlight discovery countdown before detecting recapture, matching original branch order. Once supplied, test saves during the delay, recapture lasting past expiry, and temporary recapture reversed before expiry. A decrement reaching zero must not also dispatch discovery. Case 467 covers these boundaries automatically; this is not full Hyperlight travel acceptance. This revision has not run on Windows. Preserve the separate `8cdd458` desktop handoff.

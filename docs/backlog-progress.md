@@ -71,3 +71,7 @@ The capture/transmission, News, battle, refining, simulation-order and ground-mi
 ### Additional 464-case validation checkpoint
 
 Delayed Hyperlight discovery now reaches normal research with saved count/delay/pending state and competing-notice handling. Full Mac validation and audited cross-export pass at `fbffac5`; native cases and actual Mac startup/settings/navigation/closing checks also pass. This advances the open SCG/campaign work but does not complete Hyperlight travel, Warlord or Windows acceptance. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**; see [validation results](validation-results.md#delayed-hyperlight-discovery-464-case-checkpoint).
+
+### Additional 467-case validation checkpoint
+
+Enemy production now uses the original remaining-hostile-system interval table, and Hyperlight discovery preserves active-countdown priority across recapture. Full Mac validation and audited cross-export pass at `29eb9a7`; focused native checks also pass. The [sound audit](original-ui-sound-evidence.md) additionally identifies original upper-menu/hover cues and corrects an inventory error: the supplied training-door sound is loaded but never played. Windows and campaign acceptance remain pending; counts remain **34/48 with implementation evidence, 0/48 fully accepted**.
