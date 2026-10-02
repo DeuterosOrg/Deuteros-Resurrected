@@ -43,7 +43,7 @@ Record source and export separately, including exact revision and logs. These fi
 
 ## Later asteroid/AMA follow-up
 
-The contribution branch now also restores all eight original asteroid classes/minerals and mining amounts 12–43 (case 443). This is **not** included in the prepared `625cae9` bundle. Once separately supplied, verify Copper/Silica scans, class-7/8 display and mining, compatible cargo, pod capacity and ACC return in source/export. The original clock/scan cadence remains unresolved; do not count this range correction as full AMA acceptance.
+The contribution branch now also restores all eight original asteroid classes/minerals and mining amounts 12–43 (case 443). This is **not** included in the prepared `625cae9` bundle. The range correction passes full 443-case Mac validation at `e68c6bb`. A subsequent case-444 correction blocks manual mining without fuel and disables ineligible Mine controls; focused native/headless Mac checks pass. Once separately supplied, verify Copper/Silica scans, class-7/8 display and mining, compatible cargo, pod capacity and ACC return in source/export. Try manual Mine with zero fuel, then refuel and retry an eligible scan; rejection must preserve the mining state. The original clock/scan cadence remains unresolved; do not count this range correction as full AMA acceptance.
 
 ## Feature acceptance details
 

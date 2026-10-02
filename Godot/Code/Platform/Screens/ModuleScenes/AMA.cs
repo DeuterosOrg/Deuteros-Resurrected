@@ -69,10 +69,13 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			UpdateState();
 		}
 
+        private bool CanMine() => Ship is InterStellarShip ship
+            && ship.ShipState == Ship_States.UnDocked && ship.PlanetLocation == StellarBodies.asteroids
+            && ship.Fuel > 0 && ship.AsteroidScanResults != null && ship.AsteroidScanResults.Class >= 6;
+
 		private void MineButton_Pressed()
 		{
-			var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
-            if (Ship.ShipState == Ship_States.UnDocked && scanResults != null && scanResults.Class >= 6)
+            if (CanMine())
 			{
 				Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
 				Ship.Dock();
@@ -102,6 +105,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			AsteroidSprite.Visible = false;
 			
 			MineButton.Visible = false;
+            MineButton.Disabled = !CanMine();
 
 			//In transit, undocked anywhere but Asteroids and docking/launching the screen is the same
 			if (Ship.ShipState == Ship_States.InTransit || Ship.ShipState == Ship_States.Launching || Ship.ShipState == Ship_States.Docking || (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation != StellarBodies.asteroids))

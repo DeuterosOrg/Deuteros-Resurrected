@@ -190,6 +190,7 @@ namespace Deuteros.Tests
             await CheckAsync("Leaving just-completed battle cannot rescue a defeated ship", BattleCompletedThenLeave);
             await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
             CheckUi("Original asteroid classes minerals and mining amount bounds are reachable", AsteroidOriginalRanges);
+            await CheckAsync("Manual AMA approach rejects zero fuel and permits eligible refuelled mining", AmaManualFuelGate);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

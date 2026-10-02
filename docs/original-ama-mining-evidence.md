@@ -22,7 +22,7 @@ Class rendering adds one (`$36574–$36578`), establishing visible classes **1�
 
 The remake's `Next(0, 6)` calls excluded classes 7/8 and the last mineral-list entry, Silica; Copper was absent from the list altogether. Generation now includes the eight established minerals and all eight classes. This restores the candidate set and equal table weights; it does not reproduce the original RNG state or replace provisional scan cadence. A caller-supplied standard `Random` permits deterministic regression sampling; normal play uses `Random.Shared`.
 
-Case **443** first reproduced only 36 of the 64 possible class/mineral combinations, then only 20 of the original 32 mining amounts after correcting generation. The amount range now includes **12–43**. Seeded samples check all combinations, class masses/artwork groups, fresh scan state and amount bounds. The case also mines generated class-7 Copper and class-8 Silica through the actual ship updater. Headless and native Mac checks pass; compatibility cases 305–313 pass. Full 443-case and Windows validation remain pending. Initial test setup/registration failures are retained separately and are not counted as gameplay reproductions.
+Case **443** first reproduced only 36 of the 64 possible class/mineral combinations, then only 20 of the original 32 mining amounts after correcting generation. The amount range now includes **12–43**. Seeded samples check all combinations, class masses/artwork groups, fresh scan state and amount bounds. The case also mines generated class-7 Copper and class-8 Silica through the actual ship updater. Headless and native Mac checks pass; compatibility cases 305–313 pass. Full 443-case Mac validation and audited Windows cross-export pass at `e68c6bb`; Windows execution remains pending. Initial test setup/registration failures are retained separately and are not counted as gameplay reproductions.
 
 Raw scan/yield/display instructions: `artifacts/research/ama-generation/scan-yield-display.txt`, SHA-256 `b166ea7ce8c98d8dc59ad93c6bc2b56780a51e6aedfe273e82b51d2cbf6c29a5`.
 
@@ -34,7 +34,7 @@ The disk starts `$1378E` at **310,000,000**, corresponding to the displayed year
 
 Within that update, the mining gate compares `(ship[+4] - 1) & 3` with `(clock >> 7) & 3`. For phase 0, stepping from the initial clock by whole days permits mining on days **2, 7, 12, 17, 22, 23, 27, 28, 32, 33, 38…**. The resulting 1-, 4- and 5-day gaps follow the clock bits; there is no random instant-cycle roll. Other phases shift the schedule. This is a calculation of the traced rule, not an emulator gameplay capture. Fractional advancement can produce different intervals, so the sequence assumes uninterrupted 100-unit steps.
 
-The amount calculation reads neither pilot rank nor asteroid size. Class is an entry gate (zero-based class at least 5); it does not scale the mining amount once mining is active. The manual entry checks nonzero fuel and scan state, then schedules two consumed updates before `$31608` enters mining state `$0D`. Wider scanner/crew eligibility and the semantic allocation of byte `+4` still require tracing before changing remake scheduling.
+The amount calculation reads neither pilot rank nor asteroid size. Class is an entry gate (zero-based class at least 5); it does not scale the mining amount once mining is active. The manual entry checks nonzero fuel and scan state, then schedules two consumed updates before `$31608` enters mining state `$0D`. Wider scanner/crew eligibility still requires tracing. Byte `+4` is now mapped to the allocated ship slot below; the remake still needs a stable saved equivalent before changing scheduling.
 
 ## Remake correction
 
@@ -47,3 +47,20 @@ The correction selects a compatible pod explicitly, caps its quantity, and launc
 The amount range and generated mineral/class set are corrected. The remake still uses its provisional five-day/first-day chance. Original mining is gated by `(ship[+4] - 1) & 3` matching `(clock[$1378E] >> 7) & 3`; clock units and caller cadence are now traced above. A stable remake mapping for the original ship-slot phase and fractional clock still needs a compatibility decision before replacing timing. Pilot effects, SCG availability, Complete Cycle, scan generation and normal campaign behavior also remain open. These cargo fixes do not complete the AMA research task.
 
 Raw traces are under ignored `artifacts/research/supply-pod/ama-{dispatch,mining,clock}-followup.txt`. See [validation](validation-results.md#ama-compatible-cargo--2026-10-02) and the [Windows acceptance brief](windows-agent-brief.md).
+
+
+## Ship-slot identity and reuse
+
+IOS construction `$2FBB0–$2FC56` reads selected local slot `$3237E`, adds the current star index shifted left four, and uses that index for the 28-byte ship record at `$1ACA6` and ten-byte name entry at `$13128`. `$2FC2A–$2FC2C` increments it and stores the one-based value in byte `+4`. SCG construction `$2FC58–$2FD1A` similarly indexes 34-byte records at `$1BC66`, twelve-byte names at `$136C8`, and the private clock at `$137B6` using its own global slot.
+
+The selectors `$3223E–$32252` (SCG) and `$322DE–$322F2` (IOS) scan their allocation bitmap from the low bit, choosing the first free index 0–15; a full bitmap rejects construction. IOS destruction `$362EA–$36302` clears the corresponding local bit in the star bitmap. SCG destruction `$36394–$363A4` clears its bit in `$13050`. Freed slots can be reused; surviving ships retain their slot identities.
+
+Thus the IOS phase is `(allocatedSlot - 1) & 3` for mining and `& 7` for scanning. The star offset of sixteen cancels under both masks. A mutable ship name, pilot identity or current collection position is not that phase. Integrating it into the remake needs a saved stable allocation and deterministic legacy-save mapping; deriving it again from ship order after a removal would incorrectly change surviving ships' schedules. This resolves the original field meaning, not the outstanding fractional-clock/migration decision.
+
+Raw traces: `artifacts/research/ama-generation/ship-allocation.txt` and `slot-release-and-manual-entry.txt`, with hashes and reproduction notes alongside them.
+
+## Manual entry fuel boundary
+
+`$31810–$3182E` first rejects zero fuel (ship byte `+6`), then requires scanning state `$0C`, before calling `$31834`. That shared entry requires the valid-scan bit and zero-based class at least five. The automatic scanner at `$23C0E` jumps directly to `$31834`; this manual fuel check alone is not evidence for changing every automatic/docking caller.
+
+Case **444** reproduced the remake entering `Docking` with zero fuel. The manual control and callback now share an eligibility check for undocked asteroid scans, class at least six and positive fuel. Rejected commands leave the mining timestamp unchanged; refuelling and an eligible scan permit retry. Focused headless and native Mac checks pass, alongside 307/310–313/443 compatibility checks. Automatic mining and generic docking are unchanged. This follow-up is later than the fully validated 443-case checkpoint; no full 444-case or Windows acceptance claim is made.
