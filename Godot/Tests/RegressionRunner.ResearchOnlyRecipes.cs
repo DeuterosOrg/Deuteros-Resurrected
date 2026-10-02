@@ -238,6 +238,8 @@ namespace Deuteros.Tests
             {
                 var planet = Save.BaseGameData.Planets[location];
                 planet.Station.Built = true;
+                planet.Station.BuildParts = 8;
+                planet.Station.Type = 8;
                 planet.ActiveMethanoid = false;
                 var stores = planet.Station.Resources.Stores;
                 stores[ItemTypes.hydrogen] = stores[ItemTypes.methane] = 100;
