@@ -140,6 +140,7 @@ namespace Deuteros.Tests
             await RunEngineDamageRegressions();
             await RunDfccFuelRegressions();
             RunAsteroidAccRegressions();
+            RunAmaCargoRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

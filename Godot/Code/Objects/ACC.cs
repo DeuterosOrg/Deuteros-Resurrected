@@ -174,8 +174,11 @@ namespace Deuteros.Code.Objects
 				//Check if we have an AMA on-board and the relevant equipment and crew
 				if (hasAma && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0)
 				{
-					//Our cargo hold is full and we are undocked, so we need to go home
-					if (!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250))
+					// Return if full, or if the selected mineral cannot fit any remaining pod.
+					if (!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250) ||
+						(scanResults != null && DestinationItems.Contains(scanResults.Type) &&
+						!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250 &&
+							(T.ItemCount == 0 || T.ItemStored == scanResults.Type))))
 						Ship.EngageEngine();
 					//We are not full, so check for a minable asteroid that is of the correct type and is large enough
 					//Also check the asteroid has not previously been mined - This means we just took off for it, so we should not land on it again

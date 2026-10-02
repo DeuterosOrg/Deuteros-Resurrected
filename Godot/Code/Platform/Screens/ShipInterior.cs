@@ -1,4 +1,4 @@
-using Deuteros.Code.Platform.Base;
+﻿using Deuteros.Code.Platform.Base;
 using Deuteros.Code.Objects;
 using Godot;
 using System;
@@ -1116,25 +1116,26 @@ namespace Deuteros.Code.Platform.Screens
 					//Were on an asteroid - Assume all is well and we just need to mine
 					if (ship.PlanetLocation == StellarBodies.asteroids)
 					{
-                        //Is it time to generate some ore?
-                        var minedAmount = AMA.Mine(((InterStellarShip)ship).AsteroidScanResults, ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a));
-                        
-                        //Our cargo hold is full so we should take off
-                        //We have to mine something to trigger a takeoff
-                        if (minedAmount > 0 && !ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250))
+						var asteroid = ((InterStellarShip)ship).AsteroidScanResults;
+						var ama = ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
+						var minedAmount = AMA.Mine(asteroid, ama);
+						if (minedAmount > 0)
 						{
-							ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = 0;
-							((InterStellarShip)ship).AsteroidScanResults.HasBeenMined = true;
-
-							ship.TakeOff();
-
-							ship.ACC?.Update(Ship_States.Docked);
-						}
-						else if (minedAmount > 0)
-						{
-							var firstModule = ship.Modules.First(T => T.ModuleType == Module_Types.Supply && (T.ItemStored == ItemTypes.none || (T.ItemStored == ((InterStellarShip)ship).AsteroidScanResults.Type && T.ItemCount < 250)));
-							firstModule.ItemCount = Math.Min(firstModule.ItemCount + minedAmount, 250);
-							firstModule.ItemStored = ((InterStellarShip)ship).AsteroidScanResults.Type;
+							// A partial pod of another mineral cannot accept this ore.
+							var cargo = ship.Modules.FirstOrDefault(T => T.ModuleType == Module_Types.Supply &&
+								T.ItemCount < 250 && (T.ItemCount == 0 || T.ItemStored == asteroid.Type));
+							if (cargo == null)
+							{
+								ama.LastMinedDay = 0;
+								asteroid.HasBeenMined = true;
+								ship.TakeOff();
+								ship.ACC?.Update(Ship_States.Docked);
+							}
+							else
+							{
+								cargo.ItemCount = Math.Min(cargo.ItemCount + minedAmount, 250);
+								cargo.ItemStored = asteroid.Type;
+							}
 						}
 					}
 					else

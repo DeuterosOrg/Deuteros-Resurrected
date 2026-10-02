@@ -98,6 +98,8 @@ namespace Deuteros.Tests
         {
             var ship = AsteroidAccShip();
             ship.Modules[0].ItemStored = ItemTypes.a__m__a;
+            ship.Modules[1].ItemStored = ItemTypes.none;
+            ship.Modules[1].ItemCount = 0;
             ship.ItemScanResults = new Asteroid { Type = ItemTypes.titanium, Class = 6, Mass = 10000, MassName = "Large" };
             ship.ACC.Update(Ship_States.UnDocked);
             Equal(true, ship.ACC.Active, "AMA retains automation");

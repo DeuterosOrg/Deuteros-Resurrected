@@ -334,3 +334,14 @@ Cases **305–309** pass focused strict checks: stop/conservation, waiting and m
 **Fresh full validation passed 309/309 isolated cases in one run**, strict import, startup smoke and Windows cross-export. All six Python validator tests pass. Recompilation retains 14 existing warnings and zero errors. The export pack contains 1,103 entries and no test resources. No gameplay errors were exempted. Failed/focused/native evidence, previous logs/export and the final export/source hash audit are retained under ignored `artifacts/validation/evidence/asteroid-acc/`.
 
 The local implementation count is **31/48**; native Windows acceptance remains pending and no Asana task is closed. Full AMA timing/yields, original SCG mining availability and Complete Cycle behavior remain separate research questions. A possible mixed-mineral mining failure was identified during review and still needs a controlled reproduction.
+
+
+## AMA compatible cargo — 2026-10-02
+
+Follow-up to **1215685674676221** reproduces three `Sequence contains no matching element` failures in the daily mining path and an ACC approach despite no pod accepting the selected ore. The [original mining trace](original-ama-mining-evidence.md) establishes compatible-pod selection, a 250-unit cap and departure when none is usable.
+
+Mining now skips incompatible/full pods, recognizes zero-count pods regardless of stale mineral type, and leaves without altering cargo when no pod can accept ore. ACC returns rather than docking for a selected mineral it cannot store. Cases **310–313** fail before and pass after the correction. Existing case 307 initially failed because its successful-mining fixture contained only incompatible cargo; that fixture now provides an empty pod, while case 311 explicitly tests the incompatible return. Both results are preserved.
+
+Focused cases **305–313** pass. **Fresh full Mac validation passed 313/313 isolated cases in one run**, strict import, startup smoke and Windows cross-export. Compilation retains 14 existing warnings and zero errors. Six Python tests passed when that run started; the separate Windows tooling change subsequently expanded them to nine, all passing. No gameplay errors were exempted. Raw evidence and previous logs/export are under ignored `artifacts/validation/evidence/ama-cargo/`.
+
+These are daily-state fixtures, not physical controls or normal campaign acceptance. The first native Windows baseline covers the earlier `44e37ba` revision and 309 cases; it does not validate this newer correction. A fresh native run and desktop acceptance remain pending. The task-level implementation count stays **31/48** because the broader AMA yield, timing and eligibility research remains incomplete.
