@@ -32,7 +32,9 @@ The remake previously let IOS choose and engage another star, including through 
 
 A second concrete failure came from the existing duration formula: Earth and Cerberus both have local orbital index 2, yielding zero duration despite different stars. On the next day, remaining time became negative and the `==0` arrival check never resolved. Case 248 reproduced the stranded SCG; arrival now resolves an elapsed deadline (`<=0`). **The formula is unchanged and is not certified as original interstellar timing.** This fixes indefinite transit within the current model, not the missing duration specification.
 
-Full SCG acceptance still needs normal research/manufacture/assembly, equipment and cargo verification, source/export Windows travel, and a trace or measurement of original interstellar duration. Existing saves already midflight are not migrated by the new departure guard; establish recovery expectations before changing those states.
+The assembly follow-up (cases 249–263) fixes remake consistency defects: bay entry no longer discovers star drives, SCG visibility follows its own chassis, fittings consume parts, dismantling returns them with capacity checks, occupied berths reject duplicate hulls, and the bay exposes five usable mounts. These are local model/conservation fixes, not a decoded original dismantling contract.
+
+Full SCG acceptance still needs normal research/manufacture/assembly, equipment and cargo verification, source/export Windows travel, and a trace or measurement of original interstellar duration. No normal SCG/interstellar unlock producer was found in the current remake. The parallel port's `DIVERGENCES.md` row 46 explicitly calls its Sol-cleared unlock triggers reconstructions; do not adopt those as verified original rules. Existing saves already midflight are not migrated by the new departure guard; establish recovery expectations before changing those states.
 
 ## 1215683087492485 — MTX installation
 

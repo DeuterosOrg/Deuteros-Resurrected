@@ -192,7 +192,6 @@ namespace Deuteros.Code.Platform.Screens
 			EquipmentStock.Visible = false;
 			StaffList.Visible = false;
 			GrappleWindowControl.Visible = false;
-			Nav_Create_SCG.Visible = GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.star_drive).Research.Locked = false;
 
             ScreenState = GetScreenState();
 
@@ -406,7 +405,10 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship is InterStellarShip stellar)
 				ReturnItem(Ship.ShipType == Ship_Types.IOS ? ItemTypes.ios_drone : ItemTypes.star_drone, stellar.DroneCount);
 
-			// Chassis and engine installation currently leave their items in stores, so do not duplicate them.
+			var chassis = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_chassis : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_chassis : ItemTypes.g_chassis;
+			var drive = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_drive : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_drive : ItemTypes.star_drive;
+			ReturnItem(chassis, 1);
+			if (Ship.Engine) ReturnItem(drive, 1);
 			// Check the combined returns first (fuel can also be carried in supply pods).
 			if (returningItems.Any(item => item.Value > 50000 - ResourceList.Stores[item.Key]))
 			{
@@ -476,6 +478,8 @@ namespace Deuteros.Code.Platform.Screens
 					stores[Enums.ItemTypes.a__c__c]--;
 				}
 
+				stores[ItemTypes.s_chassis]--;
+
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newShuttle);
 
 				GameCore.SingletonInstance.TriggerShipCreated(newShuttle);
@@ -487,7 +491,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CreateIOS()
 		{
-			if (!Ground && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.i_chassis] > 0)
+			if (!Ground && !ShipPresent && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.i_chassis] > 0)
 			{
 				var newIOS = new IOS();
 				newIOS.StartTravelDay = 0;
@@ -529,6 +533,8 @@ namespace Deuteros.Code.Platform.Screens
 					stores[Enums.ItemTypes.a__c__c]--;
 				}
 
+				stores[ItemTypes.i_chassis]--;
+
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newIOS);
 
 				GameCore.SingletonInstance.TriggerShipCreated(newIOS);
@@ -540,7 +546,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CreateSCG()
 		{
-			if (!Ground && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.g_chassis] > 0)
+			if (!Ground && !ShipPresent && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.g_chassis] > 0)
 			{
 				var newSCG = new SCG();
 				newSCG.StartTravelDay = 0;
@@ -581,6 +587,8 @@ namespace Deuteros.Code.Platform.Screens
 
 					stores[Enums.ItemTypes.a__c__c]--;
 				}
+
+				stores[ItemTypes.g_chassis]--;
 
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newSCG);
 
@@ -788,8 +796,7 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					Nav_Create_Shuttle.Visible = false;
 					Nav_Create_IOS.Visible = true;
-					if (!GameCore.SingletonInstance.GameData.GetItem(ItemTypes.s_chassis).Locked)
-						Nav_Create_SCG.Visible = true;
+					Nav_Create_SCG.Visible = !GameCore.SingletonInstance.GameData.GetItem(ItemTypes.g_chassis).Locked;
 				}
 			}
 			else
@@ -877,19 +884,16 @@ namespace Deuteros.Code.Platform.Screens
 					Nav_Torsos[2].Visible = true;
 					Nav_Torsos[3].Visible = true;
 					Nav_Torsos[4].Visible = true;
-					Nav_Torsos[5].Visible = true;
 					TorsoInstances[0].Visible = true;
 					TorsoInstances[1].Visible = true;
 					TorsoInstances[2].Visible = true;
 					TorsoInstances[3].Visible = true;
 					TorsoInstances[4].Visible = true;
-					TorsoInstances[5].Visible = true;
 					TorsoInstances[0].SpriteHolder.Visible = true;
 					TorsoInstances[1].SpriteHolder.Visible = true;
 					TorsoInstances[2].SpriteHolder.Visible = true;
 					TorsoInstances[3].SpriteHolder.Visible = true;
 					TorsoInstances[4].SpriteHolder.Visible = true;
-					TorsoInstances[5].SpriteHolder.Visible = true;
 
 					TorsoInstances[0].ChangeModule(Ship.Modules[0]);
 					TorsoInstances[0].TorsoSection = 0;

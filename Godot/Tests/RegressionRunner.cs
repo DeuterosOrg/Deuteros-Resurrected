@@ -133,6 +133,7 @@ namespace Deuteros.Tests
             await RunMenuSoundRegressions();
             await RunTradeDecisionRegressions();
             await RunHullTravelRegressions();
+            await RunShipAssemblyRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

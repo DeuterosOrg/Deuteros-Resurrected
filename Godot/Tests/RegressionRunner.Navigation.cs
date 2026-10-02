@@ -114,7 +114,7 @@ namespace Deuteros.Tests
         {
             await NavigationBay();
             Save.Ships.Clear();
-            GameCore.SingletonInstance.GameData.GetItem(ItemTypes.s_chassis).Locked = false;
+            GameCore.SingletonInstance.GameData.GetItem(ItemTypes.g_chassis).Locked = false;
             GameCore.SingletonInstance.ChangeScene(Scenes.ShipBay, new List<SceneVariables> { SceneVariables.Orbit, SceneVariables.Ship });
             await InputFrames();
             var bay = ActiveScreen<ShipBay>();

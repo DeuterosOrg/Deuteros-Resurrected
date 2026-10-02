@@ -12,6 +12,10 @@ The loader accepts only the known model subtypes. It rejects unknown versions/ty
 
 A save is serialized and validated before disk replacement. Its temporary file is flushed, then moved into an empty slot or replaces an existing slot with a backup. A failed write leaves the previous slot intact. Native Windows replacement/backup behavior remains part of the Windows acceptance pass.
 
+## Saves from before the assembly stock fix
+
+Earlier builds left chassis and drives in stores when fitting them. New fitting deducts one part, and dismantling returns the installed parts subject to capacity. Existing saves contain no record of those historical deductions, so loading preserves their inventories; the fix does not reconstruct earlier spending. Record the originating build when comparing old-save stocks during acceptance.
+
 ## Verification
 
 The engine regressions cover private staff/news state, all ship subtypes, active research/production references, training, cargo, ACC ownership/cursors, corruption rejection, overwrite backups and failure preservation. Actual screen callbacks exercise save, overwrite/cancel, load/cancel, corrupt-file feedback advancing the restored game, and a mid-flight ship arriving on schedule. Mac pointer checks cover visible controls and loading; Windows gameplay and long progression still require acceptance.

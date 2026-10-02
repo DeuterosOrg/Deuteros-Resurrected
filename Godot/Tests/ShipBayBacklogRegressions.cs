@@ -97,8 +97,8 @@ namespace Deuteros.Tests
                 Equal(17, resources.Stores[ship.FuelType], "fuel returned locally");
                 Equal(1, resources.Stores[ItemTypes.cryo_pod], "cryo pod returned");
                 Equal(1, resources.Stores[ItemTypes.a__c__c], "ACC returned");
-                Equal(1, resources.Stores[chassis], "chassis already in stock is not duplicated");
-                Equal(1, resources.Stores[engine], "engine already in stock is not duplicated");
+                Equal(2, resources.Stores[chassis], "installed chassis returns beside the spare");
+                Equal(2, resources.Stores[engine], "installed engine returns beside the spare");
                 if (ship is InterStellarShip)
                 {
                     Equal(200, resources.Stores[ItemTypes.iron], "cargo returned");

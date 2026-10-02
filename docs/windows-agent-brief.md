@@ -2,15 +2,21 @@
 
 ## Pickup checklist
 
-Handoff updated **2026-10-02**. The latest tested gameplay commit is **`1a6a70d0ee6d7d2c2bfd18e581a04dacdbb60b7c`** (hull restrictions and elapsed arrivals). Preceding checkpoints include **`2b09e0b`** (trade choices), **`12fdfe2`** (menu cue), **`55668f2`** (construction frames) and **`ff910f5`** (ambience/shutdown). Check the actual pushed head before starting; later commits may change these counts. Record the Windows-tested SHA even when it differs only by documentation commits.
+Handoff updated **2026-10-02**. The preceding fully tested gameplay commit is **`1a6a70d0ee6d7d2c2bfd18e581a04dacdbb60b7c`** (hull restrictions and elapsed arrivals). Preceding checkpoints include **`2b09e0b`** (trade choices), **`12fdfe2`** (menu cue), **`55668f2`** (construction frames) and **`ff910f5`** (ambience/shutdown). Check the actual pushed head before starting; later commits may change these counts. Record the Windows-tested SHA even when it differs only by documentation commits.
 
 1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
 2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
-3. Investigate shutdown first if validation fails. The latest Mac aggregate is **248/248**, including the production cleanup change that drains stopped audio before exit. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; a later pass alone does not establish their causes.
+3. Investigate the exact stage if validation fails. The current **263-case** attempt failed at case **61** with `SwapGCHandleForType`/`SetGodotObjectPtr` errors despite passing assertions. The preceding **248/248** aggregate passed. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; neither the audio cleanup nor a later pass proves their causes resolved.
 4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
 5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **27/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
 
 The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
+
+### Ship assembly acceptance
+
+The current follow-up adds passing cases **249–263** for stock conservation and SCG assembly; native Mac cases 250/252/259/260/263 also passed. The [latest validation result](validation-results.md#ship-assembly-and-inventory-conservation--2026-10-02) records the separate case-61 failure and the 262/263 continuation result. On Windows, verify bay entry leaves research locked, the SCG selector follows its own chassis technology, each hull/drive fitting consumes one local part, and repeat creation cannot put two ships in one berth. Fit all five SCG pods and confirm there is no sixth mount. Dismantle powered and unpowered hulls with full and exactly sufficient part storage; repeat a build/fit/dismantle cycle and save/reload between steps.
+
+Treat inventories from pre-fix saves separately: historical part deductions cannot be reconstructed. Normal SCG discovery and manufacture remain acceptance gaps; the parallel port's Sol-cleared unlock trigger is documented as a reconstruction, not verified original behavior.
 
 ### Menu sound acceptance
 
@@ -51,7 +57,9 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The current suite has **248 cases** and **27 task-level fixes with local regression evidence**, plus partial trading and SCG feature work. The hull-travel batch passed **248/248 in one full run**, strict import, startup smoke and fresh Windows export; five Python validator tests pass. Native Mac cases 241/243/246/247 passed and the IOS rejection message was visually inspected. Cases 236–248 cover IOS/local/SCG routing, metadata, ACC inventory conservation and elapsed arrival. See [hull validation](validation-results.md#hull-travel-restrictions-and-elapsed-arrival--2026-10-02); original interstellar duration and Windows gameplay remain unverified.
+The current suite has **263 cases**. Its assembly-batch aggregate failed at case 61 with three GC-handle errors. Cases 1–60 and continuation 62–263 passed, as did startup smoke and a fresh Windows cross-export: **262/263 across two runs, not a green aggregate**. See the [current assembly result](validation-results.md#ship-assembly-and-inventory-conservation--2026-10-02) for the continuation and acceptance limits. Do not report a green aggregate based on the earlier run.
+
+The preceding suite had **248 cases** and **27 task-level fixes with local regression evidence**, plus partial trading and SCG feature work. The hull-travel batch passed **248/248 in one full run**, strict import, startup smoke and fresh Windows export; five Python validator tests pass. Native Mac cases 241/243/246/247 passed and the IOS rejection message was visually inspected. Cases 236–248 cover IOS/local/SCG routing, metadata, ACC inventory conservation and elapsed arrival. See [hull validation](validation-results.md#hull-travel-restrictions-and-elapsed-arrival--2026-10-02); original interstellar duration and Windows gameplay remain unverified.
 
 The preceding trading-decision batch passed **235/235 in one full run**, strict import, startup smoke and a fresh Windows export; five Python validator tests pass. Six reproduced defects include automatic acceptance, invalid cargo counting, war gating, duplicate gifts and interrupted text locks. Native Mac decision/input/cleanup checks passed and the corrected dialog was visually inspected. The first aggregate stopped at a timing-sensitive menu-cue assertion; a controlled slow-navigation probe proved the assertion could fail after successful cue completion, and the test was corrected before this fresh run. See [trade and validation evidence](validation-results.md#methanoid-trading-decisions-and-interrupted-text--2026-10-02). Original trade timing and Windows acceptance remain incomplete.
 
@@ -69,7 +77,7 @@ The source baseline was `9817216`. The initial macOS arm64 contribution passed c
 
 Before the engine patch, the last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The MTX installation batch had **190 cases** and **25 Asana-linked fixes with local regression evidence**. Its final 4.2.1 full attempt passed cases 1–149, then case 150 timed out after 180 seconds while Research entered the tree. A continuation passed 151–152 but case 153 timed out at its 45-second focused limit. Without retrying either failure, a second continuation passed 154–190, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **188/190 across three runs, not a passing aggregate**. The preceding 162- and 173-case attempts also stalled at case 150. Windows gameplay and visual acceptance remain pending.
 
-Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in the latest full run, but no proven fix exists for the earlier intermittent failure. Preserve both results when assessing readiness.
+Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in subsequent full runs, but the same stack signatures recurred at case 61 in the assembly batch; no proven fix exists for this intermittent failure. Preserve both results when assessing readiness.
 
 ### Salvage and bulletin batch — 2026-10-02
 

@@ -36,8 +36,11 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
         public void InstallEngine()
         {
-            if (!Installed && ((Ground && GameCore.SingletonInstance.GetCurrentPlanet().PlanetResources.Stores[EngineType] > 0) || (!Ground && GameCore.SingletonInstance.GetCurrentPlanet().Station.Resources.Stores[EngineType] > 0)))
+            var planet = GameCore.SingletonInstance.GetCurrentPlanet();
+            var stores = Ground ? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
+            if (!Installed && stores[EngineType] > 0)
             {
+                stores[EngineType]--;
                 Installed = true;
                 EngineInstalled.Invoke();
                 UpdateState();
