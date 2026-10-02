@@ -28,6 +28,17 @@ Cases 422–435 provide staged regression coverage. Distinguish those fixtures f
 
 Candidate **`9b245f52d977e93074ee2ed459d0d39ab68fda65`** on `codex/news-events` adds the missing report producers and short-history layout after the transmission candidate. Full 437-case Mac validation and audited Windows export pass; it has not been uploaded or executed on Windows. Once supplied separately, test fuel/hostile-orbit losses, fleet attack/capture and both failed/successful dismantling in source/export. Reports must occur once at committed transitions, survive saves and show newest first with fewer than twelve entries. Hover long names to read the complete report; unused rows must have no stale text. Cases 297/301/436/437 cover these operations automatically. Battle-window cleanup is a separate follow-up; do not assume 9b245f5 includes it.
 
+## Isolated battle follow-up
+
+Candidate **`625cae94ef40f4552399781b8ba205e1593b5ec0`** on `codex/battle-cleanup` includes the transmission and News candidates above. Cases 438–442 pass focused headless and native Mac checks; its full 442-case Mac run is still pending. It has not been uploaded or executed on Windows. Preserve the `8cdd458` desktop pass and use a separate checkout when this candidate is supplied.
+
+- Fight both station defenders and a roaming fleet through the DFCC control. Verify victory, defeat and retreat, with no detached battle window or retained-resource errors after closing the game.
+- Leave an unfinished encounter and return. Surviving drones must remain on the player ship and the original defending station; reopening must not duplicate them. A roaming fleet's survivors must not be credited to a station.
+- Leave at the completed-defeat boundary. The ship must remain destroyed, its News report must appear once, and the previous encounter must not redirect the new screen. Check that a surviving ship remains usable after enemy retreat.
+- Load another save during an encounter where the UI permits it. The old battle must release its window without changing the replacement world. Record unavailable scenarios as NOT TESTED; the automated cases use staged combat outcomes, not normal campaign play.
+
+Record source and export separately, including exact revision and logs. These fixes address lifecycle and result handling; original combat arithmetic and campaign acceptance remain separate checks.
+
 ## Feature acceptance details
 
 ### Artifact recovery follow-up
