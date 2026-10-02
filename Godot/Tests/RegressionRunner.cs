@@ -211,6 +211,8 @@ namespace Deuteros.Tests
             await CheckAsync("Pending Hyperlight discovery survives competing transmission and reaches normal research", HyperlightPendingResearchFlow);
             CheckUi("Hyperlight discovery state rejects malformed saves and accepts missing legacy fields", HyperlightDiscoverySaveValidation);
             CheckUi("Hyperlight discovery requires seven hostile systems and resets on recapture", HyperlightDiscoveryCountBoundaries);
+            CheckUi("Enemy production follows remaining hostile systems and preserves its saved deadline", EnemyProductionRemainingSystems);
+            CheckUi("Enemy production resumes after zero systems and crossed deadlines", EnemyProductionOverdueDeadline);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
