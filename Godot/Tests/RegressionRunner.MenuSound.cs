@@ -57,12 +57,12 @@ namespace Deuteros.Tests
         {
             if (pressed == null)
             {
-                using var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point };
+                var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point };
                 viewport.PushInput(motion, true);
             }
             else
             {
-                using var click = new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = button, Pressed = pressed.Value };
+                var click = new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = button, Pressed = pressed.Value };
                 viewport.PushInput(click, true);
             }
         }

@@ -134,6 +134,7 @@ namespace Deuteros.Tests
             await RunTradeDecisionRegressions();
             await RunHullTravelRegressions();
             await RunShipAssemblyRegressions();
+            await CheckAsync("Queued navigation input survives physics picking and collection", QueuedNavigationInputLifetime);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

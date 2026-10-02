@@ -155,7 +155,7 @@ namespace Deuteros.Tests
 
         private async Task PointAt(Control control)
         {
-            using var motion = new InputEventMouseMotion { Position = control.GetGlobalRect().GetCenter(), GlobalPosition = control.GetGlobalRect().GetCenter() };
+            var motion = new InputEventMouseMotion { Position = control.GetGlobalRect().GetCenter(), GlobalPosition = control.GetGlobalRect().GetCenter() };
             control.GetViewport().PushInput(motion, true);
             await InputFrames();
         }
@@ -202,11 +202,13 @@ namespace Deuteros.Tests
 
         private async Task RightClick(Vector2 position, bool press = true)
         {
-            using var click = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = press, Position = position, GlobalPosition = position };
+            // Godot may retain an unhandled event until physics picking. Do not
+            // Dispose injected mouse events when this managed call returns.
+            var click = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = press, Position = position, GlobalPosition = position };
             GetViewport().PushInput(click, true);
             if (press)
             {
-                using var release = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false, Position = position, GlobalPosition = position };
+                var release = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false, Position = position, GlobalPosition = position };
                 GetViewport().PushInput(release, true);
             }
             await InputFrames();

@@ -20,7 +20,7 @@ def check_output(text, marker=None, editor=False):
     for line in text.splitlines():
         if editor and line.strip() == EDITOR_TEARDOWN:
             continue
-        if re.match(r"\s*(ERROR:|SCRIPT ERROR:|FAIL:|Unhandled exception)", line):
+        if re.match(r"\s*(ERROR:|SCRIPT ERROR:|FAIL:|FATAL:|handle_crash: Program crashed|Unhandled exception)", line):
             errors.append(line)
     if marker and marker not in text:
         errors.append("Missing completion marker: " + marker)

@@ -20,11 +20,15 @@ On Windows, use `python`. `GODOT` is an alternative to `--godot`. For a custom S
 
 Gameplay regressions exit through `GameCore.RequestQuit`, the same cleanup used by a normal window-close request. It frees the active scenes and gives the audio mixer a bounded opportunity to release stopped playback before engine teardown. Case 205 exercises the close notification after repeated Store/Ship Bay/Training navigation with settings paused. Logs must still be free of engine errors; passing assertions before a shutdown hang are a failed run. The entry-scene smoke uses direct `SceneTree.Quit` and does not establish audio shutdown behavior.
 
-A logged engine error, failed assertion, missing completion marker, nonzero exit, or timeout fails validation. See `artifacts/validation/*.log` for full output. To iterate after imports are current, use `--skip-import`.
+A logged engine error, native crash/fatal header, failed assertion, missing completion marker, nonzero exit, or timeout fails validation. See `artifacts/validation/*.log` for full output. To iterate after imports are current, use `--skip-import`.
 
 Per-case logs are named `regression-NNN.log`; `regression-summary.log` is written only after every discovered case passes. Running the regression scene directly without a selector retains batch mode for diagnostics; it is not the canonical isolated suite.
 
 The test runner invokes subsystem updates directly. It does not establish the original game's ordering of the complete daily event pipeline. Screen tests execute real callbacks and nodes, but do not prove pointer hit-testing, sound quality or animation timing. There is no measured line-coverage percentage or claim of complete game coverage.
+
+## Injected pointer event lifetime
+
+Let Godot retain mouse events passed to `Viewport.PushInput`; do not wrap them in `using` or dispose them when the helper returns. An unhandled event can remain queued until physics picking, after the synchronous input callback and render frames. Premature disposal reproduced the case-61 GC-handle errors. Case 264 repeats real navigation with collection pressure to protect this boundary; see the [diagnosis](validation-results.md#queued-test-input-lifetime--2026-10-02). Direct synchronous callbacks have a different ownership boundary.
 
 ## Engine-specific behavior
 

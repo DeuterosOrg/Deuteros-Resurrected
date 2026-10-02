@@ -8,6 +8,13 @@ class ValidationOutputTests(unittest.TestCase):
         with self.assertRaises(RuntimeError):
             check_output('SMOKE OK\n\x1b[1;31mERROR:\x1b[0m missing texture', 'SMOKE OK')
 
+    def test_native_crash_fails_even_after_passing_assertions(self):
+        for message in ('handle_crash: Program crashed with signal 11',
+                        'FATAL: Condition "!rc_owner" is true.'):
+            with self.subTest(message=message), self.assertRaises(RuntimeError):
+                check_output('REGRESSION RESULT: 1 passed, 0 failed\n' + message,
+                             'REGRESSION RESULT: 1 passed, 0 failed')
+
     def test_missing_runner_does_not_count_as_success(self):
         with self.assertRaises(RuntimeError):
             check_output('Godot Engine', 'REGRESSION RESULT:')

@@ -112,11 +112,11 @@ namespace Deuteros.Tests
             async Task ClickTime()
             {
                 var point = menu.TimeButton.GetGlobalRect().GetCenter();
-                using var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point };
+                var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point };
                 viewport.PushInput(motion, true);
                 foreach (var pressed in new[] { true, false })
                 {
-                    using var click = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed,
+                    var click = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = pressed,
                         Position = point, GlobalPosition = point };
                     viewport.PushInput(click, true);
                 }

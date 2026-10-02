@@ -223,11 +223,11 @@ namespace Deuteros.Tests
         {
             var dialog = await OpenTradeChoice(interior);
             var point = dialog.GetNode<Button>("Accept").GetGlobalRect().GetCenter();
-            using (var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point })
-                GetViewport().PushInput(motion, true);
+            var motion = new InputEventMouseMotion { Position = point, GlobalPosition = point };
+            GetViewport().PushInput(motion, true);
             foreach (var pressed in new[] { true, false })
             {
-                using var click = new InputEventMouseButton { Position = point, GlobalPosition = point,
+                var click = new InputEventMouseButton { Position = point, GlobalPosition = point,
                     ButtonIndex = MouseButton.Left, Pressed = pressed };
                 GetViewport().PushInput(click, true);
             }
