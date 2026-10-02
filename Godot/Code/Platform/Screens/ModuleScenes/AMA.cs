@@ -152,21 +152,22 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		#region statics
 
-		//TODO Not sure if we need the Asteroid?  Pending investigation
-		public static int Mine(Asteroid asteroid, ShipModule shipModule)
+		// Original mining amount is independent of asteroid class; cadence remains provisional.
+		public static int Mine(Asteroid asteroid, ShipModule shipModule, Random random = null)
 		{
+			random ??= Random.Shared;
 			var minedAmount = 0;
 
 			//There is a 1/20 chance for an instant mine, but only on the first day
-			if (shipModule.LastMinedDay + 1 == GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay && Random.Shared.Next(0, 20) == 10)
+			if (shipModule.LastMinedDay + 1 == GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay && random.Next(0, 20) == 10)
 			{
-				return Random.Shared.Next(16, 36);
+				return random.Next(12, 44);
 			}
 			//Otherwise it is a 5 day mining cycle
 			else if (GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - shipModule.LastMinedDay  == 5)
 			{
 				shipModule.LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-				return Random.Shared.Next(16, 36);
+				return random.Next(12, 44);
 			}
 
 			return minedAmount;

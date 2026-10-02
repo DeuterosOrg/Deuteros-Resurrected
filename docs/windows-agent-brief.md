@@ -41,6 +41,10 @@ Candidate **`625cae94ef40f4552399781b8ba205e1593b5ec0`** on `codex/battle-cleanu
 
 Record source and export separately, including exact revision and logs. These fixes address lifecycle and result handling; original combat arithmetic and campaign acceptance remain separate checks.
 
+## Later asteroid/AMA follow-up
+
+The contribution branch now also restores all eight original asteroid classes/minerals and mining amounts 12–43 (case 443). This is **not** included in the prepared `625cae9` bundle. Once separately supplied, verify Copper/Silica scans, class-7/8 display and mining, compatible cargo, pod capacity and ACC return in source/export. The original clock/scan cadence remains unresolved; do not count this range correction as full AMA acceptance.
+
 ## Feature acceptance details
 
 ### Artifact recovery follow-up

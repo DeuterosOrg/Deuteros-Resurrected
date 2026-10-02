@@ -189,6 +189,7 @@ namespace Deuteros.Tests
             await CheckAsync("Replacing the world during battle cannot mutate the new save", () => BattleInterrupted(true));
             await CheckAsync("Leaving just-completed battle cannot rescue a defeated ship", BattleCompletedThenLeave);
             await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
+            CheckUi("Original asteroid classes minerals and mining amount bounds are reachable", AsteroidOriginalRanges);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

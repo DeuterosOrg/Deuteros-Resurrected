@@ -650,3 +650,12 @@ Cases **438–442** reproduce and fix leaked battle windows, lost reserved stati
 These runtime changes are now consolidated into the local contribution branch. Its `Godot/`, `scripts/` and `.github/` trees match the validated candidate; merge resolutions only retain newer documentation. This is a local merge, with no push or PR. Windows execution and interactive acceptance are pending; the stable `8cdd458` desktop handoff remains unchanged. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
 A complete local Git bundle is prepared at `artifacts/windows-handoff/deuteros-625cae9.bundle`, SHA-256 **`4a620311be107eca189cfb11816b09c50e02e4aaca7e816e44a41357ec322d8f`**. It is not uploaded: the latest SSH retry still rejects authentication. The separate `desktop-prompt-625cae9.txt` alongside it describes validation and report requirements once transferred.
+
+
+## Asteroid generation and AMA amounts — 2026-10-02
+
+The original scanner tables establish eight minerals (including Copper and Silica), eight visible classes and the existing mass/artwork groups. The remake generated only six minerals and six classes, excluding 28 of the 64 combinations. Original mining adds twelve to a five-bit random amount, giving 12–43; the remake used 16–35. Both ranges are corrected at their shared generation/mining methods. [Instruction and table evidence](original-ama-mining-evidence.md#generated-classes-and-minerals) records the mapping and RNG/cadence limits.
+
+Case **443** reproduced 36 rather than 64 combinations, then 20 rather than 32 distinct amounts. It now passes headless and native Mac with seeded sampling, and mines generated class-7 Copper and class-8 Silica through the actual ship updater. Compatibility cases **305–313** pass. Build reports 14 existing warnings and zero errors. The earlier missing-log-directory and recursive-registration errors were test setup errors, corrected before counting those gameplay failures. Evidence: `artifacts/validation/evidence/ama-ranges/{red2,amount-red,green,final}/`.
+
+Full 443-case validation and Windows execution are pending. Mining/scan timing still uses the provisional remake scheduler; restoring the ranges does not complete the AMA investigation or establish original campaign cadence. Counts remain 34/48 with implementation evidence and 0/48 fully accepted.

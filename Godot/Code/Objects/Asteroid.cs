@@ -11,7 +11,7 @@ namespace Deuteros.Code.Objects
 	{
         public Enums.GrappleItemTypes GrappleItemType { get; set; }
 
-        public static List<Enums.ItemTypes> ResourceTypeList = new List<Enums.ItemTypes>() { Enums.ItemTypes.titanium, Enums.ItemTypes.aluminium, Enums.ItemTypes.carbon, ItemTypes.paladium, ItemTypes.platinum, ItemTypes.silver, ItemTypes.silica };
+        public static List<Enums.ItemTypes> ResourceTypeList = new List<Enums.ItemTypes>() { Enums.ItemTypes.titanium, Enums.ItemTypes.aluminium, Enums.ItemTypes.carbon, ItemTypes.copper, ItemTypes.paladium, ItemTypes.platinum, ItemTypes.silver, ItemTypes.silica };
 		public static List<int> ResourceMassList = new List<int>() { 50, 100, 250, 1000, 5000, 10000, 25000, 60000 };
 		public static List<int> ResourceClassList = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8 };
 		public static List<string> ResourceMassNameList = new List<string>() { "Small", "Small", "Small", "Medium", "Medium", "Large", "Large", "Large" };
@@ -54,10 +54,11 @@ namespace Deuteros.Code.Objects
 			}
 		}
 
-		public static Asteroid GenerateAsteroid()
+		public static Asteroid GenerateAsteroid(Random random = null)
 		{
-			var asteroidType = Random.Shared.Next(0, 6);
-			var asteroidSize = Random.Shared.Next(0, 6);
+			random ??= Random.Shared;
+			var asteroidType = random.Next(ResourceTypeList.Count);
+			var asteroidSize = random.Next(ResourceClassList.Count);
 
 			var newAsteroid = new Asteroid();
 			newAsteroid.Type = ResourceTypeList[asteroidType];

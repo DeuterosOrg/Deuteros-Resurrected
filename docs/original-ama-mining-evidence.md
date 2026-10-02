@@ -14,6 +14,18 @@ If none can accept the ore, `$23CA2` jumps to `$30B48`. Its state-`$0D` branch r
 
 The mining amount block `$23C7C–$23C86` calls the random routine, masks with `$1F`, then adds `$0C`: numeric range **12–43**. It updates only the selected pod and clamps at 250. This establishes arithmetic bounds, not uniformity or ore per remake day.
 
+## Generated classes and minerals
+
+The scanner at `$23AF8` uses the same slot/clock gate with mask 7 rather than mining's mask 3. When eligible, `$23B14–$23B3A` takes the random result's low three bits as zero-based class and bits 3–6 as a sixteen-entry mineral-table index. Table `$364BE` contains `01 02 03 04 09 0A 0B 0D 01 02 09 0B 03 0A 04 0D`: each of eight material IDs appears twice. Rendering at `$365B2–$365B8` adds text base `$32`; the corresponding strings are Titanium, Aluminium, Carbon, Copper, Paladium, Platinum, Silver and Silica. Mining separately adds one when storing the material ID in a supply pod.
+
+Class rendering adds one (`$36574–$36578`), establishing visible classes **1–8**. The mass table `$364AE` contains **50, 100, 250, 1,000, 5,000, 10,000, 25,000, 60,000**. The image selector table `$364CE` groups classes 1–3, 4–5 and 6–8. This agrees with the remake's existing mass/artwork mappings.
+
+The remake's `Next(0, 6)` calls excluded classes 7/8 and the last mineral-list entry, Silica; Copper was absent from the list altogether. Generation now includes the eight established minerals and all eight classes. This restores the candidate set and equal table weights; it does not reproduce the original RNG state or replace provisional scan cadence. A caller-supplied standard `Random` permits deterministic regression sampling; normal play uses `Random.Shared`.
+
+Case **443** first reproduced only 36 of the 64 possible class/mineral combinations, then only 20 of the original 32 mining amounts after correcting generation. The amount range now includes **12–43**. Seeded samples check all combinations, class masses/artwork groups, fresh scan state and amount bounds. The case also mines generated class-7 Copper and class-8 Silica through the actual ship updater. Headless and native Mac checks pass; compatibility cases 305–313 pass. Full 443-case and Windows validation remain pending. Initial test setup/registration failures are retained separately and are not counted as gameplay reproductions.
+
+Raw scan/yield/display instructions: `artifacts/research/ama-generation/scan-yield-display.txt`, SHA-256 `b166ea7ce8c98d8dc59ad93c6bc2b56780a51e6aedfe273e82b51d2cbf6c29a5`.
+
 ## Clock and short-cycle findings
 
 The disk starts `$1378E` at **310,000,000**, corresponding to the displayed year 3100. Date rendering at `$22BF2–$22C56` derives the year by dividing by 100,000, the three-digit day from the next three decimal digits, and the fraction from the remainder modulo 100. Thus a 100-unit increment advances one displayed day.
@@ -32,6 +44,6 @@ The correction selects a compatible pod explicitly, caps its quantity, and launc
 
 ## Remaining investigation
 
-The remake still uses its provisional 16–35 yield and five-day/first-day chance. Original mining is gated by `(ship[+4] - 1) & 3` matching `(clock[$1378E] >> 7) & 3`; clock units and caller cadence are now traced above. A stable remake mapping for the original ship-slot phase and fractional clock still needs a compatibility decision before replacing timing. Pilot effects, SCG availability, Complete Cycle, scan generation and normal campaign behavior also remain open. These cargo fixes do not complete the AMA research task.
+The amount range and generated mineral/class set are corrected. The remake still uses its provisional five-day/first-day chance. Original mining is gated by `(ship[+4] - 1) & 3` matching `(clock[$1378E] >> 7) & 3`; clock units and caller cadence are now traced above. A stable remake mapping for the original ship-slot phase and fractional clock still needs a compatibility decision before replacing timing. Pilot effects, SCG availability, Complete Cycle, scan generation and normal campaign behavior also remain open. These cargo fixes do not complete the AMA research task.
 
 Raw traces are under ignored `artifacts/research/supply-pod/ama-{dispatch,mining,clock}-followup.txt`. See [validation](validation-results.md#ama-compatible-cargo--2026-10-02) and the [Windows acceptance brief](windows-agent-brief.md).

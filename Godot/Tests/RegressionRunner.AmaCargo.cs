@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
+using Deuteros.Code.Platform.Screens.ModuleScenes;
 using Deuteros.Code.Objects;
 using Deuteros.Code.Platform.Screens;
 using static Deuteros.Code.Enums;
@@ -13,6 +16,46 @@ namespace Deuteros.Tests
             CheckUi("ACC returns from a selected asteroid when no pod accepts its mineral", AmaAccIncompatibleCargo);
             CheckUi("AMA treats zero-count supply pods as empty regardless of their previous mineral", AmaEmptyCargo);
             CheckUi("AMA skips incompatible and full pods and caps the first usable pod", AmaCompatibleCargo);
+        }
+
+        private void AsteroidOriginalRanges()
+        {
+            var expectedMaterials = new[] { ItemTypes.titanium, ItemTypes.aluminium, ItemTypes.carbon,
+                ItemTypes.copper, ItemTypes.paladium, ItemTypes.platinum, ItemTypes.silver, ItemTypes.silica };
+            var masses = new[] { 50, 100, 250, 1000, 5000, 10000, 25000, 60000 };
+            var random = new Random(364);
+            var combinations = new Dictionary<(ItemTypes, int), Asteroid>();
+            for (var i = 0; i < 4096; i++)
+            {
+                var asteroid = Asteroid.GenerateAsteroid(random);
+                Equal(true, expectedMaterials.Contains(asteroid.Type), "original scan mineral");
+                Equal(true, asteroid.Class >= 1 && asteroid.Class <= 8, "original scan class");
+                Equal(masses[asteroid.Class - 1], asteroid.Mass, "original class mass table");
+                Equal(asteroid.Class <= 3 ? "Small" : asteroid.Class <= 5 ? "Medium" : "Large", asteroid.MassName, "class artwork size");
+                Equal(false, asteroid.HasBeenMined, "new scan is unmined");
+                combinations[(asteroid.Type, asteroid.Class)] = asteroid;
+            }
+            Equal(64, combinations.Count, "all eight minerals and eight classes are reachable");
+            var amounts = new HashSet<int>();
+            var module = new ShipModule();
+            for (var i = 0; i < 4096; i++)
+            {
+                Save.CurrentDay = (uint)(i * 5 + 5);
+                var amount = AMA.Mine(null, module, random);
+                Equal(true, amount >= 12 && amount <= 43, "original masked random amount plus twelve");
+                amounts.Add(amount);
+            }
+            Equal(32, amounts.Count, "all original mining amounts are reachable");
+            foreach (var mineral in new[] { ItemTypes.copper, ItemTypes.silica })
+            {
+                var ship = AmaCargoShip();
+                ship.Modules[1].ItemCount = 0;
+                ship.ItemScanResults = combinations[(mineral, mineral == ItemTypes.copper ? 7 : 8)];
+                ShipInterior.UpdateShips(99, 100);
+                Equal(mineral, ship.Modules[1].ItemStored, "newly reachable scan mines its own mineral");
+                Equal(true, ship.Modules[1].ItemCount >= 12 && ship.Modules[1].ItemCount <= 43, "newly reachable large asteroid deposits original yield");
+                Equal(Ship_States.Docked, ship.ShipState, "newly reachable large asteroid keeps mining");
+            }
         }
 
         private IOS AmaCargoShip()
