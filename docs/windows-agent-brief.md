@@ -13,7 +13,7 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`f6dd5c0`**, with **470/470 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`2668a0f`**, with **472/472 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 ## Transmission candidate
 
@@ -355,3 +355,7 @@ The latest Mac-audited checkpoint is **`29eb9a7cc2be17b379200a575fb20c054caf5b89
 At **`34ab06731fe7740672d3df564fb03e9fb4e407f7`**, test the training light switch twice, confirm arrow controls remain bright when the room dims, and leave/re-enter while dimmed. Queue trainees in all three disciplines and advance through closing and opening: each simultaneous batch should play one door cue, and later button presses should retain their button sound. Repeat screen exit and physical game closing during sound. Cases 468/469 pass headless/native Mac checks, including brightness pixels; full 469-case validation and cross-export pass. Listening, Windows execution and staggered/interrupted animation ownership remain separate checks. Preserve the existing `8cdd458` desktop handoff.
 
 The subsequent **`f6dd5c0911cb71830ef958afee01b88e42fb5f0e`** checkpoint also corrects training animation/lock ownership and passes all 470 Mac regressions plus audited cross-export. Test reopening a room with active training, staggered door motion, navigation where allowed and physical closing after starting training. Static doors must not release other input locks, and one completion must not cut short another door. Native case 470 covers injected completion/interruption boundaries; the physical Mac close is separately recorded. Original animation cadence and Windows execution remain pending.
+
+## Crew-loss News follow-up
+
+At `2668a0f999c33d4ee56da2f6cbdbc8b6ddb18f2b`, verify actual ship losses report the named pilot and cryopod passengers before the vessel. Destroy/capture a station with orbital, ground and factory teams; each removed crew should appear once and the captured factory must retain no human builder. Earth ground crews and distant ships must survive without false death reports. Check saved News history, newest-first layout and long-name hover text. Cases 471/472 and native 436/437 pass on Mac, with full 472-case validation and audited cross-export; Windows source/export execution remains pending. Preserve the separate `8cdd458` desktop handoff.
