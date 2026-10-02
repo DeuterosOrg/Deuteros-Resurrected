@@ -36,12 +36,26 @@ News replay at `$397EA` uses the recorded message and temporarily decrements/res
 
 Capture processing at `$35C06–$35C16` decrements the system's remaining hostile count and calls `$35C5C` when it reaches zero. If that system has no previously assigned artifact, the latter chooses and stores a location using the original per-system range/base tables, copies it to `$1C382`, and arms a **two-update** transmission countdown. It also sets a separate research-discovery flag. This is event-driven location assignment, not periodic selection from a fixed eight-planet list.
 
-Artifact unloading at `$32C10–$32C44` checks the accumulated byte against 84. At or above that threshold it selects stage 13, arms a two-update countdown and writes 100 after the shared addition; earlier deliveries add 12. The full production/ending path is not established by this excerpt.
+The initializer at `$385B6` writes `$FF` to the Sun's artifact-location byte `$1C384`, disabling assignment there. This independently rules out the remake's initial Earth artifact.
+
+Artifact unloading at `$32C02–$32C44` selects descriptor `$19E54` and updates its completion byte at offset 2 directly. Deliveries produce **12, 24, 36, 48, 60, 72, 84, 100**. At the eighth delivery it selects stage 13, arms a two-update countdown and appends item ID 1 to the order list at `$19E12`. This is not an increased research ceiling followed by a separate scientist-driven completion step.
+
+## Device manufacture and activation
+
+The original device reuses item **ID 1**, zero-based index 0. Its 40-byte descriptor at `$19E54` begins `01 02 00 01`: item ID, factory mode, initial completion, required production rank. All sixteen material-cost words are zero; the final mass word is `$07D0` (2000). The item-name table entry `$101` reads **Unknown**, and tool label `$51` reads **Unknown Item**. Do not invent an additional item or recipe from the parallel reconstruction.
+
+Factory eligibility at `$24B60` and `$24ED0` checks completion, factory mode and staff rank. Mode 2 is set by the station initializer at `$20FE8`; Earth ground initialization sets mode 1 at `$20DB4`. The material check/debit at `$25034–$25072` accepts the zero recipe. Ordinary production completion reaches `$233EE–$233FA`, then stock increment `$240DC`; item 0 has no dedicated completion bypass. Thus a missing recipe must not be treated as proof that the finished device cannot be manufactured.
+
+The tool-action dispatcher `$34076–$340F6` requires a mounted tool word (`$8000` type bits) and dispatches item ID 1 through `$33F74` to **`$34F96`**. This handler requires ship state 3 and pilot rank at least **4 (Warlord)** through `$34014`. State 3 is written by ordinary arrival at `$312C2`, distinct from docking/docked states 4/5. The rank helper requires an assigned crew record unless override byte `$1BF36` is active. There is no hull-class test inside this activation handler; fitting and upstream hull constraints still require tracing before claiming unrestricted compatibility.
+
+Success jumps to `$38032`, which selects transition mode 4 and enters the loader at `$12800`. The disk-1 overlay at offset `$2C00` maps to `$12800`; its mode-4 path loads the overlay at disk offset `$5800` into `$20000`. That overlay's dispatcher reaches `$21926`, selecting asset offset `$6E000` from table `$21708`. This establishes the ending transition, not its displayed content: disk selection, script interpretation, assets and an original-runtime ending remain unverified. Normal game RAM-to-disk mapping must not be used for these overlays.
+
+Raw evidence: `transmitter-candidates.txt`, `transmitter-context.txt`, `manufacturing-eligibility.txt`, `production-completion.txt`, `activation-and-cost.txt`, `module-action-dispatch.txt`, `module-eligibility.txt`, and the `transition-*` / `ending-*` extracts in the reproduction directory. Only the named instruction boundaries are evidence; some exploratory extracts include adjacent data or truncated instructions.
 
 ## Remake work still required
 
 The remake currently has no saved transmission stage/countdown or alien News replay. `CoreData` preassigns nine artifacts, including Earth, while `Unlocker` credits 11 research-limit points per delivery. Those rules differ from the traced flow and cannot safely serve as acceptance fixtures for the final sequence.
 
-Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, collection credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
+Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, direct completion credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Device activation also depends on the [Warlord promotion path](original-warlord-evidence.md). Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
 
 See the [integration design](alien-message-integration.md) for existing code paths, save compatibility and verification gates.

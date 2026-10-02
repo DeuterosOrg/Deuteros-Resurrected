@@ -16,7 +16,8 @@ Transmission countdowns count eligible simulation updates. Do not describe them 
 | `GameCore.TriggerDay` and `Unlocker` producers | Defer competing messages until model updates finish and input is available. Preserve original discovery priority; do not replace an active message or leave a lock behind. |
 | `SdmSystem.ApplySwitches` | After a real hostile-to-friendly capture, detect the last hostile station in that system. Assign its artifact once and schedule the location transmission. Station destruction is not this capture event. |
 | `CoreData` artifact setup | New games start without preassigned artifacts, including the present Earth artifact. Use the traced per-system location ranges when capture reveals a segment. |
-| `Grapple` capture and `ShipBay.GrappleClosed` | Preserve existing single-capture/single-unload safeguards. Credit one delivered segment; eight deliveries reach the original final-instruction transition. |
+| `Grapple` capture and `ShipBay.GrappleClosed` | Preserve existing single-capture/single-unload safeguards. Directly credit completion 12, 24, 36, 48, 60, 72, 84, 100; the eighth delivery unlocks the device and schedules final instructions without a further scientist gate. |
+| Existing item, production and tool controls | Reuse item ID 1. Original data specifies orbital manufacture, production rank 1, zero material cost and mass 2000. Trace fitting constraints before enabling it; activation requires ordinary arrival state and a Warlord pilot. |
 | `News`, `Bulletins`, alien themes | Reuse the existing screen lifecycle and replay control. Add the department notification/acknowledgement and alien-font presentation; keep readable location insertion separate from cryptographic body text. |
 | `SaveFile`, `SaveStorage` | Persist transmission stage, countdown, pending location notices, delivered count and last displayed message context. Validate ranges and referenced locations before switching worlds. |
 
@@ -30,13 +31,15 @@ Keep progression decisions in one small model helper called by these existing pa
 - A system needs an explicit artifact-assigned marker: `ArtifactLocation == none` currently means both never assigned and already collected.
 - Legacy saves lack transmission history. Preserve their existing artifact locations and held cargo; mark those systems assigned so capture cannot duplicate them. Derive credited deliveries from the old research limit only when it is a valid multiple of 11, capped at eight. Preserve unusual/cheated state explicitly rather than inventing a history.
 - The legacy ninth artifact may remain as preserved cargo/location, but cannot award a ninth progression credit. New games contain eight. Save conversion must be deterministic, leave the input file untouched and retain the existing backup/atomic-write behavior.
+- Keep delivered progress distinct from ordinary research actions. Derive the original completion value from verified delivery count; completing this item must not award unrelated scientist work. Audit `ResearchOrder`, unlock notifications and canonical item references when converting old partial research.
 
 ## Verification gates
 
 1. Reproduce both missing war-start paths; prove one start, exact eligible-update boundaries and save/reload at every stage.
 2. Exercise competing discoveries and transmissions, active dialogs, leaving/replacing scenes and loading another world. Every undisplayed notice must survive; locks/audio must be released by their owner.
 3. Capture a system through real SDM controls. Verify no premature reveal, one assignment, correct location range, no duplicate on repeat capture, and no capture reward for destruction.
-4. Scan, collect and unload all eight segments through real controls. Verify locations clear once, credit survives save/load, final instructions occur once, and ordinary non-artifact cargo is unchanged.
+4. Scan, collect and unload all eight segments through real controls. Verify locations clear once, direct completion survives save/load, the eighth delivery unlocks manufacture without scientists, final instructions occur once, and ordinary non-artifact cargo is unchanged. Replace the existing artifact test's erroneous `ResearchLimit + 11` expectation with these source-backed rules.
 5. Check legacy saves with zero through nine credited/held segments and a partly researched artifact. Reject invalid new fields without activating the save.
 6. Render all message families with the supplied alien font; verify glyph correspondence, mixed readability, wrapping and ordinary location text. Replay must preserve model state.
-7. Run full Mac/Windows validation and Windows desktop acceptance. Final transmitter manufacture/use requires its own original-path trace; displaying instructions alone does not prove campaign completion.
+7. Exercise zero-cost orbital manufacture through Stores/Production and actual tool fitting; check mass, inventory debit and insufficient rank. Verify docked/travelling activation rejection and Warlord gating against the traced dispatch. Fitting constraints and ending presentation still need their original-path trace; displaying instructions alone does not prove campaign completion.
+8. Run full Mac/Windows validation and Windows desktop acceptance, including normal campaign progression through Warlord promotion and the ending.
