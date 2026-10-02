@@ -205,6 +205,7 @@ namespace Deuteros.Tests
             CheckUi("Ground survey RNG boundaries and exact-depletion cadence match original arithmetic", GroundSurveyRandomBoundaries);
             CheckUi("Ground mining saves distinguish known zero from surveys and repair legacy overdraw", GroundMiningSavedStates);
             await CheckAsync("Ground materials display distinguishes known zero and zero-delay survey", GroundMiningSurveyDisplay);
+            CheckUi("Seven hostile systems discover Hyperlight after original progression delay", HyperlightDiscoveryProgression);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
