@@ -1,5 +1,17 @@
 # Windows agent brief
 
+## Pickup checklist
+
+Handoff updated **2026-10-02**, against gameplay commit **`5dbf9d3`**. Check the actual pushed head before starting; later commits may change these counts.
+
+1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
+2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
+3. Investigate shutdown first if validation fails. The latest Mac result is **198/199 across two runs**: case 150 passed gameplay assertions but failed during shutdown with `!rc_owner`. A successful rerun alone does not establish a fix.
+4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
+5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **27/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
+
+The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
+
 ## Mission and handoff
 
 Craig's goal is to resolve **all 48 open Asana tasks**, including missing features and original-game research questions. The first contribution supplies build tooling, regression tests and a batch of fixes. It does not resolve the entire backlog.
@@ -77,6 +89,7 @@ python scripts/install_godot.py --templates
 if ($LASTEXITCODE -ne 0) { throw "Godot installation failed" }
 $env:GODOT = (Resolve-Path ".tools/godot-4.2.2/Godot_v4.2.2-stable_mono_win64/Godot_v4.2.2-stable_mono_win64_console.exe").Path
 & $env:GODOT --version
+if ($LASTEXITCODE -ne 0) { throw "Godot version check failed" }
 python -m unittest discover -s scripts -p "test_*.py"
 if ($LASTEXITCODE -ne 0) { throw "Validator tests failed" }
 
@@ -104,6 +117,10 @@ Archive each attempt before another run: the validator overwrites logs for stage
 Run both the source game and the Windows export:
 
 ```powershell
+# Clear selectors left by focused diagnostics before interactive acceptance.
+Remove-Item Env:DEUTEROS_TEST_CASE -ErrorAction SilentlyContinue
+Remove-Item Env:DEUTEROS_SCREENSHOT_DIR -ErrorAction SilentlyContinue
+Remove-Item Env:DEUTEROS_IMPORT_ONLY -ErrorAction SilentlyContinue
 & $env:GODOT --path Godot
 & .\artifacts\windows\Deuteros.exe
 ```
