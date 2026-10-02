@@ -71,6 +71,7 @@ namespace Deuteros.Code.Objects
             attackedPlanet.Station.MtxInstalled = true;
             attackedPlanet.Station.SdmInstalled = true;
             attackedPlanet.MethanoidAttackedCount = 0;
+            var captured = !attackedPlanet.ActiveMethanoid;
             attackedPlanet.ActiveMethanoid = true;
 
             //todo remove planetary stocks
@@ -83,7 +84,8 @@ namespace Deuteros.Code.Objects
             IShip ship = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == attackedPlanet.PlanetId && s.GetType()!=typeof(EnemyFleet));
             while (ship != null)
             {
-                GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(ship);
+                var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+                if (save.Ships.Remove(ship)) save.News.AddShipLoss(ship);
                 ship = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == attackedPlanet.PlanetId && s.GetType() != typeof(EnemyFleet));
             }
 
@@ -106,6 +108,7 @@ namespace Deuteros.Code.Objects
                 attackedPlanet.Station.Resources.Stores.Items[material.MaterialType] = Random.Shared.Next(1024) + 100;
             }
             AttackCount = 0;
+            if (captured) GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(attackedPlanet.PlanetId.ToScreenString(" ") + " CAPTURED !");
         }
 
         public void CancelAttack(Enums.StellarBodies attackLocation)
@@ -134,6 +137,7 @@ namespace Deuteros.Code.Objects
                     var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
                     attackedPlanet.MethanoidAttackedCount++;
                     Attacking = true;
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(attackedPlanet.PlanetId.ToScreenString(" ") + " UNDER ATTACK !");
                     AttackDay = 5;
                 }
                 else if (Attacking && AttackDay == 0)

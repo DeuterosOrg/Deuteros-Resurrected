@@ -22,6 +22,84 @@ namespace Deuteros.Tests
             await CheckAsync("Replacing a typing bulletin preserves the new bulletin lock", BulletinReplacement);
         }
 
+        private async Task NewsShipEvents()
+        {
+            var news = await OpenNews();
+            GameCore.SingletonInstance.SetProcess(false);
+            Save.Ships.Clear();
+            foreach (var type in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var ship = LoadedDismantleShip(type);
+                ship.Name = "Lost " + type;
+                ship.ACC = null;
+                ship.ShipState = Ship_States.UnDocked;
+                ship.Fuel = 0;
+                ship.FallingCount = 4;
+                Save.Ships.Add(ship);
+            }
+            Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(0, 1);
+            Equal(0, Save.Ships.Count, "all three actual fuel losses committed");
+            foreach (var name in new[] { "Lost Shuttle", "Lost IOS", "Lost SCG" })
+                Equal(1, Save.News.GetNews(100).Count(n => n.Contains(name) && n.Contains("Destroyed")), "each named loss reported once");
+            Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(1, 2);
+            Equal(3, Save.News.GetNews(100).Count, "removed ships cannot repeat reports");
+            var victim = (InterStellarShip)LoadedDismantleShip(Ship_Types.IOS);
+            victim.Name = "Hostile Orbit";
+            victim.ACC = null;
+            victim.ShipState = Ship_States.UnDocked;
+            Save.Ships.Add(victim);
+            Save.AtWar = true;
+            GameCore.Earth.ActiveMethanoid = true;
+            Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(2, 3);
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains("Hostile Orbit UNDER ATTACK")), "attack transition reported");
+            Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(3, 4);
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains("Hostile Orbit UNDER ATTACK")), "ongoing attack is not reported twice");
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains("Hostile Orbit Destroyed")), "hostile orbit loss reported");
+            GameCore.Earth.ActiveMethanoid = false;
+            GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            news.DrawData();
+            Equal(true, news.NewsLabels[0].Text.Contains("Hostile Orbit Destroyed"), "saved latest loss appears first");
+            Equal(Save.News.GetNews(1).Single(), news.NewsLabels[0].TooltipText, "full report is retained for hover when a name overflows");
+            Equal(TextServer.OverrunBehavior.TrimEllipsis, news.NewsLabels[0].TextOverrunBehavior, "overflow is indicated instead of drawing outside the panel");
+            Equal("", news.NewsLabels[11].TooltipText, "unused rows have no stale hover text");
+            await CaptureDisplayEvidence("news-ship-losses");
+        }
+
+        private async Task NewsStationEvents()
+        {
+            var news = await OpenNews();
+            GameCore.SingletonInstance.SetProcess(false);
+            Save.Ships.Clear();
+            var target = Save.BaseGameData.Planets[StellarBodies.mars];
+            target.ActiveMethanoid = false;
+            target.Station.Built = true;
+            target.Station.BuildParts = 8;
+            var victim = LoadedDismantleShip(Ship_Types.SCG);
+            victim.Name = "Captured Ship";
+            victim.PlanetLocation = target.PlanetId;
+            Save.Ships.Add(victim);
+            var fleet = new EnemyFleet { ShipType = Ship_Types.IOS, MethanoidOwned = true,
+                PlanetLocation = StellarBodies.jupiter, StarLocation = StellarBodies.the_sun,
+                DestinationPlanetLocation = target.PlanetId, AttackDay = 1, DroneCount = 10,
+                Modules = new List<ShipModule>(), Fuel = 100 };
+            Save.Ships.Add(fleet);
+            fleet.ProcessFleet();
+            Equal(true, fleet.Attacking, "actual fleet attack starts");
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains("Mars UNDER ATTACK")), "station attack is reported");
+            for (int tick = 0; tick < 5; tick++) fleet.ProcessFleet();
+            Equal(true, target.ActiveMethanoid, "actual capture commits");
+            Equal(false, Save.Ships.Contains(victim), "capture removes player's ship");
+            var reports = Save.News.GetNews(100);
+            Equal(3, reports.Count, "one attack, one ship loss, one station capture");
+            Equal(true, reports[1].Contains("Captured Ship Destroyed"), "ship loss precedes station capture");
+            Equal(true, reports[2].Contains("Mars CAPTURED"), "station capture is the final report");
+            fleet.ProcessFleet();
+            Equal(3, Save.News.GetNews(100).Count, "inactive fleet cannot repeat capture reports");
+            news.DrawData();
+            Equal(true, news.NewsLabels[0].Text.Contains("Mars CAPTURED"), "capture is visible newest first");
+            await CaptureDisplayEvidence("news-station-capture");
+        }
+
         private async Task<NewsScreen> OpenNews()
         {
             InitializeUi();

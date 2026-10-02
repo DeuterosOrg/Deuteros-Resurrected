@@ -165,12 +165,14 @@ namespace Deuteros.Tests
             Press(bay, "Buttons/Nav_Dismantle");
             Equal(true, Save.Ships.Contains(ship), "combined tank and cargo cannot overflow");
             Equal(49978, stores[ship.FuelType], "failed dismantle is atomic");
+            Equal(0, Save.News.GetNews(100).Count(n => n.Contains("Scrapped")), "failed dismantle has no success report");
             OverlayManager.Instance.CloseOverlay();
             await InputFrames();
             stores[ship.FuelType] = 49977;
             Press(bay, "Buttons/Nav_Dismantle");
             Equal(0, Save.Ships.Count, "exact combined capacity permits dismantle");
             Equal(50000, stores[ship.FuelType], "tank returns twenty but cargo remains three stock");
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains(ship.Name) && n.Contains("Scrapped")), "successful dismantle reports the named ship once");
         }
 
         private void DfccFuelBurn()

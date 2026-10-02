@@ -182,6 +182,8 @@ namespace Deuteros.Tests
             await CheckAsync("Eight capture reports lead through real grapple recovery to final instructions", TransmissionCaptureToFinal);
             CheckUi("Final recovery supersedes queued segment notices exactly once", TransmissionFinalOverridesLocations);
             await CheckAsync("News replay rotates the original decoding mask without advancing transmission progress", TransmissionReplayMask);
+            await CheckAsync("Ship attack and loss transitions publish persistent News once", NewsShipEvents);
+            await CheckAsync("Fleet station attack and capture publish ordered News once", NewsStationEvents);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

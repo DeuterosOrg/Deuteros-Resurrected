@@ -406,7 +406,8 @@ namespace Deuteros.Code.Platform.Screens
 						if (((InterStellarShip)Ship).DroneCount == 0)
 						{
 							//player Ship destroyed
-							GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(Ship);
+                            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+                            if (save.Ships.Remove(Ship)) save.News.AddShipLoss(Ship);
 
 							//todo show ship destroyed page
 						}
@@ -1074,6 +1075,8 @@ namespace Deuteros.Code.Platform.Screens
 					)
 					{
 						((InterStellarShip)ship).AttackedCount++;
+                        if (((InterStellarShip)ship).AttackedCount == 1)
+                            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(ship.Name + " UNDER ATTACK !");
 					}
 					else
 					{
@@ -1205,8 +1208,13 @@ namespace Deuteros.Code.Platform.Screens
                     ship.ACC?.Update(Ship_States.UnDocked);
 				}
 			}
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.RemoveAll(ship =>
-				ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2));
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            save.Ships.RemoveAll(ship =>
+            {
+                var lost = ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
+                if (lost) save.News.AddShipLoss(ship);
+                return lost;
+            });
 		}
 		#endregion
 	}
