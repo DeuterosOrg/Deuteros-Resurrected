@@ -528,4 +528,22 @@ All aggregates and the Windows collector exited zero. Case logs, import/build/sm
 
 Counts remain **34/48 with implementation evidence and 0/48 fully accepted**: this advances the existing animation-inventory task. Windows desktop and original timing/colour comparison remain outstanding, as does review of oversized existing research diagrams. The desktop handoff at `8cdd458` is unchanged.
 
-Two follow-ups were identified during the caller audit. **Confirmed in the Windows package:** dynamic `bandaid.png` is absent while tracked `Bandaid.png` exists; the controlled external probe exited zero and confirmed both values. This is outside the startup smoke's coverage and remains unfixed. **Static finding, reproduction next:** `Research.DrawData` calls `BuildRequirements.Select` for completed Hyperlight despite its null recipe, reachable through button selection and a saved current-research selection. The prior recipe tests covered Stores/Production, so Research needs its own regression and guard. Neither finding is counted as an additional completed Asana task.
+Two follow-ups were identified during the caller audit. **Confirmed in the Windows package:** dynamic `bandaid.png` is absent while tracked `Bandaid.png` exists; the controlled external probe exited zero and confirmed both values. This was outside the startup smoke's coverage at `5053982`. **Static finding at that revision:** `Research.DrawData` calls `BuildRequirements.Select` for completed Hyperlight despite its null recipe, reachable through button selection and a saved current-research selection. The prior recipe tests covered Stores/Production, so Research required its own regression and guard. Both findings are corrected and verified in the following batch; neither adds a completed Asana task.
+
+
+## Research details and packaged Bandaid artwork — 2026-10-02
+
+Revision **`d0d15f7dad243fe1ba983c2c0fa7efa89ffb0793`** fixes completed Hyperlight rendering in the shared Research detail function. A missing recipe now shows “Research complete” and leaves manufacturing fields empty, including legacy saves retaining the old production flag. Real products still restore their recipe and mass. The Bandaid PNG/import sidecar now match the lowercase resource path used by Research and Production; image bytes and UID are preserved.
+
+Cases **404–405** reproduced `ArgumentNullException` before the guard through normal research completion and restored current selection. Both then passed headless and native Mac, with reviewed screenshots, switching between Hyperlight and physical products, and all five recovered illustrations loading. The earlier wrong scene-enum build failure and headless screenshot-environment failure are retained as test setup errors, separate from the valid game reproductions.
+
+The strengthened external smoke driver failed against the old `5053982` Windows executable with exit 1 when loading the canonical Bandaid resource. It passes against the new executable with exit 0. Full Mac and native Windows validation each passes **405/405**, strict import, source smoke and Windows export; all nine Python tests pass on each host. Mac incremental compilation has zero warnings/errors; fresh Windows has 14 existing warnings and zero errors. Both packs have **1,152 entries and no test resources**. Windows retains 352 import-sidecar LF/CRLF notices with no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,293,632 | `8d9191b2c9f84de6ae9371c0992d6c68b58ece2e051a17a7f0c53bdb46d328f8` |
+| Windows | 149,233,280 | `b823a475c49a3a59e9f4667beefa0a175f056cf68859ff1e050315e717190d9d` |
+
+Both aggregate processes and the Windows collector exited zero. All collected regression/build/import/smoke/export logs were audited locally. Evidence is under `artifacts/validation/evidence/research-details/` and `artifacts/windows-handoff/d0d15f7-evidence/`; verified source bundle SHA-256 is `a232d7b543f18baef835450d1eb8ecec5b23b5a2086e3c25adfab8cdc508a55b`.
+
+Counts remain **34/48 with implementation evidence and 0/48 fully accepted**. These are additional review fixes. Windows desktop interaction, original colour/timing comparison and oversized-diagram replacement remain pending. The existing `8cdd458` human handoff is unchanged.

@@ -2,21 +2,23 @@
 
 ## Environment and revision
 
-Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `builder` SSH account. Latest tested revision **`5053982b913af9eb8b07ee4da91a4fe09587180a`**, branch `codex/build-tests-and-gameplay-fixes`, cloned from a verified Git bundle. The baseline working tree was clean. Toolchain: Godot **4.2.2 .NET / 15073afe3**, .NET SDK **6.0.428 x64**, Python **3.14.3**. No GitHub push or remote CI run was needed for these checks.
+Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `builder` SSH account. Latest tested revision **`d0d15f7dad243fe1ba983c2c0fa7efa89ffb0793`**, branch `codex/build-tests-and-gameplay-fixes`, cloned from a verified Git bundle. The baseline working tree was clean. Toolchain: Godot **4.2.2 .NET / 15073afe3**, .NET SDK **6.0.428 x64**, Python **3.14.3**. No GitHub push or remote CI run was needed for these checks.
 
 ## Automated results
 
-**Fresh native Windows validation passed in one run:** compilation, strict import, **403/403 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
+**Fresh native Windows validation passed in one run:** compilation, strict import, **405/405 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
 
-The resulting executable also passed an external headless startup smoke check. Its embedded pack has **1,152 entries and no test resources**. Windows executable SHA-256:
+The resulting executable also passed an external headless startup smoke check, including an actual load of the canonical lowercase Bandaid research image. Its embedded pack has **1,152 entries and no test resources**. Windows executable SHA-256:
 
 ```text
-58538b21645386451f2d12a08c6ea7da411080af4e0ff5019c078ced82656d63
+b823a475c49a3a59e9f4667beefa0a175f056cf68859ff1e050315e717190d9d
 ```
 
 The checkout was clean before import. Afterwards, Git status flagged 352 `.import` sidecars with LF/CRLF notices; `git diff --exit-code` confirmed **no normalized content differences**. Those worktree files and logs were preserved, not bulk-committed or reset.
 
 ### Earlier passing baselines
+
+Revision `5053982` passed 403 cases, source smoke, export and the earlier packaged startup check. Its executable SHA-256 was `58538b21645386451f2d12a08c6ea7da411080af4e0ff5019c078ced82656d63`; evidence remains in `artifacts/windows-handoff/5053982-evidence/`. A later targeted probe exposed the asset-path defect described below.
 
 Revision `ca54582` passed all 385 cases, source smoke, export and packaged startup before the construction-art recovery. Its executable SHA-256 was `edde06de1c9bb4d05f144518214edcc7d5901286a939bcd2c6f2ae4f9ae50127`; evidence remains in `artifacts/windows-handoff/ca54582-evidence/`.
 
@@ -48,7 +50,7 @@ ERROR: Could not create child process: rcedit ... --set-icon ...
 
 The failed attempt and its output were preserved before further work. Installing verified [RCEdit 2.0.0](https://github.com/electron/rcedit/releases/tag/v2.0.0) and adding its directory to the export process's PATH made a separate strict export pass. The resulting Windows executable passed startup smoke using the repository's external `Tests/Smoke.gd` driver. This executes the packaged game; test resources remain excluded from the package. Pack inspection found **1,105 entries and no test resources**. This is a successful regression run plus repaired export/startup checks across separate commands, **not a passing original aggregate**.
 
-The installer now supplies pinned RCEdit alongside Godot when installing Windows templates, and the validator makes that directory available to child processes. Nine Python tests pass locally, including download integrity and offline cache checks. The fresh 403-case run above verifies the committed tooling correction on Windows.
+The installer now supplies pinned RCEdit alongside Godot when installing Windows templates, and the validator makes that directory available to child processes. Nine Python tests pass locally, including download integrity and offline cache checks. The fresh 405-case run above verifies the committed tooling correction on Windows.
 
 Godot's [4.2 documentation](https://docs.godotengine.org/en/4.2/tutorials/export/changing_application_icon_for_windows.html) requires RCEdit for resource modification and notes embedded-pack limitations; both pack readability and packaged startup were therefore checked. No exporter/gameplay errors were suppressed to obtain the repaired result.
 
@@ -60,12 +62,13 @@ Earlier full attempts at `d61ef77` and `dce19e1` stopped at old whole-save UI co
 
 | Scenario | Source | Export | Evidence / next step |
 | --- | --- | --- | --- |
-| Automated regression suite | PASS, 403 cases | Not shipped | Isolated headless engine processes |
+| Automated regression suite | PASS, 405 cases | Not shipped | Isolated headless engine processes |
 | Startup and clean scripted exit | PASS | PASS | External smoke driver for the packaged executable |
 | Physical mouse/keyboard, audio, window close | NOT TESTED | NOT TESTED | Desktop agent/Craig acceptance |
 | Save compatibility and normal campaign progression | NOT TESTED manually | NOT TESTED | Follow the Windows agent brief |
 | Complete Cycle | PASS, automated cases 314–329 | NOT TESTED interactively | Fuel waits, save/load and unload-and-stop behavior; physical controls/close pending |
 | Marine ranks and research-only recipes | PASS, cases 330–337 | NOT TESTED interactively | Includes legacy Hyperlight selection and automatic fuel refining |
+| Research completion and restored selection | PASS, cases 404–405 | Bandaid image load PASS; interaction NOT TESTED | Hyperlight null recipe, return to physical recipes and recovered illustrations; native Mac screenshots separately checked |
 | Staff attrition | PASS, cases 350–359 | NOT TESTED interactively | 100-day gates, cryopod suspension, depleted teams and old/new saves |
 | SDM controls, capture and expiry | PASS, cases 360–375 | NOT TESTED interactively | Switches, discovery/interlock, both timers, ship/station loss and save compatibility; colony ground-crew loss corrected; original listening/timing observations pending |
 | Recovered construction artwork | PASS, cases 386–403 | NOT TESTED interactively | Seven genuine frame sets, blank SDM/MTX stages, five missing research images; paid manual/AOC production and installation; native Mac render separately verified |
@@ -81,12 +84,14 @@ The historical native Mac case-315 shutdown failure is preserved. A controlled r
 
 The logged-in desktop belongs to a different account from the SSH worker. No desktop input, audible output, GPU rendering or campaign acceptance is claimed from these headless checks. None of the 48 task rows is yet declared fully accepted.
 
-## Additional package finding
+## Packaged Bandaid artwork correction
 
-A separate probe of this exported executable confirms that the requested `res://Sprites/Items/Research/bandaid.png` does **not** exist, while the tracked `Bandaid.png` does. The source hosts' case-insensitive filesystems hide the mismatch; both Production and Research build the lowercase path. This remains an unresolved packaged-artwork defect, outside the passing startup smoke's coverage. The corrected probe and its process exited zero and asserted both results; evidence is `artifacts/windows-handoff/probe-bandaid-5053982-v2.log`. The initial probe's wrapper checked a GUI process before it finished; its failure log is preserved separately and is not evidence of a game crash.
+The `5053982` executable lacked the requested `res://Sprites/Items/Research/bandaid.png`, while tracked `Bandaid.png` existed. Case-insensitive source filesystems hid the mismatch; Production and Research both construct the lowercase path. The confirmed probe is retained in `artifacts/windows-handoff/probe-bandaid-5053982-v2.log`. Its initial wrapper failure checked a GUI process too early and is not a game crash.
+
+Revision `d0d15f7` renames the PNG and import sidecar to lowercase while retaining the image bytes and resource UID. The smoke driver now loads that exact resource. The strengthened driver **failed against the old executable with game exit 1**, then **passed against the new Windows export with exit 0**. See `smoke-resource-red-5053982.log` and the current collected `export-smoke.log`. This verifies the resource-load correction; desktop rendering remains pending.
 
 ## Evidence and next steps
 
-Latest raw logs and environment/export hashes were collected under ignored `artifacts/windows-handoff/5053982-evidence/`. The earlier `baseline-evidence/` archive preserves the missing-RCEdit failure and its separate repair. Remote evidence is retained in the isolated validation checkout. Generated executables, caches and logs are not committed.
+Latest raw logs and environment/export hashes were collected under ignored `artifacts/windows-handoff/d0d15f7-evidence/`. The earlier `baseline-evidence/` archive preserves the missing-RCEdit failure and its separate repair. Remote evidence is retained in the isolated validation checkout. Generated executables, caches and logs are not committed.
 
 Merge independently observed desktop results into this report. The canonical Windows command now passes with the corrected installer/validator. Preserve commit identities when adding newer fixes. Team PR readiness still requires the feature acceptance checks in [the Windows brief](windows-agent-brief.md).

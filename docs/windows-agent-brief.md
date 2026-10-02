@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `5053982b913af9eb8b07ee4da91a4fe09587180a` (2026-10-02).** Mac and native Windows each pass **403/403 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. A separate package probe confirms a pending `bandaid.png` filename-case defect; passing startup does not imply all artwork loads.
+**Latest verified revision: `d0d15f7dad243fe1ba983c2c0fa7efa89ffb0793` (2026-10-02).** Mac and native Windows each pass **405/405 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -38,6 +38,10 @@ On a revision containing cases **360–374**, use disposable saves and record st
 ### Orbital planet colours follow-up
 
 On a revision containing cases **380–381**, open a ship's enlarged location view while undocked/docking. Compare Earth/Moon, Mars, Neptune, Jupiter, Venus, Mercury, Crete and Julius with/without a local station. The view must contain the supplied artwork; sky/planet highlights change by the decoded palette while fixed station/cockpit colours remain intact. A moon inherits its parent's palette but only shows its own station. Toggle small/large views and repeat docked, travelling and launching states for Shuttle/IOS/SCG; no orbital colour may remain on those other images. Confirm save/reload retains the chosen view. Run native cases 380/381 and repeat in the exported game; distinguish original-emulator comparison from remake-only checks. See [palette evidence](original-planet-palette-evidence.md).
+
+### Research completion and packaged image follow-up
+
+On revision `d0d15f7` or later, complete Hyperlight while viewing Research, then leave/reopen the page and save/reload with it selected. It must show the name, tech level and “Research complete” without a manufacturing recipe or mass. Select a physical product and check its real recipe returns; switch back and ensure those fields clear. Inspect Bandaid and the five recovered small illustrations in both Research and Production, especially in the exported game. Cases **404–405** cover the source paths; the package smoke independently loads Bandaid. The older desktop handoff does not contain these corrections.
 
 ### Recovered construction artwork follow-up
 
