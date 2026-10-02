@@ -2,6 +2,8 @@
 
 ## Windows Codex starting brief
 
+**Latest verified Windows baseline: `d11ff3b` (2026-10-02), 337/337 cases, release export and packaged startup passed.** Use the exact revision/report supplied with your handoff; the history below preserves earlier baselines. This follow-up includes marine-rank labels, research-only recipe safety and the accepted-trade fuel gift. Desktop results belong in a separate `docs/windows-desktop-results-<sha>.md` so ongoing gameplay work does not conflict with your report.
+
 **Updated 2026-10-02; latest follow-up corrects ACC Complete Cycle.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
 
 **Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **329/329 headless regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed desktop Windows acceptance. Native Windows automation now passes all 329 cases at `d057b9d`; physical desktop checks and the separate native Mac shutdown failure remain outstanding. See [latest validation](validation-results.md#acc-complete-cycle--2026-10-02).
