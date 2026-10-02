@@ -322,3 +322,8 @@ The Windows handoff is complete when the recorded revision has a passing automat
 Conclude with what is verified, what remains, and whether the contribution is ready for team review. Do not equate an exported executable or a passing headless suite with a completed Windows gameplay test.
 
 Prepare the eventual PR summary around player-visible fixes, linked Asana IDs and Windows evidence. Group changes into reviewable batches and list unresolved items explicitly; documentation and test infrastructure support that contribution. Leave publication to Craig's next instruction.
+
+
+## Fuel refining follow-up: f913679
+
+This candidate passes all 450 Mac regressions, source startup and an audited Windows cross-export; it has not run on Windows. Preserve the existing `8cdd458` desktop pass and use a separately supplied checkout/build. Verify Earth MeH/HeD, orbital MeH/HeD and completed friendly undamaged non-Earth ground MeH. Two supplied stations must both refine over two phases. Check input exhaustion/refill, capture, first-frame station construction and save/load without phase resets; cases 445–450 describe exact batches and boundary quantities. ACC waiting for fuel must consume newly refined stock on the next update. Retain save backups: older executables may reject the new saved phase/allocation fields. Full original fractional-clock fidelity remains outstanding.

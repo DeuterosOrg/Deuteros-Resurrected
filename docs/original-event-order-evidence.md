@@ -46,7 +46,7 @@ The exact stock arithmetic is visible independently of resource-name mapping:
 - Orbital record: inputs at `+$42/+$46` lose 6 each and output `+$54` gains 8; the later path uses `+$44/+$48`, consuming 5 each and adding 5 at `+$56`.
 - Ground record: when `+$F0 >= 3`, inputs `+$B8/+$BC` lose 2 each and output `+$CA` gains 3.
 
-These paths have distinct stock thresholds/caps. Do not replace them with one universal recipe multiplier, or infer exact fuel names from offset alone. Complete the name/technology mapping before altering conversion ratios.
+These paths have distinct stock thresholds/caps. The [refining follow-up](original-fuel-refining-evidence.md) now maps the mineral names, research/resource-count gate and all five batch rules, and reproduces starvation caused by the remake's shared per-factory toggle. The isolated refining correction at `f913679` now preserves saved phase and allocation, including construction/capture relocation, and passes all 450 Mac regressions. Windows execution and the remaining scheduler/clock work are outstanding.
 
 ## Remake comparison and implementation boundaries
 
@@ -56,7 +56,7 @@ Differences requiring targeted work:
 
 1. Training precedes mining in the original; the remake's Earth method reverses these operations.
 2. Research and attrition precede ship processing in the original. Moving these calls needs same-tick crew, promotion and arrival checks, not only a delegate-order assertion.
-3. Refining follows ships in the original. Currently, an ACC fuel wait can see fuel made earlier in the same update. Separating refining also requires preserving its phase in saves and resolving the shared-item/per-factory toggle mismatch.
+3. Refining follows ships in the original. Corrected at `f913679`: a saved global phase and station allocations replace the per-factory toggle. Case 449 uses the actual simulation update to prove that ACC cannot consume newly refined fuel until the following update.
 4. Original pending discovery flags form a priority chain. Immediate event callbacks in the remake can compete for the current screen; a general bulletin queue needs producer and interruption tests.
 5. SDM simulation expiry follows ships and enemy actions, while its separate real-time consumer `$23E4E` uses `$20290`. A single day counter cannot stand in for both paths.
 
