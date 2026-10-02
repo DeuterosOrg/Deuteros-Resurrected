@@ -11,6 +11,51 @@ namespace Deuteros.Code.Objects
         public List<StellarBodies> AssignedStars { get; set; } = new() { StellarBodies.the_sun };
         public List<StellarBodies> PendingLocations { get; set; } = new();
         public bool PendingCaptureDiscovery { get; set; }
+        public int Stage { get; set; } = -1;
+        public int Countdown { get; set; }
+        public bool Ready { get; set; }
+        public int LastStage { get; set; } = -1;
+        public StellarBodies LastLocation { get; set; }
+        public uint LastMask { get; set; }
+
+        public void Start()
+        {
+            if (Stage >= 0) return;
+            Stage = 0;
+            Countdown = 10;
+        }
+
+        public bool Advance()
+        {
+            if (Ready) return true;
+            if (Countdown == 0) return false;
+            Ready = --Countdown == 0;
+            return Ready;
+        }
+
+        public void FinalRecovery()
+        {
+            PendingLocations.Clear();
+            Stage = 13;
+            Countdown = 2;
+            Ready = false;
+        }
+
+        public bool BeginDisplay()
+        {
+            if (!Ready || Stage < 0) return false;
+            var locationMessage = Stage >= 5 && Stage <= 12;
+            if (locationMessage && PendingLocations.Count == 0) return false;
+            LastStage = Stage;
+            LastLocation = locationMessage ? PendingLocations[0] : StellarBodies.none;
+            LastMask = Stage == 0 ? 0 : Stage == 1 ? 0x08945949 : (uint)Random.Shared.NextInt64(1L << 32);
+            if (locationMessage) PendingLocations.RemoveAt(0);
+            Ready = false;
+            Countdown = Stage switch { 0 or 1 => 250, 2 => 80, 3 => 200, _ => 0 };
+            if (Stage < 12) Stage++;
+            if (Stage >= 5 && Stage <= 12 && PendingLocations.Count > 0) Countdown = 2;
+            return true;
+        }
 
         public void StationCaptured(SaveFile save, StellarBodies starId)
         {
@@ -29,6 +74,7 @@ namespace Deuteros.Code.Objects
             }
             AssignedStars.Add(starId);
             PendingLocations.Add(star.ArtifactLocation);
+            if (Stage >= 0 && Stage < 13 && !Ready) Countdown = 2;
         }
 
         public bool DiscoverScg(SaveFile save)

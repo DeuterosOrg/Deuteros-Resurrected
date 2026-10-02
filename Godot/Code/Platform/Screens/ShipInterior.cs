@@ -263,6 +263,7 @@ namespace Deuteros.Code.Platform.Screens
                                 commpodModule.HeldItem = new UnknownItem(UnknownItemTypes.Blazer);
                                 GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
                                 GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
+                                GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
                             }
                             else
 							{
@@ -462,6 +463,7 @@ namespace Deuteros.Code.Platform.Screens
 
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
+                                GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
 						}
 
 						UpdateState();

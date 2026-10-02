@@ -126,7 +126,13 @@ namespace Deuteros.Code.Utility
             ArtifactRecovery.RestoreLegacy(save);
             // Every legacy system was assigned at startup; a missing location means it was collected.
             // Keep those assignments and held cargo instead of spawning replacement segments.
-            save.AlienTransmissions ??= new AlienTransmissions { AssignedStars = save.BaseGameData.Stars.Keys.ToList() };
+            if (save.AlienTransmissions == null)
+            {
+                save.AlienTransmissions = new AlienTransmissions { AssignedStars = save.BaseGameData.Stars.Keys.ToList() };
+                if (save.AtWar) save.AlienTransmissions.Start();
+                if (save.BaseGameData.ItemList.Any(i => i.ItemType == ItemTypes.alien_artifact && i.Research.Researched
+                    && i.Research.ResearchPercentageComplete == 100)) save.AlienTransmissions.FinalRecovery();
+            }
             // Definitions are supplied by this game version, rather than embedded executable/UI data.
             save.BaseGameData.ModuleFrameTexts = CoreData.StaticGameData.ModuleFrameTexts;
             save.BaseGameData.BulletinTexts = CoreData.StaticGameData.BulletinTexts;
@@ -188,6 +194,18 @@ namespace Deuteros.Code.Utility
             if (save.AlienTransmissions is { } transmissions)
             {
                 Require(transmissions.AssignedStars != null && transmissions.PendingLocations != null, "alien transmission lists");
+                Require(transmissions.Stage >= -1 && transmissions.Stage <= 13
+                    && transmissions.LastStage >= -1 && transmissions.LastStage <= transmissions.Stage, "alien transmission stages");
+                var maximumDelay = transmissions.Stage switch { -1 => 0, 0 => 10, 1 or 2 => 250, 3 => 80, 4 => 200, _ => 2 };
+                Require(transmissions.Countdown >= 0 && transmissions.Countdown <= maximumDelay
+                    && (!transmissions.Ready || (transmissions.Stage >= 0 && transmissions.Countdown == 0)), "alien transmission countdown");
+                var locationStage = transmissions.Stage >= 5 && transmissions.Stage <= 12;
+                Require(!locationStage || (!transmissions.Ready && transmissions.Countdown == 0)
+                    || transmissions.PendingLocations.Count > 0, "scheduled artifact notice");
+                var lastLocationStage = transmissions.LastStage >= 5 && transmissions.LastStage <= 12;
+                Require(lastLocationStage ? data.Planets.TryGetValue(transmissions.LastLocation, out var lastLocation)
+                    && lastLocation != null && lastLocation.ParentStar != StellarBodies.the_sun
+                    : transmissions.LastLocation == StellarBodies.none, "replayed artifact location");
                 Require(transmissions.AssignedStars.Contains(StellarBodies.the_sun)
                     && transmissions.AssignedStars.Distinct().Count() == transmissions.AssignedStars.Count
                     && transmissions.AssignedStars.All(data.Stars.ContainsKey), "assigned artifact systems");

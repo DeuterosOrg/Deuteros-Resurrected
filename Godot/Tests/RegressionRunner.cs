@@ -174,6 +174,14 @@ namespace Deuteros.Tests
             CheckUi("Malformed artifact assignment state cannot replace the active save", ArtifactCaptureInvalidSave);
             CheckUi("Eight captured systems reveal eight segments while destruction grants none", ArtifactCaptureAllSystems);
             await CheckAsync("Clearing Sol discovers SCG research after earlier bulletins without granting production", CaptureDiscoversScg);
+            await CheckAsync("Trade war starts the first saved transmission after ten eligible updates", TradeWarTransmission);
+            await CheckAsync("Six-station war starts the first saved transmission after ten eligible updates", StationWarTransmission);
+            await CheckAsync("Transmission stages use original delays and save replay context", TransmissionStageSequence);
+            CheckUi("Invalid saved transmission stages and locations cannot replace the world", TransmissionInvalidState);
+            await CheckAsync("Interrupted transmission notices retain their stage and release only their own locks", TransmissionNoticeInterruption);
+            await CheckAsync("Eight capture reports lead through real grapple recovery to final instructions", TransmissionCaptureToFinal);
+            CheckUi("Final recovery supersedes queued segment notices exactly once", TransmissionFinalOverridesLocations);
+            await CheckAsync("News replay rotates the original decoding mask without advancing transmission progress", TransmissionReplayMask);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

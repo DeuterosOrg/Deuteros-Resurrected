@@ -342,7 +342,13 @@ namespace Deuteros.Code
 				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
 				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
 			var save = GameData.ActiveSaveFile;
-			if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
+			if (save.AlienTransmissions?.Advance() == true)
+			{
+				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+				_menuScreen.Location.Text = "News Bulletins";
+				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
+			}
+			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
@@ -457,6 +463,15 @@ namespace Deuteros.Code
 			{
 				_menuScreen.Location.Text = GetCurrentPlanet().PlanetId.ToScreenString(" ") + " Orbital";
 			}
+		}
+
+		public void ShowAlienTransmission()
+		{
+			var save = GameData.ActiveSaveFile;
+			if (save.AlienTransmissions?.LastStage is not >= 0) return;
+			ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+			_menuScreen.Location.Text = "News Bulletins";
+			((Bulletins)_currentScreen).DisplayAlienTransmission(save, true);
 		}
 
 		public void ShowBulletin(BulletinTypes bulletin)

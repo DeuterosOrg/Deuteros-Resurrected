@@ -44,6 +44,7 @@ namespace Deuteros.Code.Objects
             research.Researched = true;
             research.ResearchOrder = save.BaseGameData.ItemList.Count(i => i.Research?.Researched == true);
             item.Locked = false;
+            save.AlienTransmissions?.FinalRecovery();
             return true;
         }
     }

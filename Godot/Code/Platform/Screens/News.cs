@@ -36,8 +36,12 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ReplayIcon_Pressed()
 		{
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin != Enums.BulletinTypes.None)
-				GameCore.SingletonInstance.ShowBulletin(GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin);
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+			if (save.News.LastBulletin is Enums.BulletinTypes.Transmission1 or Enums.BulletinTypes.Transmission2
+				&& save.AlienTransmissions?.LastStage is >= 0)
+				GameCore.SingletonInstance.ShowAlienTransmission();
+			else if (save.News.LastBulletin != Enums.BulletinTypes.None)
+				GameCore.SingletonInstance.ShowBulletin(save.News.LastBulletin);
 		}
 
 		protected override void DayTick(uint previousDay, uint currentDay)
