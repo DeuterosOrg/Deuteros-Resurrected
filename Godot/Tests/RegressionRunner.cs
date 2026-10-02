@@ -150,6 +150,7 @@ namespace Deuteros.Tests
             RunStaffAttritionRegressions();
             await RunSelfDestructRegressions();
             await RunSdmAlarmRegressions();
+            await RunPlanetViewRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

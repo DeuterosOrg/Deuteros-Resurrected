@@ -847,7 +847,9 @@ namespace Deuteros.Code.Platform.Screens
 				else if (Ship.ShipState == Ship_States.InTransit)
 					BigLocation.Texture = SpriteManager.LoadImage(SpriteBasePath + "BigLocation_Travel.png");
 				else if (Ship.ShipState == Ship_States.Launching)
-					BigLocation.Texture = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_StormDoors.png");
+					BigLocation.Texture = SpriteManager.LoadImage(SpriteBasePath + "BigLocation_StormDoors.png");
+				else if (Ship.ShipState == Ship_States.UnDocked || Ship.ShipState == Ship_States.Docking)
+					BigLocation.Texture = LocationTexture(false);
 				else if (Ship.ShipState == Ship_States.TakingOff)
 					BigLocation.Texture = null;
 				else if (Ship.ShipState == Ship_States.Landing)
@@ -872,13 +874,7 @@ namespace Deuteros.Code.Platform.Screens
 					SmallLocation.TextureNormal = null;
 				else if (Ship.ShipState == Ship_States.UnDocked || Ship.ShipState == Ship_States.Docking)
 				{
-					var station = CurrentPlanet.Station.BuildParts > 0 ? "_Station" : "";
-					var image = SpriteBasePath + "SmallLocation_Planet_" + CurrentPlanet.PlanetColor.ToString().ToPascalCase() + station + ".png";
-					// Moons have no colour, and some planet colours have no interior artwork.
-					// Use the existing neutral icon, retaining the station marker.
-					if (!ResourceLoader.Exists(image))
-						image = SpriteBasePath + "SmallLocation_Planet_White" + station + ".png";
-					SmallLocation.TextureNormal = SpriteManager.LoadImage(image);
+					SmallLocation.TextureNormal = LocationTexture(true);
 				}
 				else
 					SmallLocation.TextureNormal = null;
@@ -889,6 +885,53 @@ namespace Deuteros.Code.Platform.Screens
 			if (sceneReady)
 				GameCore.SingletonInstance.UpdateMenuButtons(false, false);
 		}
+
+
+        private Texture2D LocationTexture(bool small)
+        {
+            var body = CurrentPlanet.IsMoon ? CurrentPlanet.MoonParentPlanetId : CurrentPlanet.PlanetId;
+            if (!small && body == StellarBodies.asteroids)
+                return SpriteManager.LoadImage("res://Sprites/Scenes/Ship_View_Asteroids.png");
+            // Original $353F5 parent-group table and $410DC RGB4 rows; see the palette evidence.
+            var palette = body switch
+            {
+                StellarBodies.mars or StellarBodies.cercops or StellarBodies.epsilon => (0x0500, 0x0800, 0x0A00),
+                StellarBodies.uranus or StellarBodies.mycenae or StellarBodies.zargun => (0x0050, 0x0080, 0x00A0),
+                StellarBodies.neptune or StellarBodies.atlantic or StellarBodies.cainozoic => (0x0005, 0x0008, 0x000A),
+                StellarBodies.jupiter or StellarBodies.chiron or StellarBodies.tyre or StellarBodies.lithos
+                    or StellarBodies.radius or StellarBodies.cambrian or StellarBodies.gamma => (0x0860, 0x0A80, 0x0CA0),
+                StellarBodies.venus or StellarBodies.saturn or StellarBodies.jericho or StellarBodies.burah
+                    or StellarBodies.titanes or StellarBodies.paleozoic => (0x0A80, 0x0CA0, 0x0FD0),
+                StellarBodies.earth or StellarBodies.cerberus or StellarBodies.thebes or StellarBodies.mari
+                    or StellarBodies.romulus or StellarBodies.remus or StellarBodies.sulfurum or StellarBodies.beta => (0x0048, 0x008A, 0x0AFF),
+                StellarBodies.crete or StellarBodies.helios or StellarBodies.alpha or StellarBodies.zeta => (0x0FFF, 0x0684, 0x0462),
+                StellarBodies.julius => (0x0ACE, 0x0468, 0x068A),
+                _ => (0x0AAA, 0x0CCC, 0x0EEE)
+            };
+            var station = CurrentPlanet.Station.BuildParts > 0;
+            var path = small
+                ? SpriteBasePath + "SmallLocation_Planet_White" + (station ? "_Station" : "") + ".png"
+                : "res://Sprites/Scenes/Ship_View_" + (station ? "Station" : "Planet") + ".png";
+            var key = path + ":" + palette;
+            if (SpriteManager.ImageCache.TryGetValue(key, out var cached)) return cached;
+            // Headless Godot returns a shared image; mutate and dispose only our copy.
+            using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
+            var first = small ? "aaaaaa" : "004080";
+            var second = small ? "cccccc" : "0080a0";
+            var third = small ? "eeeeee" : "a0e0e0";
+            for (var y = 0; y < image.GetHeight(); y++)
+                for (var x = 0; x < image.GetWidth(); x++)
+                {
+                    var color = image.GetPixel(x, y);
+                    var hex = color.ToHtml(false);
+                    var rgb4 = hex == first ? palette.Item1 : hex == second ? palette.Item2 : hex == third ? palette.Item3 : -1;
+                    if (rgb4 >= 0)
+                        image.SetPixel(x, y, new Color(((rgb4 >> 8) & 15) / 15f, ((rgb4 >> 4) & 15) / 15f, (rgb4 & 15) / 15f, color.A));
+                }
+            var texture = ImageTexture.CreateFromImage(image);
+            SpriteManager.ImageCache[key] = texture;
+            return texture;
+        }
 
 		public override void _Input(InputEvent @event)
 		{

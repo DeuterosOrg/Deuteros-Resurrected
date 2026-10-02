@@ -1,6 +1,6 @@
 # Original planet and station palettes
 
-Task **1215685674676259**, traced 2026-10-02. Planet-group palette selection is now established from Disk 1 instructions and tables. Original bitmap-index rendering and matched emulator captures remain unverified; no runtime recolouring is included.
+Task **1215685674676259**, traced 2026-10-02. Planet-group palette selection is now established from Disk 1 instructions and tables. The original bitmap decoder and supplied PNG masks now establish the changing pixel indices. The orbital-view fix is implemented; matched emulator captures and Windows desktop acceptance remain pending.
 
 ## Reproduce the lookup
 
@@ -34,12 +34,30 @@ The separate star-view routine `$3561C–$35676` reads word rows from `$35380`: 
 
 The asteroid byte `86` is added intact to 46, selecting resource **180**, not resource 52 with a colour flag. `$41BB4–$41C3E` resolves that index through the long-offset table `$41FAA` relative to `$422FA`. Resource 180 starts at `$74A1A`; ordinary selectors 47–52 resolve to `$60944/$60DBC/$611C6/$61704/$61C66/$61F2C`. This distinguishes a separate asteroid image from the planet images without claiming their compressed pixel format is already decoded.
 
+## Bitmap decode and supplied asset checks
+
+The decoder at `$41C32–$41E40` reads four bitplanes. An image height header below 200 uses rows of interleaved plane words; the alternate branch masks the height to its low byte and decodes one plane at a time. Command high bits choose literal words, repeated byte, repeated little-endian word or an extended repeat count. The seven planet/asteroid resources end at the next indexed resource, allowing only a one-byte alignment pad.
+
+Decoded resources 47–52 use indices 0,5,6,7; asteroid resource 180 uses 0–4. Seventeen of the 23 supplied map PNGs match one decoded mask exactly after removing canvas padding and identifying colours. Six have differences: Blue Massive, Green Giant, Green Massive, Green MassiveRings, Red Rings and Yellow Rings. For example, Green Giant includes three extra-colour pixels. These differences are recorded rather than silently replaced by this orbital-view correction.
+
+Resource 52's index-byte SHA-256 is `62b715c8ea9a2f1cd5f548d8636a6ac84c5e7fbd86c8a8805630e3f643e6c001`; it has 319 pixels at index 5, 278 at 6 and 199 at 7. Its 32×67 decoded image matches the supplied White Lines mask. Resource 47's 48×73 image matches White Giant exactly. Raw instruction extract: ignored `bitmap-decoder.txt`, SHA-256 `163570d1b12003102238bf53c5535e7d8ce22faa29445e458622cc6df88e0213`. The inspection decoder `decode-planets.py` and `planet-mask-comparison.json` remain beside the other research artifacts; their hashes are `33f74abe30b99e95b941f475aa9c9ef14a0fe47daeb19670fe7767eb02ff4488` and `f3a61648b5faefc04941d93e82ee4d7b7e177a9e3b12f97811b004b3d39ce7a5`.
+
 ## Remake comparison and remaining work
 
 `StarMap.UpdateMap` already selects the parent planet's PNG when viewing a moon. Its `PlanetColor` and `PlanetStyle` select precoloured images, so those enum numbers cannot directly index the original table.
 
 A pixel inventory finds mixed colour conversion: `Planet_White_Lines.png` uses `(170,170,170)`, `(204,204,204)`, `(238,238,238)`, matching row 9 expanded by 17. `Planet_WhiteBlue_Lines.png` instead uses `(0,64,128)`, `(0,128,160)`, `(160,224,224)`, which differs from row 8 expanded by 17: `(0,68,136)`, `(0,136,170)`, `(170,255,255)`. Treat this as a concrete asset discrepancy, not evidence to recolour unrelated UI or black pixels.
 
-Before changing artwork, verify which original bitmap pixels use indices 5–7, verify the artwork decode, and capture the same Earth/Mars/moon and working/captive station views in the original. Compare source and exported Windows rendering. The recovered table resolves the earlier missing planet-to-palette link; it does not establish display calibration or complete the task's visual acceptance.
+Capture the same Earth/Mars/moon and working/captive station views in the original, and compare source/exported Windows rendering. The recovered table and masks establish palette substitution; they do not establish display calibration or complete interactive acceptance. Separate star-map PNG shape/colour discrepancies remain visible in the inventory above.
 
 Local raw evidence (ignored): `artifacts/research/mtx/planet-palette-callers.txt`, SHA-256 `fdaa7ec6bb36c42d24c80b48ebcd39663e0ef1b224b390e832ff543174d840f4`; `planet-palette-mapping.json`, SHA-256 `645ce3519d602e1e345136cc1a0b349006e05286d1cd56e5159ec1fab0c77588`. The JSON records every group, member name, palette triplet and raw artwork selector.
+
+## Orbital-view correction
+
+The live [Asana task](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676259), re-read on 2026-10-02, concerns the view from the orbiting ship. Its `Ship_View_Station.png` attachment exactly matches the supplied file under `Godot/Sprites/Scenes/` (SHA-256 `daac5904a6dd5e2d3bf32ebc8a6fc8f3ab0e1f5f85ad6198c4044800622c66db`). This is distinct from the star-map view discussed above.
+
+`ShipInterior.UpdateState` previously assigned null to the enlarged undocked/docking view. The small preview assembled names such as `WhiteBlue`, while the files use `White_Blue`, and treated moons as uncoloured. It now displays the supplied planet/station artwork, selects the original parent-group palette, and substitutes only the three identified colours. Station presence comes from the current body, not its parent. Asteroids use their supplied enlarged field image; the pre-existing neutral small asteroid preview remains. Docked/travel images retain their own colours; launching now selects the correctly sized large storm-door asset.
+
+Converted textures reuse the existing image cache. The conversion duplicates the source image before editing or disposing it: [Godot 4.2.2's headless texture storage](https://raw.githubusercontent.com/godotengine/godot/4.2.2-stable/servers/rendering/dummy/storage/texture_storage.h) returns its retained image from `texture_2d_get`, so changing that borrowed image would corrupt subsequent loads.
+
+Case **380** reproduced the blank view, then checks all pixels for nine palette classes plus a moon, with and without a station. Case **381** checks preview inheritance, local station presence, cache reuse, saved view choice and Shuttle/IOS/SCG transitions. Existing arrival case 103 now checks the Moon's inherited Earth colour. All pass focused headless checks. Native Mac cases 380/381 pass; 380 compares 48,960 rendered pixels including the cockpit foreground, and both screenshots were reviewed. Full 381-case Mac/Windows runs are pending. Original emulator comparison, Windows desktop acceptance and separate star-map asset corrections remain open.

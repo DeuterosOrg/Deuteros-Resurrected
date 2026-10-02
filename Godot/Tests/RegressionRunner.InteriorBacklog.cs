@@ -99,7 +99,7 @@ namespace Deuteros.Tests
                 Equal(moon, interior.CurrentPlanet, "local planet follows arrival");
                 var icon = interior.GetNode<TextureButton>("Location/SmallLocation").TextureNormal;
                 Equal(true, icon != null, "moon arrival has a location icon");
-                Equal(true, icon.ResourcePath.EndsWith("SmallLocation_Planet_White_Station.png"), "uncoloured moon uses neutral station icon");
+                Equal("004488", icon.GetImage().GetPixel(23, 0).ToHtml(false), "moon inherits Earth sky colour while retaining its local station");
                 Equal(true, blocker.Blocked, "refresh retains screen lock");
             }
             finally { blocker.SetBlocked(false); }
