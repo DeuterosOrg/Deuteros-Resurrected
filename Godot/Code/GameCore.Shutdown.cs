@@ -48,6 +48,12 @@ namespace Deuteros.Code
                 GD.PushError("Audio mixer did not finish shutdown within two seconds.");
                 if (exitCode == 0) exitCode = 1;
             }
+            // Godot 4.2's shutdown tracker skips wrappers whose weak targets
+            // were cleared while their native-resource finalizers are pending.
+            // Drain those finalizers while the engine and bindings still exist.
+            // This collection runs only on exit, after scene/audio release.
+            System.GC.Collect();
+            System.GC.WaitForPendingFinalizers();
             tree.Quit(exitCode);
         }
     }

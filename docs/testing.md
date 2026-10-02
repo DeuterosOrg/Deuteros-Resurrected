@@ -18,7 +18,7 @@ On Windows, use `python`. `GODOT` is an alternative to `--godot`. For a custom S
 3. The runner discovers cases from `Tests/Regression.tscn`, then launches each in a fresh Godot process with the real `Screens/Master.tscn`. This isolates singleton state, day-event subscriptions and native resources. Assertions exercise the actual simulation and scenes. The suite checks MTX stock conservation, AOC charging/replenishment, factory destination, ship removal, and UI behavior.
 4. `Tests/Smoke.gd` starts the configured game scene, advances 120 frames, and explicitly exits successfully.
 
-Gameplay regressions exit through `GameCore.RequestQuit`, the same cleanup used by a normal window-close request. It frees the active scenes and gives the audio mixer a bounded opportunity to release stopped playback before engine teardown. Case 205 exercises the close notification after repeated Store/Ship Bay/Training navigation with settings paused. Logs must still be free of engine errors; passing assertions before a shutdown hang are a failed run. The entry-scene smoke uses direct `SceneTree.Quit` and does not establish audio shutdown behavior.
+Gameplay regressions exit through `GameCore.RequestQuit`, the same cleanup used by a normal window-close request. It frees the active scenes, gives the audio mixer a bounded opportunity to release stopped playback, then collects and drains managed finalizers while native bindings are still alive. Case 276 reproduces pending resource finalizers at that boundary; see [the shutdown diagnosis](shutdown-finalizer-evidence.md). Case 205 exercises the close notification after repeated Store/Ship Bay/Training navigation with settings paused. Logs must still be free of engine errors; passing assertions before a shutdown hang are a failed run. The entry-scene smoke uses direct `SceneTree.Quit` and does not establish audio shutdown behavior.
 
 A logged engine error, native crash/fatal header, failed assertion, missing completion marker, nonzero exit, or timeout fails validation. See `artifacts/validation/*.log` for full output. To iterate after imports are current, use `--skip-import`.
 
@@ -52,7 +52,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 
 `.github/workflows/validate.yml` runs on pull requests and pushes to `develop`, with Linux and Windows jobs. Both run compilation, asset import, regressions and startup. Windows also validates release export. Logs are uploaded even on failure; the Windows output is a workflow artifact, not an automatically published release. The existing Discord workflow remains separate.
 
-The canonical startup smoke covers the entry scene only. Active background-audio shutdown currently has a separately reproduced macOS failure; see [validation results](validation-results.md). Passing the suite does not certify all scene lifetimes.
+The canonical startup smoke covers the entry scene only. The finalizer-drain correction passes the latest 276-case Mac run, including audio/navigation shutdown; historical failures remain recorded in [validation results](validation-results.md#shutdown-finalizer-drain--2026-10-02). Native Windows source/export and physical window-close acceptance remain required. Passing the suite does not certify all scene lifetimes.
 
 Before release, run the exported Windows build on Windows, exercise new-game progression and affected screens, and record findings. A macOS cross-export cannot certify Windows rendering or input.
 
