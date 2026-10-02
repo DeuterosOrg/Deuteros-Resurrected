@@ -26,13 +26,24 @@ Manual production completion at `$233BE–$233EC` recognizes zero-based item `$1
 
 There is also a simulation-step removal pass `$35E02`, called at `$23D28`: a high-bit countdown first loses that bit and is skipped; on a subsequent pass a nonzero countdown can trigger immediate station removal. Hostile station type 9 is temporarily exempt while its low countdown is at least 15. Any remake implementation must account for both update paths before assigning seconds or days to these values.
 
-`$3601A` removes the station ownership/map entry and station type, updates base state, removes its docked IOS/SCG and relevant shuttle, and processes resident staff loss. It emits station-loss news type 7. This supports loss of a docked capturing ship and crew, not an unsupported assertion that every ship anywhere in the planet's orbit is destroyed.
+The display `$359E6–$35A2E` divides the low countdown by 60 and renders the remainder as two decimal digits. This supports a minutes/seconds display, alongside the 50-producer-call timer; the assumed PAL wall-clock rate remains unmeasured. The high-bit writer is in the later pirate handler: `$39FBC–$39FC4` stores **$96**, then emits news 11. `$96` has the one-step skip bit plus a low count of 22. It must not be interpreted as a generic three-second delay or reused as the normal manual/docking countdown. The byte timer decrements the stored byte directly; the simulation pass separately clears its high bit. Raw follow-up: ignored `artifacts/research/mtx/self-destruct-pirate-timer.txt`.
+
+### Casualty scope
+
+`$3601A` removes the station ownership/map entry and station type, updates base state, and emits station-loss news type 7. The detailed loss path is narrower than destroying every vessel at the planet:
+
+- `$36100–$3612C` reads the station's berth reference at `+$7E` and hull marker at `+$80`. Marker low bits 2 dispatch the IOS remover `$362B6`; the other occupied berth path dispatches SCG remover `$36362`. It does not walk nearby orbiting ships.
+- Those removers clear the selected ship's existence field, release its pilot, process cryogenic occupants, update availability and emit the hull-specific loss news. IOS iterates three module words; the original SCG routine iterates six and also recognizes a special tool-contained team. That extra original slot is not a reason to silently change the remake's current five-slot SCG layout.
+- `$36130–$36150` processes the station's four resident team references at `+$84` and its positive production-team reference at `+0`. It does not iterate all ground rosters.
+- `$360D0–$360F8` selects the planet's shuttle record in `$1A376` (stride `$18`). An existing shuttle is removed at nonzero planet ID. Planet ID zero has an additional state-byte test: only states `$04/$05` enter removal. Exact state-name mapping is still required before expressing that exception as landed/docked behavior in the remake.
+
+Raw instructions are preserved in ignored `artifacts/research/mtx/self-destruct-{casualties,loss-and-capture}.txt`. The base-state conversion and original six-slot special-team semantics still require mapping. The recorded first-capture loss remains consistent with a docked capturing ship and crew being destroyed, without establishing losses for every ship in orbit.
 
 ## Implemented installation
 
 Paid orbital production now sets the producing station's existing `SdmInstalled` flag without adding stock. Manual and AOC controls reject duplicate installations; existing repeat orders are cleared once installed. Paid construction suspends at a missing or captured station and resumes without another debit. The recipe control locks and identifies installed hardware. Existing pre-fix SDM inventory is preserved; it is not silently consumed or retroactively converted.
 
-Cases 338–347 cover local ownership, independent MTX hardware, one recipe charge, manual/AOC repeat handling, ground rejection, station interruption and save/load. Full Mac validation passes 347 cases; [validation details](validation-results.md#sdm-local-installation--2026-10-02) retain the failed reproductions and limits. This does not yet supply the arming/defusing gameplay.
+Cases 338–347 cover local ownership, independent MTX hardware, one recipe charge, manual/AOC repeat handling, ground rejection, station interruption and save/load. Full Mac and Windows validation passes 349 cases; [validation details](validation-results.md#sdm-local-installation--2026-10-02) retain the failed reproductions and limits. This does not yet supply the arming/defusing gameplay.
 
 ## Remaining implementation work
 
