@@ -20,14 +20,14 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 ## Start here on Windows
 
-The implementation handoff is commit **`c7b3968`** on **`codex/build-tests-and-gameplay-fixes`**. This documentation may arrive in a later commit; record the actual checked-out SHA. If the branch has advanced, reconcile its changes with the progress ledger before using the counts below.
+Use the latest pushed head of **`codex/build-tests-and-gameplay-fixes`** and record the actual checked-out SHA. The station-display batch was `c7b3968`; the MTX route-safety batch follows handoff commit `21f6543`. Reconcile subsequent changes with the progress ledger before using the counts below.
 
 1. Inspect local changes, fetch the branch from the configured remote, and check out its latest pushed state without discarding local work. Preserve root `AGENTS.md`.
 2. Run the pinned setup and full validation below. Investigate case 150 first if it stalls; retain failure evidence before any diagnostic rerun.
 3. Complete the source-game and exported-game acceptance passes. Record each scenario as passed, failed or not tested, with the commit and reproduction steps.
 4. Write `docs/windows-validation-results.md`, update task evidence in the local ledger, then continue unresolved backlog items. Keep Windows validation and subsequent gameplay changes in separate commits.
 
-The next investigated backlog item is **1215683087492485 — Add MTX module**. Discovery and transfers exist, but the player-built installation path needs investigation. No installation fix is included in this handoff. Trace production, stores and MTX behavior against [original-game evidence](original-behavior-evidence.md) before choosing installation semantics; also check transfers when a destination is captured or loses its station. Coordinate ownership before editing if Mac work has resumed.
+The next investigated backlog item is **1215683087492485 — Add MTX module**. Route-safety fixes are included; the player-built installation path is still absent. [Original instruction evidence](original-behavior-evidence.md#1215683087492485--mtx-installation) now supports local installation on production completion and skipping duplicate automated builds. Implement that path with normal discovery/research/build, local Stores gating, conservation and save/load regressions. Coordinate ownership before editing if Mac work has resumed.
 
 Pushing this branch makes the brief available to the Windows agent; it does not start Codex or automatically run the validation workflow. The current CI push trigger targets `develop`; PR and manual workflow triggers are separate.
 
@@ -35,7 +35,7 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The current suite has **162 cases** and **24 Asana-linked fixes with local regression evidence**. Its latest full attempt timed out at case 150 after 180 seconds while Research entered the tree; cases 1–149 passed. A separate continuation passed cases 151–162, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **161/162 across two runs, not a passing aggregate**. Windows gameplay and visual acceptance remain pending.
+The last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The current suite has **173 cases** and **24 Asana-linked fixes with local regression evidence**, plus partial MTX work. Its latest full attempt timed out at case 150 after 180 seconds while Research entered the tree; cases 1–149 passed. A separate continuation passed cases 151–173, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **172/173 across two runs, not a passing aggregate**. The preceding 162-case attempt had the same case-150 failure. Windows gameplay and visual acceptance remain pending.
 
 Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in the latest full run, but no proven fix exists for the earlier intermittent failure. Preserve both results when assessing readiness.
 
@@ -148,6 +148,10 @@ Cases 154–162 cover these transitions. Native Mac captures passed and correcte
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 
 For the latest batch, also exercise News replay/cancellation with sound enabled; OF deployment with missing, empty and valid crews; occupied grapples receiving gifts; and the complete comms progression without unlock cheats. Compare the OF warning with the source linked in [visual reference notes](visual-reference-notes.md). If typing-audio leaks recur, preserve them separately from the intermittent Research-entry stall, case 65 and the older navigation shutdown failure; a shared cause has not been established.
+
+## Additional acceptance for MTX routes
+
+Cases **163–173** cover route safety. Confirm send and balance leave both inventories unchanged when the destination is captured, incomplete or lacks an MTX; a retained route should resume after friendly recapture. Test a destination disappearing while the selector is open: its old button must not select a different planet or throw. Configurations containing only locked/unavailable items must terminate without advancing inventory. Check near-capacity receivers retain overflow at the source. These fixtures stage installed modules directly; installation and normal progression remain separate unfinished acceptance work.
 
 ## Continue the 48-task goal
 

@@ -4,7 +4,7 @@ Research snapshot: **2026-10-02**. This follows the eight `original-evidence-nee
 
 The parallel repository is an evidence archive, not a second independent specification. Its current checkout is `ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9`; local `origin/inv/save` retains the reverse-engineering pack at `6fabd73bbc7fff0eb08825b2dd6043f618e596a4`, and `origin/inv/synthesis` retains the survey at `faf3a30beb07868e06e01ebb306f63b2b42affed`. Links below pin those commits. Inspect archived files locally with `git show <commit>:<path>`; switching branches is unnecessary.
 
-**Confidence:** high means a cited instruction sequence or table supports the narrow rule; medium means recorded player observation or an incomplete semantic mapping; low means inherited implementation, hypothesis, or secondhand walkthrough claim. No emulator session, build, or new runtime test was performed for this document.
+**Confidence:** high means a cited instruction sequence or table supports the narrow rule; medium means recorded player observation or an incomplete semantic mapping; low means inherited implementation, hypothesis, or secondhand walkthrough claim. No original-game emulator session was performed. The MTX addendum below independently checks bytes from the archived disk image; remake regression evidence is recorded separately in the validation results.
 
 ## What the evidence unlocks
 
@@ -20,6 +20,20 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215716464570927 — staff attrition](https://app.asana.com/0/1214891399253076/1215716464570927) | High for numeric kernel; medium for cryo semantics | Exact countdown/RNG kernel recovered; map freeze/stage identities and time units before full integration. |
 | [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
 | [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
+| [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. UI/progression still needs implementation and runtime acceptance. |
+
+## 1215683087492485 — MTX installation
+
+On 2026-10-02, the original Disk 1 image at parallel commit `faf3a30beb07868e06e01ebb306f63b2b42affed` was read without changing that checkout. The unmodified image is named `Deuteros - The Next Millennium (1991)(Activision)(M3)(Disk 1 of 2).adf`; SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`. Its main image is disk bytes `$6E000..$DAA00`, loaded at RAM `$13000`, as documented by the archived `extract_deuteros.py`. Capstone disassembly independently confirmed the relevant [dispatch analysis](https://github.com/WizzoUK2/deuteros-parallel/blob/faf3a30beb07868e06e01ebb306f63b2b42affed/outputs/decompiled/dispatch.md).
+
+- Record 24 at `$19E54 + 23 * 40` has ID `$18`, mass `$02D2` (722), and nonzero recipe amounts 500, 82, 100 and 40. These match the MTX row in `SourceData/Deuteros.html` and `CoreData.cs`; this establishes the item identity instead of relying on the archive's provisional event labels.
+- `$23330` reads the completed item ID and subtracts one. `$233B0` compares with `$17`; `$233B6` executes bytes `08d1 0006` (`bset #6,(a1)`), then branches past the ordinary stock-increment call at `$233FA`. The automated completion path has the same flag-setting branch.
+- Caller `$23630..$23638` sets `a1 = a0 + $36` before invoking the completion routine. The flag is local to that production record.
+- The automated queue checks zero-based slot `$17` at `$23544`, tests bit 6 at record `+$36`, and clears the pending slot when already installed (`$23552..$23556`). Otherwise it loads the item recipe and charges materials through `$25034` before scheduling production.
+
+These instructions support installing the MTX at its producing station, without a transferable stock item, and stopping repeat production after installation. The previous notes' generic “needs attention” description of event 24 is superseded for this item mapping. Local disassembly evidence is retained under ignored `artifacts/research/mtx/`; Windows can reproduce it from the pinned image. No original UI or timing session was recorded.
+
+**Implementation acceptance still pending:** normal captured-station discovery, research, paid production at a second station, local installation with no extra stock/duplicate material charge, Stores access only where installed, transfer/balance, and save/load. Route-safety cases 163–173 separately cover captured/missing/incomplete destinations, missing modules, stale selection and configurations with no eligible items; they do not establish installation completion.
 
 ## 1215716464570927 — staff attrition
 
