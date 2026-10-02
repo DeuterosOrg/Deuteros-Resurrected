@@ -15,7 +15,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215685674676221 — AMA algorithm](https://app.asana.com/0/1214891399253076/1215685674676221) | Low | Five-day / 16–35 / 1-in-20 constants are C#-derived, not original proof. |
 | [1215685674676225 — event order](https://app.asana.com/0/1214891399253076/1215685674676225) | High for named call sites; incomplete overall | Partial master-tick order recovered; full subsystem mapping remains open. |
 | [1215685674676259 — planet/background colours](https://app.asana.com/0/1214891399253076/1215685674676259) | High for scene palette loading; low for planet mapping | Scene palette loader is decoded; planet-specific palette selection and values are missing. |
-| [1215716464570901 — DFCC fuel](https://app.asana.com/0/1214891399253076/1215716464570901) | Low | No original multiplier or drone-count formula located. |
+| [1215716464570901 — DFCC fuel](https://app.asana.com/0/1214891399253076/1215716464570901) | Original manual fuel ratio traced | DFCC consumes ten stock per gauge unit; fitting unloads the previous tank before changing value. |
 | [1215716464570923 — idle clock](https://app.asana.com/0/1214891399253076/1215716464570923) | High for raw clock cadence | Normal mode adds one raw unit per 315.6 seconds at PAL 50 Hz, subject to a consumer handshake; confirm fractional display and pause behavior. |
 | [1215716464570927 — staff attrition](https://app.asana.com/0/1214891399253076/1215716464570927) | High for numeric kernel; medium for cryo semantics | Exact countdown/RNG kernel recovered; map freeze/stage identities and time units before full integration. |
 | [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
@@ -143,9 +143,9 @@ The handler has no ship-state gate, but its screen-entry route has separate stat
 
 ## 1215716464570901 — DFCC fuel
 
-The inspected decoded tables and findings establish DFCC as an item but do not supply a fuel rule. No original drain routine, divisor, per-drone term, or state-specific cost was found. A constant multiplier inferred from the title would be invented. Parallel travel/ACC behavior is C#-derived and its tests are not original validation.
+[Original loading, unloading and conversion instructions](original-dfcc-fuel-evidence.md) now establish the tenfold stock cost per gauge unit, independent of drone count. The remake applies that ratio consistently to manual transfers, its supported ACC path and dismantling, while preserving the existing gauge drain. Fitting returns the old tank at its previous value before changing the flag. See [implementation and validation](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02).
 
-**Missing facts:** whether merely installing DFCC increases burn; dependence on carried drone count/type; IOS versus SCG; transit versus idle orbit/asteroid work; partial last fuel unit and blocked docking. **Next verification:** from one original save, compare identical route/raw-clock intervals with DFCC absent, fitted with zero drones, one drone and a full fleet; repeat IOS/SCG. Record actual fuel deltas and action boundaries, then watch the fuel-field writer. Keep blocked-docking behavior separately checked, rather than multiplying a burn that should not occur.
+Original automatic-control availability after full DFCC conversion remains unverified; the decoded auto-refuel block itself transfers 1:1. Applying the manual ratio to modern DFCC ACC prevents a bypass and is documented as a remake consistency choice. Existing-save tanks retain their current range rather than receiving retroactive debits. Native Windows and normal campaign acceptance remain pending.
 
 ## 1216073204565506 — engine damage without DFCC
 

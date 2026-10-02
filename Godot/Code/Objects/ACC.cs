@@ -46,24 +46,30 @@ namespace Deuteros.Code.Objects
 
 		public bool Refuel()
 		{
-			if (Ship.Fuel >= RefuelLimit) return true;
+			if (Ship.Fuel >= RefuelLimit)
+            {
+                Refuelling = false;
+                return true;
+            }
 
 			var stores = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].Station.Resources.Stores;
 
 			if (Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 				stores = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].PlanetResources.Stores;
 
-			if (stores[Ship.FuelType] >= (RefuelMax - Ship.Fuel))
+			var availableFuel = stores[Ship.FuelType] / Ship.FuelUnitCost;
+
+			if (availableFuel >= (RefuelMax - Ship.Fuel))
 			{
-				stores[Ship.FuelType] -= (RefuelMax - Ship.Fuel);
+				stores[Ship.FuelType] -= (RefuelMax - Ship.Fuel) * Ship.FuelUnitCost;
 				Ship.Fuel = RefuelMax;
 				Refuelling = false;
 				return true;
 			}
-			else if (stores[Ship.FuelType] >= (RefuelLimit - Ship.Fuel))
+			else if (availableFuel >= (RefuelLimit - Ship.Fuel))
 			{
-				Ship.Fuel += stores[Ship.FuelType];
-				stores[Ship.FuelType] = 0;
+				Ship.Fuel += availableFuel;
+				stores[Ship.FuelType] -= availableFuel * Ship.FuelUnitCost;
 				Refuelling = false;
 				return true;
 			}

@@ -22,6 +22,10 @@ Version 1 now includes `EngineDamaged` for ships. Saves written before this fiel
 
 This is backward reading compatibility in the updated game. Older builds reject the new field, so preserve a backup before moving a save between revisions.
 
+## DFCC fuel compatibility
+
+`Fuel` remains gauge units. A fitted DFCC now costs ten store units per gauge unit when loading, unloading or dismantling; ordinary ships remain 1:1. No new saved field or format version is needed. Already-loaded tanks retain their current amounts and range. Their later refunds use the corrected ratio, so a tank filled before the fix can return more stock than was originally paid. Historical spending is not reconstructed. New DFCC fitting first returns the old tank at its old rate, preventing that gain in new fitting cycles.
+
 ## Verification
 
 The engine regressions cover private staff/news state, all ship subtypes, active research/production references, training, cargo, ACC ownership/cursors, corruption rejection, overwrite backups and failure preservation. Actual screen callbacks exercise save, overwrite/cancel, load/cancel, corrupt-file feedback advancing the restored game, and a mid-flight ship arriving on schedule. Mac pointer checks cover visible controls and loading; Windows gameplay and long progression still require acceptance.

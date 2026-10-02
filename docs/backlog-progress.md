@@ -11,7 +11,7 @@ Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), 
 - Record task-specific blockers and continue independent work. Do not invent original behavior to make a row look finished.
 - Windows verification follows the [agent brief](windows-agent-brief.md). No PR, push or Asana changes are authorized by this ledger.
 
-At this point, 29 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows. The [Godot 4.2.2 script-lifetime correction](validation-results.md#godot-422-script-lifetime-fix--2026-10-02) supports reliable validation of these fixes; it is not counted as an additional Asana completion.
+At this point, 30 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows. The [Godot 4.2.2 script-lifetime correction](validation-results.md#godot-422-script-lifetime-fix--2026-10-02) supports reliable validation of these fixes; it is not counted as an additional Asana completion.
 
 ## Task ledger
 
@@ -62,6 +62,6 @@ At this point, 29 Asana-linked fixes have local regression evidence; none of the
 | [1215685674676221](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676221) — AMA - Investigate source code | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
 | [1215685674676225](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676225) — Order of events - Investigate source code | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
 | [1215685674676259](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676259) — Investigate colouring system for planet/station backgrounds | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
-| [1215716464570901](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570901) — ship with dfcc fitted should require more fuel | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
+| [1215716464570901](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570901) — ship with dfcc fitted should require more fuel | Fix implemented; regression verified | Original tenfold stock cost covers manual/ACC transfers, initial conversion and dismantling; cases 294–304 pass locally. Complete Windows controls/campaign checks and review legacy-tank compatibility; see [evidence](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). |
 | [1215716464570923](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570923) — time should advance .01 of a day every 300 secs (approx) | Researching | Locate original-code or observed-behavior evidence before implementing rules. |
 | [1215716464570927](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215716464570927) — staff attrition | Researching | Locate original-code or observed-behavior evidence before implementing rules. |

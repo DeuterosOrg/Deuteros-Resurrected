@@ -2,15 +2,15 @@
 
 ## Pickup checklist
 
-Handoff updated **2026-10-02**. The latest gameplay follow-up adds engine damage and recovery (cases **277–293**); see [its validation record](validation-results.md#engine-damage-and-recovery--2026-10-02). Gameplay checkpoint **`600ae24`** added selected supply-pod discard. The latest runtime follow-up adds a finalizer drain before engine shutdown and new case **276**, following controlled reproduction of the case-183/184 failures. Read [the shutdown diagnosis](shutdown-finalizer-evidence.md) and [latest validation record](validation-results.md#shutdown-finalizer-drain--2026-10-02). Record the actual pushed/tested SHA and working-tree state; later commits may change the suite count.
+Handoff updated **2026-10-02**. The latest follow-up corrects DFCC fuel stock costs (cases **294–304**); read [its validation record](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). Engine damage and recovery has cases **277–293**; see [its validation record](validation-results.md#engine-damage-and-recovery--2026-10-02). Gameplay checkpoint **`600ae24`** added selected supply-pod discard. The latest runtime follow-up adds a finalizer drain before engine shutdown and new case **276**, following controlled reproduction of the case-183/184 failures. Read [the shutdown diagnosis](shutdown-finalizer-evidence.md) and [latest validation record](validation-results.md#shutdown-finalizer-drain--2026-10-02). Record the actual pushed/tested SHA and working-tree state; later commits may change the suite count.
 
-**First objective:** establish a native Windows baseline, investigate any failure, then verify the player-visible fixes in a fresh Windows export before recommending a team PR. Work toward all 48 tasks using the ledger; 29 currently have local implementation evidence, and none has completed native Windows acceptance.
+**First objective:** establish a native Windows baseline, investigate any failure, then verify the player-visible fixes in a fresh Windows export before recommending a team PR. Work toward all 48 tasks using the ledger; 30 currently have local implementation evidence, and none has completed native Windows acceptance.
 
 1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
 2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
 3. Investigate the exact stage if validation fails. The preceding **263-case** attempt failed at case 61. A reproduced injected-input lifetime error is now corrected in the test helpers, with new stress case **264**; consult the current results below. The preceding 264-case full attempt instead failed at **case 23** with a native signal-11 teardown crash and leaked C# script resources. The preceding 275-case attempt and continuation failed teardown at **cases 183 and 184** with `!rc_owner` and leaked resources. A separate finalizer-drain correction now addresses a reproduced cleanup gap; case 276 protects it. Preserve the old failures and validate actual Windows shutdown.
 4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
-5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **29/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
+5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **30/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
 
 The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
 
@@ -65,7 +65,9 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The suite now has **293 cases**, including 17 engine-damage/recovery regressions. **Full validation passed 293/293 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 277/280/285/287/291/292/293 pass; consult [the latest aggregate/export status](validation-results.md#engine-damage-and-recovery--2026-10-02). There are 29 task-level implementations requiring Windows acceptance.
+The suite now has **304 cases**, with eleven DFCC fuel regressions. **Full validation passed 304/304 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 294/296/298/300/301/303 also pass. Consult [the latest aggregate/export status](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). There are 30 task-level implementations requiring Windows acceptance.
+
+The preceding suite had **293 cases**, including 17 engine-damage/recovery regressions. **Full validation passed 293/293 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 277/280/285/287/291/292/293 pass; consult [the latest aggregate/export status](validation-results.md#engine-damage-and-recovery--2026-10-02). At that checkpoint, 29 task-level implementations required Windows acceptance.
 
 The preceding suite had **276 cases**. A controlled reproduction connects pending resource finalizers to skipped weak-reference cleanup during engine shutdown. The fix collects and drains finalizers after scene/audio release, before quitting. Cases 183/184/276 each pass four focused repetitions; native Mac cases 23/150/183/184/205/264/276 pass. **Fresh full validation passed 276/276 isolated cases in one run**, strict import, startup smoke and Windows cross-export; all six Python validator tests pass. See [the latest aggregate/export result](validation-results.md#shutdown-finalizer-drain--2026-10-02). Windows physical window close and exported-game acceptance remain required.
 
@@ -181,6 +183,14 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 - Select a production item on ground and in orbit, then open stores through the menu. Check matching highlight, local recipe capacity and return from equipment/MTX views.
 - Right-click actual bay/store controls, then modal windows and timed grapple unloading. Verify dismissal/locks take precedence. Check bay hover labels through the physical mouse, including repeating fuel buttons and roster rows.
 - Select HeD fuel in both ACC endpoints, including depleted inventories. Verify cycling finishes, loads available HeD and survives saving/loading.
+
+## DFCC fuel acceptance
+
+For **1215716464570901**, verify IOS/MeH and SCG/HeD with zero and populated drone fleets. Manual fuel loading/unloading must exchange ten stock for one gauge unit; capacity remains 250. Check nine versus ten available stock, exact payment, full/exact return capacity and unchanged 1:1 costs without DFCC. Gauge drain must not multiply again.
+
+Fit DFCC with fuel already aboard: return that tank at the old rate before conversion and update both readouts immediately. Insufficient fuel-store space must preserve the entire fitting and permit retry after space is cleared. Exercise ACC with stock just below the configured threshold, exactly sufficient stock and a remainder below ten; the remainder stays in stores. Dismantle with both tank fuel and fuel cargo, checking their combined return atomically. Test the physical controls and a full save/reload cycle in both source and export.
+
+Already-loaded DFCC tanks in old saves retain their range; subsequent refunds use the new ratio and can exceed their historical purchase cost. Record the save's originating revision and review this compatibility choice separately. The [original evidence](original-dfcc-fuel-evidence.md) supports the manual ratio; original ACC/complete conversion fidelity and clock cadence remain separate research gaps.
 
 ## Additional acceptance for ACC, settings and interiors
 

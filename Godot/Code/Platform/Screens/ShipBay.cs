@@ -336,10 +336,10 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var planetStores = this.Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
  
-			if (ShipPresent && Ship.Fuel < 250 && planetStores[Ship.FuelType] > 0)
+			if (ShipPresent && Ship.Fuel < 250 && planetStores[Ship.FuelType] >= Ship.FuelUnitCost)
 			{
 				Ship.Fuel++;
-				planetStores[Ship.FuelType]--;
+				planetStores[Ship.FuelType] -= Ship.FuelUnitCost;
 
 				UpdateState();
 			}
@@ -349,11 +349,10 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var planetStores = this.Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
 
-			if (ShipPresent && Ship.Fuel > 0)
+			if (ShipPresent && Ship.Fuel > 0 && planetStores[Ship.FuelType] <= 50000 - Ship.FuelUnitCost)
 			{
 				Ship.Fuel--;
-				if (planetStores[Ship.FuelType] < 50000)
-					planetStores[Ship.FuelType]++;
+				planetStores[Ship.FuelType] += Ship.FuelUnitCost;
 
 				UpdateState();
 			}
@@ -390,7 +389,7 @@ namespace Deuteros.Code.Platform.Screens
 				returningItems[item] = current + count;
 			}
 
-			ReturnItem(Ship.FuelType, Ship.Fuel);
+			ReturnItem(Ship.FuelType, Ship.Fuel * Ship.FuelUnitCost);
 			if (Ship.ACC != null) ReturnItem(ItemTypes.a__c__c, 1);
 			foreach (var module in Ship.Modules)
 			{
@@ -1160,6 +1159,21 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.Modules[ScreenState - 1].ItemStored != itemType && ResourceList.Stores[itemType] <= 0)
 				return;
 
+			// Empty the old tank before DFCC changes its stock value. Reject the
+            // entire fitting if its fuel cannot be returned without loss.
+            if (itemType == ItemTypes.d__f__c__c && Ship is InterStellarShip { DFCC: false }
+                && Ship.Modules[ScreenState - 1].ItemStored != itemType)
+            {
+                var returningFuel = Ship.Fuel * Ship.FuelUnitCost;
+                if (returningFuel > 50000 - ResourceList.Stores[Ship.FuelType])
+                {
+                    GameCore.ShowError(this, "Not Enough Fuel Storage\nTo Fit D.F.C.C.");
+                    return;
+                }
+                ResourceList.Stores[Ship.FuelType] += returningFuel;
+                Ship.Fuel = 0;
+            }
+
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
 			{
 				var storedItemIndex = Array.FindIndex<Item>(equipmentList, T => T.ItemType == Ship.Modules[ScreenState - 1].ItemStored);
@@ -1198,8 +1212,7 @@ namespace Deuteros.Code.Platform.Screens
 				}
 			}
 
-			TorsoInstances[ScreenState - 1].UpdateState();
-
+			UpdateState();
 			UpdateEquipmentStock();
 		}
 

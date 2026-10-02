@@ -21,6 +21,7 @@ namespace Deuteros.Code.Objects.Interfaces
         public Staff Pilot { get; set; }
         public string Name { get; set; }
         public int Fuel { get; set; }
+        public int FuelUnitCost { get; }
         public bool LocationView { get; set; }
         public Enums.ItemTypes FuelType { get; set; }
         public List<ShipModule> Modules { get; set; }        

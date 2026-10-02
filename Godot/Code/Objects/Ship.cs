@@ -24,6 +24,8 @@ namespace Deuteros.Code.Objects
         public Staff Pilot { get; set; }
         public string Name { get; set; }
         public int Fuel { get; set; }
+        // Fuel is gauge units; DFCC hulls require ten store units for each one.
+        public int FuelUnitCost => this is InterStellarShip { DFCC: true } ? 10 : 1;
         public bool LocationView { get; set; }
         public Enums.ItemTypes FuelType { get; set; }
         public List<ShipModule> Modules { get; set; }
