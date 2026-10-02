@@ -206,6 +206,8 @@ namespace Deuteros.Tests
             CheckUi("Ground mining saves distinguish known zero from surveys and repair legacy overdraw", GroundMiningSavedStates);
             await CheckAsync("Ground materials display distinguishes known zero and zero-delay survey", GroundMiningSurveyDisplay);
             CheckUi("Seven hostile systems discover Hyperlight after original progression delay", HyperlightDiscoveryProgression);
+            CheckUi("Hyperlight discovery delay survives save and load", HyperlightDiscoverySavedDelay);
+            CheckUi("Hyperlight discovery waits for enemy scheduler count sampling", HyperlightDiscoverySampledCount);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
