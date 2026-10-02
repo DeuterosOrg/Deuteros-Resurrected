@@ -1,4 +1,4 @@
-[gd_scene load_steps=13 format=3 uid="uid://dm6c3u7eka7hc"]
+[gd_scene load_steps=18 format=3 uid="uid://dm6c3u7eka7hc"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/Production.cs" id="1_7mj6f"]
 [ext_resource type="Texture2D" uid="uid://clcj5c7woisxx" path="res://Sprites/Scenes/Production.png" id="2"]
@@ -12,10 +12,35 @@
 [ext_resource type="Texture2D" uid="uid://bc52dl6g8a6o3" path="res://Sprites/Items/Research/a__o__c.png" id="6_timql"]
 [ext_resource type="Texture2D" path="res://Sprites/References/AocPanelReference.png" id="11_aoc_reference"]
 
+[ext_resource type="Texture2D" path="res://Sprites/References/ProductionRodReference.png" id="12_rod"]
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_aoc"]
 atlas = ExtResource("11_aoc_reference")
 region = Rect2(458, 366, 256, 60)
 filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rod_130"]
+atlas = ExtResource("12_rod")
+region = Rect2(544, 424, 32, 9)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rod_129"]
+atlas = ExtResource("12_rod")
+region = Rect2(544, 456, 32, 9)
+filter_clip = true
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rod_128"]
+atlas = ExtResource("12_rod")
+region = Rect2(544, 392, 32, 9)
+filter_clip = true
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_rod"]
+animations = [{
+"frames": [{"duration": 1.0, "texture": SubResource("AtlasTexture_rod_130")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_rod_129")}, {"duration": 1.0, "texture": SubResource("AtlasTexture_rod_128")}],
+"loop": true,
+"name": &"default",
+"speed": 12.5
+}]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_7mj6f")
@@ -37,6 +62,13 @@ offset_bottom = 179.0
 texture_normal = ExtResource("3_4lyxk")
 
 [node name="Sprites" type="Node2D" parent="."]
+
+[node name="ProductionRod" type="AnimatedSprite2D" parent="Sprites"]
+texture_filter = 1
+position = Vector2(240, 96)
+sprite_frames = SubResource("SpriteFrames_rod")
+frame = 2
+centered = false
 
 [node name="TeamFrameImage" type="TextureRect" parent="Sprites"]
 offset_left = 192.0

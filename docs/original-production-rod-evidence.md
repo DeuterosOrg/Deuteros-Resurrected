@@ -1,6 +1,6 @@
 # Original production rod animation
 
-Task **1215691951441144**, traced 2026-10-02. The three frames, draw position, playback order and active-screen gate are identified. This is separate from the three product-construction stages. Runtime wiring is the next step; original emulator and desktop acceptance remain pending.
+Task **1215691951441144**, traced 2026-10-02. The three frames, draw position, playback order and active-screen gate are identified. This is separate from the three product-construction stages. Runtime wiring and four focused regressions now pass on Mac headless/native; original emulator and desktop acceptance remain pending.
 
 ## Image identity
 
@@ -26,7 +26,9 @@ That record places the 32×9 image at **x240, y96**: stored x-word 15, y96, scre
 
 ## Implementation and acceptance
 
-Reuse the supplied sheet through atlas regions, with nearest filtering. Map the current-product gate to the selected local factory without advancing production itself. Preserve frame phase across redraws; pause on tree pause and when inactive, and release the scene normally on navigation. Verify manual/AOC selection, idle/cancel/completion, waiting for resources/staff, ground/orbit factory selection and fast-forward. Preserve the existing three construction-stage pictures.
+`Production.tscn` now overlays three atlas regions from an unchanged runtime copy of the supplied sheet, with nearest filtering. `Production._Process` maps elapsed display time to nominal 50 Hz ticks and follows the recovered even-tick/shift/wrap algorithm. The display-only counter is retained across screen instances, never serialized into production state; each new screen initially shows resource 128, as the original background did. Idle factories and tree pause stop advancement. Construction-stage pictures remain separate.
+
+Cases **382–385** cover ground/orbit × manual/AOC. They verify all 864 original index bytes against the decoded hashes, initial and repeating phase, sub-tick accumulation, redraw/pause/resume/navigation, active products without staff, selected-factory isolation, idle/completion/cancellation and unchanged serialized factory state. Fast-forward flags do not change cadence. Normal Godot frame processing is also exercised, rather than only calling the callback directly. Native Mac checks compare all 288 rendered pixels of each frame at x240/y96 in all four contexts (**3,456 pixels**) and preserve screenshots. The missing-node failure is retained under `artifacts/validation/evidence/production-rod/red`; focused passing logs/captures are under `native-final`.
 
 Before claiming original timing parity, compare a recording with the original video mode and first-frame phase identified. Native tests should check all frame pixels and exact placement; Windows desktop acceptance must confirm visible motion in source and export.
 

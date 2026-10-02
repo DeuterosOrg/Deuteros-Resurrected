@@ -28,6 +28,10 @@ namespace Deuteros.Code.Platform.Screens
 		TextureRect ItemProgressImageTextureRect { get; set; }
 		TextureRect TeamFrameImage { get; set; }
 		TextureRect AocPanel { get; set; }
+		AnimatedSprite2D ProductionRod;
+		// Original $20582 is a display counter retained across production-screen visits.
+		static int RodCounter;
+		double RodTicks;
 
 		TextureButton RemoveStaff { get; set; }
 
@@ -52,6 +56,7 @@ namespace Deuteros.Code.Platform.Screens
 			}
 			TeamFrameImage = GetNode<TextureRect>("Sprites/TeamFrameImage");
 			AocPanel = GetNode<TextureRect>("Sprites/AocPanel");
+			ProductionRod = GetNode<AnimatedSprite2D>("Sprites/ProductionRod");
 
 			RemoveStaff = GetNode<TextureButton>("RemoveStaff");
 
@@ -69,6 +74,20 @@ namespace Deuteros.Code.Platform.Screens
 			RefreshButtons();
 
 			base._Ready();
+		}
+
+		public override void _Process(double delta)
+		{
+			if (!CanProcess() || CurrentFactory.CurrentProductionItem() == null) return;
+			// $20584: nominal PAL VBlank, draw on even ticks, resource 130 - (counter >> 2).
+			// Manual stepping retains the original short first frame and inactive phase.
+			RodTicks += delta * 50;
+			while (RodTicks >= 1)
+			{
+				RodTicks--;
+				RodCounter = (RodCounter + 1) % 12;
+				if ((RodCounter & 1) == 0) ProductionRod.Frame = RodCounter >> 2;
+			}
 		}
 
 		private void RemoveStaff_Pressed()
