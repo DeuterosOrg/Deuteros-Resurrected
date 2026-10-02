@@ -2,7 +2,9 @@
 
 ## Start here
 
-**Latest verified revision: `a54e899d4c6796e6f406733112d39a7ba424e7d0` (2026-10-02).** Mac and native Windows each pass **409/409 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
+**Latest revision verified on both hosts: `a54e899d4c6796e6f406733112d39a7ba424e7d0` (2026-10-02).** Mac and native Windows each pass **409/409 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
+
+Newer `d3f00ac60a32eaf21f42446c214e82fe5fa973f7` passes **411/411 on Mac**, import, source smoke and Windows export. Windows execution is pending: upload was prevented by the Mac login keychain refusing access, not a Windows test failure. Preserve the existing `8cdd458` desktop handoff.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -12,6 +14,10 @@
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
 ## Feature acceptance details
+
+### Artifact recovery follow-up
+
+At `d3f00ac` or later, recover and unload artifacts through real grapple controls. Completion should read 12, 24, 36, 48, 60, 72, 84, then 100 without scientists; duplicate unloads and a legacy ninth segment must not add credit or completion notifications. Save/reload between deliveries, and check old saves retain held cargo and locations while old 11-point credits convert once. Cases 135/410/411 pass focused headless/native Mac checks. Manufacture, fitting, transmissions and the ending remain unfinished; do not report campaign acceptance from this correction alone.
 
 ### Module dialogue colour follow-up
 

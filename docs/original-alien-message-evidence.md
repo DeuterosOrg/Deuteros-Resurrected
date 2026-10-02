@@ -70,7 +70,7 @@ Raw evidence: `transmitter-candidates.txt`, `transmitter-context.txt`, `manufact
 
 Artifact unloading now credits completion directly using the original sequence, stops at 100, and announces completion once. Scientists neither advance it nor receive promotion credit. Research displays recovered progress without requiring a research team. Existing `ResearchLimit` stores recovered progress; no save field or format version was added. Loading ordinary legacy credits (multiples of 11 through 99) converts them once, caps the old ninth credit at completion, and preserves ships, cargo and artifact locations. Already completed and nonstandard edited states are left unchanged.
 
-Case **135** reproduced the real grapple unload leaving completion at 1%; it now reaches 12% and rejects duplicate close credit. **410** covers all eight increments, a ninth delivery, scientist independence, visible progress and save references; **411** covers legacy zero-through-nine credits, idempotence, retained cargo and edited-state preservation. Focused headless/native Mac checks pass; full cross-platform validation is pending for this change. This corrects recovery credit, not the entire campaign.
+Case **135** reproduced the real grapple unload leaving completion at 1%; it now reaches 12% and rejects duplicate close credit. **410** covers all eight increments, a ninth delivery, scientist independence, visible progress and save references; **411** covers legacy zero-through-nine credits, idempotence, retained cargo and edited-state preservation. Focused headless/native Mac checks and full **411-case Mac validation** pass at `d3f00ac`; Windows execution is pending. This corrects recovery credit, not the entire campaign.
 
 ## Remake work still required
 

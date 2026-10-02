@@ -6,6 +6,8 @@ Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `buil
 
 ## Automated results
 
+**Newer revision awaiting Windows validation:** `d3f00ac60a32eaf21f42446c214e82fe5fa973f7` passes 411 cases, import, source smoke and Windows export on Mac. Its private bundle was prepared but not uploaded: the Mac login keychain denied signing access after the Windows server accepted the SSH key. No Windows run has started for that revision. The results below remain the last completed Windows checkpoint.
+
 **Fresh native Windows validation passed in one run:** compilation, strict import, **409/409 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
 
 The resulting executable also passed an external headless startup smoke check, including actual loads of the canonical Bandaid and alien-artifact Research images and SCG Production illustration. All 64 illustration resources are present in the pack. Its embedded pack has **1,218 entries and no test resources**. Windows executable SHA-256:
