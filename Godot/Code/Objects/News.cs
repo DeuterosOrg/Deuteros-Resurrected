@@ -11,6 +11,7 @@ namespace Deuteros.Code.Objects
 	{
 		private List<string> NewsItems { get; set; }
 		public BulletinTypes LastBulletin { get; set; }
+		public List<BulletinTypes> PendingBulletins { get; set; } = new List<BulletinTypes>();
 
 		public News() 
 		{ 

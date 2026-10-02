@@ -219,6 +219,8 @@ namespace Deuteros.Tests
             await CheckAsync("Training doors preserve independent animation and lock ownership", TrainingDoorLifecycle);
             CheckUi("Ship loss reports pilots and cryopod crews once with saved history", CrewShipLossNews);
             CheckUi("Station destruction and capture report lost crews without killing survivors", CrewStationLossNews);
+            await CheckAsync("Simultaneous production and research bulletins survive delivery and save reload", SimultaneousBulletins);
+            await CheckAsync("Blocked discovery bulletins preserve modal ownership and validate saved pending notices", BlockedBulletins);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

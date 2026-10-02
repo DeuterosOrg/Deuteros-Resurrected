@@ -46,7 +46,7 @@ namespace Deuteros.Code.Platform.Screens
 				&& save.AlienTransmissions?.LastStage is >= 0)
 				GameCore.SingletonInstance.ShowAlienTransmission();
 			else if (save.News.LastBulletin != Enums.BulletinTypes.None)
-				GameCore.SingletonInstance.ShowBulletin(save.News.LastBulletin);
+				GameCore.SingletonInstance.ShowBulletin(save.News.LastBulletin, replay: true);
 		}
 
 		protected override void DayTick(uint previousDay, uint currentDay)

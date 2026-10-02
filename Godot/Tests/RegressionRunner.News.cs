@@ -19,7 +19,7 @@ namespace Deuteros.Tests
             await CheckAsync("News replay is unavailable until a bulletin exists", NewsReplayAvailability);
             await CheckAsync("News replays the saved bulletin without duplicating history", NewsReplay);
             await CheckAsync("Leaving a typing bulletin releases only its own input lock", BulletinExit);
-            await CheckAsync("Replacing a typing bulletin preserves the new bulletin lock", BulletinReplacement);
+            await CheckAsync("Repeated bulletin requests preserve the active typing screen and lock", BulletinReplacement);
         }
 
         private async Task NewsShipEvents()
@@ -209,9 +209,11 @@ namespace Deuteros.Tests
             await OpenNews();
             var core = GameCore.SingletonInstance;
             core.ShowBulletin(BulletinTypes.Matter_Transmitter);
+            var first = ActiveScreen<Bulletins>();
             core.ShowBulletin(BulletinTypes.Matter_Transmitter);
             await InputFrames();
-            Equal(true, core.GetNode<InputBlocker>("InputBlocker").Blocked, "new bulletin remains locked after old one exits");
+            Equal(first, ActiveScreen<Bulletins>(), "new request preserves the active bulletin");
+            Equal(true, core.GetNode<InputBlocker>("InputBlocker").Blocked, "active bulletin retains its typing lock");
             await FinishBulletin(ActiveScreen<Bulletins>());
         }
     }

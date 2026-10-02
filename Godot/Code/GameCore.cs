@@ -336,13 +336,20 @@ namespace Deuteros.Code
 			_menuScreen?.SetupMenus();
 		}
 
+		private bool StoryDisplayBlocked() => _screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen;
+
 		private void PublishPendingStory()
 		{
 			// Existing discoveries and modal owners keep priority; an undisplayed notice stays saved.
-			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
-				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
-				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+			if (StoryDisplayBlocked()) return;
 			var save = GameData.ActiveSaveFile;
+			if (save.News.PendingBulletins.Count > 0)
+			{
+				ShowBulletin(save.News.PendingBulletins[0]);
+				return;
+			}
 			save.AlienTransmissions?.AdvanceHyperlight(save);
 			if (save.AlienTransmissions?.Advance() == true)
 			{
@@ -480,8 +487,16 @@ namespace Deuteros.Code
 			((Bulletins)_currentScreen).DisplayAlienTransmission(save, true);
 		}
 
-		public void ShowBulletin(BulletinTypes bulletin)
+		public void ShowBulletin(BulletinTypes bulletin, bool replay = false)
 		{
+			var pending = GameData.ActiveSaveFile.News.PendingBulletins;
+			if (!replay && !pending.Contains(bulletin)) pending.Add(bulletin);
+			if (StoryDisplayBlocked()) return;
+			if (!replay)
+			{
+				bulletin = pending[0];
+				pending.RemoveAt(0);
+			}
 			GameCore.SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
 			_menuScreen.Location.Text = "News Bulletins";
 			((Bulletins)_currentScreen).DisplayBulletin(bulletin);

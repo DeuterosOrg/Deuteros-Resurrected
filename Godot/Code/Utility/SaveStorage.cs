@@ -70,6 +70,8 @@ namespace Deuteros.Code.Utility
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
                     else if (type == typeof(Staff) && property.PropertyName == nameof(Staff.AttritionCountdown))
                         property.Required = Required.DisallowNull;
+                    else if (type == typeof(News) && property.PropertyName == nameof(News.PendingBulletins))
+                        property.Required = Required.DisallowNull;
                     else if (type == typeof(SpaceStation) && (property.PropertyName == nameof(SpaceStation.SdmCountdown) || property.PropertyName == nameof(SpaceStation.RefiningSlot)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.SdmTimerRemainder) || property.PropertyName == nameof(SaveFile.RefiningPhase)))
@@ -238,6 +240,9 @@ namespace Deuteros.Code.Utility
             Require(save.EnemyStarCursor >= 0 && save.EnemyStarCursor < data.Stars.Count, "enemy scheduling cursor");
             Require(data.Planets.ContainsKey(save.CurrentPlanet), "current planet");
             Require(save.GameConfig != null && save.News != null && save.Unlocks != null && save.Ships != null, "game state");
+            Require(save.News.PendingBulletins != null && save.News.PendingBulletins.All(b => b != BulletinTypes.None
+                && Enum.IsDefined(typeof(BulletinTypes), b))
+                && save.News.PendingBulletins.Distinct().Count() == save.News.PendingBulletins.Count, "pending bulletins");
             Require(data.ItemList != null && data.ItemList.All(i => i != null)
                 && data.ItemList.Select(i => i.ItemType).Distinct().Count() == data.ItemList.Count, "items");
             Require(data.PersonNames?.Count > 0 && save.NextPersonIndex >= 0 && save.NextPersonIndex <= data.PersonNames.Count, "staff names");
