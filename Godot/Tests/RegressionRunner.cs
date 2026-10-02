@@ -191,6 +191,12 @@ namespace Deuteros.Tests
             await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
             CheckUi("Original asteroid classes minerals and mining amount bounds are reachable", AsteroidOriginalRanges);
             await CheckAsync("Manual AMA approach rejects zero fuel and permits eligible refuelled mining", AmaManualFuelGate);
+            CheckUi("Refining serves every eligible station over two original phases", RefiningDoesNotStarveOtherFactories);
+            CheckUi("Original refining batches enforce all input output and ownership boundaries", RefiningBatchBoundaries);
+            CheckUi("Refining phase and allocations survive saves and reject malformed state", RefiningSavedPhase);
+            CheckUi("Station construction capture and loss preserve original refining slot lifecycle", RefiningSlotLifecycle);
+            CheckUi("ACC consumes post-ship refining output only on the following update", RefiningAfterAccFuelWait);
+            CheckUi("Initial station slots match original tables while existing larger worlds remain loadable", RefiningInitialSlotsAndOverflow);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

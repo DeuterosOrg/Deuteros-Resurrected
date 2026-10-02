@@ -4188,11 +4188,17 @@ namespace Deuteros.Code
 						{
 							var p = planets[Random.Shared.Next(planets.Count - 1)];
 							p.ActiveMethanoid = true;
+                            p.Station.RefiningSlot = FuelRefining.Capacity(s.StarId) - 1 - i;
 							planets.Remove(p);
 						}
 
                     }
 				}
+
+                var solStations = new[] { StellarBodies.uranus, StellarBodies.titania, StellarBodies.neptune,
+                    StellarBodies.triton, StellarBodies.pluto, StellarBodies.jupiter };
+                for (var i = 0; i < solStations.Length; i++)
+                    StaticGameData.Planets[solStations[i]].Station.RefiningSlot = 10 + i;
 
                 //set up all methanoid owned planets
                 foreach (IPlanet p in StaticGameData.Planets.Values)

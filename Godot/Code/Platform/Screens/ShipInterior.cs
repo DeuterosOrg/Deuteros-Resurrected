@@ -432,7 +432,10 @@ namespace Deuteros.Code.Platform.Screens
 						Ship.Pilot.AddAction();
 
 						if (CurrentPlanet.Station.BuildParts == 0)
+                        {
+                            FuelRefining.ClaimPlayerSlot(GameCore.SingletonInstance.GameData.ActiveSaveFile, CurrentPlanet);
 							CurrentPlanet.Station.StationOrdinal = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station != null).MaxBy(p => p.Station.StationOrdinal).Station.StationOrdinal + 1;
+                        }
 
 						CurrentPlanet.Station.BuildParts++;
 

@@ -217,6 +217,43 @@ namespace Deuteros.Tests
             Equal(0, GameCore.Earth.Station.Factory.ProductionQueue.Count, "no technology queued");
         }
 
+        private void RefiningDoesNotStarveOtherFactories()
+        {
+            DisableFuelRefining();
+            var fuel = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.meh_fuel);
+            fuel.Locked = fuel.Research.Locked = false;
+            fuel.Research.Researched = true;
+            fuel.AutoProduce = true;
+            fuel.AutoProduceFlip = false;
+            foreach (var planet in Save.BaseGameData.Planets.Values)
+            {
+                planet.Station.Resources.Stores[ItemTypes.hydrogen] = 0;
+                planet.Station.Resources.Stores[ItemTypes.methane] = 0;
+            }
+            GameCore.Earth.PlanetResources.Stores[ItemTypes.hydrogen] = 0;
+            GameCore.Earth.PlanetResources.Stores[ItemTypes.methane] = 0;
+            var earth = GameCore.Earth.Station.Resources.Stores;
+            var moon = Save.BaseGameData.Planets[StellarBodies.the_moon].Station.Resources.Stores;
+            foreach (var location in new[] { StellarBodies.earth, StellarBodies.the_moon })
+            {
+                var planet = Save.BaseGameData.Planets[location];
+                planet.Station.Built = true;
+                planet.Station.BuildParts = 8;
+                planet.Station.Type = 8;
+                planet.ActiveMethanoid = false;
+                var stores = planet.Station.Resources.Stores;
+                stores[ItemTypes.hydrogen] = stores[ItemTypes.methane] = 100;
+                stores[ItemTypes.meh_fuel] = 0;
+            }
+            FuelRefining.DayTick(0, 1);
+            FuelRefining.DayTick(1, 2);
+            Equal(true, moon[ItemTypes.meh_fuel] > 0, "second eligible factory cannot be starved by a shared per-factory toggle");
+            Equal(8, earth[ItemTypes.meh_fuel], "orbital Earth batch follows original output");
+            Equal(8, moon[ItemTypes.meh_fuel], "orbital Moon batch follows original output");
+            Equal(94, earth[ItemTypes.hydrogen], "orbital batch consumes six hydrogen");
+            Equal(94, moon[ItemTypes.methane], "orbital batch consumes six methane");
+        }
+
         private void AutomaticFuelRecipes()
         {
             foreach (var type in new[] { ItemTypes.meh_fuel, ItemTypes.hed_fuel })
@@ -226,15 +263,16 @@ namespace Deuteros.Tests
                 fuel.Locked = fuel.Research.Locked = false;
                 fuel.Research.Researched = true;
                 fuel.AutoProduce = true;
-                fuel.AutoProduceFlip = false;
-                var ground = type == ItemTypes.meh_fuel;
-                var stores = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
-                foreach (var material in fuel.BuildRequirements) stores[material.ItemType] = material.ItemCount;
+                var stores = GameCore.Earth.PlanetResources.Stores;
+                foreach (var material in fuel.BuildRequirements) stores[material.ItemType] = 3;
                 stores[type] = 0;
-                Production.UpdateProduction(0, 1);
-                Equal(3, stores[type], "automatic fuel output despite no manual manufacturing flag");
+                Save.RefiningPhase = 0;
+                FuelRefining.DayTick(0, 1);
+                Equal(0, stores[type], "Earth waits for even phase");
+                FuelRefining.DayTick(1, 2);
+                Equal(type == ItemTypes.meh_fuel ? 3 : 2, stores[type], "original Earth fuel output");
                 foreach (var material in fuel.BuildRequirements)
-                    Equal(0, stores[material.ItemType], "fuel recipe charged exactly once");
+                    Equal(1, stores[material.ItemType], "Earth fuel consumes two with minimum three");
             }
         }
 

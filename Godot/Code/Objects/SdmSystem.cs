@@ -35,6 +35,7 @@ namespace Deuteros.Code.Objects
                 planet.Station.SdmCountdown = 0;
                 if (planet.ActiveMethanoid)
                 {
+                    FuelRefining.ClaimPlayerSlot(save, planet);
                     planet.ActiveMethanoid = false;
                     planet.Station.Type = 8;
                     foreach (var material in planet.PlanetResources.Materials)

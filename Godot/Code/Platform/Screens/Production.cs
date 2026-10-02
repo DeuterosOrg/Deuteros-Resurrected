@@ -474,26 +474,6 @@ namespace Deuteros.Code.Platform.Screens
 								}
 							}
 						}
-
-						foreach (var autoProduced in GameCore.SingletonInstance.GameData.GetAllActiveItems().Where(T => T.AutoProduce))
-						{
-							if (CheckResourceAvailable(currentPlanet, autoProduced, currentFactory.Ground))
-							{
-								if (autoProduced.AutoProduceFlip)
-								{
-									autoProduced.AutoProduceFlip = false;
-								}
-								else
-								{
-									autoProduced.AutoProduceFlip = true;
-									RemoveResourceByItem(currentPlanet, autoProduced, currentFactory.Ground);
-									if (currentFactory.Ground)
-										currentPlanet.PlanetResources.Stores[autoProduced.ItemType] += 3;
-									else
-										currentPlanet.Station.Resources.Stores[autoProduced.ItemType] += 3;
-								}
-							}
-						}
 					}
 				}
 			}

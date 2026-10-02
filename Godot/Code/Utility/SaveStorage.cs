@@ -70,9 +70,9 @@ namespace Deuteros.Code.Utility
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
                     else if (type == typeof(Staff) && property.PropertyName == nameof(Staff.AttritionCountdown))
                         property.Required = Required.DisallowNull;
-                    else if (type == typeof(SpaceStation) && property.PropertyName == nameof(SpaceStation.SdmCountdown))
+                    else if (type == typeof(SpaceStation) && (property.PropertyName == nameof(SpaceStation.SdmCountdown) || property.PropertyName == nameof(SpaceStation.RefiningSlot)))
                         property.Required = Required.DisallowNull;
-                    else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.SdmTimerRemainder))
+                    else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.SdmTimerRemainder) || property.PropertyName == nameof(SaveFile.RefiningPhase)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.AlienTransmissions))
                         property.Required = Required.DisallowNull;
@@ -185,6 +185,7 @@ namespace Deuteros.Code.Utility
                 if (!condition) throw new InvalidDataException("Invalid save: " + field + ".");
             }
             Require(save?.BaseGameData?.Planets != null && save.BaseGameData.Stars != null, "world");
+            Require(save.RefiningPhase is 0 or 1, "refining phase");
             Require(double.IsFinite(save.SdmTimerRemainder) && save.SdmTimerRemainder >= 0 && save.SdmTimerRemainder < 1, "SDM timer phase");
             var data = save.BaseGameData;
             Require(data.Planets.TryGetValue(StellarBodies.earth, out var earthPlanet) && earthPlanet is Earth, "Earth");
@@ -243,9 +244,16 @@ namespace Deuteros.Code.Utility
                     && data.ResourceRate_Per_Derrick.ContainsKey(m.MaterialType)
                     && data.ResourceLevels_Survey_Multiplier.ContainsKey(m.MaterialType)), "deposits");
                 Require(planet.Station != null && planet.Station.PlanetId == pair.Key, "station identity");
+                Require(planet.Station.RefiningSlot >= -1 && planet.Station.RefiningSlot < 160, "refining slot");
                 Require(planet.Station.SdmCountdown >= 0 && planet.Station.SdmCountdown <= 255, "SDM countdown");
                 CheckResource(planet.Station.Resources);
                 CheckFactory(planet.Station.Factory);
+            }
+            foreach (var system in data.Planets.Values.GroupBy(p => p.ParentStar))
+            {
+                var slots = system.Where(p => p.Station.RefiningSlot >= 0).Select(p => p.Station.RefiningSlot).ToList();
+                Require(slots.All(i => i < Math.Max(FuelRefining.Capacity(system.Key), system.Count()))
+                    && slots.Distinct().Count() == slots.Count, "station refining allocation");
             }
             var earth = (Earth)earthPlanet;
             Require(earth.TrainingData != null, "training");
