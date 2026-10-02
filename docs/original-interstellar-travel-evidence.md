@@ -55,7 +55,7 @@ Ordinary arrival `$314B2–$314E0` requires exact equality between the ship and 
 
 ## Integration work remaining
 
-The remake currently stores one global integer day, generic transit state and a start day. It lacks per-star/ship clocks, fractional travel progress, Hyperlight travel, and normal SCG/Hyperlight discovery producers. A faithful implementation needs a save migration and complete travel/fuel/arrival handling; merely assigning Warlord on any cross-star arrival would be incorrect. Craig has been asked whether the intended port preserves original star arrivals/clocks or adapts them to direct planet-to-planet routes. Keep that scope decision separate from proven instruction arithmetic.
+The remake currently stores one global integer day, generic transit state and a start day. It lacks per-star/ship clocks, fractional travel progress and Hyperlight travel. SCG and delayed Hyperlight discovery are now connected; their original clock/campaign acceptance remains pending. A faithful implementation needs a save migration and complete travel/fuel/arrival handling; merely assigning Warlord on any cross-star arrival would be incorrect. Craig has been asked whether the intended port preserves original star arrivals/clocks or adapts them to direct planet-to-planet routes. Keep that scope decision separate from proven instruction arithmetic.
 
 
 ## Hyperlight discovery producer (additional static trace)
@@ -66,9 +66,9 @@ The story dispatcher `$37820–$37868` detects changes in that count. Count **7*
 
 The master tail consumes that flag through `$3769C`, after the higher-priority `$1C2D6/$1C2D0/$1C2D2` discoveries. Its list at `$3761A` contains research index **22**, a zero terminator and bulletin ID **8**. Shared helper `$377B0` changes only a zero research progress byte to **1**, making the subject available without completing it. Index 22 addresses `$1A1C4`, the already-mapped Hyperlight record. A pending flag is cleared by the consumer, rather than waiting for travel or promotion.
 
-Raw traces and exact tables are under `artifacts/research/supply-pod/hyperlight-*`; `hyperlight-discovery-facts.json` records file hashes. The bulletin renderer indexes a runtime table at `$29540`; that table is unpopulated at the static disk mapping, so the rendered bulletin text is not established by this extract. The remake has corresponding research and bulletin definitions but no discovery producer.
+Raw traces and exact tables are under `artifacts/research/supply-pod/hyperlight-*`; `hyperlight-discovery-facts.json` records file hashes. The bulletin renderer indexes a runtime table at `$29540`; that table is unpopulated at the static disk mapping, so the rendered bulletin text is not established by this extract. The remake now connects the corresponding research and bulletin definitions through the saved discovery producer described below.
 
-This narrows the missing progression path. The count is sampled by the original enemy scheduler, so an immediate capture callback alone would not reproduce its timing. Saved delay/pending state, competing bulletin delivery, save/load, research completion and actual Hyperlight travel still need integrated tests and implementation. No new task is declared complete.
+This narrows the missing progression path. The count is sampled by the original enemy scheduler, so an immediate capture callback alone would not reproduce its timing. Saved delay/pending state, competing bulletin delivery, save/load and research completion now have integrated tests. Actual Hyperlight travel still needs implementation. No new task is declared complete.
 
 
 ## Hyperlight discovery correction under validation

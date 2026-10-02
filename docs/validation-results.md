@@ -2,7 +2,7 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **458/458** at `50c7dafff70f1b6cc7b52a660e44967b848982fb`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-02): **464/464** at `fbffac5e79b7e550215e5465a5434f93636a5620`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
 The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
@@ -693,3 +693,13 @@ Cases 453–455 reproduced mining beyond the available deposit, surveys blocked 
 Cases 453–458 and native 453/457/458 pass. Full Mac validation at `50c7dafff70f1b6cc7b52a660e44967b848982fb` passes **458/458**, nine Python checks, strict import, source startup and Windows cross-export. All case logs and package contents are audited: **1,222 entries, 64 illustrations, zero test resources**. Executable: **149,352,192 bytes**, SHA-256 `37304d1b39992ccc28a18d59ea4edb396d8034e26a962678a4df8c08603a7a4f`. Evidence: `artifacts/validation/evidence/ground-mining/full-run-50c7daf/`; the three initial failures and focused/native checks remain alongside it. Fresh compilation retains 14 existing warnings and zero errors; incremental aggregate compilation reports zero warnings/errors.
 
 Integrated locally with runtime trees identical to the tested revision. No push or PR. Windows execution, original fractional clocks and exact RNG-sequence comparison remain outstanding. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**; these mining failures are separate review findings. Preserve the existing `8cdd458` desktop handoff.
+
+## Delayed Hyperlight discovery (464-case checkpoint)
+
+Cases 459–461 reproduced missing discovery, lost progression after save/load and the missing enemy-count sampling boundary. Hyperlight now becomes available after seven hostile systems remain, the original eight decrement-only passes and pending-bulletin dispatch. Discovery does not finish research. Saved pending state survives competing alien notices and interruption; normal Research controls and qualified staff can complete the subject. Cases 459–464 pass, including malformed/legacy saves and recapture boundaries.
+
+Full Mac validation at `fbffac5e79b7e550215e5465a5434f93636a5620` passes **464/464**, nine Python checks, strict import, source startup and Windows cross-export. Audited package: **1,222 entries, 64 illustration imports, zero tests**, **149,354,784 bytes**, SHA-256 `a321b23dc0bc1815df57d5e59d444ac0c7b23d79438c95e310a359e2a41d4249`. Incremental build: zero warnings/errors; fresh focused build: 14 existing warnings, zero errors. Evidence: `artifacts/validation/evidence/hyperlight-discovery/full-run-fbffac5/`.
+
+Native Mac cases 459/460/461/462/464 pass and the Research screenshot was inspected. Actual desktop mouse/keyboard checks passed for startup, empty save slots, Settings tabs, IOS preset confirmation, right-click navigation from Stores and window closing (process exit 0). These used a new unsaved game, wrote no save slots and changed no persistent audio/display settings; details and logs are under the adjacent `native/` directory. An initial case-462 fixture incorrectly bypassed an unacknowledged alien notice; the corrected acknowledgement flow passed, and both logs are retained.
+
+Integrated locally; no push or PR. Windows execution, full Hyperlight travel, Warlord promotion and original clock/campaign acceptance remain pending. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**. Preserve the existing `8cdd458` Windows desktop handoff.
