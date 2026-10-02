@@ -320,7 +320,7 @@ namespace Deuteros.Tests
                 OrderMtx(production);
                 await InputFrames();
                 Equal(new Vector2(64, 56), production.GetNode<TextureRect>("Sprites/ItemProgressImage").Size, "construction illustration bounds");
-                Equal(new Vector2(48, 48), production.GetNode<TextureRect>("Sprites/SmallItemImage").Size, "blueprint illustration bounds");
+                Equal(new Vector2(48, 46), production.GetNode<TextureRect>("Sprites/SmallItemImage").Size, "blueprint illustration bounds");
                 await CaptureDisplayEvidence("mtx-production");
             }
             finally { production.Free(); }
@@ -331,7 +331,7 @@ namespace Deuteros.Tests
             try
             {
                 await InputFrames();
-                Equal(new Vector2(68, 68), research.GetNode<TextureRect>("Sprites/ResearchImage").Size, "research illustration bounds");
+                Equal(new Vector2(48, 46), research.GetNode<TextureRect>("Sprites/ResearchImage").Size, "research illustration bounds");
                 await CaptureDisplayEvidence("mtx-research");
             }
             finally { research.Free(); }

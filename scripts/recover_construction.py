@@ -14,8 +14,40 @@ ROOT = Path(__file__).resolve().parents[1]
 ITEMS = [('pulse_blaster_laser', 9), ('g_chassis', 12), ('star_drive', 13),
          ('prejudice_torpedo_launcher', 26), ('star_drone', 29), ('prison_pod', 30), ('sonic_blaster', 31),
          ('s__d__m', 18), ('m__t__x', 23)]
-SMALL = [('pulse_blaster_laser', 10), ('m__f__l', 25), ('prejudice_torpedo_launcher', 27),
-         ('prison_pod', 31), ('sonic_blaster', 32)]
+SMALL = [
+    ('alien_artifact', 1),
+    ('derrick', 2),
+    ('s_chassis', 3),
+    ('s_drive', 4),
+    ('meh_fuel', 5),
+    ('of_frame', 6),
+    ('supply_pod', 7),
+    ('tool_pod', 8),
+    ('cryo_pod', 9),
+    ('pulse_blaster_laser', 10),
+    ('i_chassis', 11),
+    ('i_drive', 12),
+    ('g_chassis', 13),
+    ('star_drive', 14),
+    ('hed_fuel', 15),
+    ('a__c__c', 16),
+    ('a__o__c', 17),
+    ('bandaid', 18),
+    ('s__d__m', 19),
+    ('grapple', 20),
+    ('d__f__c__c', 21),
+    ('a__m__a', 22),
+    ('hyperlight', 23),
+    ('m__t__x', 24),
+    ('m__f__l', 25),
+    ('r_frame', 26),
+    ('prejudice_torpedo_launcher', 27),
+    ('commspod', 28),
+    ('ios_drone', 29),
+    ('star_drone', 30),
+    ('prison_pod', 31),
+    ('sonic_blaster', 32),
+]
 
 
 def decode(data, start, end):
@@ -117,21 +149,26 @@ filter_clip = true
         start = offset(0x422fa) + struct.unpack_from('>I', disk1, offset(0x41faa) + index * 4)[0]
         end = offset(0x422fa) + struct.unpack_from('>I', disk1, offset(0x41faa) + (index + 1) * 4)[0]
         width, height, pixels = decode(disk1, start, end)
-        assert width == 48 and height <= 44
-        rgba = bytearray(48 * 48 * 4)
+        assert width <= 48 and height <= 46
+        research = bytearray()
+        production = bytearray(48 * 46 * 4)
         for y in range(height):
             for x in range(width):
                 index = pixels[y * width + x]
-                target = ((y + 4) * 48 + x) * 4  # Original y54 within the remake's y50 control.
-                rgba[target:target + 4] = bytes((*palette[index], 0 if index == 0 else 255))
-        outputs[f'Research/{name}.png'] = png(48, 48, rgba)
+                # Research $4192C copies all planes; Production $41966 masks index zero.
+                research.extend((*palette[index], 255))
+                target = (y * 48 + x) * 4
+                production[target:target + 4] = bytes((*palette[index], 0 if index == 0 else 255))
+        outputs[f'Research/{name}.png'] = png(width, height, research)
+        outputs[f'Production/Illustrations/{name}.png'] = png(48, 46, production)
     for name, data in outputs.items():
         path = ROOT / 'Godot/Sprites/Items' / name
         if args.check:
             assert path.read_bytes() == data, f'Recovery mismatch: {path}'
         else:
+            path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
-    print(f'{"Verified" if args.check else "Recovered"} {len(outputs)} assets: 21 visible construction stages, six blank stages and five research illustrations.')
+    print(f'{"Verified" if args.check else "Recovered"} {len(outputs)} assets: 21 visible construction stages, six blank stages and 32 research/production illustration pairs.')
 
 
 if __name__ == '__main__':

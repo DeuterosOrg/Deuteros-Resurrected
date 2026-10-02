@@ -7,10 +7,11 @@ func _initialize() -> void:
 
 func _run() -> void:
 	# Source hosts can hide filename-case errors that break the embedded pack.
-	if load("res://Sprites/Items/Research/bandaid.png") == null:
-		push_error("Canonical Bandaid research image failed to load")
-		quit(1)
-		return
+	for path in ["Research/bandaid.png", "Research/alien_artifact.png", "Production/Illustrations/g_chassis.png"]:
+		if load("res://Sprites/Items/" + path) == null:
+			push_error("Canonical item illustration failed to load: " + path)
+			quit(1)
+			return
 	var scene := load(ProjectSettings.get_setting("application/run/main_scene")) as PackedScene
 	var game := scene.instantiate()
 	root.add_child(game)

@@ -16,7 +16,7 @@ namespace Deuteros.Code.Platform.Screens
 {
 	public partial class Production : BaseSubScene
 	{
-		public const string ResearchSpriteBasePath = "res://Sprites//Items//Research//";
+		public const string ProductionIllustrationBasePath = "res://Sprites/Items/Production/Illustrations/";
 		public const string ProductionProgressSpriteBasePath = "res://Sprites//Items//Production//";
 		public List<ProductionButton> Buttons { get; set; }
 		public ProductionButton SelectedButton { get; set; }
@@ -49,11 +49,10 @@ namespace Deuteros.Code.Platform.Screens
 
 			SmallItemImageTextureRect = GetNode<TextureRect>("Sprites/SmallItemImage");
 			ItemProgressImageTextureRect = GetNode<TextureRect>("Sprites/ItemProgressImage");
-			foreach (var image in new[] { SmallItemImageTextureRect, ItemProgressImageTextureRect })
-			{
-				image.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
-				image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
-			}
+			SmallItemImageTextureRect.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+			SmallItemImageTextureRect.StretchMode = TextureRect.StretchModeEnum.Keep;
+			ItemProgressImageTextureRect.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+			ItemProgressImageTextureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 			TeamFrameImage = GetNode<TextureRect>("Sprites/TeamFrameImage");
 			AocPanel = GetNode<TextureRect>("Sprites/AocPanel");
 			ProductionRod = GetNode<AnimatedSprite2D>("Sprites/ProductionRod");
@@ -315,7 +314,7 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				var currentProductionItem = CurrentFactory.CurrentProductionItem();
 				ProductionNameLabel.Text = currentProductionItem.Product.ShortName;
-				SmallItemImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png", SmallItemImageTextureRect);
+				SmallItemImageTextureRect = SpriteManager.LoadImageToTextureRect(ProductionIllustrationBasePath + currentProductionItem.Product.ItemType.ToString() + ".png", SmallItemImageTextureRect);
 				var progressSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".png";
 				// Recovered source-sheet frames use atlas resources; retain the illustration
 				// fallback for items whose supplied sheets still contain placeholder artwork.
@@ -323,7 +322,7 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					var atlasSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".tres";
 					progressSprite = ResourceLoader.Exists(atlasSprite) ? atlasSprite
-						: ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
+						: ProductionIllustrationBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
 				}
 				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(progressSprite, ItemProgressImageTextureRect);
 			}

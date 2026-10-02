@@ -100,7 +100,7 @@ namespace Deuteros.Tests
                 factory.ProductionQueue.Clear();
                 factory.ProductionQueue.Add(new ProductionItem(GameCore.SingletonInstance.GameData.GetItem(fallback)) { Active = true, Production_Complete = 2 });
                 screen.DrawData();
-                var expected = fallback == ItemTypes.derrick ? "/Production/derrick_2.png" : "/Research/m__f__l.png";
+                var expected = fallback == ItemTypes.derrick ? "/Production/derrick_2.png" : "/Production/Illustrations/m__f__l.png";
                 Equal(true, image.Texture.ResourcePath.EndsWith(expected), "existing frame/static fallback still renders");
                 Equal(true, image.Material == null, "PNG artwork has no source-sheet material");
                 if (recoveredRow >= 0 && fallback == ItemTypes.m__f__l)
@@ -108,9 +108,9 @@ namespace Deuteros.Tests
             }
         }
 
-        private async Task CheckResearchPixels(TextureRect control)
+        private async Task CheckResearchPixels(TextureRect control, bool hasOpaqueBlack = true, bool transparentBackground = true)
         {
-            Equal(new Vector2(48, 48), control.Texture.GetSize(), "research canvas preserves original draw scale");
+            Equal(true, control.Texture.GetSize().X <= 48, "illustration retains original draw width");
             if (DisplayServer.GetName() == "headless") return;
             Cursor.Hide();
             control.Visible = false;
@@ -124,8 +124,8 @@ namespace Deuteros.Tests
             var rect = control.GetGlobalRect();
             var transparent = 0;
             var opaqueBlack = 0;
-            for (var y = 0; y < 48; y++)
-                for (var x = 0; x < 48; x++)
+            for (var y = 0; y < source.GetHeight(); y++)
+                for (var x = 0; x < source.GetWidth(); x++)
                 {
                     var sample = source.GetPixel(x, y);
                     var px = (int)((rect.Position.X + x + 0.5f) * scale.X);
@@ -135,8 +135,8 @@ namespace Deuteros.Tests
                     if (sample.A == 0) transparent++;
                     else if (sample.R == 0 && sample.G == 0 && sample.B == 0) opaqueBlack++;
                 }
-            Equal(true, transparent > 0 && opaqueBlack > 0, "index zero is transparent but index five remains opaque black");
-            GD.Print("NATIVE PIXELS: recovered research illustration: 2304 passed");
+            Equal(true, (transparentBackground ? transparent > 0 : transparent == 0) && (!hasOpaqueBlack || opaqueBlack > 0), "index zero is transparent but index five remains opaque black");
+            GD.Print($"NATIVE PIXELS: recovered research illustration: {source.GetWidth() * source.GetHeight()} passed");
         }
 
         private async Task CheckConstructionPixels(TextureRect control, AtlasTexture atlas)

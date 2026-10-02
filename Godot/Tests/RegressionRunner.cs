@@ -154,6 +154,7 @@ namespace Deuteros.Tests
             await RunProductionRodRegressions();
             await RunRecoveredConstructionRegressions();
             await RunResearchDetailRegressions();
+            await CheckAsync("Recovered research diagrams preserve original pixels and screen placement", RecoveredResearchDiagrams);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

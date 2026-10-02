@@ -105,9 +105,9 @@ texture = ExtResource("5_t6bcq")
 
 [node name="SmallItemImage" type="TextureRect" parent="Sprites"]
 offset_left = 136.0
-offset_top = 50.0
+offset_top = 54.0
 offset_right = 184.0
-offset_bottom = 98.0
+offset_bottom = 100.0
 texture = ExtResource("6_timql")
 
 [node name="Labels" type="Node2D" parent="."]
