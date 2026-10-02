@@ -6,6 +6,50 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private void GroundSurveyWithoutDerricks()
+        {
+            foreach (var body in new[] { StellarBodies.earth, StellarBodies.the_moon })
+            {
+                var planet = (Planet)Save.BaseGameData.Planets[body];
+                PrepareTickMining(planet);
+                planet.ActiveMethanoid = false;
+                planet.PlanetResources.Derricks = 0;
+                var material = planet.PlanetResources.Materials[0];
+                material.GroundAmount = 0;
+                material.SurveyTicks = 2;
+                planet.DayTick(1, 2);
+                Equal(1, material.SurveyTicks, "surveys advance without installed derricks " + body);
+                foreach (var countdown in new[] { 0, 1 })
+                {
+                    material.GroundAmount = 0; material.SurveyTicks = countdown;
+                    planet.DayTick(3, 4);
+                    Equal(true, material.GroundAmount >= 50 && material.GroundAmount <= 32767,
+                        "zero and one survey counters both discover a nonempty deposit");
+                    Equal(0x32, material.GroundAmount & 0x32, "discovery preserves original forced low bits");
+                    Equal(0, planet.PlanetResources.Stores[ItemTypes.iron], "survey completion does not also extract");
+                }
+            }
+        }
+
+        private void GroundMiningEligibility()
+        {
+            var planet = (Planet)Save.BaseGameData.Planets[StellarBodies.the_moon];
+            PrepareTickMining(planet);
+            var material = planet.PlanetResources.Materials[0];
+            foreach (var gate in new[] { "hostile", "damaged", "unfinished", "same update", "backwards update" })
+            {
+                planet.ActiveMethanoid = gate == "hostile";
+                planet.BaseDamaged = gate == "damaged";
+                planet.BaseBuildParts = gate == "unfinished" ? 1 : 2;
+                material.GroundAmount = 100; material.SurveyTicks = 0;
+                planet.PlanetResources.Stores[ItemTypes.iron] = 0;
+                var current = gate == "same update" ? 2u : gate == "backwards update" ? 1u : 3u;
+                planet.DayTick(2, current);
+                Equal(100, material.GroundAmount, gate + " cannot extract");
+                Equal(0, planet.PlanetResources.Stores[ItemTypes.iron], gate + " cannot create stock");
+            }
+        }
+
         private void GroundMiningBoundaries()
         {
             foreach (var body in new[] { StellarBodies.earth, StellarBodies.the_moon })
