@@ -18,6 +18,19 @@ Read these files first:
 
 Keep work local until Craig authorizes publication. Do not push, open/merge PRs, or change/comment on Asana tasks merely because a test passes.
 
+## Start here on Windows
+
+The implementation handoff is commit **`c7b3968`** on **`codex/build-tests-and-gameplay-fixes`**. This documentation may arrive in a later commit; record the actual checked-out SHA. If the branch has advanced, reconcile its changes with the progress ledger before using the counts below.
+
+1. Inspect local changes, fetch the branch from the configured remote, and check out its latest pushed state without discarding local work. Preserve root `AGENTS.md`.
+2. Run the pinned setup and full validation below. Investigate case 150 first if it stalls; retain failure evidence before any diagnostic rerun.
+3. Complete the source-game and exported-game acceptance passes. Record each scenario as passed, failed or not tested, with the commit and reproduction steps.
+4. Write `docs/windows-validation-results.md`, update task evidence in the local ledger, then continue unresolved backlog items. Keep Windows validation and subsequent gameplay changes in separate commits.
+
+The next investigated backlog item is **1215683087492485 — Add MTX module**. Discovery and transfers exist, but the player-built installation path needs investigation. No installation fix is included in this handoff. Trace production, stores and MTX behavior against [original-game evidence](original-behavior-evidence.md) before choosing installation semantics; also check transfers when a destination is captured or loses its station. Coordinate ownership before editing if Mac work has resumed.
+
+Pushing this branch makes the brief available to the Windows agent; it does not start Codex or automatically run the validation workflow. The current CI push trigger targets `develop`; PR and manual workflow triggers are separate.
+
 ## Current evidence
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
@@ -62,6 +75,16 @@ $env:GODOT = (Resolve-Path ".tools/godot-4.2.1/Godot_v4.2.1-stable_mono_win64/Go
 & $env:GODOT --version
 python -m unittest discover -s scripts -p "test_*.py"
 if ($LASTEXITCODE -ne 0) { throw "Validator tests failed" }
+
+# Preserve previous evidence and exports before starting this attempt.
+$evidenceDir = Join-Path "artifacts/windows-validation" ([guid]::NewGuid().ToString())
+New-Item -ItemType Directory -Path $evidenceDir -Force | Out-Null
+if (Test-Path "artifacts/validation") {
+    Move-Item "artifacts/validation" (Join-Path $evidenceDir "previous-validation")
+}
+if (Test-Path "artifacts/windows") {
+    Move-Item "artifacts/windows" (Join-Path $evidenceDir "previous-export")
+}
 python scripts/validate.py --export-windows
 if ($LASTEXITCODE -ne 0) { throw "Game validation failed; preserve and inspect logs" }
 ```
@@ -69,6 +92,8 @@ if ($LASTEXITCODE -ne 0) { throw "Game validation failed; preserve and inspect l
 Check each command's exit status and stop to investigate failures. The installer verifies official release checksums. If .NET is installed outside its standard location, set `DOTNET_ROOT` and add that directory to `PATH` before launching Godot.
 
 The validator discovers cases from the C# runner and starts a fresh Godot process for each. Record the discovered count and compare it with the latest validation results; do not hard-code the initial 26-case count. Require a passing aggregate, clean startup and successful export. Read `artifacts/validation/`, including warnings; a process exit of zero alone is insufficient. Test resources are excluded from the exported game.
+
+Archive each attempt before another run: the validator overwrites logs for stages it reaches, but leaves later-stage logs from older runs. An old executable or smoke log must not be attributed to a failed new run. Run interactive export acceptance only after a successful export of the recorded commit.
 
 ## Interactive acceptance pass
 
@@ -118,7 +143,7 @@ Cases 154–162 cover these transitions. Native Mac captures passed and correcte
 - Latest full-run case 150 again stalled at Research entry after the gift was analysed. A Mac process sample found the main thread waiting on a native recursive mutex and the .NET finalizer waiting on a managed lock. No root cause or fix is proven. Reproduce the normal comms progression and retain diagnostics; do not disable the case or treat the successful 153-case batch as current aggregate validation.
 
 - On Mac, the audio/navigation path can leak Ogg resources or hang with `!rc_owner`. An isolated Godot 4.3 comparison also failed; an engine upgrade alone is not a demonstrated fix.
-- Combined regression runs and the latest isolated case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). Case 65 cycles course/ACC/grapple/AMA panels and checks modal destruction. A diagnostic rerun passed without a fix; treat the original strict failure as unresolved. Fresh-process isolation does not remove this production resource-lifetime risk. Reproduce with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs even when a later run passes; add phase/GC-count diagnostics before changing resource ownership.
+- Earlier combined regression runs and an isolated case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). Case 65 cycles course/ACC/grapple/AMA panels and checks modal destruction. It passed in the latest full attempt without a proven fix; treat the earlier strict failure as unresolved. Fresh-process isolation does not remove this production resource-lifetime risk. Reproduce with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs even when a later run passes; add phase/GC-count diagnostics before changing resource ownership.
 - Godot 4.2.1's binary scene conversion leaked instances during fresh exports. `export/convert_text_resources_to_binary=false` avoids that path; retain it unless a tested replacement removes the need.
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 
