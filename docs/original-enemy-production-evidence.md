@@ -17,7 +17,7 @@ The previous nine-entry table was indexed by `StarSystemsCaptured`, which has no
 
 A due-or-overdue check replaces exact date equality. This handles crossed deadlines and the original zero-system interval, allowing production to resume if a station is recaptured. It performs one batch and schedules from the current date; it does not invent historical catch-up batches.
 
-Case 465 first reproduced day 107 instead of 108 with nine hostile systems. It covers all ten counts, saved deadlines, actual drone output and the unused legacy counter. Case 466 exposed a zero-interval stall after the table correction and covers recapture, overdue dates and peace. Both pass headless and native Mac checks. An initial test-registration recursion was a fixture mistake, retained separately; it is not a game defect. Full aggregate and Windows checks remain pending.
+Case 465 first reproduced day 107 instead of 108 with nine hostile systems. It covers all ten counts, saved deadlines, actual drone output and the unused legacy counter. Case 466 exposed a zero-interval stall after the table correction and covers recapture, overdue dates and peace. Both pass headless and native Mac checks. An initial test-registration recursion was a fixture mistake, retained separately; it is not a game defect. Full 466-case Mac validation, nine Python tests, strict import, startup and audited Windows cross-export pass at `64412e0`; Windows execution remains pending.
 
 ## Limits
 

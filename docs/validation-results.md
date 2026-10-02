@@ -2,7 +2,7 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **464/464** at `fbffac5e79b7e550215e5465a5434f93636a5620`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-02): **466/466** at `64412e0acd7cd0e53aae03f4a24cbfc79e8e8cf9`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
 The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
@@ -703,3 +703,13 @@ Full Mac validation at `fbffac5e79b7e550215e5465a5434f93636a5620` passes **464/4
 Native Mac cases 459/460/461/462/464 pass and the Research screenshot was inspected. Actual desktop mouse/keyboard checks passed for startup, empty save slots, Settings tabs, IOS preset confirmation, right-click navigation from Stores and window closing (process exit 0). These used a new unsaved game, wrote no save slots and changed no persistent audio/display settings; details and logs are under the adjacent `native/` directory. An initial case-462 fixture incorrectly bypassed an unacknowledged alien notice; the corrected acknowledgement flow passed, and both logs are retained.
 
 Integrated locally; no push or PR. Windows execution, full Hyperlight travel, Warlord promotion and original clock/campaign acceptance remain pending. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**. Preserve the existing `8cdd458` Windows desktop handoff.
+
+## Enemy production scheduling (466-case checkpoint)
+
+The [original interval table](original-enemy-production-evidence.md) uses remaining hostile systems. Case 465 reproduced the remake indexing that table with an unused captured-system counter; nine systems scheduled day 107 instead of 108. Production now uses the shared sampled hostile count and the full ten-entry table. A due-or-overdue check also prevents a zero-system interval or crossed deadline from permanently stopping production. Case 466 reproduced the zero-interval stall in the initial correction. Both cases cover actual drone output, recapture, peace and saved deadlines.
+
+Full Mac validation at `64412e0acd7cd0e53aae03f4a24cbfc79e8e8cf9` passes **466/466**, nine Python tests, strict import, source startup and Windows cross-export. Individual logs and package contents are audited: **1,222 entries, 64 illustrations, zero tests**; **149,354,800 bytes**, SHA-256 `092a7616463df9fcfca248844fd1145c758c58578ad299bcd2666a5b7e4b4a17`. Evidence: `artifacts/validation/evidence/enemy-production/full-run-64412e0/`. Incremental build has zero warnings/errors; the focused fresh compile retains 14 existing warnings. An initial misplaced test registration caused fixture recursion; that invalid run is retained separately from the gameplay reproductions.
+
+Native cases 465/466 pass. Actual mouse/keyboard checks in a fresh unsaved game passed ship rename/confirm/reopen, Cancel preserving the committed name, disabled empty-pod discard, returning from Cargo and physical window closing with Rename open. The process exited zero with clean disposal; screenshots and logs are under the adjacent `native/` directory. Escape while editing removed focus but did not dismiss Rename; no Escape-dismissal pass is claimed. No save slots or persistent audio/display settings were changed.
+
+Integrated locally with runtime trees identical to the tested revision; no push or PR. Whole-day truncation and initial scheduler timing remain provisional until original fractional clocks are integrated. Windows execution and campaign acceptance remain pending; preserve the stable `8cdd458` desktop handoff. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**.
