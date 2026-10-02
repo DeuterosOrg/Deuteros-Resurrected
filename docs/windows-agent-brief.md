@@ -13,6 +13,10 @@ Do not push, open/merge a PR or change/comment on Asana without Craig's instruct
 
 ## Feature acceptance details
 
+### Module dialogue colour follow-up
+
+At `a54e899` or later, check Methanoid introductions, trade replies and deployment messages in source and export: coloured dialogue must remain legible, with light-blue alien text, normal white text and no visible colour tags. Case **409** passes focused headless/native Mac checks; full validation is pending. This correction does not implement the missing [transmission sequence](original-alien-message-evidence.md), and is separate from the stable `8cdd458` desktop handoff.
+
 ### Complete Cycle and shutdown follow-up
 
 On a revision containing cases **314–329**, verify Cycle from each endpoint and during transit/fuel waits. It should finish one leg, unload, retain overflow, and stop without refuelling or loading return cargo. Engage should cancel the finish request; save/reload should preserve it. Check the Finishing and Refueling labels. Repeat with shuttle and IOS, then close the source and exported game normally.

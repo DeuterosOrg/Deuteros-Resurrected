@@ -583,3 +583,12 @@ Full Mac and native Windows validation each passes **408/408**, strict import, s
 Both aggregate processes and the Windows collector exited zero; all downloaded logs were audited locally. Evidence is preserved under `artifacts/validation/evidence/scg-names/` and `artifacts/windows-handoff/b3936c2-evidence/`. Bundle SHA-256: `9453d21ee0384ab00a914103e97fc5895c5474b0551db5166ec0bc5c63f4a560`.
 
 Counts remain **34/48 with implementation evidence and 0/48 fully accepted**: this is an additional review fix. Windows desktop checks remain pending, and the stable `8cdd458` human handoff is unchanged.
+
+
+## Module dialogue colour correction — 2026-10-02
+
+Revision **`a54e899d4c6796e6f406733112d39a7ba424e7d0`** fixes `Line.GetText`, the shared formatter used by module dialogue. Casting normalized Godot RGB channels directly to integers turned the intended `#aaccee` Methanoid text into `000000`. The formatter now uses the existing `Color.ToHtml(false)` API, with a valid BBCode hex prefix. White text and dynamic substitutions remain intact.
+
+Case **409** reproduced the black markup through the real `ModuleTextFrame.PlayText` path. It now passes headless and with native Mac rendering, checking visible parsed text, formatting, pod number and five additional palette colours. The native screenshot was reviewed; trade/cancellation compatibility cases 220/225/231/233 pass. Evidence is under `artifacts/validation/evidence/dialogue-colours/`.
+
+The full **409-case Mac and Windows validation is in progress**, not yet an accepted checkpoint. The previous complete baseline remains `b3936c2` with 408 passing cases on both hosts. Counts remain **34/48 with implementation evidence and 0/48 fully accepted**; alien transmission scheduling and desktop acceptance remain open.
