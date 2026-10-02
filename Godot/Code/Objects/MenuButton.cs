@@ -12,6 +12,7 @@ namespace Deuteros.Code.Objects
 	public class MenuButton
 	{
 		public Enums.Menu_Buttons ButtonType { get; set; }
+		public Func<Enums.Menu_Buttons> DisabledButtonType { get; set; } = () => Enums.Menu_Buttons.Empty;
 		public Enums.Scenes SceneToLoad { get; set; }
 		public bool LoadScene { get; set; }
 		public Godot.Collections.Array<Enums.SceneVariables> SceneVariables { get; set; }

@@ -162,11 +162,19 @@ namespace Deuteros.Code
 					new Objects.MenuButton(Enums.Menu_Buttons.GroundMaterials, Enums.Scenes.GroundMaterials, true,
 					new Godot.Collections.Array<Enums.SceneVariables>() {
 						Enums.SceneVariables.Ground
-					}, null, () => GetCurrentPlanet().BaseBuildParts==2, "Resource"),
+					}, null, () => GetCurrentPlanet().BaseBuildParts == 2 && !GetCurrentPlanet().BaseDamaged, "Resource")
+					{
+						DisabledButtonType = () => GetCurrentPlanet().BaseBuildParts == 2 && GetCurrentPlanet().BaseDamaged
+							? Enums.Menu_Buttons.GroundMaterials_Damaged : Enums.Menu_Buttons.Empty
+					},
 					new Objects.MenuButton(Enums.Menu_Buttons.Store, Enums.Scenes.Store, true,
 					new Godot.Collections.Array<Enums.SceneVariables>() {
 						Enums.SceneVariables.Ground
-					}, null, () => GetCurrentPlanet().BaseBuildParts==2, "MiningStore")
+					}, null, () => GetCurrentPlanet().BaseBuildParts == 2 && !GetCurrentPlanet().BaseDamaged, "MiningStore")
+					{
+						DisabledButtonType = () => GetCurrentPlanet().BaseBuildParts == 2 && GetCurrentPlanet().BaseDamaged
+							? Enums.Menu_Buttons.Store_Damaged : Enums.Menu_Buttons.Empty
+					}
 				};
 			}
 		}
@@ -319,6 +327,8 @@ namespace Deuteros.Code
 		{
 			SimulationDayPassed?.Invoke(previousDay, currentDay);
 			DayPassed?.Invoke(previousDay, currentDay);
+			// Refresh repair-dependent services without replacing the current screen's header.
+			_menuScreen?.SetupMenus();
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
@@ -479,6 +489,7 @@ namespace Deuteros.Code
 
 		public void UpdateMenuButtons(bool ground, bool orbit)
 		{
+			_menuScreen?.SetMethanoidIndicator(false);
 			// The interior stays open while the ship moves; entry flags describe the previous screen.
 			if (_currentScreen is ShipInterior interior)
 			{
@@ -493,6 +504,11 @@ namespace Deuteros.Code
 					UpdateLocationText(orbit);
 					_menuScreen.SetupMenus();
 					return;
+				}
+				if (!ground && ship.ShipState == Ship_States.UnDocked)
+				{
+					var planet = GetCurrentPlanet();
+					_menuScreen?.SetMethanoidIndicator(planet.ActiveMethanoid && planet.Station.Built);
 				}
 			}
 			if (_menuScreen != null && _currentScreen.SceneFilePath.Contains("Overview") && !orbit)

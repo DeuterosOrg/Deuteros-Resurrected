@@ -434,7 +434,9 @@ namespace Deuteros.Code
             Station_Left = 1100,
             Station_Right = 1200,
             Store = 1300,
-            Training = 1400
+            Training = 1400,
+            GroundMaterials_Damaged = 1500,
+            Store_Damaged = 1600
         }
 
         public enum BulletinTypes

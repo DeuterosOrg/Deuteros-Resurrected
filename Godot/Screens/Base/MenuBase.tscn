@@ -1,4 +1,4 @@
-[gd_scene load_steps=87 format=3 uid="uid://cyvepalenoyly"]
+[gd_scene load_steps=89 format=3 uid="uid://cyvepalenoyly"]
 
 [ext_resource type="PackedScene" uid="uid://qfrsmxasaluu" path="res://PreFabs/Buttons/MenuButton.tscn" id="2_okowm"]
 [ext_resource type="PackedScene" uid="uid://bbgh6fbx8hoja" path="res://PreFabs/Buttons/ChangeScene.tscn" id="5"]
@@ -23,6 +23,8 @@
 [ext_resource type="Texture2D" uid="uid://cbjpy38fyyv7n" path="res://Sprites/Buttons/Nav_Animations/DepositAnalysis_Sheet.png" id="22_5t1eh"]
 [ext_resource type="Texture2D" uid="uid://cgowslc8ewkhg" path="res://Sprites/Buttons/Nav_Animations/DepositAnalysis_Static.png" id="23_7yyd2"]
 [ext_resource type="PackedScene" uid="uid://be1t4kk6a6g1h" path="res://PreFabs/UI/UIBox.tscn" id="24_byn3j"]
+
+[ext_resource type="Texture2D" path="res://Sprites/References/MethanoidMenuReference.png" id="25_methanoid"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_km18m"]
 atlas = ExtResource("8_yfyma")
@@ -528,6 +530,10 @@ animations = [{
 "speed": 5.0
 }]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_methanoid_menu"]
+atlas = ExtResource("25_methanoid")
+region = Rect2(74, 334, 96, 32)
+
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("8")
 
@@ -575,6 +581,15 @@ layout_mode = 2
 
 [node name="B6" parent="MainButtons" instance=ExtResource("2_okowm")]
 layout_mode = 2
+
+[node name="MethanoidIndicator" type="TextureRect" parent="."]
+visible = false
+offset_top = 135.0
+offset_right = 48.0
+offset_bottom = 151.0
+mouse_filter = 2
+texture = SubResource("AtlasTexture_methanoid_menu")
+expand_mode = 1
 
 [node name="Location" type="Node2D" parent="."]
 

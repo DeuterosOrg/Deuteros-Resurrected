@@ -158,7 +158,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (menuButton == null || !menuButton.Enabled())
 				{
-					currentButton.SetButtonType(Enums.Menu_Buttons.Empty);
+					currentButton.SetButtonType(menuButton?.DisabledButtonType() ?? Enums.Menu_Buttons.Empty);
 					currentButton.HoverText = "";
 					currentButton.SceneVariables = new Godot.Collections.Array<Enums.SceneVariables>();
 					currentButton.TargetScene = Enums.Scenes.None;
@@ -183,6 +183,11 @@ namespace Deuteros.Code.Platform.Screens
 					column = "B";
 				}
 			}
+		}
+
+		public void SetMethanoidIndicator(bool visible)
+		{
+			GetNode<TextureRect>("MethanoidIndicator").Visible = visible;
 		}
 	}
 }

@@ -127,6 +127,7 @@ namespace Deuteros.Tests
             RunMtxRouteRegressions();
             await RunMtxInstallationRegressions();
             RunScriptLifetimeRegressions();
+            await RunMenuArtworkRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
