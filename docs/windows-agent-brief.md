@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `853986c7064aaecbef431da7810599c7e2418d76` (2026-10-02).** Mac and native Windows each pass **375/375 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **32/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
+**Latest verified revision: `6ac93012a70d5fa2c4e7c047430500c8a7069e7d` (2026-10-02).** Mac and native Windows each pass **379/379 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **32/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).

@@ -465,3 +465,15 @@ Case **375** failed before the correction and now passes real-time and simulatio
 Mac cross-export: 149,197,856 bytes, SHA-256 `fca45d7729e42f3b6bf290fe679828630e2e738b7c7583ca0d6db7fb38ae84fc`. Native Windows: 149,137,456 bytes, SHA-256 `07ebde47221f7c85b43ad879d113b88ebd4fbbfeec3f1c3f3ff594ce559e0352`. Both contain 1,108 pack entries and no test resources. Windows retains 344 line-ending-only sidecars with no normalized content changes. Logs are retained under ignored `artifacts/validation/evidence/self-destruct/full-run-853986c/` and `artifacts/windows-handoff/853986c-evidence/`; the new failed reproduction is in `ground-crews-red/`.
 
 Original alarm playback and runtime timing/casualty comparisons remain pending. The existing `8cdd458` desktop handoff stays unchanged. Counts remain **32/48 with implementation evidence and 0/48 fully accepted**.
+
+## Recovered SDM alarm — 2026-10-02
+
+Revision **`6ac93012a70d5fa2c4e7c047430500c8a7069e7d`** restores the original waveform with calculated PAL playback, delayed right channel, looping and normal-sound priority. It follows the viewed armed station and stops on defusal, expiry or tree exit. Godot's Game bus supplies priority while Master retains user preferences. [Source/conversion evidence](original-self-destruct-evidence.md#alarm-source-and-playback-limits) distinguishes recovered bytes from unmeasured original-runtime behavior.
+
+Cases **376–379** first reproduced the missing player and missing priority; navigation testing also exposed and corrected reliance on the transient `ShipSelected` GUID. All four pass headless and native Mac, alongside affected ambience/menu cases 200–205 and 212–219. Mixer capture detects competing audio leakage and measures right-channel onset at **0.3202 seconds** on both platforms.
+
+Fresh canonical Mac and Windows runs pass **379/379**, strict import, source startup and Windows release export. Nine Python tests pass each; native Windows packaged startup passes separately. Mac incremental build has zero warnings/errors; fresh Windows has 14 existing warnings and zero errors. Both exports contain **1,111 resources and no tests**, including the alarm and default bus layout.
+
+Mac cross-export: 149,205,712 bytes, SHA-256 `9453a7db2745469aab4f7da452aec5270f78301eabe9f3aa35ccffc43e023536`. Windows export: 149,145,328 bytes, SHA-256 `28eb66c617f25fd33951412acf1e7fd6699221c430ef5ecd61f99a2ef779f062`. Windows retains 345 import-sidecar line-ending warnings with no normalized content difference. Logs are preserved under ignored `artifacts/validation/evidence/sdm-alarm/full-run-6ac9301/` and `artifacts/windows-handoff/6ac9301-evidence/`; focused failures/passes remain beside the Mac full-run directory.
+
+Counts remain **32/48 with implementation evidence and 0/48 fully accepted**. Original listening, descriptor runtime changes and timing/casualty comparisons remain open. Existing desktop testing at `8cdd458` stays separate. The [planet palette follow-up](original-planet-palette-evidence.md) also maps all 160 original bodies to 44 parent groups and documents PNG colour discrepancies; it makes no runtime artwork change.
