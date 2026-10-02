@@ -191,6 +191,7 @@ namespace Deuteros.Tests
             await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
             CheckUi("Original asteroid classes minerals and mining amount bounds are reachable", AsteroidOriginalRanges);
             await CheckAsync("Manual AMA approach rejects zero fuel and permits eligible refuelled mining", AmaManualFuelGate);
+            CheckUi("Refining serves every eligible station over two original phases", RefiningDoesNotStarveOtherFactories);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
