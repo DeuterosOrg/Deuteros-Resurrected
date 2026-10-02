@@ -300,6 +300,7 @@ namespace Deuteros.Code
 			SimulationDayPassed += Code.Platform.Screens.Production.UpdateProduction;
 			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			SimulationDayPassed += Code.Platform.Screens.Research.UpdateResearch;
+			SimulationDayPassed += StaffAttrition.DayTick;
 			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
 			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 

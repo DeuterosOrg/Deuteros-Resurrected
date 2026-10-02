@@ -10,6 +10,7 @@ namespace Deuteros.Code.Objects
         public string Leader { get; set; }
         private int ActionsTaken { get; set; }
         public int Count { get; set; }
+        public int AttritionCountdown { get; set; }
         public Enums.StaffType Type { get; set; }
 
         public Staff()

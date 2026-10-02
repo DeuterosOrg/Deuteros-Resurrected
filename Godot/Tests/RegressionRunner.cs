@@ -147,6 +147,7 @@ namespace Deuteros.Tests
             RunSdmInstallationRegressions();
             foreach (var dispose in new[] { false, true })
                 Check($"Window close releases parsed C# input events disposed={dispose}", () => ParsedInputAtShutdown(dispose));
+            RunStaffAttritionRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

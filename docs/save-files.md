@@ -31,3 +31,7 @@ This is backward reading compatibility in the updated game. Older builds reject 
 The engine regressions cover private staff/news state, all ship subtypes, active research/production references, training, cargo, ACC ownership/cursors, corruption rejection, overwrite backups and failure preservation. Actual screen callbacks exercise save, overwrite/cancel, load/cancel, corrupt-file feedback advancing the restored game, and a mid-flight ship arriving on schedule. Mac pointer checks cover visible controls and loading; Windows gameplay and long progression still require acceptance.
 
 Day updates now run the simulation event before the display event. The simulation resolves planets from the active save each tick; loading does not leave old worlds subscribed. Existing UI-driven actions, such as choosing a manual production recipe, remain screen behavior. The fixed simulation order preserves this repository's previous order, rather than claiming a complete reconstruction of the original game's timing.
+
+## Staff attrition compatibility
+
+Version 1 now includes `Staff.AttritionCountdown`. Missing values from older saves default to zero, matching original team allocation; explicit null is invalid. Loading preserves member counts and applies no historical attrition. The next crossed 100-day boundary begins normal processing. Current saves retain each countdown and the global phase through `CurrentDay`, including teams inside cryopods. Older game builds reject this new field; retain pre-upgrade backups.

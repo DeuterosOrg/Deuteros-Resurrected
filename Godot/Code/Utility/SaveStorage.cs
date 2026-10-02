@@ -67,6 +67,9 @@ namespace Deuteros.Code.Utility
                     // Version-1 saves written before engine damage have no flag; default healthy.
                     if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
                         property.Required = Required.DisallowNull;
+                    // Original allocation starts at zero; do not replay losses when upgrading a save.
+                    else if (type == typeof(Staff) && property.PropertyName == nameof(Staff.AttritionCountdown))
+                        property.Required = Required.DisallowNull;
                     else if (property.Required == Required.Default) property.Required = Required.AllowNull;
                 }
                 return properties;
