@@ -65,6 +65,8 @@ namespace Deuteros.Code.Platform.Screens
 
         public override void _ExitTree()
         {
+            if (supplyPods != null && IsInstanceValid(supplyPods) && supplyPods.IsInsideTree())
+                OverlayManager.Instance.CloseOverlay();
             if (tradeDecision != null && IsInstanceValid(tradeDecision) && tradeDecision.IsInsideTree())
                 OverlayManager.Instance.CloseOverlay();
             pendingTrade?.TrySetResult(null);

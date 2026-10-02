@@ -218,19 +218,16 @@ text = "A.C.C.
 Is Disengaged"
 metadata/_edit_use_anchors_ = true
 
-[node name="CargoText" type="Label" parent="TextLayout"]
-layout_mode = 1
-anchors_preset = -1
-anchor_left = -0.00448431
-anchor_top = 0.00769231
-anchor_right = 0.0224215
-anchor_bottom = 0.00769231
-offset_left = 112.0
-offset_top = 9.0
-offset_right = 154.0
-offset_bottom = 19.0
-text = "Cargo:"
-metadata/_edit_use_anchors_ = true
+[node name="CargoActions" type="Button" parent="TextLayout"]
+layout_mode = 0
+offset_left = 110.0
+offset_top = 7.0
+offset_right = 175.0
+offset_bottom = 18.0
+flat = true
+text = "Cargo..."
+script = ExtResource("14_rename")
+HoverText = "Inspect or ditch supply cargo"
 
 [node name="CargoValue1" type="Label" parent="TextLayout"]
 layout_mode = 1

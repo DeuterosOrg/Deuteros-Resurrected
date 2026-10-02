@@ -103,6 +103,7 @@ namespace Deuteros.Code.Platform.Screens
 			TakeOff = GetNode<Button>("TakeOff");
 			Land = GetNode<Button>("Land");
 
+			GetNode<Button>("TextLayout/CargoActions").Pressed += SupplyPods_Pressed;
 			ShipName = GetNode<Label>("TextLayout/ShipName");
 			GetNode<Button>("TextLayout/RenameShip").Pressed += RenameShip_Pressed;
 			Status = GetNode<Label>("TextLayout/Status");

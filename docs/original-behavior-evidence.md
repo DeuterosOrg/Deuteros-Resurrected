@@ -11,7 +11,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | Task | Evidence confidence | Implementable result / remaining gate |
 | --- | --- | --- |
 | [1215683087492480 — grapple-only ACC](https://app.asana.com/0/1214891399253076/1215683087492480) | Low | Original grapple-only decision is missing; parallel ACC repeats C# behavior. |
-| [1215685674676219 — empty supply pod](https://app.asana.com/0/1214891399253076/1215685674676219) | Low | Discard versus unload, permitted states, and button behavior need observation. |
+| [1215685674676219 — empty supply pod](https://app.asana.com/0/1214891399253076/1215685674676219) | High for selected-pod discard; incomplete original screen availability | Original “Ditch Contents” dispatch and mutation decoded; see [instruction evidence](original-supply-pod-evidence.md). |
 | [1215685674676221 — AMA algorithm](https://app.asana.com/0/1214891399253076/1215685674676221) | Low | Five-day / 16–35 / 1-in-20 constants are C#-derived, not original proof. |
 | [1215685674676225 — event order](https://app.asana.com/0/1214891399253076/1215685674676225) | High for named call sites; incomplete overall | Partial master-tick order recovered; full subsystem mapping remains open. |
 | [1215685674676259 — planet/background colours](https://app.asana.com/0/1214891399253076/1215685674676259) | High for scene palette loading; low for planet mapping | Scene palette loader is decoded; planet-specific palette selection and values are missing. |
@@ -137,9 +137,9 @@ The parallel [ACC asteroid branch](https://github.com/WizzoUK2/deuteros-parallel
 
 ## 1215685674676219 — empty supply pod button
 
-No decoded original supply-pod button handler or recorded jettison experiment was found in the inspected notes/data. Parallel cargo servicing and grapple dumping concern different actions. The task description establishes the requested affordance, but does not resolve resource accounting or all allowed states.
+The original **“Ditch Contents !”** control dispatches to `$33F40`, which clears the selected supply pod's cargo type and quantity while preserving its pod kind. It performs no store credit or neighboring-pod write. See [the exact bytes, input dispatch and text lookup](original-supply-pod-evidence.md).
 
-**Missing facts:** discard versus transfer to local stores; whether empties one selected pod or all pods; whether travelling/mining/docking/ACC disable it; confirmation/animation and how a now-empty pod is typed. **Next verification:** record original selected pod and local/remote stores before/after clicking at a station, in ordinary orbit, in transit and attached to an asteroid. Repeat with ACC active and two unlike cargo pods. Add tests for exactly one affected pod, no phantom stock credit, empty-item state and preserved neighboring pods once those outcomes are known.
+The handler has no ship-state gate, but its screen-entry route has separate state checks; original availability everywhere is not established. The remake's explicit cargo dialog follows the task's requested access during docking, travel and mining. Native Windows acceptance and an original emulator comparison remain pending.
 
 ## 1215716464570901 — DFCC fuel
 
