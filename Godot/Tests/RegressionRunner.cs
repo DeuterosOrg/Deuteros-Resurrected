@@ -197,6 +197,8 @@ namespace Deuteros.Tests
             CheckUi("Station construction capture and loss preserve original refining slot lifecycle", RefiningSlotLifecycle);
             CheckUi("ACC consumes post-ship refining output only on the following update", RefiningAfterAccFuelWait);
             CheckUi("Initial station slots match original tables while existing larger worlds remain loadable", RefiningInitialSlotsAndOverflow);
+            CheckUi("Simultaneous training production research and ACC arrival preserve original event order", SimultaneousProductionResearchAndArrival);
+            CheckUi("Original attrition phase precedes actual shuttle arrival while cryopods remain frozen", AttritionBeforeShipArrival);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
