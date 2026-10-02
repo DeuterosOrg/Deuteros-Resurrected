@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `b3936c2668c430af5eec421d5e170dde2b4c464b` (2026-10-02).** Mac and native Windows each pass **408/408 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
+**Latest verified revision: `a54e899d4c6796e6f406733112d39a7ba424e7d0` (2026-10-02).** Mac and native Windows each pass **409/409 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -15,7 +15,7 @@ Do not push, open/merge a PR or change/comment on Asana without Craig's instruct
 
 ### Module dialogue colour follow-up
 
-At `a54e899` or later, check Methanoid introductions, trade replies and deployment messages in source and export: coloured dialogue must remain legible, with light-blue alien text, normal white text and no visible colour tags. Case **409** passes focused headless/native Mac checks; full validation is pending. This correction does not implement the missing [transmission sequence](original-alien-message-evidence.md), and is separate from the stable `8cdd458` desktop handoff.
+At `a54e899` or later, check Methanoid introductions, trade replies and deployment messages in source and export: coloured dialogue must remain legible, with light-blue alien text, normal white text and no visible colour tags. Case **409** passes focused headless/native Mac checks; full 409-case validation passes on both hosts. This correction does not implement the missing [transmission sequence](original-alien-message-evidence.md), and is separate from the stable `8cdd458` desktop handoff.
 
 ### Complete Cycle and shutdown follow-up
 

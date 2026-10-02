@@ -591,4 +591,13 @@ Revision **`a54e899d4c6796e6f406733112d39a7ba424e7d0`** fixes `Line.GetText`, th
 
 Case **409** reproduced the black markup through the real `ModuleTextFrame.PlayText` path. It now passes headless and with native Mac rendering, checking visible parsed text, formatting, pod number and five additional palette colours. The native screenshot was reviewed; trade/cancellation compatibility cases 220/225/231/233 pass. Evidence is under `artifacts/validation/evidence/dialogue-colours/`.
 
-The full **409-case Mac and Windows validation is in progress**, not yet an accepted checkpoint. The previous complete baseline remains `b3936c2` with 408 passing cases on both hosts. Counts remain **34/48 with implementation evidence and 0/48 fully accepted**; alien transmission scheduling and desktop acceptance remain open.
+Full Mac and native Windows validation each passes **409/409**, strict import, source smoke and Windows export; nine Python tests pass on each host. Windows packaged startup also passes. Both packs retain **1,218 entries, all 64 illustration resources and no tests**. Mac incremental compilation reports zero warnings/errors; fresh Windows retains 14 existing warnings and zero errors. All 385 Windows import notices concern line endings, with no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,319,424 | `9350b4b9ff2546b5b409ae1234a6e9e9a10786f3e1700152220a582446a46101` |
+| Windows | 149,259,072 | `6bc8b3c31a15dd881bb757b52b675dcc08e8101b9ebc37943773cfbed0619da3` |
+
+Both aggregate processes and the Windows collector exited zero; all downloaded logs were audited locally. Evidence: `artifacts/validation/evidence/dialogue-colours/` and `artifacts/windows-handoff/a54e899-evidence/`. Bundle SHA-256: `769112021774e8687291ae6a75e71208e795641df62919300dd04a354bdc0ba0`.
+
+Counts remain **34/48 with implementation evidence and 0/48 fully accepted**; alien transmission scheduling and desktop acceptance remain open. The stable `8cdd458` human handoff is unchanged.

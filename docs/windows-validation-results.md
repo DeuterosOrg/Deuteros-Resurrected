@@ -2,21 +2,23 @@
 
 ## Environment and revision
 
-Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `builder` SSH account. Latest tested revision **`b3936c2668c430af5eec421d5e170dde2b4c464b`**, branch `codex/build-tests-and-gameplay-fixes`, cloned from a verified Git bundle. The baseline working tree was clean. Toolchain: Godot **4.2.2 .NET / 15073afe3**, .NET SDK **6.0.428 x64**, Python **3.14.3**. No GitHub push or remote CI run was needed for these checks.
+Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `builder` SSH account. Latest tested revision **`a54e899d4c6796e6f406733112d39a7ba424e7d0`**, branch `codex/build-tests-and-gameplay-fixes`, cloned from a verified Git bundle. The baseline working tree was clean. Toolchain: Godot **4.2.2 .NET / 15073afe3**, .NET SDK **6.0.428 x64**, Python **3.14.3**. No GitHub push or remote CI run was needed for these checks.
 
 ## Automated results
 
-**Fresh native Windows validation passed in one run:** compilation, strict import, **408/408 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
+**Fresh native Windows validation passed in one run:** compilation, strict import, **409/409 isolated regression cases**, source startup smoke and Windows release export. All **nine Python tests** passed. This used the committed installer, including checksum verification of the cached RCEdit binary, and the corrected validator without manually adding RCEdit to PATH. Compilation retains 14 existing warnings and zero errors.
 
 The resulting executable also passed an external headless startup smoke check, including actual loads of the canonical Bandaid and alien-artifact Research images and SCG Production illustration. All 64 illustration resources are present in the pack. Its embedded pack has **1,218 entries and no test resources**. Windows executable SHA-256:
 
 ```text
-00d9f6243e79d3e27036575650a4c1561db2544193369c8608ad69613f1d2616
+6bc8b3c31a15dd881bb757b52b675dcc08e8101b9ebc37943773cfbed0619da3
 ```
 
 The checkout was clean before import. Afterwards, Git status flagged 385 `.import` sidecars with LF/CRLF notices; `git diff --exit-code` confirmed **no normalized content differences**. Those worktree files and logs were preserved, not bulk-committed or reset.
 
 ### Earlier passing baselines
+
+Revision `b3936c2` passed 408 cases, source smoke, export and packaged startup after the SCG name repair. Its executable SHA-256 was `00d9f6243e79d3e27036575650a4c1561db2544193369c8608ad69613f1d2616`; evidence remains in `artifacts/windows-handoff/b3936c2-evidence/`.
 
 Revision `7c7db5e` passed 406 cases, source smoke, export and packaged startup after the original illustration recovery. Its executable SHA-256 was `26551d145cddb7c60843e0cbe04eb5c63eea4b901246452f25edbdd9fcdf58d5`; evidence remains in `artifacts/windows-handoff/7c7db5e-evidence/`.
 
@@ -54,7 +56,7 @@ ERROR: Could not create child process: rcedit ... --set-icon ...
 
 The failed attempt and its output were preserved before further work. Installing verified [RCEdit 2.0.0](https://github.com/electron/rcedit/releases/tag/v2.0.0) and adding its directory to the export process's PATH made a separate strict export pass. The resulting Windows executable passed startup smoke using the repository's external `Tests/Smoke.gd` driver. This executes the packaged game; test resources remain excluded from the package. Pack inspection found **1,105 entries and no test resources**. This is a successful regression run plus repaired export/startup checks across separate commands, **not a passing original aggregate**.
 
-The installer now supplies pinned RCEdit alongside Godot when installing Windows templates, and the validator makes that directory available to child processes. Nine Python tests pass locally, including download integrity and offline cache checks. The fresh 408-case run above verifies the committed tooling correction on Windows.
+The installer now supplies pinned RCEdit alongside Godot when installing Windows templates, and the validator makes that directory available to child processes. Nine Python tests pass locally, including download integrity and offline cache checks. The fresh 409-case run above verifies the committed tooling correction on Windows.
 
 Godot's [4.2 documentation](https://docs.godotengine.org/en/4.2/tutorials/export/changing_application_icon_for_windows.html) requires RCEdit for resource modification and notes embedded-pack limitations; both pack readability and packaged startup were therefore checked. No exporter/gameplay errors were suppressed to obtain the repaired result.
 
@@ -66,7 +68,7 @@ Earlier full attempts at `d61ef77` and `dce19e1` stopped at old whole-save UI co
 
 | Scenario | Source | Export | Evidence / next step |
 | --- | --- | --- | --- |
-| Automated regression suite | PASS, 408 cases | Not shipped | Isolated headless engine processes |
+| Automated regression suite | PASS, 409 cases | Not shipped | Isolated headless engine processes |
 | Startup and clean scripted exit | PASS | PASS | External smoke driver for the packaged executable |
 | Physical mouse/keyboard, audio, window close | NOT TESTED | NOT TESTED | Desktop agent/Craig acceptance |
 | Save compatibility and normal campaign progression | NOT TESTED manually | NOT TESTED | Follow the Windows agent brief |
@@ -75,6 +77,7 @@ Earlier full attempts at `d61ef77` and `dce19e1` stopped at old whole-save UI co
 | Research completion and restored selection | PASS, cases 404–405 | Bandaid image load PASS; interaction NOT TESTED | Hyperlight null recipe, return to physical recipes and recovered illustrations; native Mac screenshots separately checked |
 | Staff attrition | PASS, cases 350–359 | NOT TESTED interactively | 100-day gates, cryopod suspension, depleted teams and old/new saves |
 | SDM controls, capture and expiry | PASS, cases 360–375 | NOT TESTED interactively | Switches, discovery/interlock, both timers, ship/station loss and save compatibility; colony ground-crew loss corrected; original listening/timing observations pending |
+| Module dialogue colours | PASS, case 409 | NOT TESTED interactively | Normalized colour conversion, real text-window output and dynamic substitutions; native Mac screenshot separately reviewed |
 | SCG item names | PASS, cases 407–408 | NOT TESTED interactively | New and legacy saves show chassis/drive names in Production, Station, Stores and MTX; existing names and stock preserved |
 | Original item illustrations | PASS, case 406 | Resource loads PASS; desktop NOT TESTED | All 32 source hashes, opaque Research versus masked Production, original bounds/placement; 113,952 native Mac pixels separately verified |
 | Recovered construction artwork | PASS, cases 386–403 | NOT TESTED interactively | Seven genuine frame sets, blank SDM/MTX stages, five missing research images; paid manual/AOC production and installation; native Mac render separately verified |
@@ -98,6 +101,6 @@ Revision `d0d15f7` renames the PNG and import sidecar to lowercase while retaini
 
 ## Evidence and next steps
 
-Latest raw logs and environment/export hashes were collected under ignored `artifacts/windows-handoff/b3936c2-evidence/`. The earlier `baseline-evidence/` archive preserves the missing-RCEdit failure and its separate repair. Remote evidence is retained in the isolated validation checkout. Generated executables, caches and logs are not committed.
+Latest raw logs and environment/export hashes were collected under ignored `artifacts/windows-handoff/a54e899-evidence/`. The earlier `baseline-evidence/` archive preserves the missing-RCEdit failure and its separate repair. Remote evidence is retained in the isolated validation checkout. Generated executables, caches and logs are not committed.
 
 Merge independently observed desktop results into this report. The canonical Windows command now passes with the corrected installer/validator. Preserve commit identities when adding newer fixes. Team PR readiness still requires the feature acceptance checks in [the Windows brief](windows-agent-brief.md).
