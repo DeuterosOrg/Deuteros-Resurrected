@@ -158,6 +158,8 @@ namespace Deuteros.Tests
             foreach (var legacy in new[] { false, true })
                 await CheckAsync($"SCG item names reach all stock and production screens legacy={legacy}", () => ScgItemNames(legacy));
             await CheckAsync("Module dialogue preserves readable palette colours and formatted text", ModuleDialogueColours);
+            CheckUi("Eight artifact deliveries complete the device without scientist work", ArtifactDeliveryCompletion);
+            Check("Legacy artifact delivery credit migrates once without losing cargo", ArtifactDeliveryLegacySaves);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

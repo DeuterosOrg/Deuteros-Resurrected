@@ -180,6 +180,11 @@ namespace Deuteros.Code.Platform.Screens
 					ItemNotesDataLabel.Text = researchItem.OrbitOnly ? "In Orbit Only" : "by any factory";
 				}
 				
+				else if (researchItem.ItemType == Enums.ItemTypes.alien_artifact)
+				{
+					InProgressNode.Visible = true;
+					ProjectCompletionLabel.Text = "Project is\n" + researchItem.Research.ResearchPercentageComplete.ToString().PadLeft(2, ' ') + "% complete";
+				}
 				else if (GameCore.Earth.ResearchStaff == null || GameCore.Earth.ResearchStaff.GetLevel()<researchItem.Research.TechLevel)
 				{
 					InProgressNode.Visible = true;
@@ -222,7 +227,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (currentItem != null)
 			{
 				//If the item is researched, return 100
-				if (currentItem.Researched)
+				if (currentItem.Researched || currentItem.ItemType == Enums.ItemTypes.alien_artifact)
 					return;
 
 				var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);

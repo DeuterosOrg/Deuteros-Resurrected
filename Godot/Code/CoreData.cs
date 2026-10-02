@@ -633,6 +633,7 @@ namespace Deuteros.Code
 				unknownitem.Research.Researched = false;
 				unknownitem.Research.Locked = true;
 				unknownitem.Research.ResearchLimit = 0;
+				unknownitem.Research.ResearchPercentageComplete = 0;
 
                 StaticGameData.ItemList.Add(unknownitem);
 

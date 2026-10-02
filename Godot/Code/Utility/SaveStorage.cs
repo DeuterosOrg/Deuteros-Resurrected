@@ -121,6 +121,7 @@ namespace Deuteros.Code.Utility
                 throw new InvalidDataException("Unsupported save version.");
             Validate(document.Game);
             var save = document.Game;
+            ArtifactRecovery.RestoreLegacy(save);
             // Definitions are supplied by this game version, rather than embedded executable/UI data.
             save.BaseGameData.ModuleFrameTexts = CoreData.StaticGameData.ModuleFrameTexts;
             save.BaseGameData.BulletinTexts = CoreData.StaticGameData.BulletinTexts;

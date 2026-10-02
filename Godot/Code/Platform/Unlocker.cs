@@ -24,8 +24,8 @@ namespace Deuteros.Code.Platform
 			{
                 case Enums.ItemTypes.alien_artifact:
 					var researchitem = GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.alien_artifact).Research;
-                    researchitem.Locked = false;
-                    researchitem.ResearchLimit += 11;
+                    if (ArtifactRecovery.Deliver(GameCore.SingletonInstance.GameData.ActiveSaveFile))
+                        GameCore.SingletonInstance.TriggerResearchFinished(researchitem);
                     break;
 
                 case Enums.ItemTypes.commspod:

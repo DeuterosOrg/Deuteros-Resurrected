@@ -52,9 +52,15 @@ Success jumps to `$38032`, which selects transition mode 4 and enters the loader
 
 Raw evidence: `transmitter-candidates.txt`, `transmitter-context.txt`, `manufacturing-eligibility.txt`, `production-completion.txt`, `activation-and-cost.txt`, `module-action-dispatch.txt`, `module-eligibility.txt`, and the `transition-*` / `ending-*` extracts in the reproduction directory. Only the named instruction boundaries are evidence; some exploratory extracts include adjacent data or truncated instructions.
 
+## Recovery correction
+
+Artifact unloading now credits completion directly using the original sequence, stops at 100, and announces completion once. Scientists neither advance it nor receive promotion credit. Research displays recovered progress without requiring a research team. Existing `ResearchLimit` stores recovered progress; no save field or format version was added. Loading ordinary legacy credits (multiples of 11 through 99) converts them once, caps the old ninth credit at completion, and preserves ships, cargo and artifact locations. Already completed and nonstandard edited states are left unchanged.
+
+Case **135** reproduced the real grapple unload leaving completion at 1%; it now reaches 12% and rejects duplicate close credit. **410** covers all eight increments, a ninth delivery, scientist independence, visible progress and save references; **411** covers legacy zero-through-nine credits, idempotence, retained cargo and edited-state preservation. Focused headless/native Mac checks pass; full cross-platform validation is pending for this change. This corrects recovery credit, not the entire campaign.
+
 ## Remake work still required
 
-The remake currently has no saved transmission stage/countdown or alien News replay. `CoreData` preassigns nine artifacts, including Earth, while `Unlocker` credits 11 research-limit points per delivery. Those rules differ from the traced flow and cannot safely serve as acceptance fixtures for the final sequence.
+The remake still has no saved transmission stage/countdown or alien News replay. `CoreData` still preassigns nine artifacts, including Earth; capture-driven assignment, device manufacture/fitting and the ending are unfinished. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
 
 Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, direct completion credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Device activation also depends on the [Warlord promotion path](original-warlord-evidence.md). Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
 

@@ -88,7 +88,6 @@ namespace Deuteros.Tests
             var item = type == UnknownItemTypes.AlienArtifact ? ItemTypes.alien_artifact
                 : type == UnknownItemTypes.CommsPod ? ItemTypes.commspod : ItemTypes.m__f__l;
             var research = GameCore.SingletonInstance.GameData.GetItem(item).Research;
-            var initialLimit = research.ResearchLimit;
             Equal(true, research.Locked, "research starts unavailable");
             var found = type == UnknownItemTypes.AlienArtifact ? UnknownItem.ScanForItems(ship) : new UnknownItem(type);
             ship.ItemScanResults = found;
@@ -116,7 +115,7 @@ namespace Deuteros.Tests
                 Equal(false, research.Locked, "correct research programme unlocked");
                 Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "analysis releases input");
                 if (type == UnknownItemTypes.AlienArtifact)
-                    Equal(initialLimit + 11, research.ResearchLimit, "exactly one artifact's research credit");
+                    Equal(12, research.ResearchPercentageComplete, "first artifact directly completes twelve percent");
                 if (type == UnknownItemTypes.CommsPod)
                     Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.CommsPod), "comms unlock recorded once");
                 if (type == UnknownItemTypes.Blazer)
@@ -127,12 +126,105 @@ namespace Deuteros.Tests
                 Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "duplicate close cannot release a newer input lock");
                 GameCore.UnLockScreen();
                 if (type == UnknownItemTypes.AlienArtifact)
-                    Equal(initialLimit + 11, research.ResearchLimit, "repeat close cannot duplicate artifact credit");
+                    Equal(12, research.ResearchPercentageComplete, "repeat close cannot duplicate artifact credit");
             }
             finally
             {
                 GameCore.UnLockScreen();
                 CloseDismantleBay(bay, tweens);
+            }
+        }
+
+        private void ArtifactDeliveryCompletion()
+        {
+            var core = GameCore.SingletonInstance;
+            var item = core.GameData.GetItem(ItemTypes.alien_artifact);
+            var research = item.Research;
+            var finished = 0;
+            void OnFinished(ResearchItem value) { if (value == research) finished++; }
+            core.ResearchFinished += OnFinished;
+            try
+            {
+                Equal(0, research.ResearchPercentageComplete, "new device has no recovered segments");
+                GameCore.Earth.CurrentResearchItem = research;
+                GameCore.Earth.ResearchStaff = new Staff { Count = 200, Leader = "Research", Type = StaffType.Research };
+                GameCore.Earth.ResearchStaff.AddAction(8);
+                var actionsProperty = typeof(Staff).GetProperty("ActionsTaken", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var actions = (int)actionsProperty.GetValue(GameCore.Earth.ResearchStaff);
+                for (var segment = 1; segment <= 9; segment++)
+                {
+                    var expected = segment < 8 ? segment * 12 : 100;
+                    var scientists = GameCore.Earth.ResearchStaff;
+                    GameCore.Earth.ResearchStaff = null;
+                    core.TriggerAlienTechDiscovery(ItemTypes.alien_artifact);
+                    GameCore.Earth.ResearchStaff = scientists;
+                    Equal(expected, research.ResearchPercentageComplete, "completion after segment " + segment);
+                    Equal(expected, research.ResearchLimit, "saved delivery credit " + segment);
+                    Equal(segment >= 8, research.Researched, "completion gate " + segment);
+                    Equal(segment < 8, item.Locked, "item availability " + segment);
+                    if (segment == 1)
+                    {
+                        var staff = GameCore.Earth.ResearchStaff;
+                        GameCore.Earth.ResearchStaff = null;
+                        var screen = OpenUi<Research>("res://Screens/Earth/Research.tscn", new List<SceneVariables> { SceneVariables.Ground });
+                        try
+                        {
+                            Equal("Project is\n12% complete", screen.GetNode<Label>("Labels/InProgress/ProjectCompletionLabel").Text, "recovered progress visible without scientists");
+                            Equal("", screen.GetNode<Label>("Labels/InProgress/TeamWorkingLabel").Text, "no fictional scientist requirement");
+                        }
+                        finally { screen.Free(); GameCore.Earth.ResearchStaff = staff; }
+                    }
+                    var value = research.ResearchValue;
+                    for (var day = 0; day < 10; day++) Research.UpdateResearch(0, 1);
+                    Equal(expected, research.ResearchPercentageComplete, "scientists cannot create a segment");
+                    Equal(value, research.ResearchValue, "artifact does not consume scientist work");
+                    var loaded = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    var restored = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact).Research;
+                    Equal(expected, restored.ResearchPercentageComplete, "saved recovered segments");
+                    Equal(true, ReferenceEquals(((Earth)loaded.BaseGameData.Planets[StellarBodies.earth]).CurrentResearchItem, restored), "canonical research reference");
+                }
+                Equal(1, finished, "completion announced once despite ninth legacy segment");
+                Equal(actions, (int)actionsProperty.GetValue(GameCore.Earth.ResearchStaff), "no scientist promotion credit");
+            }
+            finally { core.ResearchFinished -= OnFinished; }
+        }
+
+        private void ArtifactDeliveryLegacySaves()
+        {
+            var ship = UnknownObjectShip();
+            ship.Modules[0].HeldItem = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            Save.Ships.Add(ship);
+            var baseline = SaveStorage.Serialize(Save);
+            for (var delivered = 0; delivered <= 9; delivered++)
+            {
+                var legacy = SaveStorage.Deserialize(baseline);
+                var item = legacy.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                item.Research.ResearchLimit = delivered * 11;
+                item.Research.ResearchPercentageComplete = delivered == 0 ? 1 : 7;
+                item.Research.Locked = delivered == 0;
+                var original = SaveStorage.Serialize(legacy);
+                var loaded = SaveStorage.Deserialize(original);
+                var recovered = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                var expected = delivered < 8 ? delivered * 12 : 100;
+                Equal(expected, recovered.Research.ResearchPercentageComplete, "legacy delivered count " + delivered);
+                Equal(expected, recovered.Research.ResearchLimit, "converted credit " + delivered);
+                Equal(delivered >= 8, recovered.Research.Researched, "legacy completion " + delivered);
+                Equal(delivered < 8, recovered.Locked, "legacy item lock " + delivered);
+                Equal(original, SaveStorage.Serialize(legacy), "input object preserved");
+                Equal(true, loaded.Ships.Single(s => s.ShipID == ship.ShipID).Modules[0].HeldItem is UnknownItem, "held artifact preserved");
+                Equal(StellarBodies.earth, loaded.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "legacy location preserved");
+                var once = SaveStorage.Serialize(loaded);
+                Equal(once, SaveStorage.Serialize(SaveStorage.Deserialize(once)), "conversion is idempotent");
+            }
+            foreach (var state in new[] { (0, 7, false), (11, 90, false), (22, -1, false), (42, 17, false), (55, 100, true) })
+            {
+                var edited = SaveStorage.Deserialize(baseline);
+                var item = edited.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                item.Research.ResearchLimit = state.Item1;
+                item.Research.ResearchPercentageComplete = state.Item2;
+                item.Research.Researched = state.Item3;
+                var original = SaveStorage.Serialize(edited);
+                Equal(original, SaveStorage.Serialize(SaveStorage.Deserialize(original)), "nonstandard/completed state preserved");
             }
         }
 
