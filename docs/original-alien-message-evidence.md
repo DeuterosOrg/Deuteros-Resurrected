@@ -46,7 +46,21 @@ The original device reuses item **ID 1**, zero-based index 0. Its 40-byte descri
 
 Factory eligibility at `$24B60` and `$24ED0` checks completion, factory mode and staff rank. Mode 2 is set by the station initializer at `$20FE8`; Earth ground initialization sets mode 1 at `$20DB4`. The material check/debit at `$25034–$25072` accepts the zero recipe. Ordinary production completion reaches `$233EE–$233FA`, then stock increment `$240DC`; item 0 has no dedicated completion bypass. Thus a missing recipe must not be treated as proof that the finished device cannot be manufactured.
 
-The tool-action dispatcher `$34076–$340F6` requires a mounted tool word (`$8000` type bits) and dispatches item ID 1 through `$33F74` to **`$34F96`**. This handler requires ship state 3 and pilot rank at least **4 (Warlord)** through `$34014`. State 3 is written by ordinary arrival at `$312C2`, distinct from docking/docked states 4/5. The rank helper requires an assigned crew record unless override byte `$1BF36` is active. There is no hull-class test inside this activation handler; fitting and upstream hull constraints still require tracing before claiming unrestricted compatibility.
+The tool-action dispatcher `$34076–$340F6` requires a mounted tool word (`$8000` type bits) and dispatches item ID 1 through `$33F74` to **`$34F96`**. This handler requires ship state 3 and pilot rank at least **4 (Warlord)** through `$34014`. State 3 is written by ordinary arrival at `$312C2`, distinct from docking/docked states 4/5. The rank helper requires an assigned crew record unless override byte `$1BF36` is active. There is no hull-class test inside this activation handler; the upstream fitting selector provides that restriction.
+
+### Fitting restriction
+
+Selector `$32B7E–$32BDA` indexes the longword table at `$32B1E` by `(ship hull byte - 1) * 4`. It shifts each mask right, admitting an item only when its bit is set and descriptor completion is at least 100. The normal hull masks are:
+
+| Hull | Mask | Eligible zero-based item indices |
+| --- | --- | --- |
+| Shuttle (1) | `$02028022` | 1, 5, 15, 17, 25 |
+| IOS (2) | `$8A3A8222` | 1, 5, 9, 15, 17, 19, 20, 21, 25, 27, 31 |
+| SCG (3) | `$CA1A8023` | 0, 1, 5, 15, 17, 19, 20, 25, 27, 30, 31 |
+
+Thus item 0 (the completed device) is **SCG-only**. A.M.A. (21) is IOS-only and Prison Pod (30) SCG-only. Each starship list has eleven entries, matching the eleven visible selector rows. The remake currently shares one eleven-item list across hulls; simply adding the device would create twelve choices and an unreachable or out-of-range final row. Both rendering and selection must use the same hull eligibility rule, while old incorrectly fitted equipment remains removable.
+
+Selection `$32F44–$33016` returns existing equipment, requires replacement stock, debits it through `$2415C`, and writes the mounted item ID. Only Derrick (index 1) uses the multi-unit branch; item 0 follows the single-unit path. No device-specific mass check occurs in this selection block. Modified hull codes, broader mass behavior and visual acceptance remain separate checks. `tool-hull-eligibility.txt` and `tool-selection.txt` preserve the instruction extracts.
 
 Success jumps to `$38032`, which selects transition mode 4 and enters the loader at `$12800`. The disk-1 overlay at offset `$2C00` maps to `$12800`; its mode-4 path loads the overlay at disk offset `$5800` into `$20000`. That overlay's dispatcher reaches `$21926`, selecting asset offset `$6E000` from table `$21708`. This establishes the ending transition, not its displayed content: disk selection, script interpretation, assets and an original-runtime ending remain unverified. Normal game RAM-to-disk mapping must not be used for these overlays.
 
