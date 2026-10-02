@@ -2,7 +2,7 @@
 
 ## Pickup checklist
 
-Handoff updated **2026-10-02**, including construction-frame recovery after the ambience/shutdown commit **`ff910f5`**. Check the actual pushed head before starting; later commits may change these counts.
+Handoff updated **2026-10-02**. The latest validated gameplay checkpoint is **`55668f2`** (construction-frame recovery), following ambience/shutdown commit **`ff910f5`**. Check the actual pushed head before starting; later commits may change these counts.
 
 1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
 2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
@@ -11,6 +11,12 @@ Handoff updated **2026-10-02**, including construction-frame recovery after the 
 5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **27/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
 
 The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
+
+### Work in progress at handoff
+
+The Mac working tree also contains **uncommitted menu-sound tests 212–219** in `Godot/Tests/RegressionRunner.MenuSound.cs` and their runner registration. Compilation succeeded; all eight fail because the persistent menu click player is not implemented yet. These tests are outside the validated 211-case checkpoint and will not arrive with this documentation commit. Preserve them on the Mac; do not include them in a push as a completed fix.
+
+At pickup, inspect the pushed changes and coordinate ownership of this sound work before editing the same files. If a later commit includes it, require its implementation and fresh validation evidence; do not carry the old 211/211 result forward as proof for the new head. Menu sound acceptance must cover pointer, keyboard/controller, disabled controls, navigation, hold-to-advance and mute without duplicate cues.
 
 ## Mission and handoff
 
@@ -208,6 +214,34 @@ Engine-damage task **1216073204565506** now has a specific evidence gate: the ta
 ## Deliverable
 
 Create `docs/windows-validation-results.md` with the tested commit/dirty state, Windows/GPU details, tool versions, commands, case counts, source/export results, manual scenarios and exact unresolved failures. Include Asana IDs and evidence for every newly verified task. Store raw logs/screenshots under `artifacts/windows-validation/`; keep binaries and generated caches out of commits.
+
+Use this compact report structure:
+
+```markdown
+# Windows validation results
+
+## Environment and revision
+
+Date, branch, full commit SHA, working-tree changes, Windows/GPU, tool versions.
+
+## Automated results
+
+Commands, discovered/passed/failed case counts, build/import/smoke/export results,
+warnings, and paths to this attempt's logs. Preserve every failed attempt.
+
+## Gameplay acceptance
+
+| Asana task / scenario | Source | Export | Steps and evidence |
+| --- | --- | --- | --- |
+| Task ID and behavior | PASS / FAIL / NOT TESTED | PASS / FAIL / NOT TESTED | Reproduction, fixture shortcuts, screenshot/log |
+
+## Remaining work and review readiness
+
+Unresolved failures, missing original-game evidence, next actions, and whether
+the tested contribution is ready for team review.
+```
+
+The Windows handoff is complete when the recorded revision has a passing automated run and fresh export, every applicable interactive check has a recorded outcome, and failures or untested scenarios have explicit follow-up work. The **48-task goal** is separate: count a task as accepted only when its own criteria and native checks pass. A blocker in one task should not prevent independent backlog work.
 
 Conclude with what is verified, what remains, and whether the contribution is ready for team review. Do not equate an exported executable or a passing headless suite with a completed Windows gameplay test.
 
