@@ -199,6 +199,7 @@ namespace Deuteros.Tests
             CheckUi("Initial station slots match original tables while existing larger worlds remain loadable", RefiningInitialSlotsAndOverflow);
             CheckUi("Simultaneous training production research and ACC arrival preserve original event order", SimultaneousProductionResearchAndArrival);
             CheckUi("Original attrition phase precedes actual shuttle arrival while cryopods remain frozen", AttritionBeforeShipArrival);
+            CheckUi("Earth and local mining reject insufficient batches and cap ground and MTX stores", GroundMiningBoundaries);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
