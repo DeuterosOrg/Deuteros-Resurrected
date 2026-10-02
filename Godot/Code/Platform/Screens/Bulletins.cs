@@ -17,6 +17,8 @@ public partial class Bulletins : BaseSubScene
 
 	AudioStreamPlayer TypeSound { get; set; }
 	public int LetterDelayMs { get; set; }
+	private int typingGeneration;
+	private bool ownsScreenLock;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -34,35 +36,62 @@ public partial class Bulletins : BaseSubScene
 	{
 	}
 
+	public override void _ExitTree()
+	{
+		CancelTyping();
+		base._ExitTree();
+	}
+
+	private void CancelTyping()
+	{
+		typingGeneration++;
+		if (IsInstanceValid(TypeSound)) TypeSound.Stop();
+		if (ownsScreenLock)
+		{
+			ownsScreenLock = false;
+			GameCore.UnLockScreen();
+		}
+	}
+
 	private async Task TypeText(RichTextLabel label, string fullText)
 	{
+		CancelTyping();
+		var generation = typingGeneration;
 		GameCore.LockScreen();
+		ownsScreenLock = true;
 		label.Text = "";
-
-		for (int i = 0; i < fullText.Length; i++)
+		try
 		{
-			//Instantly print and skip color tags
-			if (fullText[i] == '[' && (fullText.Substring(i, 6) == "[color" || fullText.Substring(i, 7) == "[/color"))
+			for (int i = 0; i < fullText.Length; i++)
 			{
-				label.Text += fullText.Substring(i, fullText.IndexOf("]", i) + 1 - i);
+				// A scene change can free the label while its timer is pending.
+				if (generation != typingGeneration) return;
+				//Instantly print and skip color tags
+				if (fullText[i] == '[' && (fullText.Substring(i, 6) == "[color" || fullText.Substring(i, 7) == "[/color"))
+				{
+					label.Text += fullText.Substring(i, fullText.IndexOf("]", i) + 1 - i);
 
-				i = fullText.IndexOf("]", i);
+					i = fullText.IndexOf("]", i);
 
-				continue;
+					continue;
+				}
+
+				label.Text += fullText[i];
+
+				// Optional: don't blip on spaces
+				if (fullText[i] != ' ' && TypeSound != null)
+				{
+					TypeSound.Stop(); // restarts the sound cleanly
+					TypeSound.Play();
+				}
+
+				await WaitMs(LetterDelayMs);
 			}
-
-			label.Text += fullText[i];
-
-			// Optional: don't blip on spaces
-			if (fullText[i] != ' ' && TypeSound != null)
-			{
-				TypeSound.Stop(); // restarts the sound cleanly
-				TypeSound.Play();
-			}
-
-			await WaitMs(LetterDelayMs);
 		}
-		GameCore.UnLockScreen();
+		finally
+		{
+			if (generation == typingGeneration) CancelTyping();
+		}
 	}
 
 	private async Task WaitMs(int ms)

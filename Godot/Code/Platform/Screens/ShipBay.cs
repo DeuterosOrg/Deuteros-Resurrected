@@ -652,15 +652,19 @@ namespace Deuteros.Code.Platform.Screens
 		private void GrappleClosed(object DataObject)
 		{
 			var currentModule = Ship.Modules[(int)DataObject];
-			if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
+			var heldItem = currentModule.HeldItem;
+			currentModule.HeldItem = null;
+			if (heldItem == null)
+				return;
+			if (heldItem.GrappleItemType == GrappleItemTypes.Asteroid)
 			{
-				var heldAsteroid = ((Asteroid)currentModule.HeldItem);
+				var heldAsteroid = ((Asteroid)heldItem);
 
 				ResourceList.Stores[heldAsteroid.Type] = Math.Min(50000, ResourceList.Stores[heldAsteroid.Type] + heldAsteroid.Mass);
 			}
-			else if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
+			else if (heldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
 			{
-                var unknownItem = ((UnknownItem)currentModule.HeldItem);
+                var unknownItem = ((UnknownItem)heldItem);
 				switch (unknownItem.ItemType)
 				{
                     case UnknownItemTypes.AlienArtifact:
@@ -672,12 +676,10 @@ namespace Deuteros.Code.Platform.Screens
 						break;
 
                     case UnknownItemTypes.Blazer:
-                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.pulse_blaster_laser);
+                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__f__l);
                         break;
                 }
             }
-
-            currentModule.HeldItem = null;
 
 			GameCore.UnLockScreen();
 		}

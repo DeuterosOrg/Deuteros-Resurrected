@@ -81,6 +81,31 @@ Interior testing additionally reproduced an SCG five-pod/three-label indexing ex
 
 Native Mac start → Overview → settings → Cheats → preset confirmation/cancel → Escape → close still hung with `!rc_owner`; the process required termination. Subsequent empty-log test timeouts were traced by a process sample to macOS's window-recovery prompt before Godot startup, dismissed, and rerun. These failures are retained separately from successful gameplay cases. A temporary font measurement in the first interior RED fixture also ended in `!rc_owner` after its expected assertion; removing that diagnostic query allowed clean isolated runs, without establishing a general resource-lifetime fix.
 
+## News, OF pilot warning and alien technology batch — 2026-10-02
+
+Thirty new cases (124–153) extend the runner to 153. The full `python3 scripts/validate.py --export-windows` run passed **153/153 isolated cases**, asset import, startup smoke and Windows cross-export on macOS arm64. Five Python validator tests passed. Compilation reported 14 existing warnings and no errors. The exact documented editor teardown exception remains limited to import/export; gameplay logs were checked strictly. Windows acceptance remains pending.
+
+| Asana task | Change and evidence |
+| --- | --- |
+| 1215691800680656 — pilot warning | An otherwise eligible OF deployment with no pilot or an empty crew shows the supplied warning and preserves ship/station state. All hulls, dismissal/pause, valid deployment and ineligible locations are tested. Completed module text windows are now freed. |
+| 1215716464570897 — unknown objects | Capturing gifts no longer erases an unrelated orbital artifact; occupied grapples, stale artifact scans, unqualified crews and asteroids above 250 tonnes are rejected. Analysis consumes cargo once, maps the Fusion Laser prototype to `m__f__l`, and preserves later input locks when a close callback repeats. |
+| 1215691951441138 — commspod unlock | Methanoid gifts use an empty grapple or wait for space. Repeated analysis does not duplicate the persistent unlock. Case 150 follows the real gift, timed unloading, Research and Production controls, recipe consumption, fitting and first trade. |
+| 1215685674676231 — News | Existing dated latest-12 history, offscreen save history and promotion reports are tested. Replay is disabled until a bulletin exists. Leaving/replacing a typing bulletin releases only its own lock and cancels pending label access. Additional report types remain unspecified; this is not full feature acceptance. |
+
+Case 153 exercises the actual war-warning gift, timed analysis, Research selection and normal research updates through the drone-programme unlock. It starts at the existing trade threshold and stages the return to a friendly dock; it does not validate the preceding trades, travel or original war timing. Both progression fixtures shorten narrative text, use qualified staff and pre-equipped ships. Case 150 records the fitted grapple's prerequisite research and excludes Production background audio, as earlier recipe fixtures do. It does not grant comms research completion, manufactured stock or a debug progression preset. Case 149 additionally checks repeated completion events cannot reopen the bulletin or duplicate drone unlocks.
+
+The gift's identity is supported by the parallel project's [pinned original-game observation](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/docs/m2-findings.md#L85-L103). This batch retains the serialized `Blazer` enum and the existing pulse-weapon completion path for compatibility; no save fields or original trade/war rules are changed.
+
+A separate review fix removes an unattached Research placeholder button. Case 152 reproduced one orphan on opening the screen before the fix; first selection and closing now leave no orphan controls.
+
+### Diagnostic evidence and limits
+
+Cases 128/149 initially passed assertions but leaked `Typing.wav` playback resources at immediate shutdown. A standalone GDScript probe reproduced this without game or C# code. Godot 4.2.1 [queues stopped playback for deletion during mixing](https://github.com/godotengine/godot/blob/4.2.1-stable/servers/audio_server.cpp#L1169-L1186). The test helper now waits for two observed mixer cycles, with a two-second deadline, after stopping audio; it neither suppresses errors nor changes sound playback. Bulletin and Research lifetime tests subsequently passed strict checks. This does not establish a fix for native navigation shutdown hangs.
+
+Case 150 also intermittently stalled while Research entered the tree. Removing its audio controller did not eliminate the stall; a native process sample showed the main and .NET finalizer threads waiting on locks. Diagnostic tracing altered reproducibility. The corrected fixture and final code passed a targeted run with production traces removed, but the intermittent failure has no proven fix. Preserve this issue for Windows investigation alongside case 65. Earlier fixture failures (unrecorded grapple prerequisite, unselected ship, and the war gift's automatic takeoff before a staged dock return) were corrected rather than patched around in gameplay code.
+
+The full run, failures, process sample and minimal audio probe are retained locally under ignored `artifacts/validation/evidence/backlog-batch-4/`; they do not travel with Git. Reproduce and retain Windows evidence separately.
+
 ## Known runtime limitations
 
 The combined diagnostic suite, and now isolated case 65 in the 2026-10-02 full run, intermittently report `SwapGCHandleForType: Handle is not initialized`. Fresh-process isolation addresses test-state retention; it does **not** establish that the production resource-lifetime problem is fixed. Strict error detection remains enabled. [Godot issue 112067](https://github.com/godotengine/godot/issues/112067) describes a similar texture-wrapper failure, but its proposed cause is not proven for this project.

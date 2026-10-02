@@ -22,18 +22,21 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The last fully passing local run on **2026-10-02 covered 75 cases**, startup smoke and Windows export. Commit `4cac288` contains **123 cases** and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; the other 122 cases, startup smoke and Windows export passed across the full attempt and its separate continuation. No passing aggregate was written. Do not describe the current branch as fully validated. Windows/visual acceptance remains pending.
+The latest full local run on **2026-10-02 passed all 153 isolated cases**, startup smoke and Windows cross-export. Five Python validator tests also passed. This is local headless/export evidence; Windows gameplay and visual acceptance remain pending.
 
-### Work in progress at this handoff — 2026-10-02
+Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in the latest full run, but no proven fix exists for the earlier intermittent failure. Preserve both results when assessing readiness.
 
-The Mac working tree also contains News/bulletin, OF pilot-warning and unknown-object changes, expanding the runner to **151 cases**. These were not committed when this update was written; check the received commit and discovered test names before assuming they arrived. The ledger's 18-fix count does not include this unfinished batch.
+### Latest gameplay batch — 2026-10-02
 
-- Cases 124–128 cover News history/replay and bulletin input-lock ownership. Replay availability and cancellation have fixes; case 128 has intermittently leaked typing audio resources. Broader News event coverage remains unspecified.
-- Cases 129–134 cover the OF deployment pilot warning and cleanup; all six passed targeted strict validation. Native warning layout and pointer acceptance remain pending.
-- Cases 135–148 passed targeted strict validation for unknown-object capture, research discovery, cargo/artifact conservation, crew requirements and gift handling.
-- Case 149 passed assertions but failed strict validation on `Typing.wav` resource leaks. Case 150 (normal comms gift → research → production → fitting → trade) timed out at 30 seconds; phase diagnostics are added but have not been rerun. Case 151 reproduced duplicate comms unlocks; its new guard awaits validation.
+The News/bulletin, OF pilot-warning and unknown-object batch expands the runner to **153 cases** and the ledger to **21 Asana-linked fixes with local regression evidence**. See [batch evidence](validation-results.md#news-of-pilot-warning-and-alien-technology-batch--2026-10-02) for the latest aggregate result and exact limits; none of the 48 tasks is declared fully accepted.
 
-Rebuild before investigating these cases; never use a stale assembly after compilation fails. Preserve each failure log before rerunning. The actual war-triggered Fusion Laser gift through normal research is still missing end-to-end evidence; synthetic capture and direct research-completion events do not establish it.
+- Cases 124–128 cover News history/replay and bulletin input-lock ownership. Broader News report coverage remains unspecified.
+- Cases 129–134 cover OF pilot warnings, state preservation and cleanup. Compare the native layout and pointer behavior with the Asana reference.
+- Cases 135–149 and 151 cover unknown-object capture, research discovery, cargo/artifact conservation, crew/weight limits, gift handling and idempotent unlocks.
+- Case 150 follows the comms gift through normal research, production, fitting and trade. It passed targeted validation but has also intermittently stalled while Research enters the tree; no proven fix exists for that stall. Removing Research audio did not eliminate it. Case 152 verifies removal of a detached Research placeholder button; this is a separate confirmed leak fix.
+- Case 153 follows the actual war-warning Fusion Laser gift through analysis and normal research to drone technology. Prior trades, travel, staff and equipped ships are staged fixtures; narrative text is shortened. Repeat the full gameplay path natively.
+
+Earlier typing-audio leaks were reproduced in a standalone engine probe. The test helper now waits for stopped playback to drain on the mixer before immediate process exit, with a bounded wait and strict error checks. This does not certify native audio/navigation shutdown. Rebuild before investigating any case, never use a stale assembly after compilation fails, and preserve failed logs even when a diagnostic rerun passes.
 
 The initial batch addressed twelve gameplay/UI defects, including AMA equipment duplication, reversed initial IOS ACC endpoints and consecutive grapple unloading. The latter three correspond to open Asana reports. Use the linked results for the full list; do not report all 48 as fixed.
 
@@ -109,7 +112,7 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 - Godot 4.2.1's binary scene conversion leaked instances during fresh exports. `export/convert_text_resources_to_binary=false` avoids that path; retain it unless a tested replacement removes the need.
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 
-If the in-progress batch is present, also exercise News replay/cancellation with sound enabled; OF deployment with missing, empty and valid crews; occupied grapples receiving gifts; and the complete comms progression without unlock cheats. Compare the OF warning with the source linked in [visual reference notes](visual-reference-notes.md). Record the newer typing-audio leaks and comms timeout separately from case 65 and the older navigation shutdown failure; a shared cause has not been established.
+For the latest batch, also exercise News replay/cancellation with sound enabled; OF deployment with missing, empty and valid crews; occupied grapples receiving gifts; and the complete comms progression without unlock cheats. Compare the OF warning with the source linked in [visual reference notes](visual-reference-notes.md). If typing-audio leaks recur, preserve them separately from the intermittent Research-entry stall, case 65 and the older navigation shutdown failure; a shared cause has not been established.
 
 ## Continue the 48-task goal
 

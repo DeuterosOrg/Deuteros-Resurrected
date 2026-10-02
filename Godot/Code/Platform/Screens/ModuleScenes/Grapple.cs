@@ -72,29 +72,36 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private void GrabButton_Pressed()
 		{
-			if (Ship.ShipState == Ship_States.UnDocked)
+			if (!CanOperate() || ShipModule.HeldItem != null || Ship is not InterStellarShip ship)
+				return;
+
+			var scannedItem = ship.ItemScanResults;
+			if (scannedItem is Asteroid asteroid)
 			{
-
-                if ((((InterStellarShip)Ship).AsteroidScanResults != null) && ((InterStellarShip)Ship).AsteroidScanResults.Mass <= 250)
-				{
-					var heldAsteroid = ((InterStellarShip)Ship).AsteroidScanResults;
-					ShipModule.HeldItem = heldAsteroid;
-					((InterStellarShip)Ship).ItemScanResults = null;
-				}
-				else if (((InterStellarShip)Ship).ItemScanResults != null)
-				{
-                    var heldItem = ((InterStellarShip)Ship).ItemScanResults;
-                    ShipModule.HeldItem = heldItem;
-
-					//artifact has been captured
-					GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[Ship.StarLocation].ArtifactLocation = StellarBodies.none;
-
-                    ((InterStellarShip)Ship).ItemScanResults = null;
-                }
-                UpdateState();
-
-				UpdateParent?.Invoke();
+				if (asteroid.Mass > 250) return;
 			}
+			else if (scannedItem is UnknownItem unknown)
+			{
+				if (unknown.ItemType == UnknownItemTypes.AlienArtifact)
+				{
+					var star = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[Ship.StarLocation];
+					// Another ship may already have collected the object since this scan.
+					if (star.ArtifactLocation != Ship.PlanetLocation) return;
+					star.ArtifactLocation = StellarBodies.none;
+				}
+			}
+			else return;
+
+			ShipModule.HeldItem = scannedItem;
+			ship.ItemScanResults = null;
+			UpdateState();
+			UpdateParent?.Invoke();
+		}
+
+		private bool CanOperate()
+		{
+			return Ship.ShipState == Ship_States.UnDocked && Ship.Pilot != null &&
+				Ship.Pilot.Count > 0 && Ship.Pilot.Type == StaffType.Marines && Ship.Pilot.GetLevel() > 1;
 		}
 
 		private void ReleaseButton_Pressed()
@@ -118,7 +125,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public void UpdateState()
 		{
-			if (Ship.Pilot != null && Ship.Pilot.GetLevel() == 1 || Ship.ShipState != Ship_States.UnDocked)
+			if (!CanOperate())
 			{
 				Disabled.Visible = true;
 				Enabled.Visible = false;

@@ -4,6 +4,7 @@ Asana attachments inspected on 2026-10-02. These observations clarify the open t
 
 | Task | Reference and observed target |
 | --- | --- |
+| 1215691800680656 — pilot needed warning | [Attachment](https://app.asana.com/app/asana/-/get_asset?asset_id=1215691800680659): OF tool pod window shows Pod Type: TOOL MOUNTING, Contents: Orbital Factory Section, and a red warning requiring crew ranked Pilot, with Crew/Pilot highlighted yellow. `PreFabs/ShipModuleWindows/OFPilotWarning.tscn` reuses the existing Window prefab and grapple warning layout/themes. Isolated cases 129–134 cover missing/empty crew, state preservation, dismissal/pause, qualified deployment and ineligible contexts. Native visual comparison remains pending. |
 | 1215691800680642 — AOC graphic | [Attachment](https://app.asana.com/app/asana/-/get_asset?asset_id=1215691800680653): production screen replaces the lower staff panel with an A.O.C. plaque and indicator. Check idle and active automated production. |
 | 1215691800680621 — menu icon | [Attachment](https://app.asana.com/app/asana/-/get_asset?asset_id=1215691800680630): Methanoid face replaces the lower-left menu area while an IOS orbits Jupiter. The screenshot alone does not establish every peace/war visibility rule. |
 | 1215691800680623 — moon-base graphic | [Attachment](https://app.asana.com/app/asana/-/get_asset?asset_id=1215691800680633): two lower-right menu slots have crossed-out buttons while at the Moon orbital bay. Determine unavailable/damaged states from code/manual before limiting this to damage. |

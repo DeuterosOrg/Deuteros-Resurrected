@@ -29,12 +29,17 @@ namespace Deuteros.Code.Platform
                     break;
 
                 case Enums.ItemTypes.commspod:
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.CommsPod);
+                    if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.CommsPod))
+                        GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.CommsPod);
                     GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.commspod).Research.Locked = false;
 					break;
 
                 case Enums.ItemTypes.pulse_blaster_laser:
                     GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.pulse_blaster_laser).Research.Locked = false;
+                    break;
+
+                case Enums.ItemTypes.m__f__l:
+                    GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.m__f__l).Research.Locked = false;
                     break;
 
                 case Enums.ItemTypes.m__t__x:
@@ -97,7 +102,8 @@ namespace Deuteros.Code.Platform
 
 		private void SingletonInstance_ResearchFinished(Objects.ResearchItem researchItem)
 		{
-			if (researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser)
+			if ((researchItem.ItemType == Enums.ItemTypes.m__f__l || researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser) &&
+				!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.D_F_C_C))
 			{
 				GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.Methanoid_Laser);
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.D_F_C_C);

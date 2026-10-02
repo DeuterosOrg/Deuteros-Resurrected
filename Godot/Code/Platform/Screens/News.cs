@@ -47,6 +47,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void DrawData()
 		{
+			ReplayIcon.Disabled = GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin == Enums.BulletinTypes.None;
 			var rowCount = 0;
 
 			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.News.GetNews(12))

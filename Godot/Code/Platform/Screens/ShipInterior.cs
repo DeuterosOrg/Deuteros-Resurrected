@@ -319,10 +319,11 @@ namespace Deuteros.Code.Platform.Screens
 						{
 							if (GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod).Locked)
 							{
-								if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.grapple))
+								var emptyGrapple = Ship.Modules.FirstOrDefault(m => m.ItemStored == ItemTypes.grapple && m.HeldItem == null);
+								if (emptyGrapple != null)
 								{
 									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro_With_Grapple], new List<string>(), (modulePressed + 1));
-									Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.grapple).HeldItem = new UnknownItem(UnknownItemTypes.CommsPod);
+									emptyGrapple.HeldItem = new UnknownItem(UnknownItemTypes.CommsPod);
 								}
 								else
 									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
@@ -407,9 +408,20 @@ namespace Deuteros.Code.Platform.Screens
 				else if (Ship.Modules[modulePressed].ModuleType == Module_Types.Tool)
 				{
 
-					if ((Ship.ShipType != Ship_Types.Shuttle || (Ship.ShipType == Ship_Types.Shuttle && !((Shuttle)Ship).OnGround)) && Ship.ShipState == Ship_States.UnDocked  && Ship.Modules[modulePressed].ItemStored == ItemTypes.of_frame && CurrentPlanet.Station.Built == false && Ship.Pilot != null && Ship.PlanetLocation!=StellarBodies.asteroids)
+					if ((Ship.ShipType != Ship_Types.Shuttle || (Ship.ShipType == Ship_Types.Shuttle && !((Shuttle)Ship).OnGround)) && Ship.ShipState == Ship_States.UnDocked  && Ship.Modules[modulePressed].ItemStored == ItemTypes.of_frame && CurrentPlanet.Station.Built == false && Ship.PlanetLocation!=StellarBodies.asteroids)
 					{
-						if (Ship.Pilot != null) Ship.Pilot.AddAction();
+						if (Ship.Pilot == null || Ship.Pilot.Count <= 0)
+						{
+							if (!OverlayManager.Instance.IsOpen)
+							{
+								var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
+								warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
+								warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
+							}
+							return;
+						}
+
+						Ship.Pilot.AddAction();
 
 						if (CurrentPlanet.Station.BuildParts == 0)
 							CurrentPlanet.Station.StationOrdinal = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station != null).MaxBy(p => p.Station.StationOrdinal).Station.StationOrdinal + 1;
@@ -498,6 +510,7 @@ namespace Deuteros.Code.Platform.Screens
 			await ModuleTextFrame.PlayText(newTextFrame, dynamicProperties, windowNumber);
 
 			Window.RemoveChild(ModuleTextFrame);
+			ModuleTextFrame.QueueFree();
 			ModuleTextFrame = null;
 
 			GameCore.UnLockScreen();

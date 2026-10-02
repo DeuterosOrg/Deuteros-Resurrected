@@ -58,8 +58,6 @@ namespace Deuteros.Code.Platform.Screens
 
 			ResearchImageTextureRect = GetNode<TextureRect>("Sprites/ResearchImage");
 
-			SelectedButton = new ResearchButton();
-
 			Buttons = Utility.Buttons.CreateButtons<ResearchButton, ResearchItem>(GetNode<GridContainer>("ResearchButtonGrid"),
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null).Select(T => T.Research).OrderBy(T => T.Index).ToDictionary(obj => obj.Index),
 				this,
@@ -86,7 +84,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			if (!clickedButton.ObjectData.Locked)
 			{
-				SelectedButton.Selected = false;
+				if (SelectedButton != null) SelectedButton.Selected = false;
 				SelectedButton = clickedButton;
 				SelectedButton.Selected = true;
 
