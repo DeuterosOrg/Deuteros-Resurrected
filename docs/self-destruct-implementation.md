@@ -1,6 +1,6 @@
 # Self-destruct gameplay implementation
 
-Task **1215685674676229**, 2026-10-02. The control, capture and expiry paths now run in the remake. The task remains partially accepted: the original alarm/audio, timing observations and ground-team lifecycle still need work. [Original instruction evidence](original-self-destruct-evidence.md) supplies the rules; this page records implementation choices and verification limits.
+Task **1215685674676229**, 2026-10-02. The control, capture and expiry paths now run in the remake. The task remains partially accepted: the original alarm/audio and runtime timing/casualty observations still need work. [Original instruction evidence](original-self-destruct-evidence.md) supplies the rules; this page records implementation choices and verification limits.
 
 ## Player flow
 
@@ -22,7 +22,7 @@ The simulation path runs after ships, enemy processing and MTX, before display n
 
 Expiry removes the station, its stocks, installed facilities, production queue and local staff. It removes berthed human hulls with their pilot/cargo/cryo references, while preserving nearby undocked, approaching and in-transit hulls. Non-Earth local shuttles are lost; Earth loses only its orbital docking/docked shuttle. Earth ground stores and services survive.
 
-A non-Earth colony becomes damaged; local ground stocks and derricks are discarded with the lost record. Ground roster entries are presently retained because the original ground-team record lifecycle is still unresolved. This boundary needs reconciliation before claiming original casualty fidelity. Pending enemy attack targets are cleared so a stale attack cannot repopulate the removed station.
+A non-Earth colony becomes damaged; local ground stocks and derricks are discarded with the lost record. Non-Earth ground crews are removed too: the original uses one local crew roster shared by the ground/shuttle and orbital views. Earth ground crews and crews at other locations survive. [The roster trace](original-self-destruct-evidence.md#local-crew-ownership) records this mapping to the remake's separate lists. Pending enemy attack targets are cleared so a stale attack cannot repopulate the removed station.
 
 Loss news is emitted once, fast-forward stops, and an affected screen exits before the next display event. A surviving ship can retain its interior. Callbacks holding a planet from an obsolete loaded world cannot arm or defuse it.
 
@@ -32,4 +32,6 @@ Cases **360–374** cover docking/defusal, manual switches, both expiry paths, g
 
 The first full validation attempt stopped after `IMPORT OK` with an editor timer error. Its log is preserved under ignored `artifacts/validation/evidence/self-destruct/import-failure/`. An unchanged strict import probe passed; no filter or code workaround was added. Subsequent Mac and Windows runs stopped at existing preset case 119, then pilot-warning case 129. Focused case 134 reproduced the same issue. Structured Mac save comparisons found only the new real-time timer phase changed across rendered frames. Those tests now freeze GameCore frame processing around the actions, retain their entire-save equality checks and restore processing afterwards. Preset cases 119–122 and pilot-warning cases 129–134 pass focused checks.
 
-Fresh canonical validation at **`862e345dd56931b90781b4ffc04c9a105a425c2e`** passes **374/374** isolated cases on Mac and native Windows, strict import, source startup and Windows release export. Nine Python tests pass on each platform. The native Windows package also passes external headless startup. Both exports have 1,108 pack entries and no test resources; [validation results](validation-results.md#sdm-controls-capture-and-expiry--2026-10-02) record hashes and earlier failed attempts. Existing desktop testing at `8cdd458` remains a separate revision. Automated success does not resolve the audio, original timing or ground-team fidelity gaps above.
+Fresh canonical validation at **`862e345dd56931b90781b4ffc04c9a105a425c2e`** passes **374/374** isolated cases on Mac and native Windows, strict import, source startup and Windows release export. Nine Python tests pass on each platform. The native Windows package also passes external headless startup. Both exports have 1,108 pack entries and no test resources; [validation results](validation-results.md#sdm-controls-capture-and-expiry--2026-10-02) record hashes and earlier failed attempts. Existing desktop testing at `8cdd458` remains a separate revision. Automated success does not resolve the audio or original runtime timing/casualty observations above.
+
+Follow-up case **375** reproduced a surviving non-Earth ground roster after loss. The shared destruction handler now clears it using the existing resource helper. Focused Mac cases 375, 362, 363, 366, 367 and 374 pass; full and Windows verification of this follow-up are pending.

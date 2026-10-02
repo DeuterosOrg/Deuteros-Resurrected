@@ -113,6 +113,7 @@ namespace Deuteros.Code.Objects
                 planet.BaseDamaged = planet.BaseBuildParts > 0;
                 planet.PlanetResources.Stores = new Store();
                 planet.PlanetResources.Derricks = 0;
+                planet.PlanetResources.RemoveAllStaff();
             }
             save.TimeSkip = save.TimeSkipDay = false;
             save.News.AddNews(planet.PlanetId.ToScreenString(" ") + " orbital station destroyed.");

@@ -31,6 +31,7 @@ namespace Deuteros.Tests
             CheckUi("SDM callbacks cannot mutate an obsolete saved world", SdmStaleWorld);
             await CheckAsync("SDM expiration removes its own screen before subsequent display events", SdmScreenExpiry);
             CheckUi("SDM defusal restores captured station resources once and leaves colony repair pending", SdmCaptureResources);
+            CheckUi("SDM removes colony ground crews but preserves Earth ground and offsite crews", SdmGroundCrews);
 
 
         }
@@ -220,6 +221,40 @@ namespace Deuteros.Tests
             GameCore.SingletonInstance._Process(1);
             Equal(false, Save.Ships.Contains(shuttle), "non-Earth shuttle has no grounded exception");
             Equal(0, planet.PlanetResources.Stores[ItemTypes.iron], "discarded local record cannot resurrect stocks on rebuild");
+        }
+
+        private void SdmGroundCrews()
+        {
+            foreach (var location in new[] { StellarBodies.earth, StellarBodies.the_moon })
+            foreach (var realTime in new[] { true, false })
+            {
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = CoreData.CreateNewSaveFile();
+                var planet = SdmLossWorld(location);
+                var groundCrew = AttritionTeam();
+                planet.PlanetResources.AddStaff(groundCrew);
+                planet.Station.Resources.AddStaff(AttritionTeam());
+                planet.Station.Factory.Builder = AttritionTeam(StaffType.Production);
+                var other = Save.BaseGameData.Planets[StellarBodies.mars];
+                var otherCrew = AttritionTeam();
+                other.PlanetResources.AddStaff(otherCrew);
+                var travelling = SdmVictim(planet, Ship_States.InTransit);
+                var pilot = travelling.Pilot;
+                var cryo = travelling.Modules[0].StaffStored;
+                if (realTime) GameCore.SingletonInstance._Process(1);
+                else AdvanceTickDay();
+                Equal(location == StellarBodies.earth, planet.PlanetResources.Staff.Contains(groundCrew),
+                    "only Earth has a separately surviving ground roster");
+                Equal(true, planet.Station.Resources.Staff.All(t => t == null), "orbital crews lost");
+                Equal<Staff>(null, planet.Station.Factory.Builder, "orbital builder lost");
+                Equal(true, other.PlanetResources.Staff.Contains(otherCrew), "other colony retains crew");
+                Equal(pilot, travelling.Pilot, "travelling pilot survives");
+                Equal(cryo, travelling.Modules[0].StaffStored, "travelling cryopod survives");
+                Equal(true, Save.Ships.Contains(travelling), "travelling ship survives");
+                var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                Equal(location == StellarBodies.earth,
+                    restored.BaseGameData.Planets[location].PlanetResources.Staff.Any(t => t != null),
+                    "save reload cannot restore lost colony crew");
+            }
         }
 
         private void SdmTimerSave()

@@ -55,9 +55,17 @@ At `$20C80–$20CB2`, a completed station with nonzero local base state below 3 
 
 Station loss therefore records a service-disabled non-Earth colony for subsequent rebuilding, including a previously working state 3/4. Earth retains its special zero state. The remake has separate `BaseBuildParts` and `BaseDamaged` fields, so clearing only `Station.Built` would omit this recovery requirement. State 5 is identified as captive by the station text branch `$211C6–$211D2` (text `$181`, “METHANOID CAPTIVE”); defusing does not itself write the local base-state byte.
 
-The lifetime of resources also matters. Removal clears the planet-to-record mapping and record type at `$36158–$3615C`; it does not zero every store byte there. The later allocator `$2FD74–$2FDA2` clears the entire `$F6`-byte record before reconstructing local state from `$19722`. Preserving inaccessible old store bytes in a reusable original record is **not** evidence that resources return when rebuilding. Ground-roster ownership across that record lifecycle remains to be reconciled; do not copy stale references into the remake or claim an established ground-team casualty rule.
+The lifetime of resources also matters. Removal clears the planet-to-record mapping and record type at `$36158–$3615C`; it does not zero every store byte there. The later allocator `$2FD74–$2FDA2` clears the entire `$F6`-byte record before reconstructing local state from `$19722`. Preserving inaccessible old store bytes in a reusable original record is **not** evidence that resources return when rebuilding. The roster mapping below explains why retaining a separate colony ground roster would also preserve crews that the original loses.
 
 Reproduction extract: ignored `artifacts/research/mtx/self-destruct-base-recovery.txt`, SHA-256 `d2185231eed4804beab0f73c97c1633847be4a91528a058f66500d3539a161f3`. These are static paths, not a recorded explosion/rebuild session.
+
+### Local crew ownership
+
+The location initializer `$20F04–$21006` selects a `$F6`-byte record and sets `$19D2C` to its four crew words at `+$84`. Both the normal roster renderer `$31BEA` and the empty/grounded shuttle-bay path `$31DC8` read that pointer. Cryopod transfer `$32A92–$32ACA` exchanges a selected entry through the same pointer. Earth ground initialization instead writes `$19E0A` to `$19D2C` at `$20DBC`; that roster is separate from Earth's orbital record.
+
+Loss `$36130–$36150` visits all four local crew references and the orbital production team. Reallocation clears the record. These paths establish a shared local crew roster outside Earth, rather than an independently surviving non-Earth ground roster. The remake keeps its existing separate ground/orbital arrays, but now clears both local arrays on non-Earth SDM loss. Earth's ground array, other colonies and crews aboard surviving ships remain intact. This mapping is supported by static instructions; an original-runtime casualty comparison is still useful for acceptance.
+
+Reproduction extract: ignored `artifacts/research/mtx/self-destruct-ground-rosters.txt`, SHA-256 `5ab0e9d93780d02bd80e75e8e682aac47d2136b9722e68a440b9e4f004804993`. Case 375 reproduced the retained-ground-crew failure, then passed both timer paths, Earth/non-Earth boundaries, travelling pilot/cryo survival and save/reload after the correction.
 
 ## Implemented installation
 
@@ -67,4 +75,4 @@ Cases 338–347 cover local ownership, independent MTX hardware, one recipe char
 
 ## Remaining implementation work
 
-Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. The remake now implements persistent arming, disarming/capture, destruction cleanup and save/load with focused regression coverage. Finish the original alarm and reconcile the documented ground-team lifecycle and timing boundaries. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
+Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. The remake now implements persistent arming, disarming/capture, destruction cleanup and save/load with focused regression coverage. Finish the original alarm and runtime timing/casualty observations; the local roster lifecycle is now mapped above. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
