@@ -1,4 +1,4 @@
-[gd_scene load_steps=90 format=3 uid="uid://cyvepalenoyly"]
+[gd_scene load_steps=91 format=3 uid="uid://cyvepalenoyly"]
 
 [ext_resource type="PackedScene" uid="uid://qfrsmxasaluu" path="res://PreFabs/Buttons/MenuButton.tscn" id="2_okowm"]
 [ext_resource type="PackedScene" uid="uid://bbgh6fbx8hoja" path="res://PreFabs/Buttons/ChangeScene.tscn" id="5"]
@@ -26,6 +26,7 @@
 
 [ext_resource type="Texture2D" path="res://Sprites/References/MethanoidMenuReference.png" id="25_methanoid"]
 [ext_resource type="AudioStream" path="res://Sounds/Button/sMainMenu_Button.wav" id="26_click"]
+[ext_resource type="AudioStream" path="res://Sounds/SdmAlarm.wav" id="27_sdm"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_km18m"]
 atlas = ExtResource("8_yfyma")
@@ -539,6 +540,7 @@ region = Rect2(74, 334, 96, 32)
 script = ExtResource("8")
 
 [node name="MenuClickSound" type="AudioStreamPlayer" parent="."]
+bus = &"Game"
 stream = ExtResource("26_click")
 
 [node name="MainButtons" type="GridContainer" parent="."]
@@ -796,3 +798,8 @@ offset_bottom = 14.0
 theme_override_colors/font_color = Color(1, 1, 0, 1)
 text = "Sol
 "
+
+[node name="SdmAlarm" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("27_sdm")
+volume_db = -0.136788
+pitch_scale = 1.0002524

@@ -11,6 +11,8 @@ namespace Deuteros.Code.Platform.Screens
 	public partial class MainMenu : BaseSubScene
 	{
 		private AudioStreamPlayer menuClickSound;
+		private AudioStreamPlayer sdmAlarm;
+		private SpaceStation alarmStation;
 		private bool menuSoundBound;
 
 		public override void _EnterTree()
@@ -18,6 +20,7 @@ namespace Deuteros.Code.Platform.Screens
 			base._EnterTree();
 			if (menuSoundBound) return;
 			menuClickSound = GetNode<AudioStreamPlayer>("MenuClickSound");
+			sdmAlarm = GetNode<AudioStreamPlayer>("SdmAlarm");
 			// Bind before child _Ready navigation callbacks can change the clicked slot.
 			foreach (var path in new[] { "Top", "MainButtons" })
 				foreach (var button in GetNode(path).GetChildren().OfType<BaseButton>())
@@ -40,6 +43,9 @@ namespace Deuteros.Code.Platform.Screens
 		public override void _ExitTree()
 		{
 			menuClickSound.Stop();
+			sdmAlarm.Stop();
+			AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+			alarmStation = null;
 			base._ExitTree();
 		}
 
@@ -121,10 +127,42 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _Process(double delta)
 		{
+			UpdateSdmAlarm();
 			UpdateTimeAnimation();
 			if (Deuteros.Code.GameCore.HoverText != HoverInfo.Text)
 			{
 				HoverInfo.Text = Deuteros.Code.GameCore.HoverText;
+			}
+		}
+
+		private void UpdateSdmAlarm()
+		{
+			var core = GameCore.SingletonInstance;
+			var save = core.GameData.ActiveSaveFile;
+			var planet = core.GetCurrentPlanet();
+			var local = core.currentScene is not (Enums.Scenes.Overview or Enums.Scenes.News or Enums.Scenes.SaveScreen
+				or Enums.Scenes.Bulletins or Enums.Scenes.IntroScreen or Enums.Scenes.None
+				or Enums.Scenes.Earth_Ground or Enums.Scenes.Earth_Research or Enums.Scenes.Earth_Training);
+			if (planet.PlanetId == Enums.StellarBodies.earth && GameCore.Earth.GroundSelected) local = false;
+			if (core.currentScene == Enums.Scenes.ShipInterior)
+			{
+				// ShipSelected is cleared after entry; the live interior owns the viewed ship.
+				var ship = GetParent().GetChildren().OfType<ShipInterior>().LastOrDefault(s => !s.IsQueuedForDeletion())?.Ship;
+				local &= ship != null && save.Ships.Contains(ship) && ship.ShipState != Enums.Ship_States.InTransit;
+			}
+			if (!local || !planet.Station.Built || planet.Station.SdmCountdown == 0)
+			{
+				if (alarmStation != null) AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+				sdmAlarm.Stop();
+				alarmStation = null;
+				return;
+			}
+			if (!ReferenceEquals(alarmStation, planet.Station) || !sdmAlarm.Playing)
+			{
+				// The original alarm owns all four channels until leaving or defusing.
+				AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), true);
+				alarmStation = planet.Station;
+				sdmAlarm.Play();
 			}
 		}
 

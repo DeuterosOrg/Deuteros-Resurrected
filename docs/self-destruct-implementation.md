@@ -1,6 +1,6 @@
 # Self-destruct gameplay implementation
 
-Task **1215685674676229**, 2026-10-02. The control, capture and expiry paths now run in the remake. The task remains partially accepted: the original alarm/audio and runtime timing/casualty observations still need work. [Original instruction evidence](original-self-destruct-evidence.md) supplies the rules; this page records implementation choices and verification limits.
+Task **1215685674676229**, 2026-10-02. The control, capture and expiry paths now run in the remake. The task remains partially accepted: original listening and runtime timing/casualty observations still need work. [Original instruction evidence](original-self-destruct-evidence.md) supplies the rules; this page records implementation choices and verification limits.
 
 ## Player flow
 
@@ -8,7 +8,7 @@ An installed friendly orbital station exposes **Self-destruct** in the side menu
 
 Two switches reproduce the traced combinations: switch 1 on/switch 2 off arms at 12; switch 1 off/switch 2 on disarms. Intermediate combinations do neither. Reopening derives the switches from the armed state. At a hostile station, discovered Hyperlight locks switch 1 while switch 2 is on; completed Hyperlight research is not required. Successful defusal captures the station, assigns its ordinal, restores the traced mineral/derrick ranges and leaves a non-Earth captive colony needing repair.
 
-The panel uses ordinary controls and existing fonts. It is a functional remake screen, not recovered original SDM artwork. It currently displays its alarm visually; an audible original alarm is not implemented.
+The panel uses ordinary controls and existing fonts. It is a functional remake screen, not recovered original SDM artwork. An audible alarm now uses the recovered original waveform; its calculated stereo timing still needs comparison with an original recording.
 
 ## Simulation and persistence
 
@@ -35,3 +35,13 @@ The first full validation attempt stopped after `IMPORT OK` with an editor timer
 Fresh canonical validation at **`862e345dd56931b90781b4ffc04c9a105a425c2e`** passes **374/374** isolated cases on Mac and native Windows, strict import, source startup and Windows release export. Nine Python tests pass on each platform. The native Windows package also passes external headless startup. Both exports have 1,108 pack entries and no test resources; [validation results](validation-results.md#sdm-controls-capture-and-expiry--2026-10-02) record hashes and earlier failed attempts. Existing desktop testing at `8cdd458` remains a separate revision. Automated success does not resolve the audio or original runtime timing/casualty observations above.
 
 Follow-up case **375** reproduced a surviving non-Earth ground roster after loss. The shared destruction handler now clears it using the existing resource helper. Focused Mac cases 375, 362, 363, 366, 367 and 374 pass. Fresh full Mac and Windows validation at **`853986c`** passes **375/375**, strict import, source startup and export; the Windows package also passes startup. Nine Python tests pass on each platform. The same audio and original-runtime acceptance limits remain.
+
+## Recovered alarm
+
+`Sounds/SdmAlarm.wav` contains the original signed-eight-bit sample converted losslessly to stereo 16-bit PCM. The [source trace and conversion](original-self-destruct-evidence.md#alarm-source-and-playback-limits) explain the nominal PAL rate and delayed right channel. One persistent menu player warns at the viewed armed station; global pages, Earth ground and travelling ships are silent. Defusal, expiry and tree exit stop it. Loaded station identity is checked so an obsolete world cannot retain playback.
+
+The alarm uses Master directly; ordinary players use a Game bus feeding Master. While the alarm plays, Game is muted, matching the original channel ownership and normal-sound dispatch lock. Leaving or defusing releases that priority. Master preferences still affect both, and tree pause suspends playback without resetting the waveform.
+
+Cases **376–379** cover waveform bytes, loop bounds, playback rate/volume, arming/defusing, navigation, loaded state, travelling ships, pause, mute, expiry and teardown. The mixer check captures real stereo output while another sound attempts to play, detecting ordinary-sound leakage and checking the right-channel onset. Missing-player and missing-priority failures are retained under ignored `artifacts/validation/evidence/sdm-alarm/`. These checks do not establish listening acceptance or the behavior of sound ID 42's runtime descriptor.
+
+Focused Mac cases 376–379, ambience 200–205 and menu audio 212–219 pass after routing ordinary sounds through Game. Native Mac cases 376–379 also pass with clean exits; the mixer measures a 0.3202-second right onset. The new full 379-case Mac/Windows validation is pending.

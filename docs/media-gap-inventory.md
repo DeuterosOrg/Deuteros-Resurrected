@@ -6,7 +6,7 @@ Source audit: **2026-10-02**, current C# checkout. This supplies the inventories
 
 ## Sounds
 
-All **11** runtime audio files were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, and one typing WAV. All eleven now have playback paths; original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
+All **12** runtime audio files were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, one typing WAV, and the recovered SDM alarm WAV. All twelve now have playback paths; original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
 
 | Supplied asset under `Godot/Sounds/` | Runtime evidence | Status |
 | --- | --- | --- |
@@ -20,6 +20,7 @@ All **11** runtime audio files were checked against scene references and dynamic
 | `Button/sMainMenu_Button.wav` | `Screens/Base/MenuBase.tscn/MenuClickSound` persists across navigation; `MainMenu.cs` binds top/side menu activation and time hold | Wired; S2 native Windows listening pending |
 | `Button/sTrainingRoom_Button.wav`, `Button/sTrainingRoom_Door.wav` | `Screens/Earth/Training.tscn/SoundPlayer`; `Screens/Training.cs` loads both and switches/plays them in button/door callbacks | Wired; check synchronization with door animation |
 | `Typing.wav` | `Screens/Bulletins.tscn/TypeSound` + `Bulletins.cs`; `PreFabs/ShipModuleWindows/ModuleTextFrame.tscn/AudioStreamPlayer` + `ModuleTextFrame.PlayText` | Wired per-character feedback |
+| `SdmAlarm.wav` | Persistent `MenuBase/SdmAlarm`; selected armed local station owns sound priority; [source and limits](original-self-destruct-evidence.md#alarm-source-and-playback-limits) | Wired; original timing/listening comparison pending |
 
 | Local work item | Gap and concrete delivery | Acceptance / evidence still needed |
 | --- | --- | --- |

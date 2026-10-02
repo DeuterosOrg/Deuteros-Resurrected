@@ -8,6 +8,7 @@
 script = ExtResource("1_gqrd5")
 
 [node name="TypeSound" type="AudioStreamPlayer" parent="."]
+bus = &"Game"
 stream = ExtResource("2_u6sgg")
 
 [node name="Labels" type="Node2D" parent="."]

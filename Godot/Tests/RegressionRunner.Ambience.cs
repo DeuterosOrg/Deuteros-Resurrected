@@ -43,7 +43,8 @@ namespace Deuteros.Tests
             Equal("res://Sounds/Background/" + track + ".ogg", player.Stream.ResourcePath, "supplied track selected");
             Equal(true, player.Stream is AudioStreamOggVorbis ogg && ogg.Loop, "ambience loops");
             Equal(true, player.Playing, "ambience is playing");
-            Equal("Master", player.Bus.ToString(), "sound follows master preferences");
+            Equal("Game", player.Bus.ToString(), "ambience follows game sound priority");
+            Equal("Master", AudioServer.GetBusSend(AudioServer.GetBusIndex(player.Bus)).ToString(), "game sounds inherit master preferences");
             Equal(1, GameCore.SingletonInstance.GetNode("MainScene").FindChildren("SoundPlayer", "AudioStreamPlayer", true, false)
                 .OfType<AudioStreamPlayer>().Count(p => p.Playing), "one active ambience player");
             return player;
@@ -92,11 +93,11 @@ namespace Deuteros.Tests
                 await WithSettings(async settings =>
                 {
                     Press(settings, "Preferences/Sound");
-                    Equal(true, AudioServer.IsBusMute(AudioServer.GetBusIndex(player.Bus)), "settings mute reaches ambience bus");
+                    Equal(true, AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "settings mute reaches ambience through Master");
                     settings.GetNode<HSlider>("Preferences/Volume").Value = 35;
-                    Equal(true, AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex(player.Bus)) < 0, "settings volume reaches ambience bus");
+                    Equal(true, AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("Master")) < 0, "settings volume reaches ambience through Master");
                     Press(settings, "Preferences/Sound");
-                    Equal(false, AudioServer.IsBusMute(AudioServer.GetBusIndex(player.Bus)), "unmuting restores ambience bus");
+                    Equal(false, AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "unmuting restores ambience through Master");
                     Press(settings, "Resume");
                     await InputFrames();
                     Equal(true, player.Playing, "ambience resumes after settings");
