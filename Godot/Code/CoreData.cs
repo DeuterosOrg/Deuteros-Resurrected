@@ -841,6 +841,7 @@ namespace Deuteros.Code
 
 				var gChassis = new Item();
 				gChassis.FullName = "S.C.G. Chassis";
+				gChassis.ShortName = "SCG Chassis";
 				gChassis.ItemCategory = Enums.ItemCategory.item;
 				gChassis.ItemType = Enums.ItemTypes.g_chassis;
 				gChassis.Mass = 1685;
@@ -862,6 +863,7 @@ namespace Deuteros.Code
 
 				var starDrive = new Item();
 				starDrive.FullName = "S.C.G. Drive Unit";
+				starDrive.ShortName = "SCG Drive";
 				starDrive.ItemCategory = Enums.ItemCategory.item;
 				starDrive.ItemType = Enums.ItemTypes.star_drive;
 				starDrive.Mass = 265;

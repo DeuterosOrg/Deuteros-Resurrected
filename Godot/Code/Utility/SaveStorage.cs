@@ -124,6 +124,8 @@ namespace Deuteros.Code.Utility
             // Definitions are supplied by this game version, rather than embedded executable/UI data.
             save.BaseGameData.ModuleFrameTexts = CoreData.StaticGameData.ModuleFrameTexts;
             save.BaseGameData.BulletinTexts = CoreData.StaticGameData.BulletinTexts;
+            foreach (var item in save.BaseGameData.ItemList.Where(i => string.IsNullOrWhiteSpace(i.ShortName)))
+                item.ShortName = CoreData.StaticGameData.ItemList.FirstOrDefault(i => i.ItemType == item.ItemType)?.ShortName;
             save.TimeSkip = save.TimeSkipDay = false;
             save.TimeSkipStart = 0;
             return save;

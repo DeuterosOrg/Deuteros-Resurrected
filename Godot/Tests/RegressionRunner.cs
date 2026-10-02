@@ -155,6 +155,8 @@ namespace Deuteros.Tests
             await RunRecoveredConstructionRegressions();
             await RunResearchDetailRegressions();
             await CheckAsync("Recovered research diagrams preserve original pixels and screen placement", RecoveredResearchDiagrams);
+            foreach (var legacy in new[] { false, true })
+                await CheckAsync($"SCG item names reach all stock and production screens legacy={legacy}", () => ScgItemNames(legacy));
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
