@@ -491,3 +491,21 @@ Fresh full Mac and Windows validation at **`3871a6f94a0239e2c2a4fd38f0da60e19249
 Mac cross-export: 149,208,848 bytes, SHA-256 `c92c9dfbe90396ea6e83360d394a6f82529da64e872a79f426d3f675b0be3ff7`. Windows export: 149,148,496 bytes, SHA-256 `88754f1bc93d214aa39167e5c5fc640b2a88eb841ab8e19b9a25771d29e66fa2`. Logs: ignored `artifacts/validation/evidence/planet-view/full-run-3871a6f/` and `artifacts/windows-handoff/3871a6f-evidence/`.
 
 Counts are now **33/48 with implementation evidence and 0/48 fully accepted**. Original emulator comparison, Windows desktop/campaign checks and separate map-art discrepancies remain pending; the small asteroid preview retains its previous neutral placeholder. The existing desktop handoff at `8cdd458` remains unchanged. [Production rod evidence](original-production-rod-evidence.md) also identifies its three exact supplied frames, order, placement and active-product timing gate; that animation is not implemented by this commit.
+
+
+## Original production rod animation — 2026-10-02
+
+Task **1215691951441144** is implemented at **`ca54582ff13825a78868dc8d33277f7d52797a2c`**. The separate rod now uses three exact source-sheet atlas regions at x240/y96. Its nominal 50 Hz display counter reproduces the original short initial frame, even-tick draws and repeating 130→129→128 sequence. It follows the selected factory's active product, pauses with the scene tree and retains its counter across idle/redraw/navigation without changing production state. See [direct evidence](original-production-rod-evidence.md).
+
+Case 382 reproduced the missing node before the correction. Cases **382–385** then passed headless and native Mac for ground/orbit × manual/AOC, including exact decoded frame hashes, half-tick accumulation, fast-forward independence, shortages, idle/completion/cancellation, pause/resume, factory isolation, navigation and unchanged serialized factory state. Normal Godot frame processing also advances the rod. Native checks compare **3,456 rendered pixels**; screenshots were retained and a ground-manual view inspected. Construction-stage pictures remain separate.
+
+Fresh full Mac and native Windows validation each passes **385/385**, strict import, source startup and Windows release export; all nine Python tests pass on each machine. Windows packaged startup passes. Mac's incremental build has zero warnings/errors; fresh Windows retains 14 existing warnings and zero errors. Both packs contain **1,113 entries and no test resources**. Windows import leaves 346 known LF/CRLF notices and no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,274,880 | `899b99a23d7f8372480807c9821c4dd09f0644c0ae1ac045b04b5fbb81b87e77` |
+| Windows | 149,214,528 | `edde06de1c9bb4d05f144518214edcc7d5901286a939bcd2c6f2ae4f9ae50127` |
+
+Evidence is retained under `artifacts/validation/evidence/production-rod/` and `artifacts/windows-handoff/ca54582-evidence/`. The verified source bundle SHA-256 is `58d3c39c52a5a05f90a024893db8ee9f849e5d1f427f955d2a9f084d7c0c0fee`. Both aggregate processes and the Windows collector exited zero; all collected case logs, source/export smoke and package contents were audited locally.
+
+Counts are now **34/48 with implementation evidence and 0/48 fully accepted**. Original-emulator wall-clock comparison and Windows desktop acceptance remain outstanding. The human desktop handoff at `8cdd458` remains unchanged. Independent [construction-bank research](original-construction-artwork-evidence.md) also recovered 21 frames for seven remaining items, but those are not runtime changes or additional completed tasks.

@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `3871a6f94a0239e2c2a4fd38f0da60e19249b713` (2026-10-02).** Mac and native Windows each pass **381/381 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **33/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
+**Latest verified revision: `ca54582ff13825a78868dc8d33277f7d52797a2c` (2026-10-02).** Mac and native Windows each pass **385/385 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -38,6 +38,10 @@ On a revision containing cases **360–374**, use disposable saves and record st
 ### Orbital planet colours follow-up
 
 On a revision containing cases **380–381**, open a ship's enlarged location view while undocked/docking. Compare Earth/Moon, Mars, Neptune, Jupiter, Venus, Mercury, Crete and Julius with/without a local station. The view must contain the supplied artwork; sky/planet highlights change by the decoded palette while fixed station/cockpit colours remain intact. A moon inherits its parent's palette but only shows its own station. Toggle small/large views and repeat docked, travelling and launching states for Shuttle/IOS/SCG; no orbital colour may remain on those other images. Confirm save/reload retains the chosen view. Run native cases 380/381 and repeat in the exported game; distinguish original-emulator comparison from remake-only checks. See [palette evidence](original-planet-palette-evidence.md).
+
+### Production rod follow-up
+
+On a revision containing cases **382–385**, watch the small rod at x240/y96 during manual/AOC production on ground and orbital factories. It should animate while that selected factory has an active product, stop when idle or paused, and retain its phase through redraws and screen navigation. Staff/resource shortages alone must not stop an already active product's rod; a waiting queue with no active product stays still. Normal/fast-forward simulation must not change its display cadence or construction-stage pictures. Compare all three original frames and nominal 12.5 fps with the [source evidence](original-production-rod-evidence.md), including its shorter initial frame; original wall-clock parity still needs a recorded comparison. Run the cases natively and check visible motion in the Windows export. Keep the existing `8cdd458` desktop report separate.
 
 ### SDM alarm follow-up
 
