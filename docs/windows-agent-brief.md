@@ -13,6 +13,17 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
+## Isolated transmission candidate
+
+Mac-only candidate **`642ed00a61817b3a09a2eece2d0df69ad787337f`** on `codex/alien-capture` passes all 435 regressions, strict import, startup and Windows cross-export. It is not yet in the contribution branch or uploaded to the Windows host. Keep existing `8cdd458` desktop work separate. Once Craig supplies this exact revision, run full validation and record the new export hash before the following desktop checks:
+
+- Trigger war through trade and sixth-station deployment. Verify the introductory notice, keyboard/pointer acknowledgement, typing sound, input release and News replay in source and export.
+- Leave a notice before acknowledgement and save/load. It must return without skipping a stage; replay must not change the countdown. The original glyph decoding mask does rotate again on replay.
+- Capture a system's last hostile station, unlock the three SCG projects, and follow the reported location through scan, grapple and unloading. Queue multiple captures; notices must keep capture order. Repeat capture after collecting a segment without receiving a duplicate.
+- Unload eight segments with saves between them. Completion must reach 100 and final instructions after two eligible updates. A ninth legacy segment cannot restart the sequence. Check readable location insertion and all message layouts, including long lines and typing cancellation.
+
+Cases 422–435 provide staged regression coverage. Distinguish those fixtures from normal campaign play. These changes do not implement Warlord/Hyperlight clocks, transmitter activation or the ending; final instructions alone are not ending acceptance. Read [integration details](alien-message-integration.md) for save compatibility and evidence.
+
 ## Feature acceptance details
 
 ### Artifact recovery follow-up
