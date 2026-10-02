@@ -21,6 +21,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
 | [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
 | [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. Implemented with cases 174–190; Windows acceptance remains pending. |
+| [1216073204565506 — engine damage](https://app.asana.com/0/1214891399253076/1216073204565506) | Task-defined triggers; recovery unknown | Wartime arrival and an attack on the current orbit are specified; damaged travel and replacement behavior need evidence. |
 
 ## 1215683087492485 — MTX installation
 
@@ -132,6 +133,12 @@ No decoded original supply-pod button handler or recorded jettison experiment wa
 The inspected decoded tables and findings establish DFCC as an item but do not supply a fuel rule. No original drain routine, divisor, per-drone term, or state-specific cost was found. A constant multiplier inferred from the title would be invented. Parallel travel/ACC behavior is C#-derived and its tests are not original validation.
 
 **Missing facts:** whether merely installing DFCC increases burn; dependence on carried drone count/type; IOS versus SCG; transit versus idle orbit/asteroid work; partial last fuel unit and blocked docking. **Next verification:** from one original save, compare identical route/raw-clock intervals with DFCC absent, fitted with zero drones, one drone and a full fleet; repeat IOS/SCG. Record actual fuel deltas and action boundaries, then watch the fuel-field writer. Keep blocked-docking behavior separately checked, rather than multiplying a burn that should not occur.
+
+## 1216073204565506 — engine damage without DFCC
+
+The [live task](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1216073204565506), read on 2026-10-02, specifies two wartime triggers: arriving at an occupied planet, and being in orbit when that planet is attacked. It has no comments or subtasks defining recovery. The current `ShipInterior.UpdateShips` increments `AttackedCount` before resolving arrivals and removes ships at count two; it has no damaged-engine state or DFCC exception in that countdown. `Ship.Engine` currently distinguishes only installed/not installed, and the bay cannot replace an installed engine.
+
+**Remaining acceptance question:** can a damaged ship travel home, or must it remain until the threat is cleared? Also establish the replacement cost, damaged-engine disposal, and whether damage itself has a separate destruction countdown. Setting `Engine=false` would conflate damage with absence and strand the ship without proving the intended recovery path. No gameplay change has been made for this task. The current manual LFS fetch again returned HTTP 404; the inspected original-game notes did not supply these mechanics. Confirm them through original play or decoded ship-state transitions before implementing the full damage/replacement workflow.
 
 ## Evidence limits and next artifacts
 

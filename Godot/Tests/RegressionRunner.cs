@@ -128,6 +128,7 @@ namespace Deuteros.Tests
             await RunMtxInstallationRegressions();
             RunScriptLifetimeRegressions();
             await RunMenuArtworkRegressions();
+            await RunAmbienceRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
@@ -142,7 +143,10 @@ namespace Deuteros.Tests
             // Let detached QueueFree nodes finish deletion before shutting down the process.
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             GD.Print($"REGRESSION RESULT: {passed} passed, {failed} failed");
-            GetTree().Quit(failed == 0 ? 0 : 1);
+            if (closeWindowAfterTests && failed == 0)
+                GameCore.SingletonInstance.Notification((int)Node.NotificationWMCloseRequest);
+            else
+                GameCore.SingletonInstance.RequestQuit(failed == 0 ? 0 : 1);
         }
 
         private void Balance(int source, int target, int expectedSource, int expectedTarget)

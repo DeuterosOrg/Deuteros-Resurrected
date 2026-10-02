@@ -18,6 +18,8 @@ On Windows, use `python`. `GODOT` is an alternative to `--godot`. For a custom S
 3. The runner discovers cases from `Tests/Regression.tscn`, then launches each in a fresh Godot process with the real `Screens/Master.tscn`. This isolates singleton state, day-event subscriptions and native resources. Assertions exercise the actual simulation and scenes. The suite checks MTX stock conservation, AOC charging/replenishment, factory destination, ship removal, and UI behavior.
 4. `Tests/Smoke.gd` starts the configured game scene, advances 120 frames, and explicitly exits successfully.
 
+Gameplay regressions exit through `GameCore.RequestQuit`, the same cleanup used by a normal window-close request. It frees the active scenes and gives the audio mixer a bounded opportunity to release stopped playback before engine teardown. Case 205 exercises the close notification after repeated Store/Ship Bay/Training navigation with settings paused. Logs must still be free of engine errors; passing assertions before a shutdown hang are a failed run. The entry-scene smoke uses direct `SceneTree.Quit` and does not establish audio shutdown behavior.
+
 A logged engine error, failed assertion, missing completion marker, nonzero exit, or timeout fails validation. See `artifacts/validation/*.log` for full output. To iterate after imports are current, use `--skip-import`.
 
 Per-case logs are named `regression-NNN.log`; `regression-summary.log` is written only after every discovered case passes. Running the regression scene directly without a selector retains batch mode for diagnostics; it is not the canonical isolated suite.

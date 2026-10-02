@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://du6cxq2xabkyu"]
+[gd_scene load_steps=24 format=3 uid="uid://du6cxq2xabkyu"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/ShipBay.cs" id="1_ka4jh"]
 [ext_resource type="Texture2D" uid="uid://c75qloyqqj1ad" path="res://Sprites/Scenes/ShipBay.png" id="2_2703a"]
@@ -21,12 +21,16 @@
 [ext_resource type="Texture2D" uid="uid://yt7ht1f0rxff" path="res://Sprites/SceneSprites/Ships/FuelGauge_Plus.png" id="19_iifyq"]
 [ext_resource type="PackedScene" uid="uid://drqcefeqnqfsw" path="res://PreFabs/UI/DynamicWindow.tscn" id="21_m37m8"]
 [ext_resource type="PackedScene" uid="uid://dlpf322m5s804" path="res://PreFabs/Buttons/RepeatingButton.tscn" id="22_ykcnk"]
+[ext_resource type="PackedScene" path="res://PreFabs/Sound/BackGround.tscn" id="23_ambience"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_10r56"]
 bg_color = Color(0, 0, 0, 1)
 
 [node name="ShipBay" type="Node2D"]
 script = ExtResource("1_ka4jh")
+
+[node name="SoundController" parent="." instance=ExtResource("23_ambience")]
+SoundToPlay = 5
 
 [node name="ShipBay_Empty" type="TextureRect" parent="."]
 offset_left = 48.0

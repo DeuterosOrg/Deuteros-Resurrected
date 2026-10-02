@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://c7hf45yhv86cn"]
+[gd_scene load_steps=9 format=3 uid="uid://c7hf45yhv86cn"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/Store.cs" id="1_arae6"]
 [ext_resource type="Texture2D" uid="uid://25ugvew1mldy" path="res://Sprites/Scenes/Store_Research.png" id="2_nu7uy"]
@@ -7,9 +7,13 @@
 [ext_resource type="PackedScene" uid="uid://oi1xywbqhsbj" path="res://PreFabs/Buttons/ProductionButton.tscn" id="4_60fa7"]
 [ext_resource type="Texture2D" uid="uid://dkbw3cav4cx2x" path="res://Sprites/Buttons/TypeSwitch.png" id="4_h5mjg"]
 [ext_resource type="PackedScene" uid="uid://bckrqusm4ui3m" path="res://PreFabs/MTX.tscn" id="7_5ib0n"]
+[ext_resource type="PackedScene" path="res://PreFabs/Sound/BackGround.tscn" id="8_ambience"]
 
 [node name="Store" type="Node2D"]
 script = ExtResource("1_arae6")
+
+[node name="SoundController" parent="." instance=ExtResource("8_ambience")]
+SoundToPlay = 6
 
 [node name="MTX" parent="." instance=ExtResource("7_5ib0n")]
 
