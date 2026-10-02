@@ -39,6 +39,25 @@ def download(cache, suffix):
     return archive
 
 
+
+RCEDIT_URL = "https://github.com/electron/rcedit/releases/download/v2.0.0/rcedit-x64.exe"
+RCEDIT_SHA512 = "c13e7ffd60169c348e16a3ea59a171c1777acdb241f950c11a6e9b69c955a3a4eb3432182aee7f489a87a555d0bd51fde3b597826f7c1e6488f1f5097359ab4d"
+
+
+def install_rcedit(directory):
+    """Keep the pinned Windows resource editor beside Godot, without admin rights."""
+    executable = directory / "rcedit.exe"
+    candidate = executable
+    if not executable.exists():
+        candidate = executable.with_suffix(".partial")
+        urllib.request.urlretrieve(RCEDIT_URL, candidate)
+    if hashlib.sha512(candidate.read_bytes()).hexdigest() != RCEDIT_SHA512:
+        raise RuntimeError("Checksum mismatch: " + str(candidate))
+    if candidate != executable:
+        candidate.replace(executable)
+    return executable
+
+
 def template_directory():
     if sys.platform == "darwin":
         base = Path.home() / "Library/Application Support"
@@ -86,6 +105,8 @@ def main():
                 with source.open(member) as data, output.open("wb") as output_file:
                     shutil.copyfileobj(data, output_file)
         print("Export templates: " + str(destination))
+        if sys.platform == "win32":
+            print("Windows resource editor: " + str(install_rcedit(executable.parent)))
     print("Godot: " + str(executable))
     if os.environ.get("GITHUB_ENV"):
         with open(os.environ["GITHUB_ENV"], "a", encoding="utf-8") as env:

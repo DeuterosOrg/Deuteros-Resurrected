@@ -80,6 +80,10 @@ def main():
     version = subprocess.check_output([godot, "--version"], text=True).strip()
     if not version.startswith("4.2.2.stable.mono"):
         parser.error("Expected Godot 4.2.2 .NET, found " + version)
+    # The Windows installer puts rcedit beside Godot. Child export processes
+    # must find it even when Godot was supplied by absolute path or GODOT.
+    if sys.platform == "win32":
+        os.environ["PATH"] = str(Path(godot).parent) + os.pathsep + os.environ.get("PATH", "")
     logs = ROOT / "artifacts" / "validation"
     logs.mkdir(parents=True, exist_ok=True)
     run("build", [dotnet, "build", "Godot/Deuteros.csproj", "--nologo"], logs)

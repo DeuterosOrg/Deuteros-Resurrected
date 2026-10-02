@@ -68,6 +68,8 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
+Native Windows now has a [baseline report](windows-validation-results.md): **309/309 regressions and source smoke passed** at `44e37ba`; export initially failed because RCEdit was missing. A separate repaired export and packaged smoke passed after installing it. The repository installer/validator now include that dependency; a fresh full run and desktop acceptance remain pending.
+
 The suite now has **309 cases**, including five grapple-only ACC regressions. **Full validation passed 309/309 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 306/308/309 pass. There are **31 task-level implementations** requiring Windows acceptance. See [the latest result](validation-results.md#grapple-only-asteroid-acc--2026-10-02) and [original control trace](original-asteroid-acc-evidence.md).
 
 The preceding suite had **304 cases**, with eleven DFCC fuel regressions. **Full validation passed 304/304 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 294/296/298/300/301/303 also pass. Consult [the latest aggregate/export status](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). There are 30 task-level implementations requiring Windows acceptance.
@@ -153,7 +155,7 @@ python scripts/validate.py --export-windows
 if ($LASTEXITCODE -ne 0) { throw "Game validation failed; preserve and inspect logs" }
 ```
 
-Check each command's exit status and stop to investigate failures. The installer verifies official release checksums. If .NET is installed outside its standard location, set `DOTNET_ROOT` and add that directory to `PATH` before launching Godot.
+Check each command's exit status and stop to investigate failures. The installer verifies official Godot release checksums and a pinned RCEdit checksum. On Windows, `--templates` also places RCEdit beside Godot; the validator adds that directory to PATH for export. If .NET is installed outside its standard location, set `DOTNET_ROOT` and add that directory to `PATH` before launching Godot.
 
 The validator discovers cases from the C# runner and starts a fresh Godot process for each. Record the discovered count and compare it with the latest validation results; do not hard-code the initial 26-case count. Require a passing aggregate, clean startup and successful export. Read `artifacts/validation/`, including warnings; a process exit of zero alone is insufficient. Test resources are excluded from the exported game.
 

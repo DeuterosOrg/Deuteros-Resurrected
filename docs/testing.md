@@ -57,3 +57,7 @@ The canonical startup smoke covers the entry scene only. The latest 309-case Mac
 Before release, run the exported Windows build on Windows, exercise new-game progression and affected screens, and record findings. A macOS cross-export cannot certify Windows rendering or input.
 
 The expanded suite also checks active-world day updates, versioned save round trips and screen actions, production/store selection, bay hover, right-click modal precedence and HeD ACC cycling. Pointer hover tests use a SubViewport because native headless mouse-over tracks the OS pointer independently of injected events. The production recipe fixture excludes background audio; audio/navigation shutdown remains a separate manual acceptance scenario, not a suppressed test error.
+
+## Native Windows export dependency
+
+On Windows, `scripts/install_godot.py --templates` also installs pinned RCEdit 2.0.0 beside Godot. `validate.py` adds the Godot directory to the child-process PATH so icon/version resource modification works when using an absolute `--godot` path or `GODOT`. Missing RCEdit failed the first native export despite 309 passing regressions; see [the Windows baseline](windows-validation-results.md). Download/cached-binary integrity checks are included in the nine Python tests. Preserve failed exports and verify the resulting executable, including its embedded pack, before reporting Windows readiness.

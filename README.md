@@ -69,6 +69,8 @@ python3 scripts/install_godot.py --templates
 python3 scripts/validate.py --godot /full/path/to/Godot --export-windows
 ```
 
+On Windows, the template installer also installs checksum-pinned RCEdit beside Godot for executable icon/version resources. The validator adds that directory to the child-process search path, including when `GODOT` is an absolute path.
+
 The output is `artifacts/windows/Deuteros.exe` and its supporting files. Distribute the entire output directory. The added CI workflow is configured to check Linux and Windows and retain validation logs and the Windows build as workflow artifacts; export success alone does not verify Windows gameplay.
 
 ## Contributing and credits
