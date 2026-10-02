@@ -199,6 +199,12 @@ namespace Deuteros.Tests
             CheckUi("Initial station slots match original tables while existing larger worlds remain loadable", RefiningInitialSlotsAndOverflow);
             CheckUi("Simultaneous training production research and ACC arrival preserve original event order", SimultaneousProductionResearchAndArrival);
             CheckUi("Original attrition phase precedes actual shuttle arrival while cryopods remain frozen", AttritionBeforeShipArrival);
+            CheckUi("Earth and local mining reject insufficient batches and cap ground and MTX stores", GroundMiningBoundaries);
+            CheckUi("Original ground surveys run without derricks and resolve zero or one countdown", GroundSurveyWithoutDerricks);
+            CheckUi("Local mining rejects hostile damaged unfinished and nonadvancing updates", GroundMiningEligibility);
+            CheckUi("Ground survey RNG boundaries and exact-depletion cadence match original arithmetic", GroundSurveyRandomBoundaries);
+            CheckUi("Ground mining saves distinguish known zero from surveys and repair legacy overdraw", GroundMiningSavedStates);
+            await CheckAsync("Ground materials display distinguishes known zero and zero-delay survey", GroundMiningSurveyDisplay);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

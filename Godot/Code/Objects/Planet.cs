@@ -1,7 +1,6 @@
 using Godot;
 using System;
 using System.Collections.Generic;
-using System.Reflection.Metadata.Ecma335;
 
 namespace Deuteros.Code.Objects
 {
@@ -46,56 +45,45 @@ namespace Deuteros.Code.Objects
             return PlanetColor.ToString().ToPascalCase() + "_" + PlanetStyle.ToString().ToPascalCase();
         }
 
-        //Triggered from gamecore
         public virtual void DayTick(uint previousDay, uint currentDay)
+            => MineGround(previousDay, currentDay, Random.Shared.Next);
+
+        internal void MineGround(uint previousDay, uint currentDay, Func<int> random)
         {
-            int daysDifference = (int)Math.Floor((decimal)(currentDay - previousDay));
+            if (currentDay <= previousDay) return;
+            var earth = PlanetId == Enums.StellarBodies.earth;
+            // ponytail: retain whole-day Earth cadence until fractional clocks are restored.
+            if (earth ? currentDay % 2 != 0 : ActiveMethanoid || BaseBuildParts != 2 || BaseDamaged) return;
 
-            //TODO This isn't right - We need to mine every other day, but mining can start on any day - Or can it?
-            if (PlanetId == Enums.StellarBodies.earth && currentDay % 2 != 0)
+            var data = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData;
+            var orbital = Station.MtxInstalled && (!earth || Station.Type == 8);
+            var stores = orbital ? Station.Resources.Stores : PlanetResources.Stores;
+            foreach (var material in PlanetResources.Materials)
             {
-                return;
-            }
-
-            var randomGen = new Random((int)Time.GetTicksMsec());
-
-            if (PlanetResources.Derricks > 0 && BaseBuildParts == 2 && !BaseDamaged)
-            {
-                foreach (var material in PlanetResources.Materials)
+                var multiplier = data.ResourceLevels_Survey_Multiplier[material.MaterialType];
+                if (material.IsSurveying)
                 {
-                    if (material.GroundAmount < 1 && material.SurveyTicks == 0)
-                    {
-                        material.SurveyTicks = randomGen.Next(0, 8) * GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ResourceLevels_Survey_Multiplier[material.MaterialType];
-                    }
-                    else if (material.GroundAmount < 1 && material.SurveyTicks > 0)
-                    {
-                        material.SurveyTicks--;
-
-                        if (material.SurveyTicks == 0)
-                            material.GroundAmount = (randomGen.Next(0, 32768) * GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ResourceLevels_Survey_Multiplier[material.MaterialType]) & 0x7FFF;
-                    }
+                    if (material.SurveyTicks > 1) material.SurveyTicks--;
                     else
                     {
-                        int amountRemoved = (PlanetResources.Derricks * GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ResourceRate_Per_Derrick[material.MaterialType]) * daysDifference;
-                        material.GroundAmount -= amountRemoved;
-
-                        
-                        if (Station.MtxInstalled)
-                        {
-                            //mtx mines directly to the station
-                            if (Station.Resources.Stores[material.MaterialType] < 50000)
-                                Station.Resources.Stores[material.MaterialType] += amountRemoved;
-                        }
-                        else
-                        {
-                            if (PlanetResources.Stores[material.MaterialType] < 50000)
-                                PlanetResources.Stores[material.MaterialType] += amountRemoved;
-                        }
+                        material.GroundAmount = (((random() & 0x7FFF) * multiplier) & 0x7FFF) | 0x32;
+                        material.SurveyTicks = 0;
                     }
+                    continue;
                 }
+
+                var batch = (long)PlanetResources.Derricks * data.ResourceRate_Per_Derrick[material.MaterialType];
+                if (batch > material.GroundAmount)
+                {
+                    // The original discards an insufficient remainder without producing ore.
+                    material.GroundAmount = 0;
+                    material.SurveyTicks = (random() & 7) * multiplier;
+                    continue;
+                }
+                material.GroundAmount -= (int)batch;
+                material.SurveyTicks = material.GroundAmount == 0 ? Material.KnownEmpty : 0;
+                stores[material.MaterialType] = (int)Math.Min(50000L, stores[material.MaterialType] + batch);
             }
-
-
         }
     }
 }
