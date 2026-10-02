@@ -297,5 +297,37 @@ namespace Deuteros.Tests
             Equal(100, ship.Fuel, "stale offer gives no fuel gift");
             Equal(false, OverlayManager.Instance.IsOpen, "invalidated decision closes");
         });
+        private async Task ModuleDialogueColours()
+        {
+            InitializeUi();
+            var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn")
+                .Instantiate<Deuteros.Code.Platform.Screens.ModuleScenes.ModuleTextFrame>();
+            AddChild(frame);
+            try
+            {
+                var intro = Save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Methanoid_Intro].Lines[0];
+                var text = new TextFrame(ModuleFrameText.Methanoid_Intro);
+                text.Lines.Add(new Line(intro.Text, intro.TextColor, false, true, 0));
+                text.Lines.Add(new Line("Cargo {0}", Colors.White, false, true, 0));
+                await frame.PlayText(text, new List<string> { "7" }, 2, 0, 0);
+                Equal("[color=#aaccee]" + intro.Text + "[/color]\r\nCargo 7\r\n", frame.Text.Text,
+                    "alien dialogue keeps its light blue instead of becoming black");
+                Equal(intro.Text + "\r\nCargo 7\r\n", frame.Text.GetParsedText(), "formatting does not leak into visible dialogue");
+                Equal("2", frame.WindowNumber.Text, "window retains the selected pod number");
+                await InputFrames();
+                await CaptureDisplayEvidence("module-dialogue-colours");
+                foreach (var (colour, expected) in new[] { (Save.BaseGameData.Red, "ff0000"),
+                    (Save.BaseGameData.Green, "008800"), (Save.BaseGameData.Blue, "002288"),
+                    (Save.BaseGameData.Yellow, "ffff00"), (Save.BaseGameData.Beige, "99aa77") })
+                    Equal("[color=#" + expected + "]7[/color]\r\n", new Line("{0}", colour, false).GetText(new List<string> { "7" }),
+                        "shared colour conversion preserves channel bytes");
+            }
+            finally
+            {
+                frame.QueueFree();
+                await InputFrames();
+                await DrainStoppedAudio();
+            }
+        }
     }
 }
