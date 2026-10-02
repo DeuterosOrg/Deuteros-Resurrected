@@ -2,7 +2,7 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **472/472** at `2668a0f999c33d4ee56da2f6cbdbc8b6ddb18f2b`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-03 BST): **474/474** at `34440aac483d537561abb43f01eaa42a4c273897`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
 The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
@@ -739,3 +739,11 @@ Full Mac validation at `f6dd5c0911cb71830ef958afee01b88e42fb5f0e` passes **470/4
 Cases 471–472 reproduced missing pilot/passenger/station-crew reports, then exposed a captured factory retaining its removed team and reporting it twice. Shared loss reporting now includes the crews actually removed; capture clears its factory-team reference. Saved history, repeat protection, typed ranks, distant crews and surviving Earth ground crews are checked. Focused 471/472/436–442/297/301/375 pass; strengthened native 471/472/436/437 pass and News screenshots were inspected. Original high-reference roster behavior and the rogue-crew/pirate controller remain separate gaps.
 
 Full Mac validation at `2668a0f999c33d4ee56da2f6cbdbc8b6ddb18f2b` passes **472/472**, nine Python tests, strict import, source startup and Windows cross-export. Audited package: **1,222 entries, 64 illustrations, zero tests**; **149,357,056 bytes**, SHA-256 `c31f98fe7825f5ca96dfdb26ba6cd2814a0c97d770fa471cef709a268354d2e5`. Evidence: `artifacts/validation/evidence/crew-news/full-run-2668a0f/`, with red/focused/native evidence alongside it. Integrated locally without push/PR; Windows execution remains pending. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**.
+
+## Pending bulletin delivery (474-case checkpoint)
+
+Cases 473–474 reproduce a research discovery overwriting the production bulletin from the same update and a discovery replacing a locked screen. Saved pending notices now preserve request order and modal ownership. Follow-up reproductions also corrected fresh notices overtaking saved ones and News replay consuming a different queued notice. Repeated pending requests coalesce; old saves start with an empty list and malformed lists are rejected. This retains the current remake producer order, not the original discovery-flag priority.
+
+Full Mac validation at `34440aac483d537561abb43f01eaa42a4c273897` passes **474/474**, nine Python tests, strict import, source startup and Windows cross-export. Focused compatibility and native 473/474/128/462 pass; the screenshot was inspected. Audited package: **1,222 entries, 64 illustrations, zero tests**; **149,358,432 bytes**, SHA-256 `ac4efd35c8b34bca2fd1a0d3e5e757bd1c10b69d4bfb78411770e17b7de266ba`. Evidence: `artifacts/validation/evidence/bulletin-delivery/full-run-34440aa/`; red and final focused/native logs are retained alongside it. The headless screenshot configuration error under `setup/` is not counted as a game defect.
+
+Integrated locally without push/PR. Windows execution, original clock/priority integration and campaign acceptance remain pending. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**.

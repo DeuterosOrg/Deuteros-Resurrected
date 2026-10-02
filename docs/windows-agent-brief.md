@@ -13,7 +13,7 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`2668a0f`**, with **472/472 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`34440aa`**, with **474/474 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 ## Transmission candidate
 
@@ -359,3 +359,7 @@ The subsequent **`f6dd5c0911cb71830ef958afee01b88e42fb5f0e`** checkpoint also co
 ## Crew-loss News follow-up
 
 At `2668a0f999c33d4ee56da2f6cbdbc8b6ddb18f2b`, verify actual ship losses report the named pilot and cryopod passengers before the vessel. Destroy/capture a station with orbital, ground and factory teams; each removed crew should appear once and the captured factory must retain no human builder. Earth ground crews and distant ships must survive without false death reports. Check saved News history, newest-first layout and long-name hover text. Cases 471/472 and native 436/437 pass on Mac, with full 472-case validation and audited cross-export; Windows source/export execution remains pending. Preserve the separate `8cdd458` desktop handoff.
+
+## Pending bulletin delivery follow-up
+
+At `34440aac483d537561abb43f01eaa42a4c273897`, cause production and research discoveries in the same update. The first report must remain readable; after leaving and advancing time, the second must appear once. Save/reload while a notice is waiting, then produce another: older notices retain request order. Discoveries must not replace a screen owned by a modal/input lock. Replay the current News report while another notice is queued; replay must leave that notice pending. Cases 473/474 and native Mac checks pass, with full 474-case validation and audited cross-export. Verify Windows source/export separately. Pending notices are new save data, so preserve backups before opening them in older builds. Keep the `8cdd458` desktop handoff unchanged.

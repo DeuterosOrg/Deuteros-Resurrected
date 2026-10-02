@@ -1,6 +1,6 @@
 # Open-backlog progress
 
-Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), including missing features and research questions. This ledger records local work; it does not change Asana status. Updated 2026-10-02. An evening read-only Asana refresh still returned the same 48 open IDs among 86 tasks, with no next page.
+Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), including missing features and research questions. This ledger records local work; it does not change Asana status. Updated 2026-10-03 (BST). An evening read-only Asana refresh still returned the same 48 open IDs among 86 tasks, with no next page.
 
 ## Completion rules
 
@@ -79,3 +79,7 @@ Enemy production now uses the original remaining-hostile-system interval table, 
 ### Additional 472-case validation checkpoint
 
 Training lighting, door playback and per-door animation/input ownership are corrected and validated, including physical Mac closing after training starts. Crew-loss News now reports removed pilots, passengers and station teams; captured factories no longer retain a lost human team. Full Mac validation and audited cross-export pass at `2668a0f`, with focused native checks and inspected screenshots. Windows execution and original timing/campaign acceptance remain pending. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**.
+
+### Additional 474-case validation checkpoint
+
+Competing discovery bulletins now survive input locks, other messages and save/load; News replay preserves unrelated queued notices. Full Mac validation and audited cross-export pass at `34440aa`, with native rendering/compatibility checks. Original clock initialization is also traced through normal-mode restoration before interrupt registration; runtime timing and fractional integration remain open. Windows acceptance is still pending. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**.
