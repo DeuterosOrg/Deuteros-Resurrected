@@ -1,5 +1,7 @@
 using System;
 using System.IO;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Linq;
 using Newtonsoft.Json.Linq;
 using Deuteros.Code;
@@ -156,6 +158,65 @@ namespace Deuteros.Tests
             Equal(false, destroyed.Station.Built, "last hostile station destroyed");
             Equal(StellarBodies.none, Save.BaseGameData.Stars[StellarBodies.proxima].ArtifactLocation, "destruction does not grant a capture segment");
             Equal(0, Save.AlienTransmissions.PendingLocations.Count, "destruction queues no location notice");
+        }
+
+        private async Task CaptureDiscoversScg()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            Save.AtWar = true;
+            Save.CurrentDay = Save.WarDeclaredDay = 0;
+            Save.Ships.Clear();
+            foreach (var planet in Save.BaseGameData.Planets.Values.Where(p => p.ParentStar == StellarBodies.the_sun))
+                planet.ActiveMethanoid = false;
+            var earth = GameCore.Earth;
+            earth.ActiveMethanoid = earth.Station.Built = earth.Station.SdmInstalled = true;
+            earth.Station.SdmCountdown = 16;
+            var ship = NavigationShip(); Save.Ships.Add(ship);
+            var types = new[] { ItemTypes.g_chassis, ItemTypes.star_drive, ItemTypes.hed_fuel };
+            foreach (var type in types) Equal(true, core.GameData.GetItem(type).Research.Locked, "undiscovered before capture: " + type);
+            Equal(true, SdmSystem.ApplySwitches(Save, earth, 0x0200), "Sol's final hostile station defused");
+            foreach (var type in types) Equal(true, core.GameData.GetItem(type).Research.Locked, "discovery waits for notification dispatch: " + type);
+            AdvanceTickDay();
+            Equal(BulletinTypes.Drone_Ships, Save.News.LastBulletin, "earlier drone discovery retains priority");
+            foreach (var type in types) Equal(true, core.GameData.GetItem(type).Research.Locked, "competing bulletin defers capture discovery: " + type);
+            core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            AdvanceTickDay();
+            Equal(BulletinTypes.Sol_Cleared, Save.News.LastBulletin, "pending capture discovery survives save and reaches the existing bulletin");
+            foreach (var type in types)
+            {
+                var item = core.GameData.GetItem(type);
+                Equal(false, item.Research.Locked, "normal research becomes available: " + type);
+                Equal(true, item.Locked, "capture does not grant manufacture before research: " + type);
+                Equal(false, item.Research.Researched, "capture does not complete research: " + type);
+            }
+            Equal(1, Save.Unlocks.Count(u => u == Game_Unlocks.Interstellar_Travel), "galaxy navigation unlocked once");
+            Equal(StellarBodies.none, Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "Sol discovery does not create a ninth segment");
+            core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            core.ChangeScene(Scenes.Earth_Research, new List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            var researchScreen = ActiveScreen<Deuteros.Code.Platform.Screens.Research>();
+            foreach (var type in types.Reverse())
+            {
+                var button = researchScreen.Buttons.Single(b => b.ObjectData?.ItemType == type);
+                button.EmitSignal(Godot.BaseButton.SignalName.Pressed);
+                Equal(type, researchScreen.SelectedButton.ObjectData.ItemType, "discovered project is selectable through Research: " + type);
+            }
+            await CaptureDisplayEvidence("capture-discovers-scg-research");
+            core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            core.GameData.GetItem(ItemTypes.g_chassis).Research.ResearchPercentageComplete = 37;
+            earth = GameCore.Earth;
+            earth.ActiveMethanoid = true;
+            earth.Station.SdmCountdown = 16;
+            Equal(true, SdmSystem.ApplySwitches(Save, earth, 0x0200), "later recapture still succeeds");
+            AdvanceTickDay();
+            Equal(Scenes.SaveScreen, core.currentScene, "discovery not repeated on following days");
+            Equal(37, core.GameData.GetItem(ItemTypes.g_chassis).Research.ResearchPercentageComplete, "discovered progress preserved");
         }
     }
 }

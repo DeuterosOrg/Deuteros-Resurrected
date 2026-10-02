@@ -10,11 +10,13 @@ namespace Deuteros.Code.Objects
     {
         public List<StellarBodies> AssignedStars { get; set; } = new() { StellarBodies.the_sun };
         public List<StellarBodies> PendingLocations { get; set; } = new();
+        public bool PendingCaptureDiscovery { get; set; }
 
         public void StationCaptured(SaveFile save, StellarBodies starId)
         {
-            if (AssignedStars.Contains(starId)
-                || save.BaseGameData.Planets.Values.Any(p => p.ParentStar == starId && p.ActiveMethanoid)) return;
+            if (save.BaseGameData.Planets.Values.Any(p => p.ParentStar == starId && p.ActiveMethanoid)) return;
+            PendingCaptureDiscovery = true;
+            if (AssignedStars.Contains(starId)) return;
             var star = save.BaseGameData.Stars[starId];
             if (star.ArtifactLocation == StellarBodies.none)
             {
@@ -27,6 +29,17 @@ namespace Deuteros.Code.Objects
             }
             AssignedStars.Add(starId);
             PendingLocations.Add(star.ArtifactLocation);
+        }
+
+        public bool DiscoverScg(SaveFile save)
+        {
+            if (!PendingCaptureDiscovery) return false;
+            PendingCaptureDiscovery = false;
+            if (!save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.g_chassis).Research.Locked) return false;
+            foreach (var type in new[] { ItemTypes.g_chassis, ItemTypes.star_drive, ItemTypes.hed_fuel })
+                save.BaseGameData.ItemList.Single(i => i.ItemType == type).Research.Locked = false;
+            if (!save.Unlocks.Contains(Game_Unlocks.Interstellar_Travel)) save.Unlocks.Add(Game_Unlocks.Interstellar_Travel);
+            return true;
         }
     }
 }

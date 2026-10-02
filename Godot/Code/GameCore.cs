@@ -330,8 +330,19 @@ namespace Deuteros.Code
 		{
 			SimulationDayPassed?.Invoke(previousDay, currentDay);
 			DayPassed?.Invoke(previousDay, currentDay);
+			PublishPendingStory();
 			// Refresh repair-dependent services without replacing the current screen's header.
 			_menuScreen?.SetupMenus();
+		}
+
+		private void PublishPendingStory()
+		{
+			// Existing discoveries and modal owners keep priority; an undisplayed notice stays saved.
+			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+			var save = GameData.ActiveSaveFile;
+			if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)

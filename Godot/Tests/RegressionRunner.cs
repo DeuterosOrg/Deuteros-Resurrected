@@ -173,6 +173,7 @@ namespace Deuteros.Tests
             CheckUi("Legacy artifact locations and held cargo survive capture-state migration", ArtifactCaptureLegacy);
             CheckUi("Malformed artifact assignment state cannot replace the active save", ArtifactCaptureInvalidSave);
             CheckUi("Eight captured systems reveal eight segments while destruction grants none", ArtifactCaptureAllSystems);
+            await CheckAsync("Clearing Sol discovers SCG research after earlier bulletins without granting production", CaptureDiscoversScg);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
