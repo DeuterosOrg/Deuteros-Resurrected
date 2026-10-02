@@ -1,4 +1,4 @@
-[gd_scene load_steps=89 format=3 uid="uid://cyvepalenoyly"]
+[gd_scene load_steps=90 format=3 uid="uid://cyvepalenoyly"]
 
 [ext_resource type="PackedScene" uid="uid://qfrsmxasaluu" path="res://PreFabs/Buttons/MenuButton.tscn" id="2_okowm"]
 [ext_resource type="PackedScene" uid="uid://bbgh6fbx8hoja" path="res://PreFabs/Buttons/ChangeScene.tscn" id="5"]
@@ -25,6 +25,7 @@
 [ext_resource type="PackedScene" uid="uid://be1t4kk6a6g1h" path="res://PreFabs/UI/UIBox.tscn" id="24_byn3j"]
 
 [ext_resource type="Texture2D" path="res://Sprites/References/MethanoidMenuReference.png" id="25_methanoid"]
+[ext_resource type="AudioStream" path="res://Sounds/Button/sMainMenu_Button.wav" id="26_click"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_km18m"]
 atlas = ExtResource("8_yfyma")
@@ -536,6 +537,9 @@ region = Rect2(74, 334, 96, 32)
 
 [node name="MainMenu" type="Node2D"]
 script = ExtResource("8")
+
+[node name="MenuClickSound" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("26_click")
 
 [node name="MainButtons" type="GridContainer" parent="."]
 offset_top = 87.0

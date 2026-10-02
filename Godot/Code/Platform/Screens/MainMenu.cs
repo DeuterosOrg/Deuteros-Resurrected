@@ -3,11 +3,46 @@ using Deuteros.Code.Platform.Base;
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Deuteros.Code.Utility;
 
 namespace Deuteros.Code.Platform.Screens
 {
 	public partial class MainMenu : BaseSubScene
 	{
+		private AudioStreamPlayer menuClickSound;
+		private bool menuSoundBound;
+
+		public override void _EnterTree()
+		{
+			base._EnterTree();
+			if (menuSoundBound) return;
+			menuClickSound = GetNode<AudioStreamPlayer>("MenuClickSound");
+			// Bind before child _Ready navigation callbacks can change the clicked slot.
+			foreach (var path in new[] { "Top", "MainButtons" })
+				foreach (var button in GetNode(path).GetChildren().OfType<BaseButton>())
+					button.Pressed += () => PlayMenuClick(button);
+			var hold = GetNode<BaseButton>("Time/TimeBox/TimerHoldButton");
+			hold.ButtonDown += () => PlayMenuClick(hold);
+			menuSoundBound = true;
+		}
+
+		private void PlayMenuClick(BaseButton button)
+		{
+			if (button.Disabled || !button.IsVisibleInTree() || !button.CanProcess() || GlobalInput.UiLocked)
+				return;
+			if (button is SceneChangeButton sceneButton && sceneButton.TargetScene == Enums.Scenes.None
+				&& (sceneButton.ClickActions == null || sceneButton.ClickActions.Count == 0))
+				return;
+			menuClickSound.Play();
+		}
+
+		public override void _ExitTree()
+		{
+			menuClickSound.Stop();
+			base._ExitTree();
+		}
+
 		public Label HoverInfo { get; set; }
 		public Label Location { get; set; }
 		public Label Star { get; set; }

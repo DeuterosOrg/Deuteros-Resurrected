@@ -2,21 +2,21 @@
 
 ## Pickup checklist
 
-Handoff updated **2026-10-02**. The latest validated gameplay checkpoint is **`55668f2`** (construction-frame recovery), following ambience/shutdown commit **`ff910f5`**. Check the actual pushed head before starting; later commits may change these counts.
+Handoff updated **2026-10-02**. This includes the menu-click batch validated below; preceding checkpoints are **`55668f2`** (construction frames) and **`ff910f5`** (ambience/shutdown). Check the actual pushed head before starting; later commits may change these counts.
 
 1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
 2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
-3. Investigate shutdown first if validation fails. The latest Mac aggregate is **211/211**, including the production cleanup change that drains stopped audio before exit. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; a later pass alone does not establish their causes.
+3. Investigate shutdown first if validation fails. The latest Mac aggregate is **219/219**, including the production cleanup change that drains stopped audio before exit. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; a later pass alone does not establish their causes.
 4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
 5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **27/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
 
 The detailed acceptance lists below define the work. Keep Windows findings and subsequent fixes in separate local commits; prepare the evidence before recommending a PR.
 
-### Work in progress at handoff
+### Menu sound acceptance
 
-The Mac working tree also contains **uncommitted menu-sound tests 212–219** in `Godot/Tests/RegressionRunner.MenuSound.cs` and their runner registration. Compilation succeeded; all eight fail because the persistent menu click player is not implemented yet. These tests are outside the validated 211-case checkpoint and will not arrive with this documentation commit. Preserve them on the Mac; do not include them in a push as a completed fix.
+Menu-sound tests 212–219 now accompany the implementation: one persistent player uses the supplied cue for top/side menus, time toggle and hold. All eight focused cases pass; native Mac cases 212/216–219 also pass. The full 219-case run, startup smoke and fresh Windows cross-export also pass; use the actual pushed SHA for Windows validation.
 
-At pickup, inspect the pushed changes and coordinate ownership of this sound work before editing the same files. If a later commit includes it, require its implementation and fresh validation evidence; do not carry the old 211/211 result forward as proof for the new head. Menu sound acceptance must cover pointer, keyboard/controller, disabled controls, navigation, hold-to-advance and mute without duplicate cues.
+On Windows, listen while activating those controls with the physical mouse, keyboard and a controller where available. Verify scene changes do not truncate the cue; disabled/empty/hidden controls, cancelled presses and right-clicks stay silent. Holding time should sound once on press, with no tick/release cues. Check rapid navigation, mute/volume and window close. Automated `ui_accept` events cover the action route, not physical controller hardware or listening quality. Original-game cue correspondence remains unverified.
 
 ## Mission and handoff
 
@@ -51,7 +51,9 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The current suite has **211 cases** and **27 Asana-linked fixes with local regression evidence**. Nine supplied construction frames now render for IOS chassis/drive and resource-station frame. Cases 206–211 cover manual/AOC production; native Mac cases 206/208/210 passed all 32,256 frame-pixel comparisons. **211/211 passed in one full run**, along with startup smoke, fresh Windows cross-export and five Python validator tests. All 17 new resource entries were verified in the export's pack directory. The last recompilation retains 14 existing warnings. Windows rendering/gameplay and original timing remain pending. See [frame-recovery evidence](validation-results.md#supplied-construction-frame-recovery--2026-10-02).
+The current suite has **219 cases** and **27 Asana-linked fixes with local regression evidence**. The menu-click batch passed **219/219 in one full run**, startup smoke, a fresh Windows cross-export and five Python validator tests. Native Mac cases 212/216–219 passed. The exported pack contains the menu scene, cue import and sample. This does not certify audible quality or Windows gameplay. See [menu-sound evidence](validation-results.md#persistent-menu-click-feedback--2026-10-02).
+
+The preceding construction-frame batch had **211 cases**. Nine supplied construction frames now render for IOS chassis/drive and resource-station frame. Cases 206–211 cover manual/AOC production; native Mac cases 206/208/210 passed all 32,256 frame-pixel comparisons. **211/211 passed in one full run**, along with startup smoke, fresh Windows cross-export and five Python validator tests. All 17 new resource entries were verified in the export's pack directory. The last recompilation retains 14 existing warnings. Windows rendering/gameplay and original timing remain pending. See [frame-recovery evidence](validation-results.md#supplied-construction-frame-recovery--2026-10-02).
 
 The preceding ambience batch wired Store/Ship Bay audio and changed window close to release scenes before a bounded audio-mixer drain. Its first full attempt exposed a case-10 playback leak; after the production shutdown fix, **205/205 passed in one full run**, with startup smoke and Windows cross-export. Cases 200–205 cover those audio paths; native Mac cases 10/150/205 also exited cleanly. Native Windows listening/gameplay and physical window-close acceptance remain pending. See [audio/shutdown evidence](validation-results.md#store-and-ship-bay-ambience-and-audio-shutdown--2026-10-02).
 
