@@ -142,6 +142,7 @@ namespace Deuteros.Tests
             RunAsteroidAccRegressions();
             RunAmaCargoRegressions();
             RunAccCycleRegressions();
+            RunStaffRankRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

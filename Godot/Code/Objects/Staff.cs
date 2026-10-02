@@ -106,12 +106,7 @@ namespace Deuteros.Code.Objects
             }
             else if (Type == Enums.StaffType.Marines)
             {
-                if (ActionsTaken >= 10 && ActionsTaken < 30)
-                    return Enums.StaffLevel_Marines.Captain.ToScreenString();
-                else if (ActionsTaken >= 30)
-                    return Enums.StaffLevel_Marines.Admiral.ToScreenString();
-                else
-                    return Enums.StaffLevel_Marines.Pilot.ToScreenString();
+                return ((Enums.StaffLevel_Marines)GetLevel()).ToScreenString();
             }
 
             return "";

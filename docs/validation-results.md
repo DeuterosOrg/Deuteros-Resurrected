@@ -374,3 +374,11 @@ Evidence, including the earlier logs/export, is retained under ignored `artifact
 Revision **`d057b9d`** passed a fresh native Windows aggregate: **329/329 isolated cases**, strict import, source startup and release export, plus all nine Python tests. A separate packaged-game smoke check passed; the pack has 1,103 entries and no test resources. The executable is 149,116,208 bytes, SHA-256 `13a279e225f5e9f8847e0ac526de573ee99c2f3f90cd5a0acd35e0f295c8f7cd`. The isolated checkout has no normalized content differences after import; 344 line-ending-only sidecars remain preserved.
 
 This includes the Complete Cycle correction and Windows headless case 315. It does not resolve the separate native Mac teardown failure or prove physical controls/audio/window closing. See [the current Windows report](windows-validation-results.md). Earlier 313-case success and the missing-RCEdit failure remain archived. Counts remain **31/48 task-level implementations, 0/48 fully accepted**; no PR, push or Asana changes were made.
+
+## Marine rank display — 2026-10-02
+
+During Warlord investigation, the ordinary rank display was found to disagree with simulation/news: it showed Admiral from 30 actions, although actual promotion occurs at 40. New cases **330–331** reproduced the premature label directly and after save/load. Marine text now derives from `GetLevel`, so the label and effective rank share one threshold.
+
+Cases **330–332** pass after the fix, covering all marine boundaries, save/load, the single promotion report at action 40, and unchanged researcher/production/Artisan labels. Existing save-graph case **45** and qualified-pilot deployment case **133** also pass. Compilation passed; this focused follow-up has **not** been represented as a full 332-case aggregate or new Windows export. The last full Mac/Windows baseline remains **329 cases at `d057b9d`**, and the earlier native Mac shutdown failure remains open.
+
+Evidence is under ignored `artifacts/validation/evidence/staff-rank/`. This corrects an additional review finding; it does **not** implement Warlord or change the **31/48 implemented, 0/48 fully accepted** task count. The [travel investigation](original-interstellar-travel-evidence.md) explains the remaining Hyperlight/rank dependency.

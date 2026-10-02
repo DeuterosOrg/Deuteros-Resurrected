@@ -24,4 +24,4 @@ The SCG walker at `$23990` traverses 16 records at `$1BC66`, stride `$22`. Withi
 
 The remake has only Pilot/Captain/Admiral and a single generic transit-arrival path. Its travel calculator currently has no Hyperlight branch. Do not promote every Admiral on an ordinary cross-star arrival or invent a battle-win threshold. First establish the Hyperlight transition and its eligibility/timing, then persist the rank, emit one promotion report, and test save/load and combat/display use.
 
-A separate existing inconsistency remains: `Staff.GetLevelString` displays Admiral at 30 actions while `GetLevel` and promotion news use 40. Fixing that display does not implement Warlord. No production rank or travel behavior changed in this research update.
+The ordinary rank-display inconsistency is now corrected: marine text derives from `GetLevel`, so Admiral is shown at 40 actions, matching promotion news. Cases 330–332 cover boundaries and save/load. This does not implement Warlord. The [travel follow-up](original-interstellar-travel-evidence.md) now traces acceleration, Hyperlight and per-star/ship clocks; integration scope remains to be settled.
