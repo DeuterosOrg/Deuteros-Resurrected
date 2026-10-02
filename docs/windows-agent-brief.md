@@ -332,3 +332,8 @@ This candidate passes all 450 Mac regressions, source startup and an audited Win
 ## Simulation-order follow-up (`08eda4d`, Mac 452-case checkpoint)
 
 Use a separate checkout from the stable `8cdd458` desktop handoff. The full Mac suite and Windows cross-export are audited; this revision has not run on Windows. Cases 451–452 cover training before all mining, research and crew attrition before arrivals, and ordered promotion News. Exercise simultaneous graduation, factory/research completion and ACC arrival/departure in source and exported builds; preserve before/after saves and logs. Full original fractional/star clocks and discovery priority remain separate open work.
+
+
+## Ground-mining follow-up (`50c7daf`, Mac 458-case checkpoint)
+
+The six new mining cases and full Mac validation pass; native Windows execution remains outstanding. Use a separate checkout from the stable `8cdd458` desktop handoff. Verify near-empty deposits and near-full stores on Earth and another colony, with/without MTX; unsupported batches must produce nothing and output must cap at 50,000. With zero derricks, surveys continue. Check exact depletion displays `0`, a started zero-delay survey displays `SURVEY`, and both survive save/load. Preserve legacy save backups; negative old veins are normalized without rewriting inventories. Cases 453–458 cover precise transitions, eligibility and malformed-state handling. Original fractional-clock fidelity is still separate work.

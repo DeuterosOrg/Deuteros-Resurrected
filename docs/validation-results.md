@@ -2,7 +2,7 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **452/452** at `08eda4dd068d0ee65dc60c3c5c26006d85c4cfd8`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-02): **458/458** at `50c7dafff70f1b6cc7b52a660e44967b848982fb`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
 The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
@@ -684,3 +684,12 @@ Training now runs once before Earth and local extraction; research and crew attr
 Full Mac validation at `08eda4dd068d0ee65dc60c3c5c26006d85c4cfd8` passes **452/452**, nine Python tests, strict import, startup and Windows cross-export. All case logs and package contents are audited: **1,222 entries, 64 illustrations, zero test resources**. Executable: **149,350,832 bytes**, SHA-256 `0ec3d36d073e77b460776ee55e87947ff2cb9189bd43a9d1e1c9ed6b4b1d66c4`. Evidence: `artifacts/validation/evidence/simulation-order/full-run-08eda4d/`.
 
 Integrated locally; no push or PR. Windows execution, original fractional/star clocks and pending-event priority remain outstanding. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**. The `8cdd458` desktop handoff is unchanged.
+
+
+## Ground extraction and survey correction (458-case checkpoint)
+
+Cases 453–455 reproduced mining beyond the available deposit, surveys blocked by zero derricks and hostile-base extraction. Shared mining now follows the [original whole-batch and survey rules](original-ground-mining-evidence.md), caps output at 50,000, and honors local ownership/base eligibility. Exact depletion and zero-delay surveys remain distinct through saves and on the ground-materials screen. Legacy negative veins are repaired without changing inventories; malformed mining state is rejected before activation.
+
+Cases 453–458 and native 453/457/458 pass. Full Mac validation at `50c7dafff70f1b6cc7b52a660e44967b848982fb` passes **458/458**, nine Python checks, strict import, source startup and Windows cross-export. All case logs and package contents are audited: **1,222 entries, 64 illustrations, zero test resources**. Executable: **149,352,192 bytes**, SHA-256 `37304d1b39992ccc28a18d59ea4edb396d8034e26a962678a4df8c08603a7a4f`. Evidence: `artifacts/validation/evidence/ground-mining/full-run-50c7daf/`; the three initial failures and focused/native checks remain alongside it. Fresh compilation retains 14 existing warnings and zero errors; incremental aggregate compilation reports zero warnings/errors.
+
+Integrated locally with runtime trees identical to the tested revision. No push or PR. Windows execution, original fractional clocks and exact RNG-sequence comparison remain outstanding. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**; these mining failures are separate review findings. Preserve the existing `8cdd458` desktop handoff.
