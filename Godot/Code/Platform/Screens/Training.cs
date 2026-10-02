@@ -12,6 +12,7 @@ namespace Deuteros.Code.Platform.Screens
 		public AudioStream DoorSound { get; set; }
 		private AudioStreamPlayer DoorButtonSound { get; set; }
 		private AudioStreamPlayer DoorSoundPlayer;
+		private readonly HashSet<AnimatedSprite2D> _movingDoors = new();
 
 		private CanvasModulate _modulateNode;
 		private bool _isDimmed = false;
@@ -31,6 +32,12 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _ExitTree()
 		{
+			foreach (var door in _movingDoors)
+			{
+				door.Stop();
+				GameCore.UnLockScreen();
+			}
+			_movingDoors.Clear();
 			DoorButtonSound?.Stop();
 			DoorSoundPlayer?.Stop();
 			base._ExitTree();
@@ -93,24 +100,13 @@ namespace Deuteros.Code.Platform.Screens
 
 			MarinesDoorAnimation = GetNode<Node2D>("Doors/Marines/TrainingDoors").GetNode<AnimatedSprite2D>("DoorAnimation");
 
-			ResearchDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
-			ProductionDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
-			MarinesDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
+			ResearchDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(ResearchDoorAnimation);
+			ProductionDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(ProductionDoorAnimation);
+			MarinesDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(MarinesDoorAnimation);
 
-			if (GameCore.Earth.TrainingData.ResearcherLocked && ResearchDoorAnimation.Animation != Closed_Animation_Name)
-				ResearchDoorAnimation.Play(Closed_Animation_Name);
-			else if (ResearchDoorAnimation.Animation != Open_Animation_Name)
-				ResearchDoorAnimation.Play(Open_Animation_Name);
-
-			if (GameCore.Earth.TrainingData.ProductionLocked && ProductionDoorAnimation.Animation != Closed_Animation_Name)
-				ProductionDoorAnimation.Play(Closed_Animation_Name);
-			else if (ProductionDoorAnimation.Animation != Open_Animation_Name)
-				ProductionDoorAnimation.Play(Open_Animation_Name);
-
-			if (GameCore.Earth.TrainingData.MarinesLocked && MarinesDoorAnimation.Animation != Closed_Animation_Name)
-				MarinesDoorAnimation.Play(Closed_Animation_Name);
-			else if (MarinesDoorAnimation.Animation != Open_Animation_Name)
-				MarinesDoorAnimation.Play(Open_Animation_Name);
+			ResearchDoorAnimation.Animation = GameCore.Earth.TrainingData.ResearcherLocked ? Closed_Animation_Name : Open_Animation_Name;
+			ProductionDoorAnimation.Animation = GameCore.Earth.TrainingData.ProductionLocked ? Closed_Animation_Name : Open_Animation_Name;
+			MarinesDoorAnimation.Animation = GameCore.Earth.TrainingData.MarinesLocked ? Closed_Animation_Name : Open_Animation_Name;
 
 			ButtonSound = (AudioStream)ResourceLoader.Load("res://Sounds/Button/sTrainingRoom_Button.wav");
 			DoorSound = (AudioStream)ResourceLoader.Load("res://Sounds/Button/sTrainingRoom_Door.wav");
@@ -123,23 +119,10 @@ namespace Deuteros.Code.Platform.Screens
 			DrawData();
 		}
 
-		private void DoorAnimation_AnimationFinished()
+		private void DoorAnimation_AnimationFinished(AnimatedSprite2D door)
 		{
-			if (ResearchDoorAnimation.Animation == Close_Animation_Name)
-				ResearchDoorAnimation.Animation = Closed_Animation_Name;
-			else if (ResearchDoorAnimation.Animation == Opening_Animation_Name)
-				ResearchDoorAnimation.Animation = Open_Animation_Name;
-
-			if (ProductionDoorAnimation.Animation == Close_Animation_Name)
-				ProductionDoorAnimation.Animation = Closed_Animation_Name;
-			else if (ProductionDoorAnimation.Animation == Opening_Animation_Name)
-				ProductionDoorAnimation.Animation = Open_Animation_Name;
-
-			if (MarinesDoorAnimation.Animation == Close_Animation_Name)
-				MarinesDoorAnimation.Animation = Closed_Animation_Name;
-			else if (MarinesDoorAnimation.Animation == Opening_Animation_Name)
-				MarinesDoorAnimation.Animation = Open_Animation_Name;
-
+			if (!_movingDoors.Remove(door)) return;
+			door.Animation = door.Animation == Close_Animation_Name ? Closed_Animation_Name : Open_Animation_Name;
 			GameCore.UnLockScreen();
 		}
 
@@ -172,10 +155,10 @@ namespace Deuteros.Code.Platform.Screens
 			GetNode<Label>("Doors/Marines/MarinesTrainingCountLabel").Text = GameCore.Earth.TrainingData.MarinesTrainingCount.ToString();
 		}
 
-		private static bool UpdateDoor(AnimatedSprite2D door, bool locked)
+		private bool UpdateDoor(AnimatedSprite2D door, bool locked)
 		{
 			if (door.Animation != (locked ? Open_Animation_Name : Closed_Animation_Name)) return false;
-			GameCore.LockScreen();
+			if (_movingDoors.Add(door)) GameCore.LockScreen();
 			door.Play(locked ? Close_Animation_Name : Opening_Animation_Name);
 			return true;
 		}

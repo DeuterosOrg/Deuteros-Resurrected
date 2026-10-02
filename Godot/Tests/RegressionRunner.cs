@@ -216,6 +216,7 @@ namespace Deuteros.Tests
             CheckUi("Hyperlight countdown finishes before detecting changed hostile ownership", HyperlightRecaptureCountdownOrder);
             await CheckAsync("Training light switch dims safely and restores controls", TrainingLighting);
             await CheckAsync("Training door audio follows transitions once and preserves button feedback", TrainingDoorAudio);
+            await CheckAsync("Training doors preserve independent animation and lock ownership", TrainingDoorLifecycle);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -84,12 +84,52 @@ namespace Deuteros.Tests
             await ToSignal(GetTree().CreateTimer(1.6), SceneTreeTimer.SignalName.Timeout);
             screen.ResearchPlusButton_Pressed();
             Equal(true, buttons.Playing, "button feedback still plays after door motion");
+            training.ResearcherLocked = true;
+            screen.DrawData();
+            Equal(true, door.Playing, "exit interrupts an active door cue");
             var parent = screen.GetParent();
             parent.RemoveChild(screen);
             Equal(false, door.Playing, "leaving stops door audio");
             Equal(false, buttons.Playing, "leaving stops button audio");
             screen.Free();
             await DrainStoppedAudio();
+        }
+
+        private async Task TrainingDoorLifecycle()
+        {
+            var training = GameCore.Earth.TrainingData;
+            training.ResearcherLocked = true;
+            var screen = OpenTraining();
+            var core = GameCore.SingletonInstance;
+            var blocker = core.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
+            GameCore.LockScreen("another owner");
+            await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
+            Equal(true, blocker.Blocked, "static closed door cannot release another owner's lock");
+            Equal(false, screen.GetNode<AudioStreamPlayer>("DoorSoundPlayer").Playing, "initial closed door is silent");
+            GameCore.UnLockScreen();
+
+            training.ResearcherLocked = false;
+            screen.DrawData();
+            var research = screen.GetNode<AnimatedSprite2D>("Doors/Research/TrainingDoors/DoorAnimation");
+            var production = screen.GetNode<AnimatedSprite2D>("Doors/Production/TrainingDoors/DoorAnimation");
+            training.ProductionLocked = true;
+            screen.DrawData();
+            Equal("opening", research.Animation.ToString(), "research starts opening");
+            Equal("close", production.Animation.ToString(), "production starts closing independently");
+            // Deliver the first door's completion while the second is still moving.
+            research.Stop();
+            research.EmitSignal(AnimatedSprite2D.SignalName.AnimationFinished);
+            Equal("open", research.Animation.ToString(), "only completed door settles");
+            Equal("close", production.Animation.ToString(), "other door is not cut short");
+            Equal(true, blocker.Blocked, "other door retains its lock");
+            research.EmitSignal(AnimatedSprite2D.SignalName.AnimationFinished);
+            Equal(true, blocker.Blocked, "duplicate completion cannot release other door's lock");
+            GameCore.LockScreen("another owner during interruption");
+            core.ChangeScene(Scenes.Earth_Ground, new List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            Equal(true, blocker.Blocked, "leaving moving doors preserves unrelated lock");
+            GameCore.UnLockScreen();
+            Equal(false, blocker.Blocked, "leaving released every training-owned lock");
         }
     }
 }
