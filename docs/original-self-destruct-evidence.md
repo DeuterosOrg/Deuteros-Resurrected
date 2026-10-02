@@ -8,13 +8,21 @@ Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec3
 
 ## Arming and controls
 
-The docking completion at `$313BE` records the docked ship in the station. At `$313EE–$31438`, the hostile-location check, player ship check (ship `+3` bit 7 clear) and war-state check (`$1BF32 == 2`) gate a write of **16** to `$1BE90[planet]`. The station is not made player-owned by this block. This differs from the remake's `ShipInterior.Dock_Pressed`, which immediately clears `ActiveMethanoid` and ignores `SdmInstalled`.
+The docking completion at `$313BE` records the docked ship in the station. At `$313EE–$31438`, the hostile-location check, player ship check (ship `+3` bit 7 clear) and war-state check (`$1BF32 == 2`) gate a write of **16** to `$1BE90[planet]`. The station is not made player-owned by this block. The remake previously cleared `ActiveMethanoid` immediately in `ShipInterior.Dock_Pressed`; the new implementation retains hostile ownership until defusal.
 
 The SDM screen opens at `$35D86`. Its research entry is `$1A124`, item index 18: text ID `$113` resolves to **S.D.M.**. A zero discovery/progress byte at `$1A126` sets `$1C2D0` and closes input; `$37678` consumes that flag through definition `$3760E` (`0012 0000 0004`), requesting SDM discovery and bulletin 4. The screen checks nonzero progress, not explicitly 100-percent completion.
 
 Controls `$35CBE` and `$35D0E` manipulate two switch values in `$3598C`. Combined state `$0002` selects `$35B12`: if the alarm is inactive, set the current planet's countdown to **12**, start its alarm and refresh the display. Combined state `$0200` selects `$35B40`: only while the alarm is active, clear the countdown and stop the alarm. For a hostile station this disarm path also clears its hostile ownership bit, writes completed player-station type 8, and updates ownership/resource state. Defusing therefore participates in capture; a simple automatic explosion on capture omits this control path.
 
 At `$35DB8–$35DD2`, hostile station type 9 plus nonzero Hyperlight discovery/progress (`$1A1C6`) sets a switch restriction. `$35CC4–$35CD2` then rejects one switch change when bit 9 is set. The exact player-facing lock behavior still needs original-screen observation; do not describe this as a research-completion requirement.
+
+### Alarm source and playback limits
+
+`$359B0–$359E4` dispatches sound IDs 40/41 to channels 0/1 and ID 42 to channels 2/3, then sets the sound-dispatch lock `$3F752`. IDs 40/41 both reference sample `$3EAC4`, length `$0148` words (656 bytes), period 2000 and volume 63. ID 41 additionally has control word `$0410`: the descriptor reader at `$3FDE0–$3FE0A` counts down 16 update calls while outputting silence. The sample SHA-256 and descriptor bytes are retained in the extract below.
+
+The start handler also writes `count × 140 + 300` to `$79F18`, the period in ID 42's indirect descriptor. That descriptor is silent in the static image; this does **not** establish a countdown-dependent audible pitch. Runtime descriptor changes, hardware timing and stereo playback still need observation. Disarm `$3598E` clears the dispatch lock, resets the channels through `$3F7A8`, then dispatches IDs 38/39. Local screen entry `$21008–$2103A` can restart the alarm from the selected planet's countdown, so an implementation must check navigation behavior as well as the SDM panel.
+
+Reproduction extract: ignored `artifacts/research/mtx/self-destruct-alarm.txt`, SHA-256 `0a6882c69e5e9ab43a5ee28eeaa06743be4ceba7e7d1351fcda7079864c0adb9`. No recovered audio asset or original listening acceptance is claimed.
 
 ## Manufacturing installs the mechanism
 
