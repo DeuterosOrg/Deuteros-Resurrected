@@ -24,6 +24,10 @@ Mac-only candidate **`642ed00a61817b3a09a2eece2d0df69ad787337f`** on `codex/alie
 
 Cases 422–435 provide staged regression coverage. Distinguish those fixtures from normal campaign play. These changes do not implement Warlord/Hyperlight clocks, transmitter activation or the ending; final instructions alone are not ending acceptance. Read [integration details](alien-message-integration.md) for save compatibility and evidence.
 
+## Isolated News follow-up
+
+Candidate **`9b245f52d977e93074ee2ed459d0d39ab68fda65`** on `codex/news-events` adds the missing report producers and short-history layout after the transmission candidate. Full 437-case Mac validation and audited Windows export pass; it has not been uploaded or executed on Windows. Once supplied separately, test fuel/hostile-orbit losses, fleet attack/capture and both failed/successful dismantling in source/export. Reports must occur once at committed transitions, survive saves and show newest first with fewer than twelve entries. Hover long names to read the complete report; unused rows must have no stale text. Cases 297/301/436/437 cover these operations automatically. Battle-window cleanup is a separate follow-up; do not assume 9b245f5 includes it.
+
 ## Feature acceptance details
 
 ### Artifact recovery follow-up
