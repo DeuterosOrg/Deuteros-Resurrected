@@ -454,3 +454,14 @@ The Mac cross-export is 149,197,840 bytes, SHA-256 `c85e9aca3f0f0e68fd6071db77ac
 Earlier attempts are preserved: one Mac editor timer error after the import marker, then whole-save comparisons in preset case 119 and pilot-warning case 129 on both platforms. A structured Mac comparison found only the newly advancing timer phase changed; focused case 134 reproduced the same assumption. Those fixtures now freeze frame processing narrowly and restore it afterwards, retaining whole-save equality. Focused preset 119–122 and pilot 129–134 checks pass, followed by the fresh full runs above. The intermittent editor timer cause remains unknown; no diagnostic was suppressed to obtain a pass.
 
 Original alarm playback, observed timer cadence and the ground-team lifecycle remain incomplete. The new alarm trace identifies sample and channel descriptors but is not a listening test. Desktop testing at `8cdd458` remains separate; no new handoff replaces work in progress. Counts remain **32/48 with implementation evidence and 0/48 fully accepted**.
+
+
+## SDM colony crew loss — 2026-10-02
+
+The [original local roster trace](original-self-destruct-evidence.md#local-crew-ownership) resolves the ground-crew gap: non-Earth ground/orbital views use one local roster, whereas Earth ground has its own array. The remake retained colony ground teams after SDM loss. The shared destruction handler now clears that array with the existing `RemoveAllStaff` helper, preserving Earth ground crews, other colonies and crews on surviving vessels.
+
+Case **375** failed before the correction and now passes real-time and simulation expiry, Earth/non-Earth locations, travelling pilots/cryopods, other colonies and save/reload. Focused neighboring loss/capture cases 362, 363, 366, 367 and 374 also pass. **Fresh canonical Mac and Windows validation at `853986c7064aaecbef431da7810599c7e2418d76` passes 375/375**, strict import, source startup and Windows export. Nine Python tests pass on each platform; Windows packaged startup passes separately. Build diagnostics remain zero warnings/errors on incremental Mac and 14 existing warnings/zero errors on fresh Windows.
+
+Mac cross-export: 149,197,856 bytes, SHA-256 `fca45d7729e42f3b6bf290fe679828630e2e738b7c7583ca0d6db7fb38ae84fc`. Native Windows: 149,137,456 bytes, SHA-256 `07ebde47221f7c85b43ad879d113b88ebd4fbbfeec3f1c3f3ff594ce559e0352`. Both contain 1,108 pack entries and no test resources. Windows retains 344 line-ending-only sidecars with no normalized content changes. Logs are retained under ignored `artifacts/validation/evidence/self-destruct/full-run-853986c/` and `artifacts/windows-handoff/853986c-evidence/`; the new failed reproduction is in `ground-crews-red/`.
+
+Original alarm playback and runtime timing/casualty comparisons remain pending. The existing `8cdd458` desktop handoff stays unchanged. Counts remain **32/48 with implementation evidence and 0/48 fully accepted**.

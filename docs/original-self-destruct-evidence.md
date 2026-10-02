@@ -22,7 +22,9 @@ At `$35DB8–$35DD2`, hostile station type 9 plus nonzero Hyperlight discovery/p
 
 The start handler also writes `count × 140 + 300` to `$79F18`, the period in ID 42's indirect descriptor. That descriptor is silent in the static image; this does **not** establish a countdown-dependent audible pitch. Runtime descriptor changes, hardware timing and stereo playback still need observation. Disarm `$3598E` clears the dispatch lock, resets the channels through `$3F7A8`, then dispatches IDs 38/39. Local screen entry `$21008–$2103A` can restart the alarm from the selected planet's countdown, so an implementation must check navigation behavior as well as the SDM panel.
 
-Reproduction extract: ignored `artifacts/research/mtx/self-destruct-alarm.txt`, SHA-256 `0a6882c69e5e9ab43a5ee28eeaa06743be4ceba7e7d1351fcda7079864c0adb9`. No recovered audio asset or original listening acceptance is claimed.
+Reproduction extract: ignored `artifacts/research/mtx/self-destruct-alarm.txt`, SHA-256 `0a6882c69e5e9ab43a5ee28eeaa06743be4ceba7e7d1351fcda7079864c0adb9`. No shipped audio asset or original listening acceptance is claimed.
+
+The [Amiga Hardware Reference Manual, chapter 5](https://www.amigarealm.com/computing/knowledge/hardref/ch5.htm) specifies signed eight-bit samples, two samples per length word, channels 0/3 on the left and 1/2 on the right, and PAL sample rate `3,546,895 / period`. Thus period 2000 calculates to 1,773.4475 samples/second. A research-only stereo WAV at rounded rate 1,773 is retained in ignored `artifacts/research/mtx/sdm-alarm-pal-audition.wav`, with conversion metadata beside it. Its 568-frame right-channel delay assumes 16 updates at nominal 50 Hz; loop bounds would be frames 568–1224. PCM bytes were checked after writing. This is a calculated preview, not an original recording, shipped asset or listening acceptance. Raw sample SHA-256: `6f27bb13586049f2694531ba7a8a6b2cd6676e65f261800b907e8facb069ebbc`.
 
 ## Manufacturing installs the mechanism
 
