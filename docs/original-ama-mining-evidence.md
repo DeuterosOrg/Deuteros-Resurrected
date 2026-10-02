@@ -14,6 +14,16 @@ If none can accept the ore, `$23CA2` jumps to `$30B48`. Its state-`$0D` branch r
 
 The mining amount block `$23C7C–$23C86` calls the random routine, masks with `$1F`, then adds `$0C`: numeric range **12–43**. It updates only the selected pod and clamps at 250. This establishes arithmetic bounds, not uniformity or ore per remake day.
 
+## Clock and short-cycle findings
+
+The disk starts `$1378E` at **310,000,000**, corresponding to the displayed year 3100. Date rendering at `$22BF2–$22C56` derives the year by dividing by 100,000, the three-digit day from the next three decimal digits, and the fraction from the remainder modulo 100. Thus a 100-unit increment advances one displayed day.
+
+`$20536` selects increment 100 for time advancement; `$20510` restores increment 1. The interrupt at `$20414` raises pending flag `$20291`, then `$20422–$2043A` applies the increment. While the flag is set, `$203DE–$203E4` prevents another increment. The simulation consumer `$23CA8` requires that flag, calls the ship updater `$2384E` at `$23CFE`, then reaches `$22BB4` to clear the flag. This establishes one ship update per consumed clock increment, rather than repeated mining on every rendered frame.
+
+Within that update, the mining gate compares `(ship[+4] - 1) & 3` with `(clock >> 7) & 3`. For phase 0, stepping from the initial clock by whole days permits mining on days **2, 7, 12, 17, 22, 23, 27, 28, 32, 33, 38…**. The resulting 1-, 4- and 5-day gaps follow the clock bits; there is no random instant-cycle roll. Other phases shift the schedule. This is a calculation of the traced rule, not an emulator gameplay capture. Fractional advancement can produce different intervals, so the sequence assumes uninterrupted 100-unit steps.
+
+The amount calculation reads neither pilot rank nor asteroid size. Class is an entry gate (zero-based class at least 5); it does not scale the mining amount once mining is active. The manual entry checks nonzero fuel and scan state, then schedules two consumed updates before `$31608` enters mining state `$0D`. Wider scanner/crew eligibility and the semantic allocation of byte `+4` still require tracing before changing remake scheduling.
+
 ## Remake correction
 
 Previously, `ShipInterior.UpdateShips` checked for any partial supply pod, then used `First` to find an empty/matching one. If only incompatible cargo had space, the second search threw `Sequence contains no matching element`. Zero-count pods retaining an old mineral could also trigger that exception. ACC could initiate docking with the same unusable cargo layout.
@@ -22,6 +32,6 @@ The correction selects a compatible pod explicitly, caps its quantity, and launc
 
 ## Remaining investigation
 
-The remake still uses its provisional 16–35 yield and five-day/first-day chance. Original mining is gated by `(ship[+4] - 1) & 3` matching `(clock[$1378E] >> 7) & 3`; clock units and caller cadence need mapping before replacing timing. Pilot effects, SCG availability, Complete Cycle, scan generation and normal campaign behavior also remain open. These cargo fixes do not complete the AMA research task.
+The remake still uses its provisional 16–35 yield and five-day/first-day chance. Original mining is gated by `(ship[+4] - 1) & 3` matching `(clock[$1378E] >> 7) & 3`; clock units and caller cadence are now traced above. A stable remake mapping for the original ship-slot phase and fractional clock still needs a compatibility decision before replacing timing. Pilot effects, SCG availability, Complete Cycle, scan generation and normal campaign behavior also remain open. These cargo fixes do not complete the AMA research task.
 
 Raw traces are under ignored `artifacts/research/supply-pod/ama-{dispatch,mining,clock}-followup.txt`. See [validation](validation-results.md#ama-compatible-cargo--2026-10-02) and the [Windows acceptance brief](windows-agent-brief.md).
