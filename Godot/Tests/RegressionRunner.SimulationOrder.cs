@@ -9,6 +9,17 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private sealed class MiningTrainingProbe : Planet
+        {
+            public int ResearchersAtMining;
+            public MiningTrainingProbe() : base(StellarBodies.mercury, 0) { }
+            public override void DayTick(uint previousDay, uint currentDay)
+            {
+                ResearchersAtMining = GameCore.Earth.ResearchStaff.Count;
+                base.DayTick(previousDay, currentDay);
+            }
+        }
+
         private void SimultaneousProductionResearchAndArrival()
         {
             ClearAttritionWorld();
@@ -17,6 +28,11 @@ namespace Deuteros.Tests
             var earth = GameCore.Earth;
             Save.CurrentDay = 99;
             PrepareTickMining(earth);
+            var mercury = Save.BaseGameData.Planets[StellarBodies.mercury];
+            var mining = new MiningTrainingProbe { PlanetResources = mercury.PlanetResources,
+                Station = mercury.Station, ParentStar = mercury.ParentStar };
+            Save.BaseGameData.Planets[StellarBodies.mercury] = mining;
+            PrepareTickMining(mining);
             var researchers = AttritionTeam(StaffType.Research, countdown: 1, count: 245);
             researchers.Leader = "Science"; researchers.AddAction(5);
             earth.ResearchStaff = researchers;
@@ -55,6 +71,7 @@ namespace Deuteros.Tests
                 completed++;
                 Equal(Ship_States.Landing, ship.ShipState, "research completion precedes the due arrival and automatic departure");
                 Equal(250, researchers.Count, "same-update graduates contribute before research");
+                Equal(250, mining.ResearchersAtMining, "training precedes local mining even when that planet is enumerated before Earth");
                 Equal(2, earth.PlanetResources.Stores[ItemTypes.iron], "mining precedes research");
                 Equal(1, earth.PlanetResources.Stores[ItemTypes.derrick], "factory completion precedes research");
                 Equal(1, researchers.AttritionCountdown, "research precedes attrition");

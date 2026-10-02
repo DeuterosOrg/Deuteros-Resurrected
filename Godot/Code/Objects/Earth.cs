@@ -27,12 +27,5 @@ namespace Deuteros.Code.Objects
             else
                 Station.Resources.Stores[itemToAdd] += count;
         }
-
-        //Triggered from gamecore
-        public override void DayTick(uint previousDay, uint currentDay)
-        {
-            base.DayTick(previousDay, currentDay);
-            TrainingData.ChildDayTick(previousDay, currentDay);
-        }
     }
 }

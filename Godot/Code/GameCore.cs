@@ -294,13 +294,13 @@ namespace Deuteros.Code
 
 			_screenLocker = GetNode<InputBlocker>("/root/Master/InputBlocker");
 
-			// Model updates are registered once, in their existing gameplay order.
+			// Model updates are registered once; work and attrition precede ships, then refining.
 			SimulationDayPassed += _unlocker.DayTick;
 			SimulationDayPassed += UpdatePlanets;
 			SimulationDayPassed += Code.Platform.Screens.Production.UpdateProduction;
-			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			SimulationDayPassed += Code.Platform.Screens.Research.UpdateResearch;
 			SimulationDayPassed += StaffAttrition.DayTick;
+			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			SimulationDayPassed += FuelRefining.DayTick;
 			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
 			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
@@ -354,9 +354,12 @@ namespace Deuteros.Code
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
 		{
-			// Resolve the active world each day; constructors must not register old models.
+			// Resolve the active world each day; training precedes Earth and local extraction.
+			var earth = Earth;
+			earth.TrainingData.ChildDayTick(previousDay, currentDay);
+			earth.DayTick(previousDay, currentDay);
 			foreach (Planet planet in GameData.ActiveSaveFile.BaseGameData.Planets.Values)
-				planet.DayTick(previousDay, currentDay);
+				if (!ReferenceEquals(planet, earth)) planet.DayTick(previousDay, currentDay);
 		}
 
 		private void TriggerPlanetChange(Objects.Interfaces.IPlanet newPlanet)
