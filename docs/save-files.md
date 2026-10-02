@@ -8,13 +8,19 @@ Files are stored in Godot's `user://saves` directory as `slot-1.json` through `s
 
 Version 1 stores the current world's planets, stocks, crews and experience, training, production/research progress, ships, cargo, ACC settings, news, unlocks, war state and enemy scheduling position. Shared item/research references and ACC-to-ship references are preserved. Text/palette definitions come from the game version; transient input locks and running fast-forward timers are not restored.
 
-The loader accepts only the known model subtypes. It rejects unknown versions/types, missing fields, invalid references and selected invalid states before replacing the active world. This format is specific to this remake; it does not import original Amiga save files. Changes to persisted fields require a version/migration decision and regression coverage.
+The loader accepts only the known model subtypes. It rejects unknown versions/types, missing required fields, invalid references and selected invalid states before replacing the active world. This format is specific to this remake; it does not import original Amiga save files. Changes to persisted fields require a version/migration decision and regression coverage.
 
 A save is serialized and validated before disk replacement. Its temporary file is flushed, then moved into an empty slot or replaces an existing slot with a backup. A failed write leaves the previous slot intact. Native Windows replacement/backup behavior remains part of the Windows acceptance pass.
 
 ## Saves from before the assembly stock fix
 
 Earlier builds left chassis and drives in stores when fitting them. New fitting deducts one part, and dismantling returns the installed parts subject to capacity. Existing saves contain no record of those historical deductions, so loading preserves their inventories; the fix does not reconstruct earlier spending. Record the originating build when comparing old-save stocks during acceptance.
+
+## Engine damage compatibility
+
+Version 1 now includes `EngineDamaged` for ships. Saves written before this field existed load with healthy drives (`false`); no damage is inferred from an old attack counter. Explicit null values remain invalid, and the existing required-field checks remain enforced. Damage and repairs survive save/load, including the remaining duration of a damaged journey. A damaged drive yields no usable spare when dismantled.
+
+This is backward reading compatibility in the updated game. Older builds reject the new field, so preserve a backup before moving a save between revisions.
 
 ## Verification
 

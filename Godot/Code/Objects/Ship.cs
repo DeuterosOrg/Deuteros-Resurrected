@@ -20,6 +20,7 @@ namespace Deuteros.Code.Objects
         public Enums.Ship_Types ShipType { get; set; }
         public Enums.Ship_States ShipState { get; set; }
         public bool Engine { get; set; }
+        public bool EngineDamaged { get; set; }
         public Staff Pilot { get; set; }
         public string Name { get; set; }
         public int Fuel { get; set; }
@@ -89,9 +90,11 @@ namespace Deuteros.Code.Objects
                 && (ShipType == Ship_Types.SCG || origin.ParentStar == target.ParentStar);
         }
 
-        public bool EngageEngine()
+        public bool EngageEngine() => EngageEngine(() => Random.Shared.Next(2) == 0);
+
+        internal bool EngageEngine(Func<bool> engineDamageRoll)
         {
-            if (ShipState == Ship_States.UnDocked && Engine && DestinationPlanetLocation != PlanetLocation
+            if (ShipState == Ship_States.UnDocked && Engine && Fuel > 0 && DestinationPlanetLocation != PlanetLocation
                 && CanTravelTo(DestinationPlanetLocation))
             {
                 // Body records are authoritative; stale save/ACC star fields must not mislabel arrival.
@@ -99,6 +102,14 @@ namespace Deuteros.Code.Objects
                 StarLocation = planets[PlanetLocation].ParentStar;
                 DestinationStarLocation = planets[DestinationPlanetLocation].ParentStar;
                 if (Pilot != null) Pilot.AddAction();
+
+                // Original danger-state departure rolls for damage only without DFCC.
+                // A damaged drive remains usable, so keep it distinct from absence.
+                var data = GameCore.SingletonInstance.GameData;
+                if (!EngineDamaged && this is InterStellarShip stellar && !stellar.MethanoidOwned
+                    && !stellar.DFCC && data.ActiveSaveFile.AtWar
+                    && (planets[PlanetLocation].ActiveMethanoid || data.PlanetUnderAttack(PlanetLocation)))
+                    EngineDamaged = engineDamageRoll();
 
                 EngineEngaged = true;
                 ShipState = Ship_States.InTransit;

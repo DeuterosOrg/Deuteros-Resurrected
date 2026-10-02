@@ -17,6 +17,7 @@ namespace Deuteros.Code.Objects.Interfaces
         public Enums.Ship_Types ShipType { get; set; }
         public Enums.Ship_States ShipState { get; set; }
         public bool Engine { get; set; }
+        public bool EngineDamaged { get; set; }
         public Staff Pilot { get; set; }
         public string Name { get; set; }
         public int Fuel { get; set; }

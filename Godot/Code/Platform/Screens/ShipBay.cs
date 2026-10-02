@@ -408,7 +408,7 @@ namespace Deuteros.Code.Platform.Screens
 			var chassis = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_chassis : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_chassis : ItemTypes.g_chassis;
 			var drive = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_drive : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_drive : ItemTypes.star_drive;
 			ReturnItem(chassis, 1);
-			if (Ship.Engine) ReturnItem(drive, 1);
+			if (Ship.Engine && !Ship.EngineDamaged) ReturnItem(drive, 1);
 			// Check the combined returns first (fuel can also be carried in supply pods).
 			if (returningItems.Any(item => item.Value > 50000 - ResourceList.Stores[item.Key]))
 			{
@@ -831,6 +831,7 @@ namespace Deuteros.Code.Platform.Screens
 				TorsoInstances.ForEach(T => T.SpriteHolder.Visible = false);
 
 				EngineInstance.Installed = Ship.Engine;
+				EngineInstance.Damaged = Ship.EngineDamaged;
 				EngineInstance.Shiptype = Ship.ShipType;
 				EngineInstance.Ground = Ground;
 
@@ -1105,6 +1106,8 @@ namespace Deuteros.Code.Platform.Screens
 		private void EngineInstance_EngineInstalled()
 		{
 			Ship.Engine = true;
+			Ship.EngineDamaged = false;
+			Ship.EngineEngaged = false;
 		}
 
 		#region EquipmentStock

@@ -137,6 +137,7 @@ namespace Deuteros.Tests
             await CheckAsync("Queued navigation input survives physics picking and collection", QueuedNavigationInputLifetime);
             await RunSupplyPodRegressions();
             Check("Window close drains resources whose finalizers are still pending", PendingFinalizersAtShutdown);
+            await RunEngineDamageRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

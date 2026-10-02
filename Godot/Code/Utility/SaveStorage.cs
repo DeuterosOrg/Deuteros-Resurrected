@@ -63,7 +63,12 @@ namespace Deuteros.Code.Utility
                     properties.Add(property);
                 }
                 foreach (var property in properties)
-                    if (property.Required == Required.Default) property.Required = Required.AllowNull;
+                {
+                    // Version-1 saves written before engine damage have no flag; default healthy.
+                    if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
+                        property.Required = Required.DisallowNull;
+                    else if (property.Required == Required.Default) property.Required = Required.AllowNull;
+                }
                 return properties;
             }
 

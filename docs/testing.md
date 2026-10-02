@@ -52,7 +52,7 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 
 `.github/workflows/validate.yml` runs on pull requests and pushes to `develop`, with Linux and Windows jobs. Both run compilation, asset import, regressions and startup. Windows also validates release export. Logs are uploaded even on failure; the Windows output is a workflow artifact, not an automatically published release. The existing Discord workflow remains separate.
 
-The canonical startup smoke covers the entry scene only. The finalizer-drain correction passes the latest 276-case Mac run, including audio/navigation shutdown; historical failures remain recorded in [validation results](validation-results.md#shutdown-finalizer-drain--2026-10-02). Native Windows source/export and physical window-close acceptance remain required. Passing the suite does not certify all scene lifetimes.
+The canonical startup smoke covers the entry scene only. The latest 293-case Mac run passes, including audio/navigation shutdown and engine-damage recovery; historical failures remain recorded in [validation results](validation-results.md#engine-damage-and-recovery--2026-10-02). Native Windows source/export and physical window-close acceptance remain required. Passing the suite does not certify all scene lifetimes.
 
 Before release, run the exported Windows build on Windows, exercise new-game progression and affected screens, and record findings. A macOS cross-export cannot certify Windows rendering or input.
 

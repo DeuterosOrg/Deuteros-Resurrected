@@ -739,7 +739,12 @@ namespace Deuteros.Code.Platform.Screens
 				EngageEngine.Visible = true;
 				DisengageEngine.Visible = true;
 
-				if (new List<Enums.Ship_States>() { Ship_States.Docking, Ship_States.Launching, Ship_States.Landing, Ship_States.TakingOff, Ship_States.InTransit }.Contains(Ship.ShipState))
+                if (Ship.EngineDamaged)
+                {
+                    EngineStatusValue.Text = "Damaged !";
+                    EngineStatusValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
+                }
+                else if (new List<Enums.Ship_States>() { Ship_States.Docking, Ship_States.Launching, Ship_States.Landing, Ship_States.TakingOff, Ship_States.InTransit }.Contains(Ship.ShipState))
 				{
 					EngineStatusValue.Text = "Engaged";
 					EngineStatusValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Green);
