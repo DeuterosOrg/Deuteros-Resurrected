@@ -11,12 +11,45 @@ namespace Deuteros.Code.Objects
         public List<StellarBodies> AssignedStars { get; set; } = new() { StellarBodies.the_sun };
         public List<StellarBodies> PendingLocations { get; set; } = new();
         public bool PendingCaptureDiscovery { get; set; }
+        // Enemy scheduling samples ownership before the separate discovery delay consumes it.
+        public int EnemySystems { get; set; } = 9;
+        public int HyperlightSystems { get; set; } = 9;
+        public int HyperlightCountdown { get; set; }
+        public bool HyperlightPending { get; set; }
+
         public int Stage { get; set; } = -1;
         public int Countdown { get; set; }
         public bool Ready { get; set; }
         public int LastStage { get; set; } = -1;
         public StellarBodies LastLocation { get; set; }
         public uint LastMask { get; set; }
+
+        public void SampleEnemySystems(SaveFile save)
+            => EnemySystems = save.BaseGameData.Planets.Values.Where(p => p.ActiveMethanoid)
+                .Select(p => p.ParentStar).Distinct().Count();
+
+        public void AdvanceHyperlight(SaveFile save)
+        {
+            if (!save.AtWar || !save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Locked) return;
+            if (EnemySystems != HyperlightSystems)
+            {
+                HyperlightSystems = EnemySystems;
+                HyperlightCountdown = EnemySystems == 7 ? 8 : 0;
+                return;
+            }
+            if (HyperlightCountdown > 0) { HyperlightCountdown--; return; }
+            if (EnemySystems == 7) HyperlightPending = true;
+        }
+
+        public bool DiscoverHyperlight(SaveFile save)
+        {
+            if (!HyperlightPending) return false;
+            HyperlightPending = false;
+            var research = save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research;
+            if (!research.Locked) return false;
+            research.Locked = false;
+            return true;
+        }
 
         public void Start()
         {

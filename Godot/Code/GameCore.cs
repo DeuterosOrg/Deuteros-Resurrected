@@ -343,12 +343,14 @@ namespace Deuteros.Code
 				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
 				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
 			var save = GameData.ActiveSaveFile;
+			save.AlienTransmissions?.AdvanceHyperlight(save);
 			if (save.AlienTransmissions?.Advance() == true)
 			{
 				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
 				_menuScreen.Location.Text = "News Bulletins";
 				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
 			}
+			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true) ShowBulletin(BulletinTypes.Hyperlight_Speed);
 			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
 		}
 

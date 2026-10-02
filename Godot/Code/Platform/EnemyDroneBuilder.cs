@@ -51,6 +51,7 @@ namespace Deuteros.Code.Platform
             {
                 if (currentDay == GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay || GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay == 0)
                 {
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions?.SampleEnemySystems(GameCore.SingletonInstance.GameData.ActiveSaveFile);
                     var buildfrequency = BuildFrequencies[GameCore.SingletonInstance.GameData.ActiveSaveFile.StarSystemsCaptured];
                     GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay = currentDay + buildfrequency / 100;
 

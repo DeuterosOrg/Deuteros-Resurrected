@@ -69,3 +69,12 @@ The master tail consumes that flag through `$3769C`, after the higher-priority `
 Raw traces and exact tables are under `artifacts/research/supply-pod/hyperlight-*`; `hyperlight-discovery-facts.json` records file hashes. The bulletin renderer indexes a runtime table at `$29540`; that table is unpopulated at the static disk mapping, so the rendered bulletin text is not established by this extract. The remake has corresponding research and bulletin definitions but no discovery producer.
 
 This narrows the missing progression path. The count is sampled by the original enemy scheduler, so an immediate capture callback alone would not reproduce its timing. Saved delay/pending state, competing bulletin delivery, save/load, research completion and actual Hyperlight travel still need integrated tests and implementation. No new task is declared complete.
+
+
+## Hyperlight discovery correction under validation
+
+The isolated `codex/hyperlight-discovery` branch now samples hostile-system counts at the existing enemy build boundary and persists the sample, observed count, eight-pass countdown and pending notice. When seven systems remain, research becomes available through the existing Hyperlight bulletin after the delay. Competing messages retain priority; interrupted, unacknowledged alien transmissions retry before the queued discovery. Recapture resets an ineligible countdown. Discovery never grants completed research and never resets existing research progress.
+
+Cases 459–461 reproduced the missing discovery through real simulation updates, including a save mid-delay and ownership changes between enemy samples. Cases 462–464 cover competing notices and saved pending state, Research-screen selection and completion, legacy/malformed saves, all system-count boundaries and recapture. Focused checks pass, including existing transmission cases 427–432/434–435. Native and aggregate results remain separate checkpoints. An initial 462 assertion incorrectly expected Hyperlight to bypass an unacknowledged transmission; the fixture now acknowledges that message and proves the pending discovery survives it.
+
+This restores discovery within the remake's current scheduler. The existing enemy build-frequency lookup and whole-day clock are not claimed to reproduce the original enemy cadence. Hyperlight acceleration/arrival, per-star clocks, Warlord and transmitter activation remain outstanding; this branch is not full acceptance of the travel or campaign tasks. Evidence is retained under `artifacts/validation/evidence/hyperlight-discovery/`.

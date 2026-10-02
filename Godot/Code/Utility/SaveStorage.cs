@@ -74,6 +74,11 @@ namespace Deuteros.Code.Utility
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.SdmTimerRemainder) || property.PropertyName == nameof(SaveFile.RefiningPhase)))
                         property.Required = Required.DisallowNull;
+                    else if (type == typeof(AlienTransmissions) && (property.PropertyName == nameof(AlienTransmissions.EnemySystems)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightSystems)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightCountdown)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightPending)))
+                        property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.AlienTransmissions))
                         property.Required = Required.DisallowNull;
                     else if (property.Required == Required.Default) property.Required = Required.AllowNull;
@@ -204,6 +209,10 @@ namespace Deuteros.Code.Utility
             Require(data.Stars.All(p => p.Value != null && p.Value.StarId == p.Key), "stars");
             if (save.AlienTransmissions is { } transmissions)
             {
+                Require(transmissions.EnemySystems >= 0 && transmissions.EnemySystems <= data.Stars.Count
+                    && transmissions.HyperlightSystems >= 0 && transmissions.HyperlightSystems <= data.Stars.Count
+                    && transmissions.HyperlightCountdown >= 0 && transmissions.HyperlightCountdown <= 8
+                    && (transmissions.HyperlightCountdown == 0 || transmissions.HyperlightSystems == 7), "Hyperlight discovery state");
                 Require(transmissions.AssignedStars != null && transmissions.PendingLocations != null, "alien transmission lists");
                 Require(transmissions.Stage >= -1 && transmissions.Stage <= 13
                     && transmissions.LastStage >= -1 && transmissions.LastStage <= transmissions.Stage, "alien transmission stages");
