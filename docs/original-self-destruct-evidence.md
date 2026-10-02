@@ -16,6 +16,10 @@ Controls `$35CBE` and `$35D0E` manipulate two switch values in `$3598C`. Combine
 
 At `$35DB8–$35DD2`, hostile station type 9 plus nonzero Hyperlight discovery/progress (`$1A1C6`) sets a switch restriction. `$35CC4–$35CD2` then rejects one switch change when bit 9 is set. The exact player-facing lock behavior still needs original-screen observation; do not describe this as a research-completion requirement.
 
+## Manufacturing installs the mechanism
+
+Manual production completion at `$233BE–$233EC` recognizes zero-based item `$12` (the SDM). It selects a word in `$1305E` using the production record's byte `+7D`, sets bit 5, refreshes the interface, and bypasses the ordinary stock-credit call at `$233FA`. The automated completion path repeats this at `$2347A–$234A8`. Its queue selector `$23558–$23574` tests that same bit and branches to queue removal when already installed. Thus completion installs the local facility capability instead of creating transferable SDM stock, and automatic repeat stops once installed. Mapping the indexed capability word to the remake's planet/station fields should be checked alongside the installation tests. Raw extract: ignored `artifacts/research/mtx/self-destruct-installation.txt`.
+
 ## Countdown and loss
 
 `$23E60–$23ED2` consumes flag `$20290`, decrements every nonzero planet countdown and calls `$3601A` on zero. The producer `$203AE–$203DC` adds four to a separate timer accumulator and sets the flag at 200: **50 producer calls with `$202C6` clear per countdown update**. This is separate from the simulation-day clock. Its wall-clock rate still needs emulator verification; the older pack's blanket claim that value 150 means three seconds is not supported by this consumer.
@@ -26,4 +30,4 @@ There is also a simulation-step removal pass `$35E02`, called at `$23D28`: a hig
 
 ## Remaining implementation work
 
-Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; trace player SDM stock/installation consumption and the exact neighboring-ship casualty boundary. Then implement persistent arming, safe disarming/capture, destruction cleanup and save/load with deterministic regression coverage. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
+Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the local installation mapping and the exact neighboring-ship casualty boundary. Then implement persistent arming, safe disarming/capture, destruction cleanup and save/load with deterministic regression coverage. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.

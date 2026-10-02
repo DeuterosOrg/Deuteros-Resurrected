@@ -68,6 +68,8 @@ The [clock disassembly](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd
 
 ## 1215716464570923 — idle time
 
+**2026-10-02 follow-up:** [Direct byte verification and the fractional renderer](original-clock-evidence.md) confirm the normal threshold, restoration behavior and 0.01-day unit. The earlier cadence table below remains applicable; runtime pause/startup acceptance is pending.
+
 **Original routines:** VBL ISR `$202DC`; broadcast loop `$2042C`; displayed-clock update `$2043A`; consumer `$22BB0`. The [resolved clock investigation](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/1378E_clock_resolution.md#L83-L149) gives:
 
 | Mode | Accumulator increase per VBL | Threshold `$2027E` | Raw increment `$20280` | Earliest cadence at PAL 50 Hz |
