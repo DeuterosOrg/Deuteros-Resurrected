@@ -565,3 +565,21 @@ Full Mac and native Windows validation each passes **406/406**, strict import, s
 Both aggregate processes and the collector exited zero; all downloaded logs were audited locally. Evidence: `artifacts/validation/evidence/research-diagrams/` and `artifacts/windows-handoff/7c7db5e-evidence/`. Verified bundle SHA-256: `186d595dc05ba9e8ef557b44119b85a043ad742efa07fc197ad3171321f76f49`.
 
 Counts remain **34/48 with implementation evidence and 0/48 fully accepted**. This advances the existing media task. Original colour calibration, construction timing, MFL static-fallback fidelity and Windows desktop acceptance remain pending. The stable `8cdd458` desktop handoff is unchanged.
+
+
+## SCG item names in new and legacy saves — 2026-10-02
+
+Revision **`b3936c2668c430af5eec421d5e170dde2b4c464b`** supplies the missing SCG Chassis and SCG Drive short names. Save loading fills only blank names from canonical definitions, preserving existing labels, research and stock. This corrects blank Production headings, a misleading “None” Station factory summary, and unnamed Stores/MTX rows without a save-schema change.
+
+Cases **407–408** reproduced the blank headings for new and legacy saves, then passed headless and natively on Mac after the four-line runtime correction. Native screenshots were reviewed; existing save cases 45/46/47/67/68/69 also pass. Test setup clones the initial save before changing names because new-game data shares the canonical definitions. The initial test-registration compile error is retained separately from the valid failing regressions.
+
+Full Mac and native Windows validation each passes **408/408**, strict import, source smoke and Windows export; nine Python tests pass on each host. Windows packaged startup passes, including the canonical illustration loads. Both packs retain **1,218 entries, all 64 illustration resources and no tests**. Mac incremental compilation reports zero warnings/errors; fresh Windows retains 14 existing warnings and zero errors. All 385 Windows import notices concern line endings, with no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,319,424 | `07330138a9fd6f2b0d2e77f9ca332893c49decdd9616456c90f688708a5b3ac8` |
+| Windows | 149,259,072 | `00d9f6243e79d3e27036575650a4c1561db2544193369c8608ad69613f1d2616` |
+
+Both aggregate processes and the Windows collector exited zero; all downloaded logs were audited locally. Evidence is preserved under `artifacts/validation/evidence/scg-names/` and `artifacts/windows-handoff/b3936c2-evidence/`. Bundle SHA-256: `9453d21ee0384ab00a914103e97fc5895c5474b0551db5166ec0bc5c63f4a560`.
+
+Counts remain **34/48 with implementation evidence and 0/48 fully accepted**: this is an additional review fix. Windows desktop checks remain pending, and the stable `8cdd458` human handoff is unchanged.

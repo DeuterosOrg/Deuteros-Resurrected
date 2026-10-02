@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `7c7db5e4550f432405acd62c45da0ba90608df30` (2026-10-02).** Mac and native Windows each pass **406/406 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
+**Latest verified revision: `b3936c2668c430af5eec421d5e170dde2b4c464b` (2026-10-02).** Mac and native Windows each pass **408/408 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -50,6 +50,10 @@ On a revision containing cases **386–403**, manufacture Pulse Blast Laser, SCG
 ### Original item illustration follow-up
 
 At `7c7db5e`, all 32 items use original bitmap shapes. Inspect Research at x208/y68: its image background must be opaque black, without stretched pixels. Production uses the separate masked illustration at x136/y54 over the page artwork. Check all seven formerly oversized diagrams and the complete SCG bottom row; changing products must clear the prior image. The alien artifact intentionally has a blank 32×3 source image. Case **406** checks source hashes and screen rules; the external package smoke loads both resource families. Repeat visible checks in the Windows source and export, including the existing smaller icons and MTX. The `8cdd458` desktop handoff predates this change.
+
+### SCG item names follow-up
+
+At `b3936c2`, check SCG Chassis and SCG Drive names in Production, the Station factory summary, Stores and MTX transfers. Repeat after loading a legacy save with missing names: labels should be restored without changing stock, research or existing custom names. Cases **407–408** cover these paths. This is a separate follow-up to the stable `8cdd458` desktop handoff.
 
 ### Production rod follow-up
 
