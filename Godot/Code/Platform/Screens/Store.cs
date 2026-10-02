@@ -42,33 +42,12 @@ namespace Deuteros.Code.Platform.Screens
 			TradStore = GetNode<Control>("TradStore");
 			MTX = GetNode<MTX>("MTX");
 
-			//TODO - This is messy, should have planned ahead for the MTX
-			//If the MTX is available and active, load it up and display it over the current screen
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
-			{
-				MTX.Visible = CurrentStore.AlternativeView;
-				TradStore.Visible = !CurrentStore.AlternativeView;
-
-				MTX.LoadScene(CurrentStore, SwitchStoreType_ButtonUp);
-
-				if (CurrentStore.AlternativeView)
-				{
-					MTX.UpdateState();
-				}
-				else
-				{
-					RefreshButtons();
-					DrawData();
-				}
-			}
-			else
-			{
-				MTX.Visible = false;
-				TradStore.Visible = true;
-
-				RefreshButtons();
-				DrawData();
-			}
+			// Bind even before discovery: inspecting captured hardware can unlock it while
+			// this screen is open. The installed local module controls access, not the unlock.
+			MTX.LoadScene(CurrentStore, SwitchStoreType_ButtonUp);
+			UpdateStoreView();
+			RefreshButtons();
+			DrawData();
 
 			base._Ready();
 		}
@@ -90,15 +69,23 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			CurrentStore.AlternativeView = !CurrentStore.AlternativeView;
 
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
-			{
-				MTX.Visible = CurrentStore.AlternativeView;
-				TradStore.Visible = !CurrentStore.AlternativeView;
-				if (CurrentStore.AlternativeView)
-					MTX.UpdateState();
-			}
+			UpdateStoreView();
 			RefreshButtons();
 			DrawData();
+		}
+
+		private bool CanUseMtx()
+		{
+			var planet = GameCore.SingletonInstance.GetCurrentPlanet();
+			return !SceneVariables.Contains(Enums.SceneVariables.Ground) && planet.Station.Built
+				&& !planet.ActiveMethanoid && planet.Station.MtxInstalled;
+		}
+
+		private void UpdateStoreView()
+		{
+			MTX.Visible = CurrentStore.AlternativeView && CanUseMtx();
+			TradStore.Visible = !MTX.Visible;
+			if (MTX.Visible) MTX.UpdateState();
 		}
 
 		protected override void ResearchFinished(Objects.ResearchItem researchItem)
@@ -127,13 +114,13 @@ namespace Deuteros.Code.Platform.Screens
 
 		protected override void DayTick(uint previousDay, uint currentDay)
 		{
-			var currentPlanet = Deuteros.Code.GameCore.SingletonInstance.GetCurrentPlanet();
-			
-			if (CurrentStore.AlternativeView && currentPlanet.Station.MtxInstalled && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
+			if (CurrentStore.AlternativeView && CanUseMtx() && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
+				return; // The discovery bulletin replaces this screen.
 			}
 
+			UpdateStoreView();
 			DrawData();
 		}
 

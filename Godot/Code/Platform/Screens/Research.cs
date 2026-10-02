@@ -57,6 +57,8 @@ namespace Deuteros.Code.Platform.Screens
 			ResearchedNode = GetNode<Node2D>("Labels/Researched");
 
 			ResearchImageTextureRect = GetNode<TextureRect>("Sprites/ResearchImage");
+			ResearchImageTextureRect.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+			ResearchImageTextureRect.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
 
 			Buttons = Utility.Buttons.CreateButtons<ResearchButton, ResearchItem>(GetNode<GridContainer>("ResearchButtonGrid"),
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null).Select(T => T.Research).OrderBy(T => T.Index).ToDictionary(obj => obj.Index),

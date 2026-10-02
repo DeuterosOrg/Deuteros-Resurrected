@@ -23,10 +23,12 @@ public partial class Settings
 
 	private void ActivateMTX_Pressed()
 	{
+		if (!GameCore.Earth.Station.Built)
+			ProdInEarthOrbit_Pressed();
+		GameCore.Earth.Station.MtxInstalled = true;
 		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 		{
 			GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth].Station.MtxInstalled = true;
 		}
 	}
 

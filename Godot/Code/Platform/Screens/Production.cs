@@ -45,6 +45,11 @@ namespace Deuteros.Code.Platform.Screens
 
 			SmallItemImageTextureRect = GetNode<TextureRect>("Sprites/SmallItemImage");
 			ItemProgressImageTextureRect = GetNode<TextureRect>("Sprites/ItemProgressImage");
+			foreach (var image in new[] { SmallItemImageTextureRect, ItemProgressImageTextureRect })
+			{
+				image.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+				image.StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered;
+			}
 			TeamFrameImage = GetNode<TextureRect>("Sprites/TeamFrameImage");
 			AocPanel = GetNode<TextureRect>("Sprites/AocPanel");
 
@@ -108,6 +113,8 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CheckProductionStart()
 		{
+			if (SelectedButton?.ObjectData?.ItemType == Enums.ItemTypes.m__t__x
+				&& !CanInstallMtx(CurrentPlanet, Ground)) return;
 			{
 				//There is no staff
 				if (!CurrentFactory.AOC && (CurrentFactory.Builder == null || CurrentFactory.Builder.Count == 0))
@@ -245,7 +252,11 @@ namespace Deuteros.Code.Platform.Screens
 		protected override void ProductionFinished(Objects.Factory factory)
 		{
 			if (factory == CurrentFactory)
+			{
 				SelectedButton = null;
+				foreach (var button in Buttons.Where(b => b.ObjectData?.ItemType == Enums.ItemTypes.m__t__x))
+					button.Redraw(false);
+			}
 		}
 
 		//Triggered from gamecore
@@ -286,7 +297,12 @@ namespace Deuteros.Code.Platform.Screens
 				var currentProductionItem = CurrentFactory.CurrentProductionItem();
 				ProductionNameLabel.Text = currentProductionItem.Product.ShortName;
 				SmallItemImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png", SmallItemImageTextureRect);
-				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".png", ItemProgressImageTextureRect);
+				var progressSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".png";
+				// Some original construction frames have not been exported yet. Show the existing
+				// item illustration until those assets are recovered, without loading a missing file.
+				if (!ResourceLoader.Exists(progressSprite))
+					progressSprite = ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
+				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(progressSprite, ItemProgressImageTextureRect);
 			}
 			else
 			{
@@ -307,6 +323,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		#region Statics
 
+		private static bool CanInstallMtx(IPlanet planet, bool ground)
+		{
+			return !ground && planet.Station.Built && !planet.ActiveMethanoid && !planet.Station.MtxInstalled;
+		}
+
 		public static void UpdateProduction(uint previousDay, uint currentDay)
 		{
 			foreach (var planet in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets)
@@ -322,6 +343,11 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (currentFactory != null)
 					{
+						if (!currentFactory.Ground && currentPlanet.Station.MtxInstalled)
+							currentFactory.ProductionQueue.RemoveAll(order => order.Product.ItemType == Enums.ItemTypes.m__t__x);
+						if (currentFactory.CurrentProductionItem()?.Product.ItemType == Enums.ItemTypes.m__t__x
+							&& !CanInstallMtx(currentPlanet, currentFactory.Ground)) continue;
+
 						if (currentFactory.CurrentProductionItem() == null && currentFactory.AOC)
 						{
 							var productionItem = currentFactory.ProductionQueue.FirstOrDefault(T => CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)); ;
@@ -342,7 +368,12 @@ namespace Deuteros.Code.Platform.Screens
 							{
 
 								var outputStore = currentFactory.Ground ? currentPlanet.PlanetResources.Stores : currentPlanet.Station.Resources.Stores;
-								outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
+								var installsMtx = currentFactory.CurrentProductionItem().Product.ItemType == Enums.ItemTypes.m__t__x
+									&& !currentFactory.Ground;
+								if (installsMtx)
+									currentPlanet.Station.MtxInstalled = true;
+								else
+									outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
 
 								if (!currentFactory.AOC) currentFactory.Builder.AddAction();
 								currentFactory.ProdCycle = 0;
@@ -377,6 +408,10 @@ namespace Deuteros.Code.Platform.Screens
 										RemoveResourceByItem(currentPlanet, currentFactory.CurrentProductionItem().Product, currentFactory.Ground);
 									}
 								}*/
+								else if (installsMtx)
+								{
+									currentFactory.ProductionQueue.Remove(currentFactory.CurrentProductionItem());
+								}
 								else if (currentFactory.CurrentProductionItem().AOCRepeat)
 								{
 									var currItem = currentFactory.CurrentProductionItem();
@@ -426,6 +461,8 @@ namespace Deuteros.Code.Platform.Screens
 
 		public static bool CheckResourceAvailable(IPlanet productionPlanet, Item productionItem, bool ground)
 		{
+			if (productionItem.ItemType == Enums.ItemTypes.m__t__x && !CanInstallMtx(productionPlanet, ground))
+				return false;
 			Objects.Store currentStore;
 
 			if (productionPlanet.PlanetId == Enums.StellarBodies.earth && ground)

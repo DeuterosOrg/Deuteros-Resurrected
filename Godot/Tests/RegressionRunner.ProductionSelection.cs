@@ -86,7 +86,11 @@ namespace Deuteros.Tests
         private void StoreRecipeCategoryRoundTrip(bool mtx)
         {
             PrepareRecipeStocks();
-            if (mtx) Save.Unlocks.Add(Game_Unlocks.Mass_Tranceiver);
+            if (mtx)
+            {
+                Save.Unlocks.Add(Game_Unlocks.Mass_Tranceiver);
+                GameCore.Earth.Station.MtxInstalled = true;
+            }
             var store = SelectProductionAndOpenStores(false);
             Equal(ItemTypes.derrick, store.SelectedButton?.ObjectData.ItemType ?? ItemTypes.none, "recipe selected initially");
             store.SwitchStoreType.EmitSignal(BaseButton.SignalName.ButtonUp);

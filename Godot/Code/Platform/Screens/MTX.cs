@@ -214,8 +214,8 @@ namespace Deuteros.Code.Platform.Screens
 		//Triggered from gamecore
 		protected override void DayTick(uint previousDay, uint currentDay)
 		{
-			//Don't tick if the MTX is not even unlocked
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
+			// Captured hardware can be inspected before its discovery bulletin.
+			if (CurrentMTX != null && IsVisibleInTree())
 				UpdateState();
 		}
 

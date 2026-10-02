@@ -20,7 +20,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215716464570927 — staff attrition](https://app.asana.com/0/1214891399253076/1215716464570927) | High for numeric kernel; medium for cryo semantics | Exact countdown/RNG kernel recovered; map freeze/stage identities and time units before full integration. |
 | [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
 | [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
-| [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. UI/progression still needs implementation and runtime acceptance. |
+| [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. Implemented with cases 174–190; Windows acceptance remains pending. |
 
 ## 1215683087492485 — MTX installation
 
@@ -33,7 +33,7 @@ On 2026-10-02, the original Disk 1 image at parallel commit `faf3a30beb07868e06e
 
 These instructions support installing the MTX at its producing station, without a transferable stock item, and stopping repeat production after installation. The previous notes' generic “needs attention” description of event 24 is superseded for this item mapping. Local disassembly evidence is retained under ignored `artifacts/research/mtx/`; Windows can reproduce it from the pinned image. No original UI or timing session was recorded.
 
-**Implementation acceptance still pending:** normal captured-station discovery, research, paid production at a second station, local installation with no extra stock/duplicate material charge, Stores access only where installed, transfer/balance, and save/load. Route-safety cases 163–173 separately cover captured/missing/incomplete destinations, missing modules, stale selection and configurations with no eligible items; they do not establish installation completion.
+**Implementation evidence:** cases 174–190 cover captured-station discovery, research, paid production at a second station, local installation with no extra stock/duplicate material charge, Stores access only where installed, transfer/balance, and save/load. The capture, staff qualifications and an AOC are staged prerequisites; they are not granted as part of MTX discovery. Case 187 uses normal discovery/research/production/transfer controls, with subsystem updates driven by the fixture and a shortened bulletin. Route-safety cases 163–173 cover captured/missing/incomplete destinations, missing modules, stale selection and configurations with no eligible items. See [validation limits](validation-results.md#mtx-installation-and-stores-access--2026-10-02); Windows progression and original animation fidelity remain unverified.
 
 ## 1215716464570927 — staff attrition
 
