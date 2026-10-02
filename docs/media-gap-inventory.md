@@ -67,18 +67,18 @@ The **11** previously unresolved sheets are now classified by the [original Disk
 | Runtime item | Original-source result | Current runtime status |
 | --- | --- | --- |
 | `pulse_blaster_laser` | Three visible stages, index 9 | Stages and missing small illustration restored |
-| `g_chassis` | Three visible stages, index 12 | Stages restored; existing large research diagram remains |
-| `star_drive` | Three visible stages, index 13 | Stages restored; existing large research diagram remains |
+| `g_chassis` | Three visible stages, index 12 | Stages and original small illustration restored |
+| `star_drive` | Three visible stages, index 13 | Stages and original small illustration restored |
 | `s__d__m` | Three blank stages, index 18 | Original blank construction restored; installation behavior preserved |
 | `hyperlight` | Empty graphics section, index 22 | Research-only; no manufactured construction sequence invented |
 | `m__t__x` | Three blank stages, index 23 | Original blank construction restored; installation behavior preserved |
 | `m__f__l` | Empty graphics section, index 24 | Missing small illustration restored; static construction fallback retained, not claimed as original stage art |
 | `prejudice_torpedo_launcher` | Three visible stages, index 26 | Stages and missing small illustration restored |
-| `star_drone` | Three visible stages, index 29 | Stages restored; existing large research diagram remains |
+| `star_drone` | Three visible stages, index 29 | Stages and original small illustration restored |
 | `prison_pod` | Three visible stages, index 30 | Stages and missing small illustration restored |
 | `sonic_blaster` | Three visible stages, index 31 | Stages and missing small illustration restored |
 
-Cases 386–403 cover paid manual/AOC production, all stages, completion/idle, correct resource charges and installed-module output. Native Mac checks compare **262,656 pixels**, including transparent research backgrounds versus opaque black details. The recovered images retain the remake's metal-colour convention; calibrated original RGB4 display parity is not claimed. Several existing small-image paths actually contain 183×177 diagrams; original small-panel geometry and those replacements remain a follow-up. Research-page rendering and Windows source/export desktop checks also remain pending.
+Cases 386–403 cover paid manual/AOC production, all stages, completion/idle, correct resource charges and installed-module output. Native Mac checks compare **262,656 pixels**, including transparent research backgrounds versus opaque black details. The recovered images retain the remake's metal-colour convention; calibrated original RGB4 display parity is not claimed. All 32 item illustrations now have recovered opaque Research and masked Production variants, replacing the seven oversized diagrams and the missing alien-artifact path. Case 406 verifies every source hash and original screen placement, with 113,952 native Mac pixel comparisons; full 406-case Mac/Windows validation passes at `7c7db5e`. Windows source/export desktop checks remain pending.
 
 `meh_fuel`/`hed_fuel` are `AutoProduce`; their original empty graphics sections are not missing manual stages. The alien artifact is collected/researched and has original blank stages. The production rod (A2) has its own implementation and native Mac evidence. Original production-stage timing remains unverified.
 
@@ -90,4 +90,4 @@ The initial neutral moon-preview fallback has been superseded by the [orbital pa
 
 ## Evidence and handoff limits
 
-The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1/S2 native Windows listening and Windows acceptance for recovered A3 frames. Complete the remaining A3 geometry/fallback review and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.
+The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1/S2 native Windows listening and Windows acceptance for recovered A3 frames. Complete the remaining A3 fallback review and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.

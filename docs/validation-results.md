@@ -547,3 +547,21 @@ The strengthened external smoke driver failed against the old `5053982` Windows 
 Both aggregate processes and the Windows collector exited zero. All collected regression/build/import/smoke/export logs were audited locally. Evidence is under `artifacts/validation/evidence/research-details/` and `artifacts/windows-handoff/d0d15f7-evidence/`; verified source bundle SHA-256 is `a232d7b543f18baef835450d1eb8ecec5b23b5a2086e3c25adfab8cdc508a55b`.
 
 Counts remain **34/48 with implementation evidence and 0/48 fully accepted**. These are additional review fixes. Windows desktop interaction, original colour/timing comparison and oversized-diagram replacement remain pending. The existing `8cdd458` human handoff is unchanged.
+
+
+## Original item illustration recovery — 2026-10-02
+
+Revision **`7c7db5e4550f432405acd62c45da0ba90608df30`** restores all 32 original item images, replacing seven oversized diagrams and adding the missing alien-artifact path. Research uses an opaque original-size bitmap at x208/y68; Production uses a separately masked 48×46 canvas at x136/y54. Native unscaled drawing preserves the SCG's complete 45th row. [Source evidence](original-construction-artwork-evidence.md#complete-item-illustrations-and-original-placement) explains why these screens cannot share transparency rules. The existing recovery script reproduces all 92 generated assets with `--check`.
+
+Case **406** reproduced a 183×177 placeholder before correction. It now validates all 32 indexed source hashes, opaque/masked correspondence, bounds and origins. Native Mac compares **113,952 pixels across 60 rendered views**; SCG screenshots were reviewed. Native compatibility cases 190/206/386/389/400/404/405 also pass. Intermediate test setup failures involving transparent-pixel RGB and duplicate staged research orders are retained separately. An initially passing seven-image approach was expanded after tracing the original Research opaque blit; it is not the final implementation.
+
+Full Mac and native Windows validation each passes **406/406**, strict import, source smoke and Windows export; nine Python tests pass on each machine. Windows packaged smoke loads Bandaid, alien-artifact and the SCG Production illustration successfully. Both packs contain **1,218 entries, all 64 illustration resources and no tests**. Mac incremental compilation has zero warnings/errors; fresh Windows retains 14 existing warnings and zero errors. Windows import has 385 line-ending notices with no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,318,784 | `2c26ed42ed733c989191ddda37d890b0629fb3e1f2625d95b956539ec11d72ce` |
+| Windows | 149,258,432 | `26551d145cddb7c60843e0cbe04eb5c63eea4b901246452f25edbdd9fcdf58d5` |
+
+Both aggregate processes and the collector exited zero; all downloaded logs were audited locally. Evidence: `artifacts/validation/evidence/research-diagrams/` and `artifacts/windows-handoff/7c7db5e-evidence/`. Verified bundle SHA-256: `186d595dc05ba9e8ef557b44119b85a043ad742efa07fc197ad3171321f76f49`.
+
+Counts remain **34/48 with implementation evidence and 0/48 fully accepted**. This advances the existing media task. Original colour calibration, construction timing, MFL static-fallback fidelity and Windows desktop acceptance remain pending. The stable `8cdd458` desktop handoff is unchanged.

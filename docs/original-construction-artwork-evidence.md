@@ -1,6 +1,6 @@
 # Original construction artwork bank
 
-Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. The seven frame sets, original blank SDM/MTX stages and five missing research illustrations are now wired through the existing resource paths. The construction batch passed full 403-case Mac/Windows validation at `5053982`. The illustration follow-up below has focused native Mac evidence; its full cross-platform run is pending.
+Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. The seven frame sets, original blank SDM/MTX stages and five missing research illustrations are now wired through the existing resource paths. The construction batch passed full 403-case Mac/Windows validation at `5053982`. The illustration follow-up below passes full 406-case Mac/Windows validation at `7c7db5e`; Windows desktop acceptance is pending.
 
 ## Source and loader
 
