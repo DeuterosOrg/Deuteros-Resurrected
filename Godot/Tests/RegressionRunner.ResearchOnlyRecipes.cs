@@ -259,7 +259,10 @@ namespace Deuteros.Tests
                 store.Buttons.Single(b => b.ObjectData?.ItemType == type).EmitSignal(BaseButton.SignalName.Pressed);
                 await InputFrames();
                 Equal(type, store.CurrentStore.SelectedRecipe, "each physical recipe can be inspected");
-                Equal(true, store.BuildAmountLabel.Text.StartsWith("Enough supplies for "), "each offered recipe has a capacity readout");
+                if (type == ItemTypes.alien_artifact)
+                    Equal("No materials required", store.BuildAmountLabel.Text, "original device recipe has no material cost");
+                else
+                    Equal(true, store.BuildAmountLabel.Text.StartsWith("Enough supplies for "), "material recipes retain their capacity readout");
             }
         }
     }

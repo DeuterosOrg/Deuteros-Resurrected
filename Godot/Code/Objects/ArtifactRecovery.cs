@@ -20,6 +20,7 @@ namespace Deuteros.Code.Objects
             {
                 item.BuildRequirements ??= new();
                 item.OrbitOnly = true;
+                item.ToolPod = item.ToolPodSingular = true;
                 if (string.IsNullOrWhiteSpace(item.FullName)) item.FullName = "Unknown";
                 if (string.IsNullOrWhiteSpace(item.ShortName)) item.ShortName = "Unknown";
             }

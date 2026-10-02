@@ -627,7 +627,8 @@ namespace Deuteros.Code
 				unknownitem.ItemCategory = Enums.ItemCategory.item;
 				unknownitem.ItemType = Enums.ItemTypes.alien_artifact;
 				unknownitem.Mass = 2000;
-				unknownitem.ToolPod = false;
+				unknownitem.ToolPod = true;
+				unknownitem.ToolPodSingular = true;
 				unknownitem.Locked = true;
 				unknownitem.OrbitOnly = true;
 				unknownitem.BuildRequirements = new List<BuildRequirement>();
@@ -792,6 +793,8 @@ namespace Deuteros.Code
 				pulseLaser.ItemCategory = Enums.ItemCategory.item;
 				pulseLaser.ItemType = Enums.ItemTypes.pulse_blaster_laser;
 				pulseLaser.Mass = 750;
+				pulseLaser.ToolPod = true;
+				pulseLaser.ToolPodSingular = true;
 
                 pulseLaser.Research = new ResearchItem(Enums.ItemTypes.pulse_blaster_laser, 10, 3);
 

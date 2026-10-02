@@ -128,13 +128,10 @@ namespace Deuteros.Tests
             dfcc.Research.Researched = true;
             dfcc.Locked = false;
             stores[ItemTypes.d__f__c__c] = 1;
-            var equipment = Save.BaseGameData.ItemList.Where(i => i.ItemCategory == ItemCategory.item && i.Research.Researched && i.ToolPod).OrderBy(i => i.Research.ResearchOrder).ToArray();
-            var index = Array.FindIndex(equipment, i => i.ItemType == ItemTypes.d__f__c__c);
             Press(bay, "Buttons/ShipNav/Nav_Torso1");
             Press(bay, ShipParts + "Torso1/SpriteHolder/Buttons/ActivatePod");
-            var button = "EquipmentStock/Buttons/" + index.ToString("D2");
             stores[ship.FuelType] = 49976;
-            Press(bay, button);
+            PressEquipmentNamed(bay, dfcc.ShortName);
             Equal(false, ship.DFCC, "blocked fuel return cannot change hull mode");
             Equal(25, ship.Fuel, "blocked fitting leaves tank intact");
             Equal(1, stores[ItemTypes.d__f__c__c], "blocked fitting leaves equipment stock intact");
@@ -142,7 +139,7 @@ namespace Deuteros.Tests
             if (OverlayManager.Instance.IsOpen) OverlayManager.Instance.CloseOverlay();
             await InputFrames();
             stores[ship.FuelType] = 49975;
-            Press(bay, button);
+            PressEquipmentNamed(bay, dfcc.ShortName);
             Equal(true, ship.DFCC, "DFCC fitted");
             Equal(0, ship.Fuel, "old tank emptied before cost changes");
             Equal(50000, stores[ship.FuelType], "old fuel returned at old one to one value");

@@ -1111,9 +1111,25 @@ namespace Deuteros.Code.Platform.Screens
 
 		#region EquipmentStock
 
+		private Item[] EquipmentForShip()
+		{
+			// Original $32B1E hull masks, expressed by item identity rather than saved research indices.
+			bool Fits(ItemTypes type) => type switch
+			{
+				ItemTypes.derrick or ItemTypes.of_frame or ItemTypes.a__c__c or ItemTypes.bandaid or ItemTypes.r_frame => true,
+				ItemTypes.pulse_blaster_laser or ItemTypes.a__m__a => Ship.ShipType == Ship_Types.IOS,
+				ItemTypes.alien_artifact or ItemTypes.prison_pod => Ship.ShipType == Ship_Types.SCG,
+				ItemTypes.grapple or ItemTypes.d__f__c__c or ItemTypes.commspod or ItemTypes.sonic_blaster => Ship.ShipType is Ship_Types.IOS or Ship_Types.SCG,
+				_ => false
+			};
+			return GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList
+				.Where(item => item.ItemCategory == ItemCategory.item && item.Research?.Researched == true && Fits(item.ItemType))
+				.OrderBy(item => item.Research.Index).ToArray();
+		}
+
 		private void UpdateEquipmentStock()
 		{
-			var equipmentList = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.ItemCategory == ItemCategory.item && T.Research.Researched && T.ToolPod).OrderBy(T => T.Research.ResearchOrder).ToArray();
+			var equipmentList = EquipmentForShip();
 
 			for (int i = 0; i < 11; i++)
 			{
@@ -1144,14 +1160,18 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				var itemIndex = Array.FindIndex<Item>(equipmentList, T => T.ItemType == Ship.Modules[ScreenState - 1].ItemStored);
 
-				EquipmentStockNameLabels[itemIndex].AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
-				EquipmentStockCountLabels[itemIndex].AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
+				if (itemIndex >= 0)
+				{
+					EquipmentStockNameLabels[itemIndex].AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
+					EquipmentStockCountLabels[itemIndex].AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
+				}
 			}
 		}
 
 		private void SelectEquipment(int itemIndex)
 		{
-			var equipmentList = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.ItemCategory == ItemCategory.item && T.Research.Researched && T.ToolPod).OrderBy(T => T.Research.ResearchOrder).ToArray();
+			var equipmentList = EquipmentForShip();
+			if (itemIndex < 0 || itemIndex >= equipmentList.Length) return;
 
 			var itemType = equipmentList[itemIndex].ItemType;
 
@@ -1180,8 +1200,11 @@ namespace Deuteros.Code.Platform.Screens
 
 				ResourceList.Stores[Ship.Modules[ScreenState - 1].ItemStored] += Ship.Modules[ScreenState - 1].ItemCount;
 
-				EquipmentStockNameLabels[storedItemIndex].RemoveThemeColorOverride("font_color");
-				EquipmentStockCountLabels[storedItemIndex].RemoveThemeColorOverride("font_color");
+				if (storedItemIndex >= 0)
+				{
+					EquipmentStockNameLabels[storedItemIndex].RemoveThemeColorOverride("font_color");
+					EquipmentStockCountLabels[storedItemIndex].RemoveThemeColorOverride("font_color");
+				}
 			}
 
 			if (Ship.Modules[ScreenState - 1].ItemStored == itemType)
@@ -1200,7 +1223,8 @@ namespace Deuteros.Code.Platform.Screens
 					((InterStellarShip)Ship).DFCC = true;
 				}
 
-				if (GameCore.SingletonInstance.GameData.GetItem(itemType).ToolPodSingular)
+				// Original $32FD4 stacks only Derricks; all other equipment occupies one slot.
+				if (itemType != ItemTypes.derrick)
 				{
 					Ship.Modules[ScreenState - 1].ItemCount = 1;
 					ResourceList.Stores[itemType]--;

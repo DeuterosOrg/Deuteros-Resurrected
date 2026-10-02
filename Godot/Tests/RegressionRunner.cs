@@ -164,6 +164,10 @@ namespace Deuteros.Tests
                 foreach (var ground in new[] { false, true })
                     await CheckAsync($"Recovered device manufactures only in orbit automated={automated} ground={ground}", () => ArtifactManufacture(automated, ground));
             Check("Legacy completed devices acquire their original recipe without losing progress", ArtifactManufactureLegacySave);
+            foreach (var hull in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+                await CheckAsync($"Tool selector follows original hull eligibility and exposes its last row hull={hull}", () => ToolFittingHull(hull));
+            await CheckAsync("Legacy incompatible equipment is returned once when replaced", ToolFittingLegacyEquipment);
+            await CheckAsync("Recovered manufactured device fits one SCG tool slot and survives a save", ArtifactManufactureToFitting);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

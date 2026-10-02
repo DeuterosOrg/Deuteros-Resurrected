@@ -85,7 +85,8 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 					else
 						Component = SpriteManager.LoadImageToTextureRect(ComponentSpriteBasePath + "Component_Generic.png", Component);
 
-					Contents.Text = Module.ItemStored.ToScreenString(" ");
+					Contents.Text = GameCore.SingletonInstance.GameData.GetItem(Module.ItemStored).ShortName
+						?? Module.ItemStored.ToScreenString(" ");
 				}
 			}
 			else if (Module.ModuleType == Module_Types.Supply)
