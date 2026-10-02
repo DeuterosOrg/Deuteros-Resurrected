@@ -1,21 +1,15 @@
 # Windows agent brief
 
-## Windows Codex starting brief
+## Start here
 
-**Latest verified Windows baseline: `d11ff3b` (2026-10-02), 337/337 cases, release export and packaged startup passed.** Use the exact revision/report supplied with your handoff; the history below preserves earlier baselines. This follow-up includes marine-rank labels, research-only recipe safety and the accepted-trade fuel gift. Desktop results belong in a separate `docs/windows-desktop-results-<sha>.md` so ongoing gameplay work does not conflict with your report.
+**Latest verified revision: `8cdd458e9fe661bc78872b9b28e78c77001634a1` (2026-10-02).** Mac and native Windows each pass **349/349 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **31/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
 
-**Updated 2026-10-02; latest follow-up corrects ACC Complete Cycle.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
+1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` should retain that revision in its report, then test the newer changes separately.
+2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
+3. **Validate, then test the desktop.** Use the setup below and a fresh export of the recorded commit. Prioritize actual mouse/keyboard, audible sound, settings, save/load and repeated physical window closing, then the feature checks. Record source and export separately, with staged fixtures distinguished from normal progression. Automated input is not physical acceptance.
+4. **Return a separate report.** Write `docs/windows-desktop-results-<sha>.md` with PASS/FAIL/NOT TESTED, evidence paths, steps and fixture shortcuts. Keep logs/screenshots under ignored `artifacts/windows-validation/`. Return the report summary, commit SHA and Git bundle path through Craig. Coordinate gameplay-file ownership before making concurrent fixes.
 
-**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **329/329 headless regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed desktop Windows acceptance. Native Windows automation now passes all 329 cases at `d057b9d`; physical desktop checks and the separate native Mac shutdown failure remain outstanding. See [latest validation](validation-results.md#acc-complete-cycle--2026-10-02).
-
-1. **Pick up the branch safely.** Inspect local changes and remotes, fetch from the remote Craig pushed to, and check out the contribution without discarding work. Do not substitute `develop` if it is missing. Read [backlog progress](backlog-progress.md) and [validation results](validation-results.md).
-2. **Build and validate.** Follow [the PowerShell setup](#windows-setup-and-automated-validation): Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**. Run validator unit tests and full validation with Windows export. Preserve each attempt; investigate failures before retesting.
-3. **Test actual Windows gameplay.** Follow [interactive acceptance](#interactive-acceptance-pass) and the feature checks below in both source and fresh export. Prioritize physical navigation/audio/window close, save/load, MTX, ship assembly, supply-pod discard, engine damage and DFCC fuel. Label staged fixtures separately from normal progression.
-4. **Return evidence, then continue fixes.** Create `docs/windows-validation-results.md` using [the report template](#deliverable), update the local task ledger, and continue unresolved tasks in focused commits. Record unavailable desktop/hardware checks as **NOT TESTED**, then continue independent work.
-
-Complete Windows testing before recommending a team PR. Keep publication and Asana changes for Craig's instruction. Ignored Mac artifacts do not travel with Git; regenerate logs and builds locally.
-
-**Launch instruction:** “Read `docs/windows-agent-brief.md` and execute its Windows validation and backlog workflow.” Pushing makes this file available; it does not launch Codex. The Windows session must be started with this instruction.
+Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
 ## Feature acceptance details
 
@@ -23,7 +17,13 @@ Complete Windows testing before recommending a team PR. Keep publication and Asa
 
 On a revision containing cases **314–329**, verify Cycle from each endpoint and during transit/fuel waits. It should finish one leg, unload, retain overflow, and stop without refuelling or loading return cargo. Engage should cancel the finish request; save/reload should preserve it. Check the Finishing and Refueling labels. Repeat with shuttle and IOS, then close the source and exported game normally.
 
-A separate **native Mac case 315 failed during shutdown** with `!rc_owner` after its assertions passed; case 314 exited cleanly and the full 329-case headless run passed. Keep this failure visible in your report. Windows now passes all 329 cases at `d057b9d`, including case 315, but this does not establish physical close behavior or resolve the native Mac failure. Preserve every attempt and investigate any crash/hang before retesting.
+The historical native Mac case-315 failure is preserved. A controlled debug input-cache failure now has a [correction](shutdown-input-evidence.md), covered by cases 348–349 and three clean native Mac case-315 exits. The full Windows 349-case run includes it. Repeat physical close with sound after real input in source and export; a passing gameplay marker alone is insufficient. Preserve failures and diagnose before retesting.
+
+### SDM installation, recipes and trade follow-up
+
+For SDM, research and manufacture at a friendly orbital station. One paid build must install locally, create no new stock and stop AOC repeat. Check Installed hover, duplicate rejection, saving/reloading mid-build and completion, and interruption by station loss/capture. Ground factories must reject it. Existing SDM stock is preserved. Cases 338–347 cover installation; arming, defusing and destruction remain unfinished and must not be reported as accepted.
+
+Check Captain remains visible through action 39 and Admiral begins at 40. Completed Hyperlight must not become a manufacturing recipe or crash ground/orbital Stores, including legacy stale selections. Automatic fuel refining must continue. Accepting an eligible peaceful trade fills fuel to 250; refusal, cancellation and stale offers must not. Cases 330–337 and strengthened 220–235 support these corrections.
 
 ### Supply-pod discard acceptance
 
@@ -42,95 +42,6 @@ Treat inventories from pre-fix saves separately: historical part deductions cann
 Menu-sound tests 212–219 now accompany the implementation: one persistent player uses the supplied cue for top/side menus, time toggle and hold. All eight focused cases pass; native Mac cases 212/216–219 also pass. The full 219-case run, startup smoke and fresh Windows cross-export also pass; use the actual pushed SHA for Windows validation.
 
 On Windows, listen while activating those controls with the physical mouse, keyboard and a controller where available. Verify scene changes do not truncate the cue; disabled/empty/hidden controls, cancelled presses and right-clicks stay silent. Holding time should sound once on press, with no tick/release cues. Check rapid navigation, mute/volume and window close. Automated `ui_accept` events cover the action route, not physical controller hardware or listening quality. Original-game cue correspondence remains unverified.
-
-## Mission and handoff
-
-Craig's goal is to resolve **all 48 open Asana tasks**, including missing features and original-game research questions. The first contribution supplies build tooling, regression tests and a batch of fixes. It does not resolve the entire backlog.
-
-After Craig pushes `codex/build-tests-and-gameplay-fixes`, work from that branch. First establish the native Windows baseline, verify the existing fixes in the exported game, then continue the backlog in focused, tested changes. Inspect the working tree before switching branches; preserve existing work. Coordinate file ownership if another agent is still working on this branch.
-
-**Windows Codex starting instruction:** “Read `docs/windows-agent-brief.md`, record the checked-out commit, and complete its Windows validation and backlog workflow.” This file supplies the handoff; pushing it does not itself launch an agent. Complete native Windows testing before recommending a team-facing PR.
-
-Read these files first:
-
-- Root `AGENTS.md` — preserve it. Its original engine pin and testing/export description predate this contribution; use Godot 4.2.2 and the current commands below and in the README.
-- [README](../README.md), [CONTRIBUTING](../CONTRIBUTING.md), and [testing details](testing.md).
-- [Validation results](validation-results.md) — verified work and unresolved runtime failures.
-- [Asana reconciliation](asana-triage.md) — all 48 task IDs, source locations and acceptance questions.
-- [Backlog progress](backlog-progress.md) — current implementation and verification status; coordinate active items before editing.
-
-Keep work local until Craig authorizes publication. Do not push, open/merge PRs, or change/comment on Asana tasks merely because a test passes.
-
-## Start here on Windows
-
-Use the latest pushed head of **`codex/build-tests-and-gameplay-fixes`** and record the actual checked-out SHA. The station-display batch was `c7b3968`; MTX route safety was `77d296f`, installation/Stores was `78c6c48`, followed by the Godot 4.2.2 script-lifetime fix. Reconcile subsequent changes with the progress ledger before using the counts below.
-
-1. Inspect local changes and `git remote -v`, then fetch the contribution branch from the remote where Craig pushed it. Do not assume `origin` is Craig's fork: the Mac checkout currently points to `tonyoddspherecom/Deuteros-Resurrected`. Check out the latest pushed state without discarding local work. If the branch is unavailable, report the missing remote/branch rather than substituting `develop`. Preserve root `AGENTS.md`.
-2. Run the pinned setup and full validation below. Investigate any stall or strict engine failure; retain failure evidence before any diagnostic rerun.
-3. Complete the source-game and exported-game acceptance passes. Record each scenario as passed, failed or not tested, with the commit and reproduction steps.
-4. Write `docs/windows-validation-results.md`, update task evidence in the local ledger, then continue unresolved backlog items. Keep Windows validation and subsequent gameplay changes in separate commits.
-
-Task **1215683087492485 — Add MTX module** now includes local installation on production completion, duplicate/repeat prevention, Stores access checks and save/load regressions, supported by [original instructions](original-behavior-evidence.md#1215683087492485--mtx-installation). Prioritize its Windows acceptance below alongside the known runtime failures, then continue unresolved rows in the ledger. Coordinate ownership before editing if Mac work has resumed.
-
-Pushing this branch makes the brief available to the Windows agent; it does not start Codex or automatically run the validation workflow. The current CI push trigger targets `develop`; PR and manual workflow triggers are separate.
-
-## Current evidence
-
-The latest Complete Cycle batch passes **329/329 headless Mac cases**, import, startup and cross-export, plus nine Python tests. A separate native Mac teardown failed at case 315; [details and limits](validation-results.md#acc-complete-cycle--2026-10-02) remain part of the current result. Windows automation now passes all 329 cases at `d057b9d`, including release export and packaged startup.
-
-The preceding AMA Mac suite had **313 cases**, including four AMA cargo regressions. **313/313, strict import, startup smoke and cross-export passed**; the later tooling update has nine passing Python tests. See [the result](validation-results.md#ama-compatible-cargo--2026-10-02). The local task count remains **31/48** because wider AMA research is incomplete. Windows results below cover their explicitly named revisions.
-
-Native Windows now has a [passing full baseline](windows-validation-results.md) at **`d057b9d`**: **329/329 regressions**, nine Python tests, strict import, source smoke and release export passed in one run. The packaged executable also passed an external headless smoke check. The earlier missing-RCEdit export failure is preserved; the committed installer/validator correction is verified. Continue desktop acceptance on this revision or a separately validated newer one.
-
-The preceding Mac suite had **309 cases**, including five grapple-only ACC regressions. **Full validation passed 309/309 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 306/308/309 pass. There are **31 task-level implementations** requiring Windows acceptance. See [the latest result](validation-results.md#grapple-only-asteroid-acc--2026-10-02) and [original control trace](original-asteroid-acc-evidence.md).
-
-The preceding suite had **304 cases**, with eleven DFCC fuel regressions. **Full validation passed 304/304 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 294/296/298/300/301/303 also pass. Consult [the latest aggregate/export status](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). There are 30 task-level implementations requiring Windows acceptance.
-
-The preceding suite had **293 cases**, including 17 engine-damage/recovery regressions. **Full validation passed 293/293 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 277/280/285/287/291/292/293 pass; consult [the latest aggregate/export status](validation-results.md#engine-damage-and-recovery--2026-10-02). At that checkpoint, 29 task-level implementations required Windows acceptance.
-
-The preceding suite had **276 cases**. A controlled reproduction connects pending resource finalizers to skipped weak-reference cleanup during engine shutdown. The fix collects and drains finalizers after scene/audio release, before quitting. Cases 183/184/276 each pass four focused repetitions; native Mac cases 23/150/183/184/205/264/276 pass. **Fresh full validation passed 276/276 isolated cases in one run**, strict import, startup smoke and Windows cross-export; all six Python validator tests pass. See [the latest aggregate/export result](validation-results.md#shutdown-finalizer-drain--2026-10-02). Windows physical window close and exported-game acceptance remain required.
-
-The preceding suite had **275 cases**, including eleven supply-pod cases. Its full attempt and continuation failed strict teardown at **cases 183 and 184** after passing MTX assertions, with `!rc_owner`, texture/scene reference leaks and leaked RIDs. Cases 1–182 and 185–275, startup smoke and a fresh Windows cross-export passed: **273/275 across three runs, not a green aggregate**. All eleven new cases pass. See [the current supply-pod result](validation-results.md#supply-pod-discard--2026-10-02) for evidence and limits. Native Mac checks and screenshots support the discard implementation; all 28 task-level implementations still require native Windows acceptance.
-
-The preceding suite had **264 cases**, including a passing regression for prematurely disposed injected mouse events. Its full attempt failed at **case 23** with a native teardown crash. Cases 1–22 and continuation 24–264, startup smoke and a fresh Windows cross-export passed: **263/264 across two runs, not a green aggregate**. Native Mac cases 61/65/212/232/264 passed. See the [input-lifetime diagnosis and current run status](validation-results.md#queued-test-input-lifetime--2026-10-02). The validator has six passing unit tests and now explicitly rejects native crash/fatal headers. Keep physical Windows mouse/navigation/window-close acceptance separate from the injected-input fix.
-
-The preceding **263-case** assembly-batch aggregate failed at case 61 with three GC-handle errors. Cases 1–60 and continuation 62–263 passed, as did startup smoke and a fresh Windows cross-export: **262/263 across two runs, not a green aggregate**. See the [current assembly result](validation-results.md#ship-assembly-and-inventory-conservation--2026-10-02) for the continuation and acceptance limits. Do not report a green aggregate based on the earlier run.
-
-The preceding suite had **248 cases** and **27 task-level fixes with local regression evidence**, plus partial trading and SCG feature work. The hull-travel batch passed **248/248 in one full run**, strict import, startup smoke and fresh Windows export; five Python validator tests pass. Native Mac cases 241/243/246/247 passed and the IOS rejection message was visually inspected. Cases 236–248 cover IOS/local/SCG routing, metadata, ACC inventory conservation and elapsed arrival. See [hull validation](validation-results.md#hull-travel-restrictions-and-elapsed-arrival--2026-10-02); original interstellar duration and Windows gameplay remain unverified.
-
-The preceding trading-decision batch passed **235/235 in one full run**, strict import, startup smoke and a fresh Windows export; five Python validator tests pass. Six reproduced defects include automatic acceptance, invalid cargo counting, war gating, duplicate gifts and interrupted text locks. Native Mac decision/input/cleanup checks passed and the corrected dialog was visually inspected. The first aggregate stopped at a timing-sensitive menu-cue assertion; a controlled slow-navigation probe proved the assertion could fail after successful cue completion, and the test was corrected before this fresh run. See [trade and validation evidence](validation-results.md#methanoid-trading-decisions-and-interrupted-text--2026-10-02). Original trade timing and Windows acceptance remain incomplete.
-
-The preceding menu-click batch had **219 cases** and passed **219/219 in one full run**, startup smoke, a fresh Windows cross-export and five Python validator tests. Native Mac cases 212/216–219 passed. The exported pack contains the menu scene, cue import and sample. This does not certify audible quality or Windows gameplay. See [menu-sound evidence](validation-results.md#persistent-menu-click-feedback--2026-10-02).
-
-The preceding construction-frame batch had **211 cases**. Nine supplied construction frames now render for IOS chassis/drive and resource-station frame. Cases 206–211 cover manual/AOC production; native Mac cases 206/208/210 passed all 32,256 frame-pixel comparisons. **211/211 passed in one full run**, along with startup smoke, fresh Windows cross-export and five Python validator tests. All 17 new resource entries were verified in the export's pack directory. The last recompilation retains 14 existing warnings. Windows rendering/gameplay and original timing remain pending. See [frame-recovery evidence](validation-results.md#supplied-construction-frame-recovery--2026-10-02).
-
-The preceding ambience batch wired Store/Ship Bay audio and changed window close to release scenes before a bounded audio-mixer drain. Its first full attempt exposed a case-10 playback leak; after the production shutdown fix, **205/205 passed in one full run**, with startup smoke and Windows cross-export. Cases 200–205 cover those audio paths; native Mac cases 10/150/205 also exited cleanly. Native Windows listening/gameplay and physical window-close acceptance remain pending. See [audio/shutdown evidence](validation-results.md#store-and-ship-bay-ambience-and-audio-shutdown--2026-10-02).
-
-The preceding menu-artwork batch restored the exact Methanoid face and damaged ground-service icons, disabled damaged services, and restored them after normal shuttle repair. Cases 192–199 passed focused checks; native Mac captures were inspected. Its full attempt passed 1–149, then case 150 passed gameplay assertions but hit `FATAL: Condition "!rc_owner" is true` during shutdown and timed out after 180 seconds. Continuation cases 151–199, startup smoke and Windows cross-export passed: **198/199 across two runs, not a passing aggregate**. Retain that historical failure; the new mixer-drain result does not establish its root cause. See [menu batch evidence](validation-results.md#methanoid-and-damaged-base-menu-artwork--2026-10-02).
-
-The engine/SDK pin remains **Godot 4.2.2**. Its script-lifetime batch had **191 cases**. The patch contains the upstream fix for the captured script-registration deadlock. New stress case 191 timed out on 4.2.1 and passed on 4.2.2; focused cases 150, 153 and 65 also passed. **Clean-cache validation passed 191/191 isolated cases**, startup smoke and a fresh Windows cross-export. Five Python validator tests passed; compilation has 14 existing warnings and zero errors. Native Mac cases 187/190 passed and their captures were inspected; native Windows gameplay remains untested. See [engine evidence](validation-results.md#godot-422-script-lifetime-fix--2026-10-02). That runtime correction did not increase the then-current 25 Asana-linked implementation count.
-
-The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
-
-Before the engine patch, the last fully passing local run on **2026-10-02 covered 153 isolated cases**, startup smoke and Windows cross-export. The MTX installation batch had **190 cases** and **25 Asana-linked fixes with local regression evidence**. Its final 4.2.1 full attempt passed cases 1–149, then case 150 timed out after 180 seconds while Research entered the tree. A continuation passed 151–152 but case 153 timed out at its 45-second focused limit. Without retrying either failure, a second continuation passed 154–190, startup smoke and a fresh Windows cross-export. Five Python validator tests passed. This is **188/190 across three runs, not a passing aggregate**. The preceding 162- and 173-case attempts also stalled at case 150. Windows gameplay and visual acceptance remain pending.
-
-Commit `4cac288` previously contained 123 cases and 18 Asana-linked fixes with local regression evidence. That batch's full run failed at case 65 on invalid GC-handle errors despite passing assertions; its other 122 cases passed across the attempt and continuation. Case 65 passed in subsequent full runs, but the same stack signatures recurred at case 61 in the assembly batch; no proven fix exists for this intermittent failure. Preserve both results when assessing readiness.
-
-### Salvage and bulletin batch — 2026-10-02
-
-The News/bulletin, OF pilot-warning and unknown-object batch expanded the runner to **153 cases** and the ledger to **21 Asana-linked fixes with local regression evidence** at that point. See [batch evidence](validation-results.md#news-of-pilot-warning-and-alien-technology-batch--2026-10-02) for the latest aggregate result and exact limits; none of the 48 tasks is declared fully accepted.
-
-- Cases 124–128 cover News history/replay and bulletin input-lock ownership. Broader News report coverage remains unspecified.
-- Cases 129–134 cover OF pilot warnings, state preservation and cleanup. Compare the native layout and pointer behavior with the Asana reference.
-- Cases 135–149 and 151 cover unknown-object capture, research discovery, cargo/artifact conservation, crew/weight limits, gift handling and idempotent unlocks.
-- Case 150 follows the comms gift through normal research, production, fitting and trade. It passed targeted validation but has also intermittently stalled while Research enters the tree; the later 4.2.2 patch addresses its captured script-registration deadlock. Removing Research audio did not eliminate the old-engine stall. Case 152 verifies removal of a detached Research placeholder button; this is a separate confirmed leak fix.
-- Case 153 follows the actual war-warning Fusion Laser gift through analysis and normal research to drone technology. Prior trades, travel, staff and equipped ships are staged fixtures; narrative text is shortened. Repeat the full gameplay path natively.
-
-Earlier typing-audio leaks were reproduced in a standalone engine probe. The test helper now waits for stopped playback to drain on the mixer before immediate process exit, with a bounded wait and strict error checks. This does not certify native audio/navigation shutdown. Rebuild before investigating any case, never use a stale assembly after compilation fails, and preserve failed logs even when a diagnostic rerun passes.
-
-The initial batch addressed twelve gameplay/UI defects, including AMA equipment duplication, reversed initial IOS ACC endpoints and consecutive grapple unloading. The latter three correspond to open Asana reports. Use the linked results for the full list; do not report all 48 as fixed.
-
-Raw Mac logs and binaries are under ignored `artifacts/` and will not arrive with a Git checkout. Regenerate evidence on Windows.
 
 ## Windows setup and automated validation
 
@@ -215,7 +126,7 @@ Already-loaded DFCC tanks in old saves retain their range; subsequent refunds us
 
 For **1215683087492480**, the [original code](original-asteroid-acc-evidence.md) confirms deliberate disengagement after a scan without AMA. Engage ACC on an IOS at the asteroids with a qualified pilot, grapple and supply pod. Before a find it should remain engaged; after a find it must disengage without capturing cargo, docking, departing or clearing filters. Check both selected large asteroids and small/unselected ones. Capture an eligible small asteroid manually afterward, then save/reload. Repeat with AMA fitted: a selected class-six-or-larger unmined asteroid should still start docking for mining. Cases **305–309** cover local behavior; use physical Windows controls in source and export.
 
-Keep Complete Cycle separate: its modern flag combination and full lifecycle still require investigation. Do not treat this single Engage correction as proof of all AMA/ACC fidelity or original scan timing.
+Keep the Complete Cycle acceptance above separate. This Engage correction does not prove all AMA/ACC fidelity or original scan timing.
 
 ## AMA cargo acceptance
 
@@ -244,7 +155,7 @@ Manufacture an IOS chassis, interplanetary drive and resource-station frame manu
 
 ## Runtime checks and historical failures
 
-- The latest shutdown correction collects unreachable wrappers and waits for their finalizers while the engine is still alive. Keep it after scene/audio release and before `Quit`. Case **276** deterministically queues 64 resources behind a bounded finalizer gate; the old code leaked all 64, while the correction exits cleanly. This is separate from premature injected-input disposal. Repeat 183/184/205/264/276 on Windows and test physical window close in source/export; preserve any recurrence instead of adding sleeps or excluding errors. See [controlled evidence](shutdown-finalizer-evidence.md).
+- The earlier finalizer correction collects unreachable wrappers and waits for their finalizers while the engine is still alive. Keep it after scene/audio release and before `Quit`. Case **276** deterministically queues 64 resources behind a bounded finalizer gate; the old code leaked all 64, while the correction exits cleanly. This is separate from premature injected-input disposal. Repeat 183/184/205/264/276 on Windows and test physical window close in source/export; preserve any recurrence instead of adding sleeps or excluding errors. See [controlled evidence](shutdown-finalizer-evidence.md).
 
 - The menu-artwork **4.2.2** attempt hit a **case-150 shutdown failure** after its completed trade and passing assertions: `FATAL: Condition "!rc_owner" is true` at `_instance_binding_reference_callback` (`csharp_script.cpp:1379`), followed by a 180-second timeout. The native sample shows exception dispatch after engine disposal; the managed diagnostic tool returned no frames. This is distinct from the earlier Research-entry stall. Case 150 now passes focused headless/native and full-suite checks using the production shutdown path. Preserve the old failure, investigate shutdown on Windows, and do not treat passing assertions as a clean exit. Its original root cause and relationship to the earlier audio failures are unproven.
 
@@ -252,7 +163,7 @@ Manufacture an IOS chassis, interplanetary drive and resource-station frame manu
 
 - On Mac, the former direct-exit audio/navigation path leaked Ogg resources or hung with `!rc_owner`. An isolated Godot 4.3 comparison also failed. The new scene-release/mixer-drain sequence resolves the observed immediate-exit leak in strict checks; it is not a demonstrated fix for every historical fatal error. Repeat actual window close on Windows.
 - Case 153 (war-warning Fusion Laser gift → analysis → research → drone unlock) timed out at 45 seconds in the final 4.2.1 continuation. It passed focused and full-suite 4.2.2 checks. Its failed 4.2.1 log contains bulletin/input-lock activity; no managed trace was captured. Its historical cause is unproven; investigate any recurrence independently. Preserve the failed log and capture a stack before changing lifecycle code.
-- Earlier combined runs and case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). The later case-61 investigation reproduced premature disposal of injected mouse events; the helpers are corrected and stress case 264 protects that lifetime. Cases 61/65/264 now pass focused headless and native Mac checks, but this does not establish the cause of every historical failure. Repeat them on Windows; select a case with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs and capture diagnostics before changing resource ownership. Keep the current case-23 native teardown crash and historical case-150 fatal error separate from this reproduced harness defect.
+- Earlier combined runs and case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). The later case-61 investigation reproduced premature disposal of injected mouse events; the helpers are corrected and stress case 264 protects that lifetime. Cases 61/65/264 now pass focused headless and native Mac checks, but this does not establish the cause of every historical failure. Repeat them on Windows; select a case with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs and capture diagnostics before changing resource ownership. Keep the historical case-23 native teardown crash and case-150 fatal error separate from this reproduced harness defect.
 - Godot 4.2.1's binary scene conversion leaked instances during fresh exports. `export/convert_text_resources_to_binary=false` avoids that path; retain it unless a tested replacement removes the need.
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 
@@ -288,7 +199,7 @@ For **1215685674676241 — SCGs**, the [hull gate and arrival fix](original-beha
 
 ## Deliverable
 
-Create `docs/windows-validation-results.md` with the tested commit/dirty state, Windows/GPU details, tool versions, commands, case counts, source/export results, manual scenarios and exact unresolved failures. Include Asana IDs and evidence for every newly verified task. Store raw logs/screenshots under `artifacts/windows-validation/`; keep binaries and generated caches out of commits.
+Create `docs/windows-desktop-results-<sha>.md` with the tested commit/dirty state, Windows/GPU details, tool versions, commands, case counts, source/export results, manual scenarios and exact unresolved failures. Include Asana IDs and evidence for every newly verified task. Store raw logs/screenshots under `artifacts/windows-validation/`; keep binaries and generated caches out of commits.
 
 Use this compact report structure:
 
