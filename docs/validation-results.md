@@ -188,6 +188,16 @@ New case **205** navigates Store → Ship Bay → Training three times, opens pa
 
 This establishes a fix for the reproduced audio-disposal leak in the exercised exit paths. It does not establish the root cause of every historical `!rc_owner` or invalid-GC-handle failure. Physical window-close interaction, listening quality and native Windows source/export acceptance remain pending; the native automated case invokes the notification programmatically. Keep the prior failure records when assessing readiness.
 
+## Supplied construction-frame recovery — 2026-10-02
+
+Nine construction frames are restored for IOS chassis, interplanetary drive and resource-station frame (`i_chassis`, `i_drive`, `r_frame`). The three runtime sheets are byte-identical to their supplied source files; [provenance](../Godot/Sprites/Items/Sheets/README.md) records hashes and atlas rectangles. A small display material makes only their magenta key transparent. Existing PNG frames, static research fallbacks and idle artwork retain their previous rendering path. Production timing, recipes and quantities are unchanged.
+
+Cases **206–211** first reproduced the static illustration being displayed instead of construction stages, then passed through manual and AOC production of each item. They verify all three stage crops, completion, exact material charges, idle and switching back to existing PNG/fallback artwork. Native Mac cases **206/208/210** also passed **32,256 pixel comparisons** across the nine frames: every artwork pixel matches its source colour and every keyed pixel reveals the underlying scene. The three final-stage captures were visually inspected. Headless runs skip these GPU checks; Windows native rendering remains pending.
+
+Visual inspection of the other eleven candidate sheets found placeholder text, empty boxes or unverified drawings. They were not exported as genuine frames. The production rod animation is a separate unresolved task; the animation inventory remains partial and the implementation count stays **27/48**. Raw RED/GREEN/native evidence and captures are under ignored `artifacts/validation/evidence/construction-artwork/`.
+
+The full aggregate passed **211/211**, startup smoke and a fresh Windows cross-export. Five Python validator tests passed; the last recompilation reported 14 existing warnings and zero errors. The Windows executable's embedded pack directory includes all **17** new resource entries: nine atlases, shader/material, three image-import records and three imported textures. This confirms packaging, not native Windows rendering or gameplay.
+
 ## Known runtime limitations
 
 The combined diagnostic suite and an earlier isolated case 65 intermittently reported `SwapGCHandleForType: Handle is not initialized`. Later passes do not establish a fix. Fresh-process isolation addresses test-state retention; it does **not** establish that the production resource-lifetime problem is fixed. Strict error detection remains enabled. [Godot issue 112067](https://github.com/godotengine/godot/issues/112067) describes a similar texture-wrapper failure, but its proposed cause is not proven for this project.

@@ -298,10 +298,14 @@ namespace Deuteros.Code.Platform.Screens
 				ProductionNameLabel.Text = currentProductionItem.Product.ShortName;
 				SmallItemImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png", SmallItemImageTextureRect);
 				var progressSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".png";
-				// Some original construction frames have not been exported yet. Show the existing
-				// item illustration until those assets are recovered, without loading a missing file.
+				// Recovered source-sheet frames use atlas resources; retain the illustration
+				// fallback for items whose supplied sheets still contain placeholder artwork.
 				if (!ResourceLoader.Exists(progressSprite))
-					progressSprite = ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
+				{
+					var atlasSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".tres";
+					progressSprite = ResourceLoader.Exists(atlasSprite) ? atlasSprite
+						: ResearchSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
+				}
 				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(progressSprite, ItemProgressImageTextureRect);
 			}
 			else
@@ -310,6 +314,10 @@ namespace Deuteros.Code.Platform.Screens
 				SmallItemImageTextureRect.Texture = null;
 				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(ProductionProgressSpriteBasePath + "idle.png", ItemProgressImageTextureRect);
 			}
+			// Source sheets remain byte-for-byte originals. Only their magenta key is
+			// transparent at display time; ordinary PNGs retain their existing alpha.
+			ItemProgressImageTextureRect.Material = ItemProgressImageTextureRect.Texture is AtlasTexture
+				? GD.Load<ShaderMaterial>("res://Sprites/Items/Sheets/SourceSheet.tres") : null;
 
 			if (CurrentFactory.AOC)
 			{

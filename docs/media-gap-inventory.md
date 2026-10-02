@@ -44,35 +44,40 @@ The audit checked all `AnimatedSprite2D`/`AnimationPlayer` scene nodes, controll
 | --- | --- | --- |
 | **Time device — A1**, [1215691800680640](https://app.asana.com/0/1214891399253076/1215691800680640) | `Sprites/Buttons/Nav_Animations/Time_Sheet.png` + `Time_Static.png` → `Screens/Base/MenuBase.tscn/Top/Time/TimeAnimation` (8 frames, 5 fps) → `MainMenu.UpdateAnimations()` | **State wiring fixed; eight isolated regressions pass.** The time indicator now follows `TimeSkip`/`TimeSkipDay` independently of selected-screen icons, including click, hold, release, pointer exit and automatic stop. Repeated refresh preserves frame progress; blocked pointer input cannot start the clock. Existing eight-frame/5 fps artwork is unchanged. Native visual acceptance and original cadence remain unverified. |
 | **Production rod — A2**, [1215691951441144](https://app.asana.com/0/1214891399253076/1215691951441144) | `Screens/Production.tscn` has a static production background plus small product and construction image. `Production.DrawData()` changes product images only. No rod node, timer, animation or frame driver exists. | **Missing animation wiring/export.** The annotated [visual reference](visual-reference-notes.md) points between the book platform and vertical progress column, not the three product construction stages. `SourceMaterials/SpriteSheets/UI.png` visibly has three small rod-like strips near x544/y384–471, beside the door frames; they are candidates, not verified ordered frames. Match original footage, crop with recorded coordinates, then wire manual/AOC active and idle states without changing production timing. |
-| **Product construction stages — A3** | `Production.DrawData()` loads `Sprites/Items/Production/{ItemType}_{Production_Complete}.png` when present; otherwise it now uses the existing `Sprites/Items/Research/{ItemType}.png` illustration. This prevents missing-resource errors during MTX manufacture without inventing construction frames. | **14 producible item types still lack all three progress exports**, listed below. The static fallback does not resolve original animation fidelity. This is separate from A2. Candidate source sheets exist. Export exact runtime filenames and exercise each stage, idle, completion and AOC, with strict missing-resource logs. |
+| **Product construction stages — A3** | `Production.DrawData()` selects `Sprites/Items/Production/{ItemType}_{Production_Complete}.png` or a recovered `.tres` atlas, then falls back to the existing research illustration if neither exists. | **Nine frames recovered for three items; 11 item types still lack all three progress frames**, listed below. Native pixel checks verify the recovered art and magenta display mask. The other candidate sheets contain placeholders or unverified sequences. Source genuine replacements before exporting them. Construction stages remain separate from the production rod (A2) and do not certify original animation timing. |
 | Training doors | `PreFabs/TrainingDoors.tscn` has `open`, `closed`, `opening`, `close`; three instances in `Screens/Earth/Training.tscn`; `Training.DrawData()` plays transitions from model lock changes; completion handler settles state/unlocks UI | Wired; original cadence and concurrent-door/audio synchronization unverified. |
 | Menu and item indicators | `Screens/Base/MenuBase.tscn` uses seven `Nav_Animations` sheets; `MainMenu.UpdateAnimations()` calls `Play`. Research/Production/Store button prefabs share `Research_Animations` frames, driven by their respective `*Button.cs` scripts. | Wired; production currently selects static states while research/store can blink. Do not declare every supplied blink sequence required/implemented: original active/queued/selected rules need comparison. |
 | Ship bay and MTX movement | `ShipBay.ScrollToScreen()` tweens the component strip; `MTX.cs` creates scrolling tweens on arrow actions | Wired movement, not missing sprite animation. Verify view arrival and interrupted/repeated scroll; the entry jiggle has a separate regression fix. |
 | Ship travel, grapple, AMA and overview | `ShipInterior.UpdateState()`/location drawing swap fixed location images from `Sprites/SceneSprites/Ships/Interior`; `Grapple.UpdateState()` and `AMA.UpdateState()` select static asteroid images; `Overview.UpdateState()` selects status icons and station `ProdCycle` textures | State graphics wired; no continuous flight/asteroid sequence established. Record original launch/dock/travel, grapple grab/release and mining transitions before asserting missing frame art. |
 | Battle and text | `PreFabs/ShipModuleWindows/Battle.tscn/Timer` (0.06 s) → `Battle.TimerTimeout()` → `BattleCanvas.QueueRedraw()` → `BattleLogic.BattleTick()` draws battle effects procedurally. `Bulletins.cs` and `ModuleTextFrame.PlayText()` reveal text with delays. | Wired procedural animation/typewriter paths; no basis to demand replacement sprite sheets. Original fidelity, interruption and full combat-state coverage remain unverified. |
 
-### A3: exact missing construction exports and candidate sources
+### A3: recovered construction frames and remaining source gaps
 
-Every row lacks `Godot/Sprites/Items/Production/<item>_1.png`, `_2.png` and `_3.png`. Source paths are under `SourceMaterials/SpriteSheets/`; the table maps names, not approved crop/frame order. `item_interplanetary_chassis.png` was visually inspected and contains three distinct construction-stage images; the other mappings require the same crop/palette/order check.
+Visual inspection of all 14 candidate sheets found complete, unlabelled construction sequences in only three. Their nine frames now use `Godot/Sprites/Items/Production/<item>_<stage>.tres` atlases backed by unchanged source PNGs. The renderer masks their magenta background; existing PNGs and static fallbacks retain their original behaviour. See [source hashes and crop coordinates](../Godot/Sprites/Items/Sheets/README.md).
 
-| Runtime item | Candidate source sheet | Small research image also absent? |
+| Recovered item | Supplied sheet | Local evidence |
 | --- | --- | --- |
-| `pulse_blaster_laser` | `item_blaser.png` | Yes |
-| `i_chassis` | `item_interplanetary_chassis.png` | No |
-| `i_drive` | `item_interplanetary_drive.png` | No |
-| `g_chassis` | `item_star_chassis.png` | No |
-| `star_drive` | `item_star_drive.png` | No |
-| `s__d__m` | `item_self_destruct.png` | No |
-| `hyperlight` | `item_hyper_light.png` | No |
-| `m__t__x` | `item_mass_transceiver.png` | No |
-| `m__f__l` | `item_fuzlaser.png` | Yes |
-| `r_frame` | `item_resource_frame.png` | No |
-| `prejudice_torpedo_launcher` | `item_torpedo_launcher.png` | Yes |
-| `star_drone` | `item_drone_star.png` | No |
-| `prison_pod` | `item_pod_prison.png` | Yes |
-| `sonic_blaster` | `item_blaster.png` | Yes |
+| `i_chassis` | `item_interplanetary_chassis.png` | Cases 206–207: manual/AOC stages, completion, idle and PNG fallbacks; native case 206 checks all frame pixels. |
+| `i_drive` | `item_interplanetary_drive.png` | Cases 208–209; native case 208 checks all frame pixels. |
+| `r_frame` | `item_resource_frame.png` | Cases 210–211; native case 210 checks all frame pixels. |
 
-Cross-check used item definitions in `CoreData.CreateBaseGameData()` and the loader above. `meh_fuel`/`hed_fuel` are `AutoProduce`, so their absent stages are not counted as manual production gaps. `alien_artifact` is a special research/collected item, not counted as an ordinary recipe. Five missing small images should be exported to `Godot/Sprites/Items/Research/<item>.png` alongside the stages; they also affect research display.
+The other **11** items still lack three genuine runtime construction frames. Paths below are under `SourceMaterials/SpriteSheets/`. A filename match is insufficient: several sheets visibly contain unfinished labels or borrowed drawings. Do not export their placeholders as recovered original art.
+
+| Runtime item | Candidate sheet | Inspection result | Small research image absent? |
+| --- | --- | --- | --- |
+| `pulse_blaster_laser` | `item_blaser.png` | Empty magenta boxes, `p` label | Yes |
+| `g_chassis` | `item_star_chassis.png` | Chassis drawing overprinted with `place` labels/numbers | No |
+| `star_drive` | `item_star_drive.png` | Drive drawing overprinted with `place` labels | No |
+| `s__d__m` | `item_self_destruct.png` | `place 1/2/3` boxes; no construction art | No |
+| `hyperlight` | `item_hyper_light.png` | Empty magenta boxes, `p` label | No |
+| `m__t__x` | `item_mass_transceiver.png` | `place 1/2/3` boxes; no construction art | No |
+| `m__f__l` | `item_fuzlaser.png` | Empty magenta boxes, `p` label | Yes |
+| `prejudice_torpedo_launcher` | `item_torpedo_launcher.png` | `place 1/2/3` boxes; no construction art | Yes |
+| `star_drone` | `item_drone_star.png` | Drone drawings with `p`/`place` labels; sequence identity remains unverified | No |
+| `prison_pod` | `item_pod_prison.png` | `place 1/2/3` boxes; no construction art | Yes |
+| `sonic_blaster` | `item_blaster.png` | Empty magenta boxes, `p` label | Yes |
+
+The five missing small research images need genuine source art as well. `meh_fuel`/`hed_fuel` are `AutoProduce`, so absent manual construction stages are not counted; `alien_artifact` is collected/researched rather than an ordinary recipe. The production rod (A2) is a separate animation and remains unresolved. Native Windows visual acceptance and original stage timing remain unverified for the recovered frames.
 
 ### Related static artwork, kept distinct
 
@@ -82,4 +87,4 @@ The ship interior also lacked a valid small location image for moons: default mo
 
 ## Evidence and handoff limits
 
-The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1 native listening acceptance, S2 wiring and A3 exports from known assets, while gathering original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.
+The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1 native listening acceptance, S2 wiring and Windows acceptance for recovered A3 frames. Source the remaining genuine A3 artwork and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.

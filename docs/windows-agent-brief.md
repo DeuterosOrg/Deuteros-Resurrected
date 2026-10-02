@@ -2,11 +2,11 @@
 
 ## Pickup checklist
 
-Handoff updated **2026-10-02**, including the ambience/shutdown batch after gameplay commit **`5dbf9d3`**. Check the actual pushed head before starting; later commits may change these counts.
+Handoff updated **2026-10-02**, including construction-frame recovery after the ambience/shutdown commit **`ff910f5`**. Check the actual pushed head before starting; later commits may change these counts.
 
 1. Record the branch, commit and working-tree state. Use `codex/build-tests-and-gameplay-fixes`, preserving any existing local changes.
 2. Install the pinned Windows toolchain and run the automated validation below: Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**.
-3. Investigate shutdown first if validation fails. The latest Mac aggregate is **205/205**, following a production cleanup change that drains stopped audio before exit. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; a later pass alone does not establish their causes.
+3. Investigate shutdown first if validation fails. The latest Mac aggregate is **211/211**, including the production cleanup change that drains stopped audio before exit. Earlier case-150 `!rc_owner` and case-65 GC-handle failures remain recorded; a later pass alone does not establish their causes.
 4. Exercise the source game and fresh Windows export, prioritizing audio/navigation shutdown, save/load, MTX installation/routes and the repaired menu graphics. Record normal progression separately from staged test fixtures.
 5. Return `docs/windows-validation-results.md` and update `docs/backlog-progress.md` with task-specific evidence. There are **27/48 tasks with local implementation evidence**, with native Windows acceptance still pending. Continue independent unresolved tasks after recording the baseline.
 
@@ -45,7 +45,9 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The current suite has **205 cases** and **27 Asana-linked fixes with local regression evidence**. Store/Ship Bay ambience is now wired, and window close releases scenes before a bounded audio-mixer drain. The first full attempt with new ambience exposed a case-10 playback leak; after the production shutdown fix, **205/205 passed in one full run**, along with startup smoke, fresh Windows cross-export and five Python validator tests. Cases 200–205 cover the new audio paths; native Mac cases 10/150/205 also exited cleanly. The last recompilation retains 14 existing warnings. Native Windows listening/gameplay and physical window-close acceptance remain pending. See [audio/shutdown evidence](validation-results.md#store-and-ship-bay-ambience-and-audio-shutdown--2026-10-02).
+The current suite has **211 cases** and **27 Asana-linked fixes with local regression evidence**. Nine supplied construction frames now render for IOS chassis/drive and resource-station frame. Cases 206–211 cover manual/AOC production; native Mac cases 206/208/210 passed all 32,256 frame-pixel comparisons. **211/211 passed in one full run**, along with startup smoke, fresh Windows cross-export and five Python validator tests. All 17 new resource entries were verified in the export's pack directory. The last recompilation retains 14 existing warnings. Windows rendering/gameplay and original timing remain pending. See [frame-recovery evidence](validation-results.md#supplied-construction-frame-recovery--2026-10-02).
+
+The preceding ambience batch wired Store/Ship Bay audio and changed window close to release scenes before a bounded audio-mixer drain. Its first full attempt exposed a case-10 playback leak; after the production shutdown fix, **205/205 passed in one full run**, with startup smoke and Windows cross-export. Cases 200–205 cover those audio paths; native Mac cases 10/150/205 also exited cleanly. Native Windows listening/gameplay and physical window-close acceptance remain pending. See [audio/shutdown evidence](validation-results.md#store-and-ship-bay-ambience-and-audio-shutdown--2026-10-02).
 
 The preceding menu-artwork batch restored the exact Methanoid face and damaged ground-service icons, disabled damaged services, and restored them after normal shuttle repair. Cases 192–199 passed focused checks; native Mac captures were inspected. Its full attempt passed 1–149, then case 150 passed gameplay assertions but hit `FATAL: Condition "!rc_owner" is true` during shutdown and timed out after 180 seconds. Continuation cases 151–199, startup smoke and Windows cross-export passed: **198/199 across two runs, not a passing aggregate**. Retain that historical failure; the new mixer-drain result does not establish its root cause. See [menu batch evidence](validation-results.md#methanoid-and-damaged-base-menu-artwork--2026-10-02).
 
@@ -160,6 +162,10 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 - Deposit analysis: select planets, return to system view, select moons and change systems. A body's own built/incomplete station should appear below the selection, disappear after loss and remain hidden in course selection. Compare placement with the linked [visual references](visual-reference-notes.md).
 
 Cases 154–162 cover these transitions. Native Mac captures passed and corrected one clipped shuttle label. See [batch results](validation-results.md#station-status-and-missing-graphics-batch--2026-10-02) for screenshot reproduction commands and fixture limits. Repeat in the Windows source game and export.
+
+## Additional acceptance for construction graphics
+
+Manufacture an IOS chassis, interplanetary drive and resource-station frame manually and under AOC. Check all three stage images, completion/idle, and switching to ordinary PNG artwork. There must be no magenta rectangle, clipped art or source-sheet labels. Cases **206/208/210**, run without `--headless`, compare rendered pixels with the supplied sheets and can save captures via `DEUTEROS_SCREENSHOT_DIR`. Repeat in the exported game visually. The [other eleven candidate sheets](media-gap-inventory.md#a3-recovered-construction-frames-and-remaining-source-gaps) contain placeholders or unverified art; they are not ready for blind export. The production rod and original stage timing remain separate evidence gaps.
 
 ## Runtime checks and historical failures
 
