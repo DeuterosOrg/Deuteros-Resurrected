@@ -13,7 +13,7 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The transmission, News and battle candidates below are now consolidated locally; the newest runtime checkpoint is `625cae9`, with 442/442 Mac regressions and an audited cross-export. Its complete bundle is prepared on the Mac but not uploaded. No Windows execution of that candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`34ab067`**, with **469/469 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 ## Transmission candidate
 
@@ -349,3 +349,7 @@ The full Mac run and cross-export are audited; Windows execution remains pending
 ## Discovery countdown follow-up
 
 The latest Mac-audited checkpoint is **`29eb9a7cc2be17b379200a575fb20c054caf5b89`**, with 467/467 regressions, strict import, startup and Windows cross-export. It includes the enemy-production correction and preserves an active Hyperlight discovery countdown before detecting recapture, matching original branch order. Once supplied, test saves during the delay, recapture lasting past expiry, and temporary recapture reversed before expiry. A decrement reaching zero must not also dispatch discovery. Case 467 covers these boundaries automatically; this is not full Hyperlight travel acceptance. This revision has not run on Windows. Preserve the separate `8cdd458` desktop handoff.
+
+## Training feedback follow-up
+
+At **`34ab06731fe7740672d3df564fb03e9fb4e407f7`**, test the training light switch twice, confirm arrow controls remain bright when the room dims, and leave/re-enter while dimmed. Queue trainees in all three disciplines and advance through closing and opening: each simultaneous batch should play one door cue, and later button presses should retain their button sound. Repeat screen exit and physical game closing during sound. Cases 468/469 pass headless/native Mac checks, including brightness pixels; full 469-case validation and cross-export pass. Listening, Windows execution and staggered/interrupted animation ownership remain separate checks. Preserve the existing `8cdd458` desktop handoff.
