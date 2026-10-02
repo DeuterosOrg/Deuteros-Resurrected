@@ -26,7 +26,9 @@ Word `$1C380` selects message **stage + 24**. Renderer `$3A410` records it with 
 | 5–12 | 29–36, shared `$1CA3` | Segment location, inserted from `$1C382` | 0 |
 | 13 | 37, `$1DA4` | Final assembly/use instructions | 0 |
 
-The stage advances below 12; stages 12 and 13 remain at their current value. Zero stops automatic countdown scheduling. Text rendering also changes case through `$3A3A6` and uses the alien character callback `$3A098`; reproducing the words alone does not reproduce the cryptographic presentation.
+The stage advances below 12; stages 12 and 13 remain at their current value. Zero stops automatic countdown scheduling. Text rendering also changes case through `$3A3A6` and selects the alien bitmap font table at `$3A098`; reproducing the words alone does not reproduce the cryptographic presentation.
+
+The glyph reader at `$1FC38–$1FC5E` computes `(character - 32) * 8`, reads the font pointer from `$1F99C`, then reads eight bitmap rows. `$3A098` is **font data, not executable callback code**. Its uppercase letters are readable capitals; lowercase letters are cryptographic symbols. The stage-0 mask is zero, stage 1 uses `$08945949`, and stage 2 onward use a freshly seeded mask at `$3A378`; spaces rotate the selected mask before subsequent character decisions. The existing `deuteros-alien.ttf` and alien themes are unused by runtime scenes; glyph correspondence still needs rendering checks.
 
 News replay at `$397EA` uses the recorded message and temporarily decrements/restores `$1C380` for rendering. It does not call the stage-advancement tail or reset the transmission timer.
 
