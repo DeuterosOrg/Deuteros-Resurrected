@@ -143,6 +143,7 @@ namespace Deuteros.Tests
             RunAmaCargoRegressions();
             RunAccCycleRegressions();
             RunStaffRankRegressions();
+            await RunResearchOnlyRecipeRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

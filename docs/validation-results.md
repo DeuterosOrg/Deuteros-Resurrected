@@ -382,3 +382,14 @@ During Warlord investigation, the ordinary rank display was found to disagree wi
 Cases **330–332** pass after the fix, covering all marine boundaries, save/load, the single promotion report at action 40, and unchanged researcher/production/Artisan labels. Existing save-graph case **45** and qualified-pilot deployment case **133** also pass. Compilation passed; this focused follow-up has **not** been represented as a full 332-case aggregate or new Windows export. The last full Mac/Windows baseline remains **329 cases at `d057b9d`**, and the earlier native Mac shutdown failure remains open.
 
 Evidence is under ignored `artifacts/validation/evidence/staff-rank/`. This corrects an additional review finding; it does **not** implement Warlord or change the **31/48 implemented, 0/48 fully accepted** task count. The [travel investigation](original-interstellar-travel-evidence.md) explains the remaining Hyperlight/rank dependency.
+
+
+## Research-only recipe safety — 2026-10-02
+
+Completing Hyperlight research could expose a nonexistent manufacturing recipe in Stores and Production. The ground/orbital Stores path also restored a stale saved Hyperlight selection and threw `ArgumentNullException`. Recipe controls now require actual build requirements, Hyperlight is marked as non-manufacturable, and the shared resource check rejects a missing recipe. Legacy saves retaining the old manufacturing flag remain safe.
+
+Cases **333–337** cover both inventories after save/load, invalid production selection, clicking every offered researched recipe, and actual MeH/HeD automatic refining. The initial broader resource guard incorrectly rejected automatic fuel recipes because they are not manually producible; case 337 reproduced that failure. The corrected guard checks for a recipe and preserves automatic fuel output and exact material consumption. Existing production/stock cases 6 and 48–53 pass too.
+
+**Fresh canonical Mac validation passed 337/337 isolated cases**, strict import, startup smoke and Windows cross-export. All nine Python tests passed; compilation has 14 existing warnings and zero errors. This run also covers the committed marine-rank correction (330–332). The export contains 1,103 pack entries and no test resources; hash/size are retained with the raw evidence under ignored `artifacts/validation/evidence/research-only-recipes/`. Original failures, the fuel-regression failure, focused passes and previous aggregate/export are preserved there. No gameplay error exemptions were added.
+
+This is a concrete Stores correction, not acceptance of the entire underspecified Stores feature. Counts remain **31/48 task-level implementations, 0/48 fully accepted**. Native Windows remains at the independently verified **329-case `d057b9d` baseline**; these newer changes require Windows verification. The native Mac case-315 shutdown failure remains unresolved.

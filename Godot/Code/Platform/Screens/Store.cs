@@ -97,7 +97,7 @@ namespace Deuteros.Code.Platform.Screens
 		public void RefreshButtons()
 		{
 			Buttons = Utility.Buttons.CreateButtons<StoreButton, Item>(StoreButtonsNode,
-				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && !CurrentStore.AlternativeView && T.Research.Researched && !T.AutoProduce).Select(T => T).OrderBy(T => T.Research.ResearchOrder).ToDictionary(obj => obj.Research.ResearchOrder),
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Production && T.BuildRequirements != null && T.Research != null && !CurrentStore.AlternativeView && T.Research.Researched && !T.AutoProduce).Select(T => T).OrderBy(T => T.Research.ResearchOrder).ToDictionary(obj => obj.Research.ResearchOrder),
 				this,
 				nameof(StoreButton_Clicked),
 				"/Code/Platform/StoreButton.cs",

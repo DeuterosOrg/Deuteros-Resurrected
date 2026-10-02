@@ -240,7 +240,7 @@ namespace Deuteros.Code.Platform.Screens
 		private void RefreshButtons()
 		{
 			Buttons = Utility.Buttons.CreateButtons<ProductionButton, Item>(GetNode<GridContainer>("ProductionButtonGrid"),
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Production && !T.Locked
+			GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Production && T.BuildRequirements != null && !T.Locked
 			&& !T.AutoProduce
 			).Select(T => T).OrderBy(T => T.Research.ResearchOrder).ToDictionary(obj => obj.Research.ResearchOrder),
 			this,
@@ -469,6 +469,8 @@ namespace Deuteros.Code.Platform.Screens
 
 		public static bool CheckResourceAvailable(IPlanet productionPlanet, Item productionItem, bool ground)
 		{
+			// Research-only technology is not a manufacturing recipe, including in older saves.
+			if (productionItem.BuildRequirements == null) return false;
 			if (productionItem.ItemType == Enums.ItemTypes.m__t__x && !CanInstallMtx(productionPlanet, ground))
 				return false;
 			Objects.Store currentStore;

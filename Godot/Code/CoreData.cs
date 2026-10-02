@@ -1040,6 +1040,7 @@ namespace Deuteros.Code
 				Hyperlight.Locked = true;
 				Hyperlight.OrbitOnly = true;
 				Hyperlight.BuildRequirements = null;
+				Hyperlight.Production = false;
 
 				StaticGameData.ItemList.Add(Hyperlight);
 
