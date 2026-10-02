@@ -28,7 +28,7 @@ These are pre-addition comparisons, not a clamp to 50,000: some boundary values 
 
 The phase byte `$36848` increments once per eligible function call, independent of stock availability. Earth ground runs on even parity. Local processing selects alternating records in the **98-record** table at `$13810`, skipping owner bit 7 and station types below 8. This is separate from the 160 body IDs.
 
-The station-system offsets at `$19646` are **0,16,20,32,48,54,56,72,82**. Allocator `$2FD1C–$2FD42` finds a free bit in the system bitmap and adds that system offset; `$2FD74` initializes the resulting record. Body ID is stored separately at `+$EF` and mapped through `$1965A`. Existing record relocation at `$2FF4C` and capture must be traced before assigning equivalent saved phases. Planet enumeration order or a changing human-station ordinal is not sufficient evidence for that mapping.
+The station-system offsets at `$19646` are **0,16,20,32,48,54,56,72,82**. Allocator `$2FD1C–$2FD42` finds a free bit in the system bitmap and adds that system offset; `$2FD74` initializes the resulting record. Body ID is stored separately at `+$EF` and mapped through `$1965A`. When initialization finds type 9 in the chosen slot, `$2FF4C` scans the current system for a free record. `$2FE94` swaps the complete `$F6` bytes and repairs embedded record references and body-to-record lookups. Thus another station can move records, changing its refining parity. The capture path still needs tracing before assigning equivalent saved phases. Planet enumeration order or a changing human-station ordinal is not sufficient evidence for that mapping. The additional extract is `artifacts/research/refining/station-relocation.txt`.
 
 ## Reproduced remake failure and next checks
 
