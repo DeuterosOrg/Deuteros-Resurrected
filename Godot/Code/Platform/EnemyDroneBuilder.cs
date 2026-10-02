@@ -16,8 +16,8 @@ namespace Deuteros.Code.Platform
     public class EnemyDroneBuilder
     {
 
-        //build frequencies based on star system (in reverse for some reason)
-        static uint[] BuildFrequencies = { 0x2bc, 0x3e8, 0x3b6, 0x384, 0x384, 0x320, 0x2bc, 0x2bc, 0x320 };
+        // Original $38A42 is indexed by systems still containing hostile stations.
+        static readonly uint[] BuildFrequencies = { 0, 700, 1000, 950, 900, 900, 800, 700, 700, 800 };
 
 
         private static void ProcessEnemyFleets()
@@ -49,11 +49,13 @@ namespace Deuteros.Code.Platform
         {
             if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar)
             {
-                if (currentDay == GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay || GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay == 0)
+                if (currentDay >= GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay)
                 {
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions?.SampleEnemySystems(GameCore.SingletonInstance.GameData.ActiveSaveFile);
-                    var buildfrequency = BuildFrequencies[GameCore.SingletonInstance.GameData.ActiveSaveFile.StarSystemsCaptured];
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay = currentDay + buildfrequency / 100;
+                    var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+                    save.AlienTransmissions.SampleEnemySystems(save);
+                    var buildfrequency = BuildFrequencies[save.AlienTransmissions.EnemySystems];
+                    // ponytail: retain whole-day truncation until the original fractional clock is integrated.
+                    save.EnemyBuildDay = currentDay + buildfrequency / 100;
 
                     foreach (var star in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Keys)
                     {
