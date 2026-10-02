@@ -1,6 +1,6 @@
 # Original construction artwork bank
 
-Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. This is research evidence; those images have not yet been added to the runtime.
+Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. The seven frame sets, original blank SDM/MTX stages and five missing research illustrations are now wired through the existing resource paths. Full cross-platform validation and desktop acceptance are recorded separately.
 
 ## Source and loader
 
@@ -28,10 +28,16 @@ The [four-plane codec](original-planet-palette-evidence.md#bitmap-decode-and-sup
 
 Alien artifact index 0 also has blank stages. Fuel indices 4/14 have empty sections. An empty graphics section alone does not establish manufacturing eligibility.
 
-## Implementation and acceptance still required
+## Runtime recovery and remaining acceptance
 
-Confirm the display palette and black/transparent treatment before exporting the seven recovered sets. Production entry `$24C60` selects palette row 1 through `$41170`, replacing indices 5–7 with `0000/0024/0046`; other indices need the active palette, rather than a guessed whole-image tint. Existing source sheets use different RGB conversions from the raw RGB4 palette, so matching index shapes is distinct from certifying original colours.
+The committed [recovery script](../scripts/recover_construction.py) verifies both disk hashes and writes one construction atlas, 27 stage resources and five small research PNGs. It uses the traced RLE codec with output bounded to the image extent: the original returns immediately on filling the last row, so a final repeat command may specify more words than the canvas needs. Requiring the entire run to fit would incorrectly reject real source bitmaps. Encoded record boundaries remain checked. Run `python3 scripts/recover_construction.py <disk1.adf> <disk2.adf> --check` to reproduce and compare all 33 files.
 
-Compare SDM/MTX's original blank stages with the remake's current static illustration fallback. Resolve the empty MFL graphics path separately. Verify stage order through paid manual/AOC production, completion and cancellation, then native rendering and Windows source/export acceptance. Small research illustrations are separate assets and remain unresolved.
+Production entry `$24C60` selects palette row 1 through `$41170`, replacing indices 5–7 with `0000/0024/0046`. The export retains the established remake metal ramp for indices 0–4: black, `(160,160,96)`, `(128,128,64)`, `(96,96,32)`, `(64,64,0)`. Remaining entries come from `$1ED24` plus that production override, using nibble×16 expansion. This keeps the supplied artwork's colour convention; raw original RGB4/default colours and physical display calibration are a separate fidelity question. Construction pixels, including index zero, remain opaque.
+
+`$41966–$419EE` maps a one-based item through byte table `$4190A`, adds 77, composites that bitmap through the `$41BD4/$41EB0` masked-blit path, and copies the scratch image to the small illustration area. The blitter combines all four planes to distinguish transparent index zero from opaque black index five. Missing Pulse Blast Laser/MFL/Prejudice/Prison/Sonic illustrations resolve to resources **87/101/103/107/108**, respectively. They decode with exact boundaries (allowing one alignment byte); the runtime PNGs place their original pixels on a 48×48 transparent canvas with a four-pixel top margin, matching original y54 inside the existing y50 control.
+
+Cases **386–403** exercise paid manual/AOC production for all nine stage sets: material charges, all three stages, completion/idle, local SDM/MTX installation without extra stock and retained fallback behavior. Eighteen native Mac checks pass, including **165,888 construction pixels** and **96,768 research pixels** with background compositing. Cases 386 and 400 reproduced the missing assets and incorrect SDM illustration before the changes. The extractor's `--check` passes. Reviewed screenshots include Pulse Blast Laser, Star Drone and SDM.
+
+The empty MFL graphics section still uses its now-recovered static illustration fallback; this is not claimed as an original construction sequence. Hyperlight remains research-only. Some existing research PNGs (including Star Drone) are oversized diagrams; their replacement and complete original small-panel geometry need a separate check. Original stage timing and Windows desktop source/export acceptance remain outstanding.
 
 Ignored reproducible evidence is under `artifacts/research/mtx/`: `construction-loader.txt`, `construction-screen-palette.txt`, `construction-codec.txt`, `decode-construction.py`, and `construction-bank.json`. The JSON records every item, bitmap address, encoded size, used palette indices and decoded SHA-256. Run `python3 artifacts/research/mtx/decode-construction.py` against the pinned disk images; it reuses `decode-planets.py` and requires only Python's standard library.
