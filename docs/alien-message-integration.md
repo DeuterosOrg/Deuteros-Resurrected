@@ -2,6 +2,16 @@
 
 Implementation design for Asana 1215691951441134, based on [the original trace](original-alien-message-evidence.md). Direct recovery credit, legacy credit conversion, device manufacture and normal-hull fitting are implemented; transmission scheduling, capture assignment, device activation and the ending remain outstanding. Preserve the existing Windows desktop handoff and complete each change in an isolated checkout while aggregate validation runs.
 
+## Isolated work in progress
+
+Branch `codex/alien-capture`, in `artifacts/worktrees/scg-names`, now removes startup placement and assigns an artifact only after a system's final hostile station is captured. Sun is excluded. Assignment history survives collection and save/load; old saves preserve all prior assignments and held cargo. Pending location notices are saved in capture order. This branch is **not merged into the contribution branch**: message delivery must be connected before replacing the playable checkpoint.
+
+Focused cases **422–426** pass for initial absence, final-capture gating, duplicate prevention, eight systems, destruction exclusion, legacy saves and invalid saved state. Existing recovery/SDM cases 135/360/374/410/411 also pass. These are focused checks, not a full 426-case or desktop acceptance run. Evidence is under `artifacts/validation/evidence/alien-capture/`.
+
+The capture trace also exposes a missing progression producer. `$35CB0` sets `$1C2D7` even for the Sun; the master consumer at `$23E1A` dispatches `$3771A` after the transmission branch. That handler clears the flag, checks the SCG chassis completion byte `$1A036`, and, only when zero, applies table `$375FE`: item indices **12, 13, 14**, then terminator 0 and bulletin **6**. These map to SCG chassis, star drive, HED fuel and the existing `Sol_Cleared` bulletin. Runtime definitions exist but no current producer unlocks them. Add this deferred discovery alongside transmission delivery, preserving already discovered research. `capture-research-followup.txt` retains the instruction extract. The subsequent original transition/clock behavior remains a separate integration concern.
+
+Next: finish saved transmission stages/countdowns, both war starts, this capture discovery, department acknowledgement, alien rendering and replay; then run the full suite and native checks before merging the isolated change.
+
 ## Intended result
 
 Both existing war declarations start the original transmission sequence. News can replay the last displayed message without changing progression. Capturing the last hostile station in a system makes its artifact location available; collecting eight segments reaches the final instructions. New games follow the original sequence. Existing saves retain ships, cargo, research and already placed artifacts.

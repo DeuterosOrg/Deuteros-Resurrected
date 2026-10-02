@@ -74,6 +74,8 @@ namespace Deuteros.Code.Utility
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.SdmTimerRemainder))
                         property.Required = Required.DisallowNull;
+                    else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.AlienTransmissions))
+                        property.Required = Required.DisallowNull;
                     else if (property.Required == Required.Default) property.Required = Required.AllowNull;
                 }
                 return properties;
@@ -122,6 +124,9 @@ namespace Deuteros.Code.Utility
             Validate(document.Game);
             var save = document.Game;
             ArtifactRecovery.RestoreLegacy(save);
+            // Every legacy system was assigned at startup; a missing location means it was collected.
+            // Keep those assignments and held cargo instead of spawning replacement segments.
+            save.AlienTransmissions ??= new AlienTransmissions { AssignedStars = save.BaseGameData.Stars.Keys.ToList() };
             // Definitions are supplied by this game version, rather than embedded executable/UI data.
             save.BaseGameData.ModuleFrameTexts = CoreData.StaticGameData.ModuleFrameTexts;
             save.BaseGameData.BulletinTexts = CoreData.StaticGameData.BulletinTexts;
@@ -180,6 +185,18 @@ namespace Deuteros.Code.Utility
             Require(data.Planets.Keys.OrderBy(k => k).SequenceEqual(CoreData.StaticGameData.Planets.Keys.OrderBy(k => k))
                 && data.Stars.Keys.OrderBy(k => k).SequenceEqual(CoreData.StaticGameData.Stars.Keys.OrderBy(k => k)), "world locations");
             Require(data.Stars.All(p => p.Value != null && p.Value.StarId == p.Key), "stars");
+            if (save.AlienTransmissions is { } transmissions)
+            {
+                Require(transmissions.AssignedStars != null && transmissions.PendingLocations != null, "alien transmission lists");
+                Require(transmissions.AssignedStars.Contains(StellarBodies.the_sun)
+                    && transmissions.AssignedStars.Distinct().Count() == transmissions.AssignedStars.Count
+                    && transmissions.AssignedStars.All(data.Stars.ContainsKey), "assigned artifact systems");
+                Require(transmissions.PendingLocations.All(location => data.Planets.TryGetValue(location, out var planet)
+                        && planet != null && planet.ParentStar != StellarBodies.the_sun
+                        && transmissions.AssignedStars.Contains(planet.ParentStar))
+                    && transmissions.PendingLocations.Select(location => data.Planets[location].ParentStar).Distinct().Count()
+                        == transmissions.PendingLocations.Count, "pending artifact locations");
+            }
             Require(save.EnemyStarCursor >= 0 && save.EnemyStarCursor < data.Stars.Count, "enemy scheduling cursor");
             Require(data.Planets.ContainsKey(save.CurrentPlanet), "current planet");
             Require(save.GameConfig != null && save.News != null && save.Unlocks != null && save.Ships != null, "game state");

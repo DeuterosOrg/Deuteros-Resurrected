@@ -168,6 +168,11 @@ namespace Deuteros.Tests
                 await CheckAsync($"Tool selector follows original hull eligibility and exposes its last row hull={hull}", () => ToolFittingHull(hull));
             await CheckAsync("Legacy incompatible equipment is returned once when replaced", ToolFittingLegacyEquipment);
             await CheckAsync("Recovered manufactured device fits one SCG tool slot and survives a save", ArtifactManufactureToFitting);
+            Check("New campaigns do not expose artifacts before system capture", ArtifactsStartHidden);
+            CheckUi("Only the final hostile station capture reveals one persistent artifact", ArtifactCaptureAssignment);
+            CheckUi("Legacy artifact locations and held cargo survive capture-state migration", ArtifactCaptureLegacy);
+            CheckUi("Malformed artifact assignment state cannot replace the active save", ArtifactCaptureInvalidSave);
+            CheckUi("Eight captured systems reveal eight segments while destruction grants none", ArtifactCaptureAllSystems);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
