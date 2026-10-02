@@ -29,6 +29,7 @@ namespace Deuteros.Code.Objects.Interfaces
         public void Land();
         public void TakeOff();
         public bool EngageEngine();
+        public bool CanTravelTo(Enums.StellarBodies destination);
         public void DisengageEngine();
         public int TravelTimeRemain();
         public Objects.ACC ACC { get; set; }

@@ -901,6 +901,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (cursor.IsLocked)
 				{
+					var courseRejected = false;
 					//We were locked into the star map, let's read the new destination
 					if (DestinationStarMap != null && DestinationStarMap.Visible == true)
 					{
@@ -909,17 +910,22 @@ namespace Deuteros.Code.Platform.Screens
 						// Closing a system or galaxy view cancels selection and preserves the course.
 						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.TryGetValue(DestinationStarMap.CurrentLocation, out var newDestination))
 						{
-							// On the return leg, update the ACC source instead of its destination.
-							if (Ship.ACC != null)
+							if (!Ship.CanTravelTo(newDestination.PlanetId))
+								courseRejected = true;
+							else
 							{
-								if (Ship.ACC.Destination == Ship.PlanetLocation && Ship.ACC.Source != Ship.ACC.Destination)
-									Ship.ACC.Source = newDestination.PlanetId;
-								else
-									Ship.ACC.Destination = newDestination.PlanetId;
-							}
+								// On the return leg, update the ACC source instead of its destination.
+								if (Ship.ACC != null)
+								{
+									if (Ship.ACC.Destination == Ship.PlanetLocation && Ship.ACC.Source != Ship.ACC.Destination)
+										Ship.ACC.Source = newDestination.PlanetId;
+									else
+										Ship.ACC.Destination = newDestination.PlanetId;
+								}
 
-							Ship.DestinationPlanetLocation = newDestination.PlanetId;
-							Ship.DestinationStarLocation = newDestination.ParentStar;
+								Ship.DestinationPlanetLocation = newDestination.PlanetId;
+								Ship.DestinationStarLocation = newDestination.ParentStar;
+							}
 						}
 
 						StarMap.RemoveChild(DestinationStarMap);
@@ -938,6 +944,7 @@ namespace Deuteros.Code.Platform.Screens
 					GetViewport().SetInputAsHandled();
 
 					UpdateState();
+					if (courseRejected) GameCore.ShowError(this, "Interstellar\ntravel needs\nan SCG.");
 				}
 				//Catch right-clicks for windows without cursor lock
 				else
@@ -1073,7 +1080,7 @@ namespace Deuteros.Code.Platform.Screens
 					}
 					else if (ship.ShipState == Ship_States.InTransit)
 					{
-						if (ship.TravelTimeRemain() == 0)
+						if (ship.TravelTimeRemain() <= 0)
 						{
 							ship.ShipState = Ship_States.UnDocked;
 

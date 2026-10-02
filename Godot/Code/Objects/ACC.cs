@@ -145,6 +145,7 @@ namespace Deuteros.Code.Objects
 		public void Update(Ship_States oldState)
 		{
 			if (!Active && !CycleMode) return;
+			if (StopInvalidRoute()) return;
 
 			//We're docked at the asteroids, which means we are running the AMA on an asteroid - Don't bother running checks
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation == StellarBodies.asteroids)
@@ -214,6 +215,7 @@ namespace Deuteros.Code.Objects
 
 		public void Activate()
 		{
+			if (StopInvalidRoute()) return;
 			if (!Active && Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply))
 			{
 				Active = true;
@@ -235,6 +237,16 @@ namespace Deuteros.Code.Objects
 					//TODO - BUG - When undocked the active status sets Active to true, but does not start the ship moving?
 				}
 			}
+		}
+
+		private bool StopInvalidRoute()
+		{
+			// Shuttle ACC runs between ground and orbit at one body, without a planetary route.
+			if (Ship.ShipType == Ship_Types.Shuttle ||
+				(Ship.CanTravelTo(Source) && Ship.CanTravelTo(Destination) && Ship.CanTravelTo(Ship.DestinationPlanetLocation)))
+				return false;
+			Active = CycleMode = Refuelling = false;
+			return true;
 		}
 	}
 }

@@ -81,10 +81,23 @@ namespace Deuteros.Code.Objects
             }
         }
 
+        public bool CanTravelTo(StellarBodies destination)
+        {
+            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+            return planets.TryGetValue(PlanetLocation, out var origin)
+                && planets.TryGetValue(destination, out var target)
+                && (ShipType == Ship_Types.SCG || origin.ParentStar == target.ParentStar);
+        }
+
         public bool EngageEngine()
         {
-            if (ShipState == Ship_States.UnDocked && Engine && DestinationPlanetLocation != PlanetLocation)
+            if (ShipState == Ship_States.UnDocked && Engine && DestinationPlanetLocation != PlanetLocation
+                && CanTravelTo(DestinationPlanetLocation))
             {
+                // Body records are authoritative; stale save/ACC star fields must not mislabel arrival.
+                var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+                StarLocation = planets[PlanetLocation].ParentStar;
+                DestinationStarLocation = planets[DestinationPlanetLocation].ParentStar;
                 if (Pilot != null) Pilot.AddAction();
 
                 EngineEngaged = true;
