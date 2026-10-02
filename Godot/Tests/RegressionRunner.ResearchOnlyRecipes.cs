@@ -245,8 +245,8 @@ namespace Deuteros.Tests
                 stores[ItemTypes.hydrogen] = stores[ItemTypes.methane] = 100;
                 stores[ItemTypes.meh_fuel] = 0;
             }
-            Production.UpdateProduction(0, 1);
-            Production.UpdateProduction(1, 2);
+            FuelRefining.DayTick(0, 1);
+            FuelRefining.DayTick(1, 2);
             Equal(true, moon[ItemTypes.meh_fuel] > 0, "second eligible factory cannot be starved by a shared per-factory toggle");
             Equal(8, earth[ItemTypes.meh_fuel], "orbital Earth batch follows original output");
             Equal(8, moon[ItemTypes.meh_fuel], "orbital Moon batch follows original output");
@@ -263,15 +263,16 @@ namespace Deuteros.Tests
                 fuel.Locked = fuel.Research.Locked = false;
                 fuel.Research.Researched = true;
                 fuel.AutoProduce = true;
-                fuel.AutoProduceFlip = false;
-                var ground = type == ItemTypes.meh_fuel;
-                var stores = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
-                foreach (var material in fuel.BuildRequirements) stores[material.ItemType] = material.ItemCount;
+                var stores = GameCore.Earth.PlanetResources.Stores;
+                foreach (var material in fuel.BuildRequirements) stores[material.ItemType] = 3;
                 stores[type] = 0;
-                Production.UpdateProduction(0, 1);
-                Equal(3, stores[type], "automatic fuel output despite no manual manufacturing flag");
+                Save.RefiningPhase = 0;
+                FuelRefining.DayTick(0, 1);
+                Equal(0, stores[type], "Earth waits for even phase");
+                FuelRefining.DayTick(1, 2);
+                Equal(type == ItemTypes.meh_fuel ? 3 : 2, stores[type], "original Earth fuel output");
                 foreach (var material in fuel.BuildRequirements)
-                    Equal(0, stores[material.ItemType], "fuel recipe charged exactly once");
+                    Equal(1, stores[material.ItemType], "Earth fuel consumes two with minimum three");
             }
         }
 

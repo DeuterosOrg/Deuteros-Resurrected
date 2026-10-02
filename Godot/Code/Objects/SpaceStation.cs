@@ -17,6 +17,7 @@ namespace Deuteros.Code.Objects
         public int SdmCountdown { get; set; }
 		public bool MtxInstalled { get; set; }
         public int StationOrdinal { get; set; }
+        public int RefiningSlot { get; set; } = -1;
 
         public SpaceStation(Enums.StellarBodies planetId)
 		{

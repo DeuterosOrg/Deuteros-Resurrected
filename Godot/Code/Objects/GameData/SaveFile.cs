@@ -13,6 +13,7 @@ namespace Deuteros.Code.Objects.GameData
         public BaseData BaseGameData { get; set; }
         public Config GameConfig { get; set; }
         public uint CurrentDay { get; set; }
+        public int RefiningPhase { get; set; }
         public double SdmTimerRemainder { get; set; }
         public int NextPersonIndex { get; set; }
         public bool TimeSkip { get; set; }
