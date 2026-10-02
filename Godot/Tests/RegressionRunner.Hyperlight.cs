@@ -158,6 +158,42 @@ namespace Deuteros.Tests
             Equal(false, loaded.AlienTransmissions.HyperlightPending, "legacy save invents no pending bulletin");
         }
 
+        private void HyperlightRecaptureCountdownOrder()
+        {
+            PrepareHyperlightDiscovery();
+            var state = Save.AlienTransmissions;
+            state.SampleEnemySystems(Save);
+            state.AdvanceHyperlight(Save); // Count seven schedules eight decrement-only passes.
+            state.EnemySystems = 8;
+            state.AdvanceHyperlight(Save);
+            Equal(7, state.HyperlightCountdown, "active delay runs before detecting recapture");
+            Equal(7, state.HyperlightSystems, "observed story count stays unchanged during active delay");
+            GameCore.SingletonInstance.GameData.ActiveSaveFile = Deuteros.Code.Utility.SaveStorage.Deserialize(
+                Deuteros.Code.Utility.SaveStorage.Serialize(Save));
+            state = Save.AlienTransmissions;
+            for (var tick = 0; tick < 7; tick++) state.AdvanceHyperlight(Save);
+            Equal(0, state.HyperlightCountdown, "saved delay runs all remaining decrement passes");
+            Equal(7, state.HyperlightSystems, "zero-reaching pass does not also detect recapture");
+            state.AdvanceHyperlight(Save);
+            Equal(8, state.HyperlightSystems, "following pass detects the changed count");
+            Equal(false, state.HyperlightPending, "recapture prevents old discovery dispatch");
+            state.EnemySystems = 7;
+            state.AdvanceHyperlight(Save);
+            Equal(8, state.HyperlightCountdown, "new count seven starts a fresh delay");
+            for (var tick = 0; tick < 8; tick++) state.AdvanceHyperlight(Save);
+            Equal(false, state.HyperlightPending, "new delay cannot dispatch on its final decrement");
+            state.AdvanceHyperlight(Save);
+            Equal(true, state.HyperlightPending, "discovery dispatches after the new delay");
+            state.HyperlightPending = false;
+            state.HyperlightCountdown = 4;
+            state.EnemySystems = 8;
+            state.AdvanceHyperlight(Save);
+            state.EnemySystems = 7;
+            for (var tick = 0; tick < 3; tick++) state.AdvanceHyperlight(Save);
+            state.AdvanceHyperlight(Save);
+            Equal(true, state.HyperlightPending, "transient ownership changes during delay do not restart it");
+        }
+
         private void HyperlightDiscoveryCountBoundaries()
         {
             PrepareHyperlightDiscovery();
@@ -180,8 +216,10 @@ namespace Deuteros.Tests
             state.AdvanceHyperlight(Save);
             state.EnemySystems = 8;
             state.AdvanceHyperlight(Save);
-            Equal(0, state.HyperlightCountdown, "recapture cancels ineligible countdown");
-            Equal(false, state.HyperlightPending, "cancelled countdown does not produce discovery");
+            Equal(6, state.HyperlightCountdown, "recapture waits for the active countdown before count detection");
+            for (var tick = 0; tick < 7; tick++) state.AdvanceHyperlight(Save);
+            Equal(8, state.HyperlightSystems, "recapture is observed after the delay");
+            Equal(false, state.HyperlightPending, "ineligible count does not produce discovery");
         }
     }
 }

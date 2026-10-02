@@ -213,6 +213,7 @@ namespace Deuteros.Tests
             CheckUi("Hyperlight discovery requires seven hostile systems and resets on recapture", HyperlightDiscoveryCountBoundaries);
             CheckUi("Enemy production follows remaining hostile systems and preserves its saved deadline", EnemyProductionRemainingSystems);
             CheckUi("Enemy production resumes after zero systems and crossed deadlines", EnemyProductionOverdueDeadline);
+            CheckUi("Hyperlight countdown finishes before detecting changed hostile ownership", HyperlightRecaptureCountdownOrder);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

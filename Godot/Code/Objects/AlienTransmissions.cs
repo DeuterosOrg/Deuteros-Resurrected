@@ -31,13 +31,14 @@ namespace Deuteros.Code.Objects
         public void AdvanceHyperlight(SaveFile save)
         {
             if (!save.AtWar || !save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Locked) return;
+            // Original $37810 consumes an active delay before observing a changed count.
+            if (HyperlightCountdown > 0) { HyperlightCountdown--; return; }
             if (EnemySystems != HyperlightSystems)
             {
                 HyperlightSystems = EnemySystems;
                 HyperlightCountdown = EnemySystems == 7 ? 8 : 0;
                 return;
             }
-            if (HyperlightCountdown > 0) { HyperlightCountdown--; return; }
             if (EnemySystems == 7) HyperlightPending = true;
         }
 
