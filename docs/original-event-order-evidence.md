@@ -54,8 +54,8 @@ At `55316b6`, `GameCore` registers Unlocker → planets → production → ships
 
 Differences requiring targeted work:
 
-1. Training precedes mining in the original; the remake's Earth method reverses these operations.
-2. Research and attrition precede ship processing in the original. Moving these calls needs same-tick crew, promotion and arrival checks, not only a delegate-order assertion.
+1. Training precedes mining in the original. The simulation-order branch now runs active-world training once, then Earth extraction, then local extraction; the Earth override no longer repeats training.
+2. Research and attrition precede ship processing in the original. The simulation-order branch now preserves that sequence. Cases 451–452 reproduce the old order through actual completion/arrival behavior and cover graduates, extraction, factory completion, research promotion, crew countdowns, frozen cryopods, ACC arrival/departure and ordered promotion News.
 3. Refining follows ships in the original. Corrected at `f913679`: a saved global phase and station allocations replace the per-factory toggle. Case 449 uses the actual simulation update to prove that ACC cannot consume newly refined fuel until the following update.
 4. Original pending discovery flags form a priority chain. Immediate event callbacks in the remake can compete for the current screen; a general bulletin queue needs producer and interruption tests.
 5. SDM simulation expiry follows ships and enemy actions, while its separate real-time consumer `$23E4E` uses `$20290`. A single day counter cannot stand in for both paths.
@@ -65,3 +65,10 @@ This is evidence for the integration work, not a reason to reorder isolated hand
 ## Acceptance still required
 
 Instrument one original update with training graduation, extraction, production, research completion and ship arrival due together. Record stores, crew/rank and pending news before/after each mapped call. Repeat an ACC arrival with insufficient fuel before refining, simultaneous discoveries, and an armed SDM on an arrival update. Compare ordinary and accelerated time, including early-return paths. Add deterministic remake scenarios for those outcomes and then verify them in source and exported Windows builds. No new task is counted complete by this research alone.
+
+
+## Simultaneous-event correction under validation
+
+The isolated `codex/simulation-order` branch reproduces research completion observing an already-departed shuttle (451) and arrival seeing its pilot before attrition (452). Moving research and attrition ahead of ships corrects both. A strengthened 451 also reproduces Mercury mining before graduation when only Earth's method is reordered; resolving active-world training before all mining corrects that path. Cases 42–44 guard world replacement and duplicate updates. All these focused checks, 449–450, 350/357–358, and native 451–452 pass. Full aggregate validation is pending.
+
+Evidence: `artifacts/validation/evidence/simulation-order/{red,training-red,green}/`. The initial 451 fixture had an invalid ACC cursor and was stopped; its log is retained under `setup/invalid-cursor-451.log`, separate from the valid red ordering reproductions. This change preserves the current update unit. It does not resolve fractional/star clocks, original discovery priority, all early-return paths, or original-runtime/Windows comparison.
