@@ -37,7 +37,19 @@ The display `$359E6–$35A2E` divides the low countdown by 60 and renders the re
 - `$36130–$36150` processes the station's four resident team references at `+$84` and its positive production-team reference at `+0`. It does not iterate all ground rosters.
 - `$360D0–$360F8` selects the planet's shuttle record in `$1A376` (stride `$18`). An existing shuttle is removed at nonzero planet ID. The Earth/planet-zero slot has an additional state-byte test: only states `$04/$05` enter removal. Dock initiation `$30CD6–$30CE2` sets state 4, action 5 and one pending update; completion `$313BE–$313EA` sets state 5 and writes the berth. Ground landing completion `$3118E–$311A6` instead sets state 0. Thus the Earth shuttle exception preserves its landed and free-flight states, while docking/docked states are casualties. The nonzero-planet branch has no corresponding state filter. The mapping is retained in `artifacts/research/mtx/self-destruct-shuttle-states.txt`.
 
-Raw instructions are preserved in ignored `artifacts/research/mtx/self-destruct-{casualties,loss-and-capture}.txt`. The base-state conversion and original six-slot special-team semantics still require mapping. The recorded first-capture loss remains consistent with a docked capturing ship and crew being destroyed, without establishing losses for every ship in orbit.
+Raw instructions are preserved in ignored `artifacts/research/mtx/self-destruct-{casualties,loss-and-capture}.txt`. The original six-slot special-team semantics still require mapping. The recorded first-capture loss remains consistent with a docked capturing ship and crew being destroyed, without establishing losses for every ship in orbit.
+
+### Ground services and rebuilding
+
+The persistent planet-state conversion at `$360BC–$360CC` is now mapped to the service and repair paths: values below 3 remain unchanged, **3→1**, **4→2**, and values at least 5 become **1**. This is one conversion, not successive `5→3→1` gameplay stages.
+
+At `$20C80–$20CB2`, a completed station with nonzero local base state below 3 draws the two unavailable-service overlays. Local extraction `$231EC–$231F4` also skips states below 3. The landed shuttle repair control `$3434A–$343A8` permits states below 3 or captive state 5, and schedules action 6 with countdown 2. Completion `$315B6–$31608` adds 2 to the local state, writes persistent planet state 4, restores capability bits `$0B00` and consumes the tool word. Separately, completing two resource-frame deployments writes state 4 at `$342AE–$342DA`. Thus states 1/2 are service-disabled states; they are not simply “damaged versus healthy with no orbital station.” Their finer distinction is still unassigned.
+
+Station loss therefore records a service-disabled non-Earth colony for subsequent rebuilding, including a previously working state 3/4. Earth retains its special zero state. The remake has separate `BaseBuildParts` and `BaseDamaged` fields, so clearing only `Station.Built` would omit this recovery requirement. State 5 is identified as captive by the station text branch `$211C6–$211D2` (text `$181`, “METHANOID CAPTIVE”); defusing does not itself write the local base-state byte.
+
+The lifetime of resources also matters. Removal clears the planet-to-record mapping and record type at `$36158–$3615C`; it does not zero every store byte there. The later allocator `$2FD74–$2FDA2` clears the entire `$F6`-byte record before reconstructing local state from `$19722`. Preserving inaccessible old store bytes in a reusable original record is **not** evidence that resources return when rebuilding. Ground-roster ownership across that record lifecycle remains to be reconciled; do not copy stale references into the remake or claim an established ground-team casualty rule.
+
+Reproduction extract: ignored `artifacts/research/mtx/self-destruct-base-recovery.txt`, SHA-256 `d2185231eed4804beab0f73c97c1633847be4a91528a058f66500d3539a161f3`. These are static paths, not a recorded explosion/rebuild session.
 
 ## Implemented installation
 

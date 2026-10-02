@@ -94,18 +94,11 @@ The pending flag `$20291` prevents another accumulation/broadcast until the cons
 
 ## 1215685674676225 — event order
 
-The master tick occupies `$23CD0..$23E28`. The [resolver analysis](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/EventResolver-Decompile-v2.md#L14-L26) identifies eight entity walkers and approximately six follow-up subsystems. Recovered call sites establish these relative positions:
+**2026-10-02 follow-up:** [Direct original-disk traces now establish the master call order and conditional event priority](original-event-order-evidence.md). Training and mining precede production, then research, attrition, ships, stock refining, Methanoid processing and SDM simulation expiry. The document records the early return, prioritized discovery branches, screen callback and clock acknowledgement separately; it does not claim all calls always execute.
 
-| Call site | Callee | Supported interpretation |
-| --- | --- | --- |
-| `$23CDE` | `FUN_231E0` → `FUN_23234` | Per-entity mineral tick; [mineral decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/Deuteros-RE-Pack-2026-05-21/02-REFERENCE/minerals.md#L5-L7). Older combat labels for `23234` are superseded. |
-| `$23D02` | `FUN_3684A` | Call exists; do not assign a gameplay subsystem from the [combat-search hypothesis](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/combat_hunt_v4.md#L45-L55). |
-| `$23D08` | `FUN_38A56` | Methanoid scheduling, explicitly before lane action processing; [scheduler decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/decompiled/findings/1C282_methanoid_slots.md#L201-L221). |
-| `$23D0E` | `FUN_38CBC` | Methanoid per-slot action processing; [AI decode](https://github.com/WizzoUK2/deuteros-parallel/blob/6fabd73bbc7fff0eb08825b2dd6043f618e596a4/outputs/Deuteros-RE-Pack-2026-05-21/02-REFERENCE/methanoid-ai.md#L290-L294). |
+This supersedes the earlier partial table and its unidentified `$3684A` entry: that routine performs stock conversion with one phase change per call and alternating local records. The remake currently mixes refining into factory processing before ships, puts research/attrition after ships, and mines Earth before training. These are concrete integration differences requiring outcome-based scenarios. The parallel port's invented scheduler is not an authority for correcting them.
 
-`FUN_2376C` is documented as a late attrition call. `FUN_235E2` walks two banks through resolver `FUN_232E0`; its complete position relative to all named gameplay systems is not established here. Do not publish a complete original order from this partial sequence. The parallel order Training→Production→Ships→Research→Mining is expressly [invented](https://github.com/WizzoUK2/deuteros-parallel/blob/ebaeb61a973114e30d97fa65fb0b672f7c6fc1a9/DIVERGENCES.md#L25).
-
-**Next verification:** trace every call/conditional branch within `$23CD0..$23E28`, map research, production, arrivals/refuelling and training to handlers, and record one tick where all complete together. Compare event ordering and resulting inventories; the active screen must not decide simulation order in the remake. A deterministic modern order can be implemented now, but must remain labeled a choice until mapped.
+**Remaining verification:** instrument simultaneous training, mining, production, research and arrival in the original; compare ACC fuel waits, discovery ordering and SDM expiry. Reconcile fractional/interstellar timing and save phases before claiming scheduler fidelity. See the linked evidence for exact addresses, reproducibility and acceptance cases.
 
 ## 1215685674676259 — planet and station background colours
 
