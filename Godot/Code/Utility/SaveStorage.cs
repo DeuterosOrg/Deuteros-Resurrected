@@ -121,6 +121,16 @@ namespace Deuteros.Code.Utility
             var document = JsonConvert.DeserializeObject<Document>(json, Settings());
             if (document == null || document.Version != 1)
                 throw new InvalidDataException("Unsupported save version.");
+            // Older mining could overdraw a vein. Preserve inventory, restart only the spent vein.
+            if (document.Game?.BaseGameData?.Planets != null)
+                foreach (var planet in document.Game.BaseGameData.Planets.Values)
+                    if (planet?.PlanetResources?.Materials != null)
+                        foreach (var material in planet.PlanetResources.Materials)
+                            if (material != null && material.GroundAmount < 0)
+                            {
+                                material.GroundAmount = 0;
+                                if (material.SurveyTicks == 0) material.SurveyTicks = Material.KnownEmpty;
+                            }
             Validate(document.Game);
             var save = document.Game;
             ArtifactRecovery.RestoreLegacy(save);
@@ -223,6 +233,8 @@ namespace Deuteros.Code.Utility
                 && data.ItemList.Select(i => i.ItemType).Distinct().Count() == data.ItemList.Count, "items");
             Require(data.PersonNames?.Count > 0 && save.NextPersonIndex >= 0 && save.NextPersonIndex <= data.PersonNames.Count, "staff names");
             Require(data.ResourceRate_Per_Derrick != null && data.ResourceLevels_Survey_Multiplier != null, "mining rules");
+            Require(data.ResourceRate_Per_Derrick.Values.All(rate => rate >= 0 && rate <= 255)
+                && data.ResourceLevels_Survey_Multiplier.Values.All(multiplier => multiplier >= 1 && multiplier <= 255), "mining rule ranges");
             void CheckFactory(Factory factory)
             {
                 Require(factory?.ProductionQueue != null && factory.ProductionQueue.All(p => p?.Product != null
@@ -243,6 +255,10 @@ namespace Deuteros.Code.Utility
                 Require(planet.PlanetResources.Materials != null && planet.PlanetResources.Materials.All(m => m != null
                     && data.ResourceRate_Per_Derrick.ContainsKey(m.MaterialType)
                     && data.ResourceLevels_Survey_Multiplier.ContainsKey(m.MaterialType)), "deposits");
+                Require(planet.PlanetResources.Derricks >= 0, "derrick count");
+                Require(planet.PlanetResources.Materials.All(m => m.GroundAmount >= 0 && m.GroundAmount <= 32767
+                    && m.SurveyTicks >= Material.KnownEmpty
+                    && m.SurveyTicks <= 7 * data.ResourceLevels_Survey_Multiplier[m.MaterialType]), "deposit state");
                 Require(planet.Station != null && planet.Station.PlanetId == pair.Key, "station identity");
                 Require(planet.Station.RefiningSlot >= -1 && planet.Station.RefiningSlot < 160, "refining slot");
                 Require(planet.Station.SdmCountdown >= 0 && planet.Station.SdmCountdown <= 255, "SDM countdown");
