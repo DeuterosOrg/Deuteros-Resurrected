@@ -262,11 +262,8 @@ namespace Deuteros.Code
 
 			Config = new GameConfig();
 
-			// Load with default fallback
-			var width = (int)Config.GetValue("display", "window_width", 960);
-			var height = (int)Config.GetValue("display", "window_width", 600);
-
-			DisplayServer.WindowSetSize(new Vector2I(width, height));
+			Config.ApplyAudio();
+			Config.ApplyDisplay();
 		}
 
 		// Called when the node enters the scene tree for the first time.
@@ -482,6 +479,22 @@ namespace Deuteros.Code
 
 		public void UpdateMenuButtons(bool ground, bool orbit)
 		{
+			// The interior stays open while the ship moves; entry flags describe the previous screen.
+			if (_currentScreen is ShipInterior interior)
+			{
+				var ship = interior.Ship;
+				GameData.ActiveSaveFile.CurrentPlanet = ship.PlanetLocation;
+				ground = ship is Shuttle shuttle && shuttle.OnGround;
+				orbit = !ground;
+				if (_menuScreen != null && ship.ShipState == Ship_States.InTransit)
+				{
+					_menuScreen.MenuButtons = OverviewMenuButtons;
+					_menuScreen.Star.Text = ship.StarLocation.ToScreenString(" ");
+					UpdateLocationText(orbit);
+					_menuScreen.SetupMenus();
+					return;
+				}
+			}
 			if (_menuScreen != null && _currentScreen.SceneFilePath.Contains("Overview") && !orbit)
 			{
 				_menuScreen.MenuButtons = OverviewMenuButtons;
@@ -504,15 +517,6 @@ namespace Deuteros.Code
 
 				UpdateLocationText(true);
 
-				//disable menus or ship interior while in transit
-				if (_currentScreen.GetType() == typeof(ShipInterior) && ((ShipInterior)_currentScreen).Ship.ShipType != Ship_Types.Shuttle)
-				{
-					if (((ShipInterior)_currentScreen).Ship.ShipState == Ship_States.InTransit)
-					{
-						_menuScreen.MenuButtons = OverviewMenuButtons;
-					}
-				}
-
 				_menuScreen.SetupMenus();
 				Earth.GroundSelected = false;
 			}
@@ -522,15 +526,6 @@ namespace Deuteros.Code
 					_menuScreen.MenuButtons = StandardMenuButtons;
 				else
 					_menuScreen.MenuButtons = OverviewMenuButtons;
-
-				//disable menus or ship interior while in transit
-				if (_currentScreen.GetType() == typeof(ShipInterior) && ((ShipInterior)_currentScreen).Ship.ShipType != Ship_Types.Shuttle)
-				{
-					if (((ShipInterior)_currentScreen).Ship.ShipState == Ship_States.InTransit)
-					{
-						_menuScreen.MenuButtons = OverviewMenuButtons;
-					}
-				}
 
 				UpdateLocationText(orbit);
 				_menuScreen.Star.Text = GetCurrentPlanet().ParentStar.ToScreenString(" ");

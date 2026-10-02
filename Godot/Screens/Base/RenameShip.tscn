@@ -1,0 +1,59 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://Themes/DefaultTheme.tres" id="1_theme"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.270588, 0.270588, 0.270588, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.74, 0.69, 0.52, 1)
+
+[node name="RenameShip" type="Panel"]
+custom_minimum_size = Vector2(260, 92)
+offset_right = 260.0
+offset_bottom = 92.0
+theme = ExtResource("1_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="Title" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 250.0
+offset_bottom = 18.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 8
+text = "RENAME SHIP"
+
+[node name="NameEdit" type="LineEdit" parent="."]
+offset_left = 10.0
+offset_top = 24.0
+offset_right = 250.0
+offset_bottom = 42.0
+theme_override_font_sizes/font_size = 8
+placeholder_text = "Ship name (1-24 characters)"
+
+[node name="Validation" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 46.0
+offset_right = 250.0
+offset_bottom = 57.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 8
+
+[node name="Confirm" type="Button" parent="."]
+offset_left = 82.0
+offset_top = 65.0
+offset_right = 161.0
+offset_bottom = 84.0
+theme_override_font_sizes/font_size = 8
+text = "Confirm"
+
+[node name="Cancel" type="Button" parent="."]
+offset_left = 171.0
+offset_top = 65.0
+offset_right = 250.0
+offset_bottom = 84.0
+theme_override_font_sizes/font_size = 8
+text = "Cancel"

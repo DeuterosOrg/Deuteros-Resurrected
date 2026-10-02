@@ -76,69 +76,70 @@ namespace Deuteros.Code.Objects
 
 		public void LoadSupply()
 		{
-			//Only load supplies if docked, and not at Asteroids
-			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
+			if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids)
+				return;
+
+			var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+			var planet = planets[Ship.PlanetLocation];
+			var atDestination = Ship.ShipType == Ship_Types.Shuttle
+				? !((Shuttle)Ship).OnGround : Ship.PlanetLocation == Destination;
+			var stores = Ship.ShipType == Ship_Types.Shuttle && !atDestination
+				? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
+			var supplyPods = Ship.Modules.Where(m => m.ModuleType == Module_Types.Supply).ToList();
+
+			// Unload every pod before planning new cargo. Full stores leave the remainder aboard.
+			foreach (var module in supplyPods)
 			{
-				Store stores;
-
-				if (Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
-					stores = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].PlanetResources.Stores;
-				else
-					stores = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].Station.Resources.Stores;
-
-				foreach (var module in Ship.Modules.Where(T => T.ModuleType == Module_Types.Supply))
+				if (module.ItemStored != ItemTypes.none && module.ItemCount > 0)
 				{
-					//unload existing 
-					if (module.ItemStored != ItemTypes.none && module.ItemCount != 0)
-						stores[module.ItemStored] = Math.Min(50000, stores[module.ItemStored] + module.ItemCount);
-
-					module.ItemStored = ItemTypes.none;
-					module.ItemCount = 0;
-
-					//Only load stock when not mining at asteroids
-					if (Ship.PlanetLocation != StellarBodies.asteroids && Ship.DestinationPlanetLocation != StellarBodies.asteroids)
-						if ((Ship.ShipType != Ship_Types.Shuttle && Ship.PlanetLocation == Destination) || (Ship.ShipType == Ship_Types.Shuttle && !((Shuttle)Ship).OnGround))
-						{
-							var currentItemType = CurrentDestination;
-
-							do
-							{
-								if (DestinationItems.Contains(CurrentDestination) && stores[CurrentDestination] > 0)
-								{
-									module.ItemStored = CurrentDestination;
-									module.ItemCount = Math.Min(250, stores[CurrentDestination]);
-									stores[CurrentDestination] -= module.ItemCount;
-								}
-
-								CurrentDestination++;
-
-								if (CurrentDestination > ItemTypes.hed_fuel)
-									CurrentDestination = ItemTypes.iron;
-
-							} while (CurrentDestination != currentItemType && module.ItemCount == 0);
-						}
-						else
-						{
-							var currentItemType = CurrentSource;
-
-							do
-							{
-								if (SourceItems.Contains(CurrentSource) && stores[CurrentSource] > 0)
-								{
-									module.ItemStored = CurrentSource;
-									module.ItemCount = Math.Min(250, stores[CurrentSource]);
-									stores[CurrentSource] -= module.ItemCount;
-								}
-
-								CurrentSource++;
-
-								if (CurrentSource > ItemTypes.hed_fuel)
-									CurrentSource = ItemTypes.iron;
-
-							} while (CurrentSource != currentItemType && module.ItemCount == 0);
-						}
+					var accepted = Math.Min(module.ItemCount, Math.Max(0, 50000 - stores[module.ItemStored]));
+					stores[module.ItemStored] += accepted;
+					module.ItemCount -= accepted;
 				}
+				if (module.ItemCount == 0) module.ItemStored = ItemTypes.none;
 			}
+
+			// Asteroid runs return their ore but do not load outbound supplies.
+			if (Ship.DestinationPlanetLocation == StellarBodies.asteroids) return;
+
+			Store otherStores = null;
+			if (Ship.ShipType == Ship_Types.Shuttle)
+				otherStores = atDestination ? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
+			else if (planets.TryGetValue(atDestination ? Source : Destination, out var otherPlanet))
+				otherStores = otherPlanet.Station.Resources.Stores;
+
+			var selectedItems = atDestination ? DestinationItems : SourceItems;
+			var otherSelectedItems = atDestination ? SourceItems : DestinationItems;
+			var current = atDestination ? CurrentDestination : CurrentSource;
+			foreach (var module in supplyPods.Where(m => m.ItemCount == 0))
+			{
+				var first = current;
+				do
+				{
+					if (selectedItems.Contains(current) && stores[current] > 0)
+					{
+						var amount = Math.Min(250, stores[current]);
+						if (otherSelectedItems.Contains(current))
+						{
+							// Shared selections balance endpoints. Account for cargo already assigned
+							// to other pods so a second pod cannot overshoot the same surplus.
+							var aboard = supplyPods.Where(m => m.ItemStored == current).Sum(m => m.ItemCount);
+							amount = otherStores == null ? 0 : Math.Min(amount,
+								Math.Max(0, (stores[current] - otherStores[current] - aboard) / 2));
+						}
+						if (amount > 0)
+						{
+							module.ItemStored = current;
+							module.ItemCount = amount;
+							stores[current] -= amount;
+						}
+					}
+					current++;
+					if (current > ItemTypes.hed_fuel) current = ItemTypes.iron;
+				} while (current != first && module.ItemCount == 0);
+			}
+			if (atDestination) CurrentDestination = current;
+			else CurrentSource = current;
 		}
 
 		public void Update(Ship_States oldState)

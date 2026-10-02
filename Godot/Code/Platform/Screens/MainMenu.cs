@@ -86,6 +86,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _Process(double delta)
 		{
+			UpdateTimeAnimation();
 			if (Deuteros.Code.GameCore.HoverText != HoverInfo.Text)
 			{
 				HoverInfo.Text = Deuteros.Code.GameCore.HoverText;
@@ -112,7 +113,7 @@ namespace Deuteros.Code.Platform.Screens
 			EarthAnimation.Play("static");
 			NewsAnimation.Play("static");
 			SaveAnimation.Play("static");
-			TimeAnimation.Play("static");
+			UpdateTimeAnimation();
 			StockAnimation.Play("static");
 			DepositAnalysisAnimation.Play("static");
 
@@ -128,12 +129,20 @@ namespace Deuteros.Code.Platform.Screens
 				NewsAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.SaveScreen)
 				SaveAnimation.Play("animated");
-			else if (Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
-				TimeAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Store)
 				StockAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.ResourceMap)
 				DepositAnalysisAnimation.Play("animated");
+		}
+
+		private void UpdateTimeAnimation()
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+			var animation = save.TimeSkip || save.TimeSkipDay ? "animated" : "static";
+			// Clock changes can come from holds or simulation events, independently of menu clicks.
+			// Keep the current frame when unrelated menu state refreshes.
+			if (TimeAnimation.Animation.ToString() != animation)
+				TimeAnimation.Play(animation);
 		}
 
 		public void SetupMenus()

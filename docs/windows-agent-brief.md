@@ -20,7 +20,7 @@ Keep work local until Craig authorizes publication. Do not push, open/merge PRs,
 
 The source baseline was `9817216`. The initial macOS arm64 contribution passed compilation, asset import, **26 isolated engine regression cases**, startup smoke and Windows cross-export from a fresh source copy. The suite is growing as backlog work continues; consult the progress ledger and latest validation results for subsequent batches. Five Python validator tests passed. A clean compile still reports 14 pre-existing warnings. Linux/Windows CI is configured but has not run remotely at this handoff.
 
-The latest full local run on **2026-10-02 passed 75 cases**, startup smoke and Windows export. Thirteen Asana-linked fixes now have local regression evidence; Windows/visual acceptance remains pending.
+The last fully passing local run on **2026-10-02 covered 75 cases**, startup smoke and Windows export. The current suite has **123 cases** and 18 Asana-linked fixes with local regression evidence. The latest full run failed at case 65 on invalid GC-handle errors despite passing assertions; the other 122 cases, startup smoke and Windows export passed across the full attempt and its separate continuation. No passing aggregate was written. Do not describe the current branch as fully validated. Windows/visual acceptance remains pending.
 
 The initial batch addressed twelve gameplay/UI defects, including AMA equipment duplication, reversed initial IOS ACC endpoints and consecutive grapple unloading. The latter three correspond to open Asana reports. Use the linked results for the full list; do not report all 48 as fixed.
 
@@ -76,10 +76,19 @@ The startup smoke only exercises the entry scene. It does not cover the above au
 - Right-click actual bay/store controls, then modal windows and timed grapple unloading. Verify dismissal/locks take precedence. Check bay hover labels through the physical mouse, including repeating fuel buttons and roster rows.
 - Select HeD fuel in both ACC endpoints, including depleted inventories. Verify cycling finishes, loads available HeD and survives saving/loading.
 
+## Additional acceptance for ACC, settings and interiors
+
+- Select the same mineral on both ACC endpoints. Check equal/unequal stocks, multiple pods, odd totals and several round trips. Fill stores near 50,000 and confirm surplus cargo remains aboard without loss. Repeat on shuttle ground/orbit and IOS routes. Activation already passes baseline tests; reproduce the original activation report before closing it.
+- Keep the interior open through takeoff, landing, transit and arrival. Check menu destinations, ship-name header and locks. Open an SCG with five occupied pods; all cargo rows must render. Moon/unsupported-colour icons currently use existing neutral artwork.
+- Rename each hull through the name label. Check blank/long names, Enter, Cancel, Escape, clipping/full tooltip and save/load. Verify actual pointer hit areas and dialog layout.
+- Check time animation while Earth, Overview, News, Save and Store are selected. Exercise toggle, hold/release, pointer exit and automatic stops without resetting the selected-screen indicator.
+- Change sound/volume, window scale and fullscreen; reopen settings and restart the executable to check persistence. Restore defaults. Confirm/cancel progression presets and repeat them without duplicate world state; verify the resumed view updates. These shortcuts are not normal progression evidence. Original-bug compatibility toggles are not specified or implemented.
+- Use [media inventory](media-gap-inventory.md) for missing sound/animation sourcing and wiring; original audiovisual fidelity remains unverified.
+
 ## Known failures to investigate
 
 - On Mac, the audio/navigation path can leak Ogg resources or hang with `!rc_owner`. An isolated Godot 4.3 comparison also failed; an engine upgrade alone is not a demonstrated fix.
-- Combined regression runs intermittently logged `SwapGCHandleForType: Handle is not initialized`. Fresh-process isolation removes retained test worlds and pending deletion between cases; it does not prove a production resource-lifetime fix.
+- Combined regression runs and the latest isolated case 65 logged `SwapGCHandleForType: Handle is not initialized` (also `SetGodotObjectPtr`). Case 65 cycles course/ACC/grapple/AMA panels and checks modal destruction. A diagnostic rerun passed without a fix; treat the original strict failure as unresolved. Fresh-process isolation does not remove this production resource-lifetime risk. Reproduce with `$env:DEUTEROS_TEST_CASE = "65"; & $env:GODOT --headless --path Godot res://Tests/Regression.tscn`, then clear the selector with `Remove-Item Env:DEUTEROS_TEST_CASE`. Preserve failed logs even when a later run passes; add phase/GC-count diagnostics before changing resource ownership.
 - Godot 4.2.1's binary scene conversion leaked instances during fresh exports. `export/convert_text_resources_to_binary=false` avoids that path; retain it unless a tested replacement removes the need.
 - The validator permits one exact documented `_EDITOR_GET` teardown diagnostic only in editor import/export stages. Do not broaden exclusions, suppress game errors or retry until green without investigating.
 

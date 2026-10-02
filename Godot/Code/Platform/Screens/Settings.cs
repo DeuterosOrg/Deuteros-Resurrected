@@ -1,315 +1,179 @@
-using Deuteros.Code.Objects;
-using Deuteros.Code.Platform;
-using Deuteros.Code.Utility;
 using Deuteros.Code;
+using Deuteros.Code.Objects;
+using Deuteros.Code.Platform.Helpers;
 using Godot;
 using System;
-using System.Threading;
 using System.Linq;
-using Deuteros.Code.Platform.Screens;
 using static Deuteros.Code.Enums;
-using System.Collections.Generic;
 
-public partial class Settings : Node2D
+public partial class Settings : Control
 {
-	public Button SoundToggle { get; set; }
-	public Button SkipToShuttles { get; set; }
-	public Button EarthStationTo7 { get; set; }
-	public Button ProdInEarthOrbit { get; set; }
-	public Button IOSModulesReady { get; set; }
-	public Button ActivateMTX { get; set; }
-	public Button MaxResources { get; set; }
-	public Button BuildTitanStation { get; set; }
+    private GameConfig Preferences => GameCore.SingletonInstance.Config;
+    private Control preferencesPage;
+    private Control cheatsPage;
+    private Button sound;
+    private Button fullscreen;
+    private Button infinite;
+    private HSlider volume;
+    private Label volumeText;
+    private Label status;
+    private Label confirmText;
+    private OptionButton windowScale;
+    private OptionButton preset;
+    private Button confirmPreset;
+    private Button cancelPreset;
+    private bool refreshing;
 
+    public override void _Ready()
+    {
+        CustomMinimumSize = new Vector2(288, 180);
+        AddChild(new ColorRect { Name = "Background", Size = CustomMinimumSize,
+            Color = new Color("#171b17"), MouseFilter = MouseFilterEnum.Stop });
+        Label(this, "Title", "SETTINGS", 12, 6, 264);
+        Button(this, "SettingsTab", "Audio / display", 12, 22, 158, () => ShowPage(false));
+        Button(this, "CheatsTab", "Cheats", 177, 22, 99, () => ShowPage(true));
+        preferencesPage = new Control { Name = "Preferences" };
+        cheatsPage = new Control { Name = "Cheats" };
+        AddChild(preferencesPage);
+        AddChild(cheatsPage);
 
-	public Label MaxResourcesText { get; set; }
-	public Label SoundToggleText { get; set; }
-	public bool SoundOn { get; set; }
-	public int BusMasterIndex { get; set; }
+        Label(preferencesPage, "SoundLabel", "Sound", 12, 47, 100);
+        sound = Button(preferencesPage, "Sound", "", 190, 44, 86, () =>
+        {
+            Preferences.SoundEnabled = !Preferences.SoundEnabled;
+            ApplyPreferences();
+        });
+        Label(preferencesPage, "VolumeLabel", "Volume", 12, 68, 76);
+        volume = new HSlider { Name = "Volume", Position = new Vector2(94, 66), Size = new Vector2(133, 14),
+            MinValue = 0, MaxValue = 100, Step = 5 };
+        preferencesPage.AddChild(volume);
+        volumeText = Label(preferencesPage, "VolumeText", "", 237, 68, 40);
+        volume.ValueChanged += value =>
+        {
+            if (refreshing) return;
+            Preferences.Volume = (int)value;
+            ApplyPreferences();
+        };
+        Label(preferencesPage, "SizeLabel", "Window size", 12, 92, 140);
+        windowScale = new OptionButton { Name = "WindowScale", Position = new Vector2(174, 87), Size = new Vector2(102, 18) };
+        for (var scale = 2; scale <= 4; scale++) windowScale.AddItem($"{320 * scale}x{200 * scale}", scale);
+        preferencesPage.AddChild(windowScale);
+        windowScale.ItemSelected += index =>
+        {
+            Preferences.WindowScale = windowScale.GetItemId((int)index);
+            ApplyPreferences(true);
+        };
+        Label(preferencesPage, "FullscreenLabel", "Fullscreen", 12, 115, 132);
+        fullscreen = Button(preferencesPage, "Fullscreen", "", 190, 110, 86, () =>
+        {
+            Preferences.Fullscreen = !Preferences.Fullscreen;
+            ApplyPreferences(true);
+        });
+        Button(preferencesPage, "Defaults", "Restore defaults", 12, 134, 180, () =>
+        {
+            Preferences.ResetPreferences();
+            ApplyPreferences(true);
+        });
 
-	public override void _Ready()
-	{
-		BusMasterIndex = AudioServer.GetBusIndex("Master");
+        Label(cheatsPage, "SessionLabel", "Session cheats", 12, 47, 240);
+        infinite = Button(cheatsPage, "InfiniteResources", "", 12, 64, 264, () =>
+        {
+            GameCore.SingletonInstance.InfiniteResources = !GameCore.SingletonInstance.InfiniteResources;
+            RefreshControls();
+        });
+        preset = new OptionButton { Name = "Preset", Position = new Vector2(12, 88), Size = new Vector2(264, 18) };
+        foreach (var name in new[] { "Shuttle setup", "7 Earth station parts", "Orbital production", "IOS modules", "Enable MTX", "Titan station" }) preset.AddItem(name);
+        cheatsPage.AddChild(preset);
+        Button(cheatsPage, "ApplyPreset", "Apply progression preset", 12, 112, 264, () =>
+        {
+            GetNode<Button>("Resume").Hide();
+            status.Text = "";
+            confirmText.Text = "Change progress? Save first.";
+            confirmPreset.Show();
+            cancelPreset.Show();
+        });
 
-		SkipToShuttles = (Button)GetNode("SkipToShuttles");
-		EarthStationTo7 = (Button)GetNode("EarthStationTo7");
-		MaxResources = (Button)GetNode("MaxResources");
-		SoundToggle = (Button)GetNode("SoundToggle");
-		ProdInEarthOrbit = (Button)GetNode("EarthOrbitProduction");
-		IOSModulesReady = (Button)GetNode("IOSModulesReady");
-		ActivateMTX = (Button)GetNode("ActivateMTX");
-		BuildTitanStation = (Button)GetNode("BuildTitanStation");
-		SoundToggle.Connect("button_up", new Callable(this, nameof(SoundToggle_ButtonUp)));
+        confirmText = Label(this, "Confirmation", "", 12, 134, 264);
+        confirmPreset = Button(this, "ConfirmPreset", "Apply", 126, 156, 70, ApplyPreset);
+        cancelPreset = Button(this, "CancelPreset", "Cancel", 202, 156, 74, ClearConfirmation);
+        status = Label(this, "Status", "", 12, 156, 184);
+        Button(this, "Resume", "Resume", 202, 156, 74, () => OverlayManager.Instance.CloseOverlay());
+        RefreshControls();
+        ShowPage(false);
+    }
 
+    private static Label Label(Node parent, string name, string text, float x, float y, float width)
+    {
+        var label = new Label { Name = name, Text = text, Position = new Vector2(x, y), Size = new Vector2(width, 12),
+            ClipText = true, MouseFilter = MouseFilterEnum.Ignore };
+        parent.AddChild(label);
+        return label;
+    }
 
-		SkipToShuttles.Pressed += SkipToShuttles_Pressed;
-		EarthStationTo7.Pressed += EarthStationTo7_Pressed;
-		MaxResources.Pressed += MaxResources_Pressed;
-		ProdInEarthOrbit.Pressed += ProdInEarthOrbit_Pressed;
-		IOSModulesReady.Pressed += IOSModulesReady_Pressed;
-		ActivateMTX.Pressed += ActivateMTX_Pressed;
-		BuildTitanStation.Pressed += BuildTitanStation_Pressed;
+    private static Button Button(Node parent, string name, string text, float x, float y, float width, Action action)
+    {
+        var button = new Button { Name = name, Text = text, Position = new Vector2(x, y), Size = new Vector2(width, 18) };
+        button.Pressed += action;
+        parent.AddChild(button);
+        return button;
+    }
 
-		SoundToggleText = (Label)GetNode("SoundToggle/SoundToggleText");
-		MaxResourcesText = (Label)GetNode("MaxResources/MaxResourcesText");
+    private void ShowPage(bool cheats)
+    {
+        preferencesPage.Visible = !cheats;
+        cheatsPage.Visible = cheats;
+        ClearConfirmation();
+        status.Text = "";
+    }
 
-		SoundOn = !AudioServer.IsBusMute(BusMasterIndex);
-		SoundToggleText.Text = SoundOn ? "ON" : "OFF";
+    private void ClearConfirmation()
+    {
+        confirmText.Text = "";
+        confirmPreset.Hide();
+        cancelPreset.Hide();
+        GetNode<Button>("Resume").Show();
+    }
 
-		base._Ready();
-	}
+    private void RefreshControls()
+    {
+        refreshing = true;
+        sound.Text = Preferences.SoundEnabled ? "On" : "Off";
+        volume.Value = Preferences.Volume;
+        volumeText.Text = Preferences.Volume + "%";
+        windowScale.Select(Preferences.WindowScale - 2);
+        windowScale.Disabled = Preferences.Fullscreen;
+        fullscreen.Text = Preferences.Fullscreen ? "On" : "Off";
+        infinite.Text = "Infinite supplies: " + (GameCore.SingletonInstance.InfiniteResources ? "On" : "Off");
+        refreshing = false;
+    }
 
-	private void BuildTitanStation_Pressed()
-	{
-		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan].Station.Built)
-		{
-			var titan = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan];
-			titan.PlanetResources.Derricks = 8;
-			titan.BaseBuildParts = 2;
-			titan.Station.Built = true;
-			titan.Station.BuildParts = 8;
-			titan.Station.Factory.AOC = true;
-			titan.Station.MtxInstalled = true;
-		}
-	}
+    private void ApplyPreferences(bool display = false)
+    {
+        Preferences.ApplyAudio();
+        if (display) Preferences.ApplyDisplay();
+        status.Text = Preferences.Save() == Godot.Error.Ok ? "Settings saved." : "Applied; not saved.";
+        RefreshControls();
+    }
 
-	private void ActivateMTX_Pressed()
-	{
-		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
-		{
-			GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth].Station.MtxInstalled = true;
-		}
-	}
-
-	private void IOSModulesReady_Pressed()
-	{
-		var gameData = GameCore.SingletonInstance.GameData;
-		var earth = (Earth)gameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth];
-
-		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.IOS_Attachments))
-		{
-			if (!earth.Station.Built)
-				ProdInEarthOrbit_Pressed();
-
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.IOS_Attachments);
-
-			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.a__m__a).Research.Locked = false;
-			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.a__o__c).Research.Locked = false;
-			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.bandaid).Research.Locked = false;
-			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.grapple).Research.Locked = false;
-			GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.r_frame).Research.Locked = false;
-
-			gameData.GetItem(Enums.ItemTypes.a__m__a).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.a__m__a).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.a__m__a).Locked = false;
-
-			gameData.GetItem(Enums.ItemTypes.a__o__c).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.a__o__c).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.a__o__c).Locked = false;
-
-			gameData.GetItem(Enums.ItemTypes.bandaid).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.bandaid).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.bandaid).Locked = false;
-
-			gameData.GetItem(Enums.ItemTypes.grapple).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.grapple).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.grapple).Locked = false;
-
-			gameData.GetItem(Enums.ItemTypes.r_frame).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.r_frame).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.r_frame).Locked = false;
-		}
-	}
-
-	private void ProdInEarthOrbit_Pressed()
-	{
-		var gameData = GameCore.SingletonInstance.GameData;
-		var earth = (Earth)gameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth];
-
-		//Make sure we have a station at all
-		if (earth.Station.BuildParts < 7)
-		{
-			EarthStationTo7_Pressed();
-		}
-
-		earth.Station.Built = true;
-		earth.Station.BuildParts = 8;
-		earth.Station.Factory.AOC = true;
-
-		GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.First_Station_Segment);
-		GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.Space_Stations);
-
-		GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.i_chassis).Research.Locked = false;
-		GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.i_drive).Research.Locked = false;
-		GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.a__c__c).Research.Locked = false;
-	}
-
-	private void MaxResources_Pressed()
-	{
-		GameCore.SingletonInstance.InfiniteResources = !GameCore.SingletonInstance.InfiniteResources;
-
-		MaxResourcesText.Text = GameCore.SingletonInstance.InfiniteResources ? "On" : "Off";
-	}
-
-	private void EarthStationTo7_Pressed()
-	{
-		var gameData = GameCore.SingletonInstance.GameData;
-		var earth = (Earth)gameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth];
-
-		if (earth.Station.BuildParts < 7)
-		{
-			earth.Station.BuildParts = 7;
-
-			if (!gameData.GetItem(Enums.ItemTypes.a__c__c).Research.Researched)
-			{
-				gameData.GetItem(Enums.ItemTypes.a__c__c).Research.Researched = true;
-				gameData.GetItem(Enums.ItemTypes.a__c__c).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-				gameData.GetItem(Enums.ItemTypes.a__c__c).Locked = false;
-
-				gameData.GetItem(Enums.ItemTypes.i_chassis).Research.Locked = false;
-				gameData.GetItem(Enums.ItemTypes.i_drive).Research.Locked = false;
-				gameData.GetItem(Enums.ItemTypes.a__c__c).Research.Locked = false;
-			}
-
-			earth.PlanetResources.Stores[Enums.ItemTypes.supply_pod] = Math.Max(1, earth.PlanetResources.Stores[Enums.ItemTypes.supply_pod]);
-			earth.PlanetResources.Stores[Enums.ItemTypes.a__c__c] = Math.Max(1, earth.PlanetResources.Stores[Enums.ItemTypes.a__c__c]);
-
-			GameCore.SingletonInstance.TriggerStationPiecePlaced(Enums.StellarBodies.earth);
-		}
-
-		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Shuttle_Unlock))
-		{
-			SkipToShuttles_Pressed();
-		}
-	}
-
-	private void SkipToShuttles_Pressed()
-	{
-		var gameData = GameCore.SingletonInstance.GameData;
-
-		if (!gameData.GetItem(Enums.ItemTypes.s_chassis).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.s_chassis).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.s_chassis).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.s_chassis).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.s_drive).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.s_drive).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.s_drive).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.s_drive).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.meh_fuel).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.meh_fuel).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.meh_fuel).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.meh_fuel).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.of_frame).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.of_frame).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.of_frame).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.of_frame).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.tool_pod).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.tool_pod).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.tool_pod).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.tool_pod).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.supply_pod).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.supply_pod).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.supply_pod).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.supply_pod).Locked = false;
-		}
-
-		if (!gameData.GetItem(Enums.ItemTypes.cryo_pod).Research.Researched)
-		{
-			gameData.GetItem(Enums.ItemTypes.cryo_pod).Research.Researched = true;
-			gameData.GetItem(Enums.ItemTypes.cryo_pod).Research.ResearchOrder = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && T.Research.Researched).Count();
-			gameData.GetItem(Enums.ItemTypes.cryo_pod).Locked = false;
-		}
-
-		var earth = (Earth)gameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth];
-
-		if (earth.ResearchStaff == null || earth.ResearchStaff.Count == 0)
-		{
-			earth.ResearchStaff = new Staff();
-			earth.ResearchStaff.Leader = "Von Braun";
-			earth.ResearchStaff.Count = 250;
-			earth.ResearchStaff.AddAction(20);
-
-			earth.ResearchStaff.Type = Enums.StaffType.Research;
-		}
-
-		if (earth.Factory.Builder == null || earth.Factory.Builder.Count == 0)
-		{
-			earth.Factory.Builder = new Staff();
-			earth.Factory.Builder.Leader = "Bob";
-			earth.Factory.Builder.Count = 200;
-			earth.Factory.Builder.AddAction(20);
-			earth.Factory.Builder.Type = Enums.StaffType.Production;
-		}
-
-		if (!earth.PlanetResources.Staff.Any(T => T != null && T.Type == Enums.StaffType.Marines))
-		{
-			var newMarine = new Staff();
-			newMarine.Leader = GameCore.SingletonInstance.GameData.GetNextPersonName();
-			newMarine.Count = 41;
-			newMarine.AddAction(30);
-			newMarine.Type = Enums.StaffType.Marines;
-
-			earth.PlanetResources.AddStaff(newMarine);
-		}
-
-		earth.PlanetResources.Derricks = Math.Max(8, earth.PlanetResources.Derricks);
-		earth.PlanetResources.Stores[Enums.ItemTypes.s_chassis] = Math.Max(1, earth.PlanetResources.Stores[Enums.ItemTypes.s_chassis]);
-		earth.PlanetResources.Stores[Enums.ItemTypes.s_drive] = Math.Max(1, earth.PlanetResources.Stores[Enums.ItemTypes.s_drive]);
-		earth.PlanetResources.Stores[Enums.ItemTypes.of_frame] = Math.Max(8, earth.PlanetResources.Stores[Enums.ItemTypes.of_frame]);
-
-		if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.ShipType == Ship_Types.Shuttle && T.PlanetLocation == StellarBodies.earth))
-		{
-			var newShuttle = new Shuttle();
-			newShuttle.StartTravelDay = 0;
-			newShuttle.StarLocation = Enums.StellarBodies.the_sun;
-			newShuttle.Modules = new List<ShipModule>();
-			newShuttle.Modules.Add(new ShipModule());
-			newShuttle.ShipState = Ship_States.Docked;
-			newShuttle.Fuel = 250;
-			newShuttle.Engine = true;
-			newShuttle.FuelType = Enums.ItemTypes.meh_fuel;
-			newShuttle.OnGround = true;
-			newShuttle.Pilot = null;
-			newShuttle.PlanetLocation = Enums.StellarBodies.earth;
-			newShuttle.ShipType = Enums.Ship_Types.Shuttle;
-			newShuttle.LocationView = false;
-			newShuttle.Name = "Earth Shuttle";
-
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Add(newShuttle);
-			GameCore.SingletonInstance.TriggerShipCreated(newShuttle);
-		}
-	}
-
-	private void SoundToggle_ButtonUp()
-	{
-		SoundOn = !SoundOn;
-
-		SoundToggleText.Text = SoundOn ? "ON" : "OFF";
-
-		AudioServer.SetBusMute(BusMasterIndex, !SoundOn);
-
-		QueueRedraw();
-	}
-
-	// Called every update.
-	public override void _Draw()
-	{
-	}
+    private void ApplyPreset()
+    {
+        // These existing shortcuts can create a marine team; preflight before any other mutation.
+        var earth = GameCore.Earth;
+        if (preset.Selected <= 3 && !earth.PlanetResources.Staff.Any(team => team == null || team.Type == StaffType.Marines))
+        {
+            ClearConfirmation();
+            status.Text = "Free a crew slot first.";
+            return;
+        }
+        var actions = new Action[] { SkipToShuttles_Pressed, EarthStationTo7_Pressed, ProdInEarthOrbit_Pressed,
+            IOSModulesReady_Pressed, ActivateMTX_Pressed, BuildTitanStation_Pressed };
+        var core = GameCore.SingletonInstance;
+        var previousScene = core.currentScene;
+        actions[preset.Selected]();
+        // These shortcuts change several systems at once without advancing a simulation day.
+        // Rebuild the current view, but preserve any discovery bulletin opened by the preset.
+        if (core.currentScene == previousScene && core.currentScene != Scenes.Bulletins)
+            core.ChangeScene(core.currentScene, new(core.SceneVariables));
+        OverlayManager.Instance.CloseOverlay();
+    }
 }

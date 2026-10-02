@@ -2,7 +2,7 @@
 
 A work-in-progress C# / Godot remake of **Deuteros: The Next Millennium** (1991). The project recreates its resource management, research, production, ships and interplanetary logistics.
 
-Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See the [backlog assessment](docs/asana-triage.md) for the current implementation gaps and questions requiring original-game evidence. Save/load and several later-game features are incomplete.
+Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See the [backlog assessment](docs/asana-triage.md) for the current implementation gaps and questions requiring original-game evidence. Five local save slots are implemented; Windows acceptance and several later-game features remain outstanding.
 
 ## Build and run
 

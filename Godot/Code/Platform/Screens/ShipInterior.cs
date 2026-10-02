@@ -22,6 +22,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public IShip Ship { get; set; }
 		public IPlanet CurrentPlanet { get; set; }
+		private bool sceneReady;
 
 		Control TextLayout { get; set; }
 		Control StarMap { get; set; }
@@ -52,7 +53,7 @@ namespace Deuteros.Code.Platform.Screens
 		Label PilotCount { get; set; }
 		Label EngineStatusValue { get; set; }
 		Label ACCStatus { get; set; }
-		Label[] CargoValues { get; set; } = new Label[3];
+		Label[] CargoValues { get; set; } = new Label[5];
 		Label CourseText { get; set; }
 		Label CourseValue { get; set; }
 		Label ETA { get; set; }
@@ -103,15 +104,15 @@ namespace Deuteros.Code.Platform.Screens
 			Land = GetNode<Button>("Land");
 
 			ShipName = GetNode<Label>("TextLayout/ShipName");
+			GetNode<Button>("TextLayout/RenameShip").Pressed += RenameShip_Pressed;
 			Status = GetNode<Label>("TextLayout/Status");
 			FuelValue = GetNode<Label>("TextLayout/FuelValue");
 			PilotName = GetNode<Label>("TextLayout/PilotName");
 			PilotCount = GetNode<Label>("TextLayout/PilotCount");
 			EngineStatusValue = GetNode<Label>("TextLayout/EngineStatusValue");
 			ACCStatus = GetNode<Label>("TextLayout/ACCStatus");
-			CargoValues[0] = GetNode<Label>("TextLayout/CargoValue1");
-			CargoValues[1] = GetNode<Label>("TextLayout/CargoValue2");
-			CargoValues[2] = GetNode<Label>("TextLayout/CargoValue3");
+			for (int i = 0; i < CargoValues.Length; i++)
+				CargoValues[i] = GetNode<Label>("TextLayout/CargoValue" + (i + 1));
 			CourseText = GetNode<Label>("TextLayout/CourseText");
 			CourseValue = GetNode<Label>("TextLayout/CourseValue");
 			ETA = GetNode<Label>("TextLayout/ETA");
@@ -126,13 +127,12 @@ namespace Deuteros.Code.Platform.Screens
 			TakeOff.Pressed += TakeOff_Pressed;
 			Land.Pressed += Land_Pressed;
 
-			CargoValues[0].Text = "";
-			CargoValues[1].Text = "";
-			CargoValues[2].Text = "";
+			foreach (var cargoValue in CargoValues) cargoValue.Text = "";
 
 			UpdateState();
 
 			base._Ready();
+			sceneReady = true;
 		}
 
 		private void tradeItems(Dictionary<ShipModule,Enums.ItemTypes> olditemlist, Dictionary<ShipModule, Enums.ItemTypes> newitemlist)
@@ -522,6 +522,41 @@ namespace Deuteros.Code.Platform.Screens
 			*/
 		}
 
+		private void RenameShip_Pressed()
+		{
+			var core = GameCore.SingletonInstance;
+			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked ||
+				core.GetNode<GlobalInput>("VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
+				return;
+
+			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/RenameShip.tscn"));
+			var nameEdit = dialog.GetNode<LineEdit>("NameEdit");
+			var validation = dialog.GetNode<Label>("Validation");
+			// Validate on submission rather than truncating names from existing saves when opening.
+			nameEdit.Text = Ship.Name;
+			nameEdit.GrabFocus();
+			nameEdit.SelectAll();
+			GameCore.HoverText = "";
+
+			void ConfirmName()
+			{
+				var name = nameEdit.Text.Trim();
+				if (name.Length == 0 || name.Length > 24 || name.Any(char.IsControl))
+				{
+					validation.Text = "Use 1 to 24 characters.";
+					nameEdit.GrabFocus();
+					return;
+				}
+				Ship.Name = name;
+				UpdateState();
+				OverlayManager.Instance.CloseOverlay();
+			}
+
+			dialog.GetNode<Button>("Confirm").Pressed += ConfirmName;
+			nameEdit.TextSubmitted += _ => ConfirmName();
+			dialog.GetNode<Button>("Cancel").Pressed += OverlayManager.Instance.CloseOverlay;
+		}
+
 		private void Land_Pressed()
 		{
 			Ship.Land();
@@ -612,13 +647,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void UpdateState()
 		{
-			if (CurrentPlanet == null && Ship.ShipState != Ship_States.InTransit)
+			if (Ship.ShipState != Ship_States.InTransit)
 				CurrentPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
 
-			if (Ship.GetType() == typeof(Shuttle))
-				ShipName.Text = "Shuttle Craft";
-			else
-				ShipName.Text = Ship.Name;
+			ShipName.Text = Ship.Name;
+			GetNode<Button>("TextLayout/RenameShip").TooltipText = Ship.Name;
 
 			if (Ship.GetType() != typeof(Shuttle) && GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 				(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid ||
@@ -814,15 +847,23 @@ namespace Deuteros.Code.Platform.Screens
 				else if (Ship.ShipState == Ship_States.Landing)
 					SmallLocation.TextureNormal = null;
 				else if (Ship.ShipState == Ship_States.UnDocked || Ship.ShipState == Ship_States.Docking)
-					SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_Planet_" + CurrentPlanet.PlanetColor.ToString() + ((CurrentPlanet != null && CurrentPlanet.Station.BuildParts > 0) ? "_Station" : "") + ".png");
+				{
+					var station = CurrentPlanet.Station.BuildParts > 0 ? "_Station" : "";
+					var image = SpriteBasePath + "SmallLocation_Planet_" + CurrentPlanet.PlanetColor.ToString().ToPascalCase() + station + ".png";
+					// Moons have no colour, and some planet colours have no interior artwork.
+					// Use the existing neutral icon, retaining the station marker.
+					if (!ResourceLoader.Exists(image))
+						image = SpriteBasePath + "SmallLocation_Planet_White" + station + ".png";
+					SmallLocation.TextureNormal = SpriteManager.LoadImage(image);
+				}
 				else
 					SmallLocation.TextureNormal = null;
 			}
 
 			SetCourse.Visible = Ship.ShipType != Ship_Types.Shuttle;
 
-			//TODO - Set images
-			//Click events for modules
+			if (sceneReady)
+				GameCore.SingletonInstance.UpdateMenuButtons(false, false);
 		}
 
 		public override void _Input(InputEvent @event)
@@ -936,11 +977,6 @@ namespace Deuteros.Code.Platform.Screens
 			else
 			{
 				UpdateState();
-				GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
-
-				var ground = !((Ship.ShipType != Ship_Types.Shuttle) || (!((Shuttle)Ship).OnGround && ((Shuttle)Ship).PlanetLocation!=StellarBodies.earth));
-
-				GameCore.SingletonInstance.UpdateMenuButtons(ground, !ground);
 			}
 		}
 

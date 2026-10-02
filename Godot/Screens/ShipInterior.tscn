@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://dcsu0xl0k6uem"]
+[gd_scene load_steps=13 format=3 uid="uid://dcsu0xl0k6uem"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/ShipInterior.cs" id="1_3756g"]
 [ext_resource type="Texture2D" uid="uid://dauluvspfe65j" path="res://Sprites/SceneSprites/Ships/Interior/BigLocation_StormDoors.png" id="2_3r03j"]
@@ -11,6 +11,8 @@
 [ext_resource type="Texture2D" uid="uid://cej0smu7vqqbm" path="res://Sprites/SceneSprites/Ships/Interior/Ship_Module_Supply.png" id="11_fwf6c"]
 [ext_resource type="Texture2D" uid="uid://bccmxv25gq5qw" path="res://Sprites/SceneSprites/Ships/Interior/Ship_Module_Tool.png" id="12_mgp52"]
 [ext_resource type="Texture2D" uid="uid://d1qfjcnikdibn" path="res://Sprites/SceneSprites/Ships/Interior/Ship_Module_Cryo.png" id="13_nk72e"]
+
+[ext_resource type="Script" path="res://Code/Platform/Base/HoverButton.cs" id="14_rename"]
 
 [node name="ShipInterior" type="Node2D"]
 script = ExtResource("1_3756g")
@@ -57,6 +59,16 @@ offset_bottom = 151.0
 mouse_filter = 2
 metadata/_edit_use_anchors_ = true
 
+[node name="RenameShip" type="Button" parent="TextLayout"]
+layout_mode = 0
+offset_left = -1.0
+offset_top = 10.0
+offset_right = 106.0
+offset_bottom = 19.0
+flat = true
+script = ExtResource("14_rename")
+HoverText = "Rename ship"
+
 [node name="ShipName" type="Label" parent="TextLayout"]
 layout_mode = 1
 anchors_preset = -1
@@ -68,8 +80,8 @@ offset_top = 9.0
 offset_right = 107.0
 offset_bottom = 18.0
 theme_override_colors/font_color = Color(1, 1, 0, 1)
-text = "Shuttle Craft
-"
+text = "Shuttle Craft"
+clip_text = true
 metadata/_edit_use_anchors_ = true
 
 [node name="Status" type="Label" parent="TextLayout"]
@@ -261,6 +273,30 @@ offset_right = 208.0
 offset_bottom = 42.0
 text = "250 Titanium"
 metadata/_edit_use_anchors_ = true
+
+[node name="CargoValue4" type="Label" parent="TextLayout"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.00448431
+anchor_top = 0.00769231
+anchor_right = -0.00448431
+anchor_bottom = 0.00769231
+offset_left = 112.0
+offset_top = 41.0
+offset_right = 208.0
+offset_bottom = 50.0
+
+[node name="CargoValue5" type="Label" parent="TextLayout"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = -0.00448431
+anchor_top = 0.00769231
+anchor_right = -0.00448431
+anchor_bottom = 0.00769231
+offset_left = 112.0
+offset_top = 49.0
+offset_right = 208.0
+offset_bottom = 58.0
 
 [node name="CourseText" type="Label" parent="TextLayout"]
 layout_mode = 1

@@ -81,7 +81,7 @@ public partial class Bulletins : BaseSubScene
 
 		bulletinText = "[color=ff0000]Special Bulletin.[/color]\r\n" +
 			"From: \r\n" +
-			GameCore.Earth.ResearchStaff.Leader + "\r\n" +
+			(GameCore.Earth.ResearchStaff?.Leader ?? "Research Department") + "\r\n" +
 			"Head of research.\r\n \r\n" + bulletinText + "\r\n \r\nMessage ends.";
 		await TypeText(BulletinLabel, bulletinText);
 	}
