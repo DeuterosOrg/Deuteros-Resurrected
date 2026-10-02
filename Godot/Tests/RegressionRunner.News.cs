@@ -119,6 +119,7 @@ namespace Deuteros.Tests
             for (uint day = 1; day <= 15; day++)
             {
                 Save.CurrentDay = day;
+                Save.Clock.DateCentidays = (ulong)day * 100;
                 Save.News.AddNews("Report " + day);
             }
             news.DrawData();

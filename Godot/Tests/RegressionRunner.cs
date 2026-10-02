@@ -221,6 +221,16 @@ namespace Deuteros.Tests
             CheckUi("Station destruction and capture report lost crews without killing survivors", CrewStationLossNews);
             await CheckAsync("Simultaneous production and research bulletins survive delivery and save reload", SimultaneousBulletins);
             await CheckAsync("Blocked discovery bulletins preserve modal ownership and validate saved pending notices", BlockedBulletins);
+            CheckUi("Natural fractional time advances the visible date and consumes a simulation update", NaturalFractionalClock);
+            CheckUi("Manual advancement and save reload retain the partial natural interval", MixedClockSave);
+            CheckUi("Stalled natural time produces one update without catch-up bursts", StalledNaturalClock);
+            CheckUi("A blocked natural update survives saving and consumes once after release", PendingNaturalClock);
+            await CheckAsync("News and save slots display saved fractional dates independently of update count", FractionalNewsAndSlot);
+            await CheckAsync("Arrival date projects the active clock mode across year boundaries", FractionalArrivalDisplay);
+            CheckUi("Legacy saves retain dates and in-progress training and flight", LegacyClockSave);
+            CheckUi("Malformed saved clocks cannot replace the active world", RejectMalformedClock);
+            CheckUi("Paused and invalid frame intervals cannot advance or poison the clock", PausedClock);
+            CheckUi("A queued natural increment cannot discard a later manual day request", ManualAfterPendingClock);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -85,7 +85,7 @@ namespace Deuteros.Code.Platform.Screens
                 label.Text = $"Slot {slot}: empty";
                 GetNode<Button>($"Load{slot}").Disabled = !exists;
                 if (!exists) continue;
-                try { label.Text = $"Slot {slot}: day {Storage.Read(slot).CurrentDay}"; }
+                try { label.Text = $"{slot}: {Deuteros.Code.Objects.GameClock.FormatDate(Storage.Read(slot).Clock.DateCentidays)}"; }
                 catch (Exception error) when (IsSaveError(error)) { label.Text = $"Slot {slot}: unreadable"; }
             }
         }

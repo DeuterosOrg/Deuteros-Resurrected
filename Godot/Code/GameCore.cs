@@ -1,4 +1,4 @@
-using Deuteros.Code.Platform.Helpers;
+﻿using Deuteros.Code.Platform.Helpers;
 using Deuteros.Code.Objects;
 using Godot;
 using System;
@@ -414,7 +414,7 @@ namespace Deuteros.Code
 		public override void _Process(double delta)
 		{
 			SdmSystem.AdvanceTime(delta);
-			UpdateTime();
+			UpdateTime(delta);
 		}
 
 		public void StationDestroyed(IPlanet planet)
@@ -441,21 +441,23 @@ namespace Deuteros.Code
 			errorLabel.Text = ErrorText;
 		}
 
-		private void UpdateTime()
+		private void UpdateTime(double delta)
 		{
-			if (GameData.ActiveSaveFile.TimeSkip || GameData.ActiveSaveFile.TimeSkipDay)
+			if (GetTree().Paused) return;
+			var save = GameData.ActiveSaveFile;
+			var manual = save.TimeSkipDay || (save.TimeSkip && Time.GetTicksMsec() - save.TimeSkipStart >= 500);
+			if (manual) save.Clock.QueueManual();
+			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen) save.Clock.AdvanceNormal(delta);
+			var manualConsumed = save.Clock.PendingIncrement == 100;
+			if ((!manual && StoryDisplayBlocked()) || !save.Clock.Consume()) return;
+			save.CurrentDay++;
+			TriggerDay(save.CurrentDay - 1, save.CurrentDay);
+			if (manualConsumed)
 			{
-				if (GameData.ActiveSaveFile.TimeSkipDay || Time.GetTicksMsec() - GameData.ActiveSaveFile.TimeSkipStart >= 500)
-				{
-					GameData.ActiveSaveFile.CurrentDay++;
-					TriggerDay(GameData.ActiveSaveFile.CurrentDay - 1, GameData.ActiveSaveFile.CurrentDay);
-
-					GameData.ActiveSaveFile.TimeSkipStart = Time.GetTicksMsec();
-					GameData.ActiveSaveFile.TimeSkipDay = false;
-
-					QueueRedraw();
-				}
+				save.TimeSkipStart = Time.GetTicksMsec();
+				save.TimeSkipDay = false;
 			}
+			QueueRedraw();
 		}
 
 		private void UpdateLocationText(bool orbit)

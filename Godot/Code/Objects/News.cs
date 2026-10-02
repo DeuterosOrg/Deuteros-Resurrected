@@ -21,7 +21,7 @@ namespace Deuteros.Code.Objects
 
 		public void AddNews(string NewsItem)
 		{
-			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay.ToString().PadRight(3, ' ') + ": " + NewsItem);
+			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.RelativeDate.PadRight(3, ' ') + ": " + NewsItem);
 		}
 
         public void AddCrewLoss(IEnumerable<Staff> teams)

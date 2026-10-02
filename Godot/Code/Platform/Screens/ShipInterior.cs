@@ -827,11 +827,10 @@ namespace Deuteros.Code.Platform.Screens
 				CourseValue.Text = Ship.PlanetLocation.ToScreenString(" ") + " To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 			}
 
-			var currentDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay + Ship.TravelTimeRemain();
-			var curDay = (currentDay % 1000).ToString().PadLeft(3, '0');
-			var outputYear = (3100 + Math.Floor((decimal)(currentDay / 1000))) + " " + curDay + ".00";
-
-			ETA.Text = "ETA:\n" + outputYear;
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            // Projection assumes the current clock mode; changing modes changes the arrival date.
+            var remaining = (ulong)Math.Max(0, Ship.TravelTimeRemain());
+            ETA.Text = "ETA:\n" + GameClock.FormatDate(save.Clock.DateCentidays + remaining * (save.TimeSkip ? 100ul : 1ul));
 
 			if (Ship.ShipType == Ship_Types.Shuttle)
 			{

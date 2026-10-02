@@ -58,6 +58,7 @@ namespace Deuteros.Code
 			newGameSave.Ships = new List<IShip>();
 			newGameSave.News = new News();
 			newGameSave.CurrentDay = 0;
+			newGameSave.Clock = new GameClock();
             newGameSave.AtWar = false;
             newGameSave.WarDeclaredDay = 0;
             newGameSave.AlienTransmissions = new AlienTransmissions();

@@ -174,10 +174,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void UpdateTime(uint previousDay, uint currentDay)
 		{
-			var newDay = (currentDay % 1000).ToString().PadLeft(3, '0');
-			var outputYear = (3100 + Math.Floor((decimal)(currentDay / 1000))) + " " + newDay + ".00";
-
-			Time.Text = outputYear;
+			Time.Text = Deuteros.Code.Objects.GameClock.FormatDate(GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.DateCentidays);
 		}
 
 		public void UpdateAnimations()

@@ -12,7 +12,9 @@ namespace Deuteros.Code.Objects.GameData
     {
         public BaseData BaseGameData { get; set; }
         public Config GameConfig { get; set; }
+        // Historical save name: consumed simulation updates, not the displayed fractional date.
         public uint CurrentDay { get; set; }
+        public GameClock Clock { get; set; }
         public int RefiningPhase { get; set; }
         public double SdmTimerRemainder { get; set; }
         public int NextPersonIndex { get; set; }

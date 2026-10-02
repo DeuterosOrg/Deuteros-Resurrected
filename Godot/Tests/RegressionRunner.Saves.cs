@@ -103,10 +103,12 @@ namespace Deuteros.Tests
             {
                 Equal(true, screen.GetNode<Button>("Load1").Disabled, "empty slot cannot load");
                 Save.CurrentDay = 11;
+                Save.Clock.DateCentidays = 1100;
                 Press(screen, "Save1");
                 Equal(11u, screen.Storage.Read(1).CurrentDay, "save button writes current game");
-                Equal("Slot 1: day 11", screen.GetNode<Label>("Slot1").Text, "saved slot metadata");
+                Equal("1: 3100 011.00", screen.GetNode<Label>("Slot1").Text, "saved slot metadata");
                 Save.CurrentDay = 22;
+                Save.Clock.DateCentidays = 2200;
                 Press(screen, "Save1");
                 Equal(11u, screen.Storage.Read(1).CurrentDay, "overwrite waits for confirmation");
                 Press(screen, "Cancel");
@@ -115,6 +117,7 @@ namespace Deuteros.Tests
                 Press(screen, "Confirm");
                 Equal(22u, screen.Storage.Read(1).CurrentDay, "confirmed overwrite");
                 Save.CurrentDay = 33;
+                Save.Clock.DateCentidays = 3300;
                 var active = Save;
                 Press(screen, "Load1");
                 Press(screen, "Cancel");
@@ -234,8 +237,10 @@ namespace Deuteros.Tests
             {
                 var storage = new SaveStorage(directory);
                 Save.CurrentDay = 11;
+                Save.Clock.DateCentidays = 1100;
                 storage.Write(1, Save);
                 Save.CurrentDay = 22;
+                Save.Clock.DateCentidays = 2200;
                 storage.Write(1, Save);
                 Equal(22u, storage.Read(1).CurrentDay, "new save");
                 Equal(11u, SaveStorage.Deserialize(File.ReadAllText(storage.SlotPath(1) + ".bak")).CurrentDay, "previous save backup");

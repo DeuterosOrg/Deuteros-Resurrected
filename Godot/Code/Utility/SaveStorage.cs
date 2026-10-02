@@ -83,6 +83,8 @@ namespace Deuteros.Code.Utility
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.AlienTransmissions))
                         property.Required = Required.DisallowNull;
+                    else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.Clock))
+                        property.Required = Required.DisallowNull;
                     else if (property.Required == Required.Default) property.Required = Required.AllowNull;
                 }
                 return properties;
@@ -138,6 +140,8 @@ namespace Deuteros.Code.Utility
                                 material.GroundAmount = 0;
                                 if (material.SurveyTicks == 0) material.SurveyTicks = Material.KnownEmpty;
                             }
+            if (document.Game != null && document.Game.Clock == null)
+                document.Game.Clock = new GameClock { DateCentidays = (ulong)document.Game.CurrentDay * 100 };
             Validate(document.Game);
             var save = document.Game;
             ArtifactRecovery.RestoreLegacy(save);
@@ -202,6 +206,11 @@ namespace Deuteros.Code.Utility
                 if (!condition) throw new InvalidDataException("Invalid save: " + field + ".");
             }
             Require(save?.BaseGameData?.Planets != null && save.BaseGameData.Stars != null, "world");
+            Require(save.Clock != null && double.IsFinite(save.Clock.NormalElapsed)
+                && save.Clock.NormalElapsed >= 0 && save.Clock.NormalElapsed < GameClock.NormalIntervalSeconds
+                && save.Clock.PendingIncrement is 0 or 1 or 100
+                && save.Clock.DateCentidays >= (ulong)save.Clock.PendingIncrement
+                && save.Clock.DateCentidays <= (ulong)uint.MaxValue * 100, "clock");
             Require(save.RefiningPhase is 0 or 1, "refining phase");
             Require(double.IsFinite(save.SdmTimerRemainder) && save.SdmTimerRemainder >= 0 && save.SdmTimerRemainder < 1, "SDM timer phase");
             var data = save.BaseGameData;
