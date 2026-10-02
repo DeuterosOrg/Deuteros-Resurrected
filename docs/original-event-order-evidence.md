@@ -46,7 +46,7 @@ The exact stock arithmetic is visible independently of resource-name mapping:
 - Orbital record: inputs at `+$42/+$46` lose 6 each and output `+$54` gains 8; the later path uses `+$44/+$48`, consuming 5 each and adding 5 at `+$56`.
 - Ground record: when `+$F0 >= 3`, inputs `+$B8/+$BC` lose 2 each and output `+$CA` gains 3.
 
-These paths have distinct stock thresholds/caps. Do not replace them with one universal recipe multiplier, or infer exact fuel names from offset alone. Complete the name/technology mapping before altering conversion ratios.
+These paths have distinct stock thresholds/caps. The [refining follow-up](original-fuel-refining-evidence.md) now maps the mineral names, research/resource-count gate and all five batch rules, and reproduces starvation caused by the remake's shared per-factory toggle. Station allocation/relocation and saved-phase integration still need work before replacing the scheduler.
 
 ## Remake comparison and implementation boundaries
 
