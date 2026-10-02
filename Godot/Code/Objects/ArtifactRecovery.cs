@@ -16,6 +16,13 @@ namespace Deuteros.Code.Objects
         public static void RestoreLegacy(SaveFile save)
         {
             var item = save.BaseGameData.ItemList.SingleOrDefault(i => i.ItemType == Enums.ItemTypes.alien_artifact);
+            if (item != null)
+            {
+                item.BuildRequirements ??= new();
+                item.OrbitOnly = true;
+                if (string.IsNullOrWhiteSpace(item.FullName)) item.FullName = "Unknown";
+                if (string.IsNullOrWhiteSpace(item.ShortName)) item.ShortName = "Unknown";
+            }
             var research = item?.Research;
             if (research == null || research.Researched) return;
             var credit = research.ResearchLimit;

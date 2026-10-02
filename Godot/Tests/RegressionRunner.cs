@@ -160,6 +160,10 @@ namespace Deuteros.Tests
             await CheckAsync("Module dialogue preserves readable palette colours and formatted text", ModuleDialogueColours);
             CheckUi("Eight artifact deliveries complete the device without scientist work", ArtifactDeliveryCompletion);
             Check("Legacy artifact delivery credit migrates once without losing cargo", ArtifactDeliveryLegacySaves);
+            foreach (var automated in new[] { false, true })
+                foreach (var ground in new[] { false, true })
+                    await CheckAsync($"Recovered device manufactures only in orbit automated={automated} ground={ground}", () => ArtifactManufacture(automated, ground));
+            Check("Legacy completed devices acquire their original recipe without losing progress", ArtifactManufactureLegacySave);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

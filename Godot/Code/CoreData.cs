@@ -622,12 +622,15 @@ namespace Deuteros.Code
 				#region Items
 
 				var unknownitem = new Item();
-				unknownitem.FullName = "";
+				unknownitem.FullName = "Unknown";
+				unknownitem.ShortName = "Unknown";
 				unknownitem.ItemCategory = Enums.ItemCategory.item;
 				unknownitem.ItemType = Enums.ItemTypes.alien_artifact;
 				unknownitem.Mass = 2000;
 				unknownitem.ToolPod = false;
 				unknownitem.Locked = true;
+				unknownitem.OrbitOnly = true;
+				unknownitem.BuildRequirements = new List<BuildRequirement>();
 
 				unknownitem.Research = new ResearchItem(Enums.ItemTypes.alien_artifact, 1, 1);
 				unknownitem.Research.Researched = false;

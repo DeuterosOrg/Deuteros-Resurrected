@@ -172,7 +172,8 @@ namespace Deuteros.Code.Platform.Screens
 				var maxCount = recipeItem.BuildRequirements
 					.Select(material => CurrentStore[material.ItemType] / material.ItemCount).DefaultIfEmpty(0).Min();
 
-				BuildAmountLabel.Text = string.Format(recipeText, maxCount, recipeItem.FullName);
+				BuildAmountLabel.Text = recipeItem.BuildRequirements.Count == 0
+					? "No materials required" : string.Format(recipeText, maxCount, recipeItem.FullName);
 			}
 		}
 	}

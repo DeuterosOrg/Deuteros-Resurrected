@@ -131,6 +131,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void CheckProductionStart()
 		{
+			if (SelectedButton?.ObjectData?.OrbitOnly == true && CurrentFactory.Ground)
+			{
+				GameCore.ShowError(this, "This Item Can\nOnly BE Made\nIn Orbit.");
+				return;
+			}
 			if (SelectedButton?.ObjectData != null && IsStationInstallation(SelectedButton.ObjectData.ItemType)
 				&& !CanInstallStationItem(CurrentPlanet, SelectedButton.ObjectData.ItemType, Ground)) return;
 			{
@@ -145,12 +150,6 @@ namespace Deuteros.Code.Platform.Screens
 						var addedItem = (Item)SelectedButton.ObjectData;
 
 						
-						if (addedItem.OrbitOnly && CurrentFactory.Ground)
-						{
-							GameCore.ShowError(this, "This Item Can\nOnly BE Made\nIn Orbit.");
-							return;
-						}
-
 						if (addedItem.Research.TechLevel>CurrentFactory.Builder.GetLevel())
 						{
 							string level="";
@@ -382,6 +381,7 @@ namespace Deuteros.Code.Platform.Screens
 						if (!currentFactory.Ground)
 							currentFactory.ProductionQueue.RemoveAll(order => StationItemInstalled(currentPlanet, order.Product.ItemType));
 						var currentItem = currentFactory.CurrentProductionItem()?.Product;
+						if (currentItem?.OrbitOnly == true && currentFactory.Ground) continue;
 						if (currentItem != null && IsStationInstallation(currentItem.ItemType)
 							&& !CanInstallStationItem(currentPlanet, currentItem.ItemType, currentFactory.Ground)) continue;
 
@@ -503,6 +503,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			// Research-only technology is not a manufacturing recipe, including in older saves.
 			if (productionItem.BuildRequirements == null) return false;
+			if (productionItem.OrbitOnly && ground) return false;
 			if (IsStationInstallation(productionItem.ItemType) && !CanInstallStationItem(productionPlanet, productionItem.ItemType, ground))
 				return false;
 			Objects.Store currentStore;

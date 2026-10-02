@@ -228,6 +228,99 @@ namespace Deuteros.Tests
             }
         }
 
+        private async Task ArtifactManufacture(bool automated, bool ground)
+        {
+            InitializeUi();
+            DisableFuelRefining();
+            var core = GameCore.SingletonInstance;
+            for (var i = 0; i < 8; i++) core.TriggerAlienTechDiscovery(ItemTypes.alien_artifact);
+            var item = core.GameData.GetItem(ItemTypes.alien_artifact);
+            Equal(true, item.BuildRequirements != null, "completed device has a manufacturing recipe");
+            Equal(0, item.BuildRequirements.Count, "original recipe consumes no materials");
+            Equal(true, item.OrbitOnly, "original factory mode is orbital");
+            Equal(2000, item.Mass, "original device mass");
+            GameCore.Earth.Station.Built = true;
+            GameCore.Earth.Station.BuildParts = 8;
+            var factory = ground ? GameCore.Earth.Factory : GameCore.Earth.Station.Factory;
+            factory.Ground = ground;
+            factory.AOC = automated;
+            factory.Builder = automated ? null : new Staff { Type = StaffType.Production, Count = 200, Leader = "Builder" };
+            var store = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
+            foreach (var key in store.Items.Keys.ToArray()) store[key] = 0;
+            var screen = OpenMtxProduction(ground);
+            try
+            {
+                var button = screen.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.alien_artifact);
+                button.EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(ground ? 0 : 1, factory.ProductionQueue.Count, "factory eligibility enforced by real order control");
+                if (!ground)
+                {
+                    ProductionDays(1);
+                    Equal(0, store[ItemTypes.alien_artifact], "device needs production time");
+                    screen.DrawData();
+                    await InputFrames();
+                    await CaptureDisplayEvidence("artifact-manufacture-" + automated);
+                    var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    var queue = restored.BaseGameData.Planets[StellarBodies.earth].Station.Factory.ProductionQueue;
+                    Equal(1, queue.Count, "in-progress manufacture survives serialization");
+                    Equal(true, ReferenceEquals(queue[0].Product, restored.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact)), "saved queue retains canonical device");
+                    core.GameData.ActiveSaveFile = restored;
+                    factory = GameCore.Earth.Station.Factory;
+                    store = GameCore.Earth.Station.Resources.Stores;
+                    ProductionDays(50);
+                    Equal(1, store[ItemTypes.alien_artifact], "manufacture yields one device");
+                    Equal(0, factory.ProductionQueue.Count, "one-time order completes");
+                }
+                else
+                {
+                    // A stale paid order must not bypass the ground restriction on its next tick.
+                    factory.ProductionQueue.Add(new ProductionItem(item) { Active = true, Production_Complete = 4, AOCOneTime = automated });
+                    core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    factory = GameCore.Earth.Factory;
+                    store = GameCore.Earth.PlanetResources.Stores;
+                    ProductionDays(1);
+                    Equal(0, store[ItemTypes.alien_artifact], "legacy paid ground order cannot complete");
+                }
+                Equal(true, store.Items.Where(p => p.Key != ItemTypes.alien_artifact).All(p => p.Value == 0), "no fictional materials or stock credits");
+            }
+            finally { screen.Free(); }
+            if (!ground)
+            {
+                var stores = OpenMtxStores();
+                try
+                {
+                    stores.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.alien_artifact).EmitSignal(BaseButton.SignalName.Pressed);
+                    Equal("No materials required", stores.BuildAmountLabel.Text, "empty recipe is not displayed as zero buildable items");
+                    await InputFrames();
+                    await CaptureDisplayEvidence("artifact-recipe-" + automated);
+                }
+                finally { stores.Free(); }
+            }
+        }
+
+        private void ArtifactManufactureLegacySave()
+        {
+            var legacy = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            var item = legacy.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+            item.FullName = "";
+            item.ShortName = null;
+            item.BuildRequirements = null;
+            item.OrbitOnly = false;
+            item.Research.Researched = true;
+            item.Research.ResearchPercentageComplete = item.Research.ResearchLimit = 100;
+            item.Research.ResearchOrder = 2;
+            item.Locked = false;
+            var loaded = SaveStorage.Deserialize(SaveStorage.Serialize(legacy));
+            var recovered = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+            Equal("Unknown", recovered.FullName, "original device name restored");
+            Equal("Unknown", recovered.ShortName, "stock label restored");
+            Equal(true, recovered.BuildRequirements != null && recovered.BuildRequirements.Count == 0, "missing legacy device recipe restored");
+            Equal(true, recovered.OrbitOnly, "legacy orbital manufacture gate restored");
+            Equal(100, recovered.Research.ResearchPercentageComplete, "completed progress preserved");
+            Equal(2, recovered.Research.ResearchOrder, "existing research order preserved");
+            Equal<List<BuildRequirement>>(null, item.BuildRequirements, "input save object untouched");
+        }
+
         private void GiftCapturePreservesArtifact(UnknownItemTypes type)
         {
             var ship = UnknownObjectShip();
