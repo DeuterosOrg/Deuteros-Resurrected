@@ -2,9 +2,9 @@
 
 ## Windows Codex starting brief
 
-**Updated 2026-10-02; implementation checkpoint `aa86c2c`.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
+**Updated 2026-10-02; latest follow-up restores original grapple-only ACC disengagement.** Work on the latest pushed `codex/build-tests-and-gameplay-fixes`, recording its actual full SHA and any local changes. Preserve root `AGENTS.md`; its original toolchain/testing notes are superseded by the current README and commands below.
 
-**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **304/304 regressions**, startup smoke and Windows cross-export passing, with **30/48 task-level implementations**. None has completed native Windows acceptance. These are prior results to reproduce, not Windows results.
+**Objective:** establish native Windows confidence in the existing contribution, then continue toward all 48 Asana tasks. The committed Mac record reports **309/309 regressions**, startup smoke and Windows cross-export passing, with **31/48 task-level implementations**. None has completed native Windows acceptance. These are prior results to reproduce, not Windows results.
 
 1. **Pick up the branch safely.** Inspect local changes and remotes, fetch from the remote Craig pushed to, and check out the contribution without discarding work. Do not substitute `develop` if it is missing. Read [backlog progress](backlog-progress.md) and [validation results](validation-results.md).
 2. **Build and validate.** Follow [the PowerShell setup](#windows-setup-and-automated-validation): Godot **4.2.2 .NET**, .NET SDK **6.0.428 x64**, Python **3.9+**. Run validator unit tests and full validation with Windows export. Preserve each attempt; investigate failures before retesting.
@@ -68,7 +68,9 @@ Pushing this branch makes the brief available to the Windows agent; it does not 
 
 ## Current evidence
 
-The suite now has **304 cases**, with eleven DFCC fuel regressions. **Full validation passed 304/304 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 294/296/298/300/301/303 also pass. Consult [the latest aggregate/export status](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). There are 30 task-level implementations requiring Windows acceptance.
+The suite now has **309 cases**, including five grapple-only ACC regressions. **Full validation passed 309/309 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 306/308/309 pass. There are **31 task-level implementations** requiring Windows acceptance. See [the latest result](validation-results.md#grapple-only-asteroid-acc--2026-10-02) and [original control trace](original-asteroid-acc-evidence.md).
+
+The preceding suite had **304 cases**, with eleven DFCC fuel regressions. **Full validation passed 304/304 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 294/296/298/300/301/303 also pass. Consult [the latest aggregate/export status](validation-results.md#dfcc-fuel-cost-and-conservation--2026-10-02). There are 30 task-level implementations requiring Windows acceptance.
 
 The preceding suite had **293 cases**, including 17 engine-damage/recovery regressions. **Full validation passed 293/293 in one run**, strict import, startup smoke, Windows cross-export and all six Python validator tests. Native Mac cases 277/280/285/287/291/292/293 pass; consult [the latest aggregate/export status](validation-results.md#engine-damage-and-recovery--2026-10-02). At that checkpoint, 29 task-level implementations required Windows acceptance.
 
@@ -194,6 +196,12 @@ For **1215716464570901**, verify IOS/MeH and SCG/HeD with zero and populated dro
 Fit DFCC with fuel already aboard: return that tank at the old rate before conversion and update both readouts immediately. Insufficient fuel-store space must preserve the entire fitting and permit retry after space is cleared. Exercise ACC with stock just below the configured threshold, exactly sufficient stock and a remainder below ten; the remainder stays in stores. Dismantle with both tank fuel and fuel cargo, checking their combined return atomically. Test the physical controls and a full save/reload cycle in both source and export.
 
 Already-loaded DFCC tanks in old saves retain their range; subsequent refunds use the new ratio and can exceed their historical purchase cost. Record the save's originating revision and review this compatibility choice separately. The [original evidence](original-dfcc-fuel-evidence.md) supports the manual ratio; original ACC/complete conversion fidelity and clock cadence remain separate research gaps.
+
+## Grapple-only ACC acceptance
+
+For **1215683087492480**, the [original code](original-asteroid-acc-evidence.md) confirms deliberate disengagement after a scan without AMA. Engage ACC on an IOS at the asteroids with a qualified pilot, grapple and supply pod. Before a find it should remain engaged; after a find it must disengage without capturing cargo, docking, departing or clearing filters. Check both selected large asteroids and small/unselected ones. Capture an eligible small asteroid manually afterward, then save/reload. Repeat with AMA fitted: a selected class-six-or-larger unmined asteroid should still start docking for mining. Cases **305–309** cover local behavior; use physical Windows controls in source and export.
+
+Keep Complete Cycle separate: its modern flag combination and full lifecycle still require investigation. Do not treat this single Engage correction as proof of all AMA/ACC fidelity or original scan timing.
 
 ## Additional acceptance for ACC, settings and interiors
 

@@ -321,3 +321,16 @@ Cases **294–304** cover IOS/SCG, both fuel types, partial/exact payments, tank
 Compilation retains 14 existing warnings and zero errors. **Fresh full validation passed 304/304 isolated cases in one run**, strict import, startup smoke and Windows cross-export. All six Python validator tests pass. The pack contains 1,103 entries, with no test resources, and validated source hashes remained unchanged. The known exact editor teardown exception remains limited to import/export; no gameplay error exemptions were added. Failed, focused/native and full-run evidence is preserved under ignored `artifacts/validation/evidence/dfcc-fuel/`, with previous logs/export archived first.
 
 The compatibility choice preserves the range of already-loaded tanks in existing saves and applies the new ratio to future transfers/refunds. Such pre-fix tanks can refund more stock than originally paid; no retroactive inventory adjustment is made. Original ACC availability after DFCC conversion is not established; applying the same ratio to the remake's supported ACC path is a conservation choice. Native Windows and task-owner acceptance remain pending. The local implementation count is **30/48**; no Asana task is closed.
+
+
+## Grapple-only asteroid ACC — 2026-10-02
+
+Task **1215683087492480** now has a traced answer: the [original scan branch](original-asteroid-acc-evidence.md) calls the manual Disengage handler when normal engaged ACC finds no AMA, before mineral and size filters. It does not capture cargo automatically. The remake previously left ACC engaged; case **305** reproduced that mismatch before the correction.
+
+`ACC.Update` now disengages normal engaged automation at a non-null asteroid scan without AMA. It retains the scan for manual grappling and leaves cargo, fuel, routes and selection settings intact. No-scan waiting and the existing AMA approach remain unchanged. Complete Cycle is distinguished from ordinary Engage and its wider lifecycle remains investigation work.
+
+Cases **305–309** pass focused strict checks: stop/conservation, waiting and mode boundaries, AMA docking, actual daily scanning, and save/load followed by manual grapple capture. Native Mac cases **306/308/309** also pass. These use staged fixtures and scene callbacks, not physical Windows controls or normal campaign progression.
+
+**Fresh full validation passed 309/309 isolated cases in one run**, strict import, startup smoke and Windows cross-export. All six Python validator tests pass. Recompilation retains 14 existing warnings and zero errors. The export pack contains 1,103 entries and no test resources. No gameplay errors were exempted. Failed/focused/native evidence, previous logs/export and the final export/source hash audit are retained under ignored `artifacts/validation/evidence/asteroid-acc/`.
+
+The local implementation count is **31/48**; native Windows acceptance remains pending and no Asana task is closed. Full AMA timing/yields, original SCG mining availability and Complete Cycle behavior remain separate research questions. A possible mixed-mineral mining failure was identified during review and still needs a controlled reproduction.

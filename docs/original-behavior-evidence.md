@@ -153,6 +153,10 @@ The [live task](https://app.asana.com/1/507237966097081/project/1214891399253076
 
 [Original instruction evidence](original-engine-damage-evidence.md) now establishes that damage is a separate engine bit, damaged travel remains possible at double duration, replacement consumes one matching drive, and damaged removal yields no usable spare. The identified damage write occurs on a random-result gate when escaping danger state `$14`; arrival and attack blocks establish that danger state first. DFCC installation sets the flag which bypasses the roll. The implementation now follows this traced escape rule; task-owner review of the shorthand remains part of acceptance. Original countdown-to-remake-day equivalence remains unverified, and destruction timing is unchanged. See [implementation evidence](validation-results.md#engine-damage-and-recovery--2026-10-02).
 
+## 1215683087492480 — grapple-only ACC at the asteroids
+
+The [original control/scan trace](original-asteroid-acc-evidence.md) proves that normal engaged ACC calls the manual Disengage handler when an asteroid scan finds no fitted AMA. The stop precedes mineral/size filtering and performs no automatic grapple capture. The remake now follows this rule; cases 305–309 cover the stop, no-scan wait, retained AMA behavior, daily scanning and save/manual capture. Complete Cycle flags, scan cadence and wider AMA fidelity remain separate investigation work. Native Windows acceptance is pending.
+
 ## Evidence limits and next artifacts
 
 The inspected repository-local `SourceData/Deuteros.html` provides mineral/body and recipe reference material, and `SourceMaterials/Notes.txt` has selected tables/implementation notes; neither supplied the missing mechanics above. Both `SourceMaterials/GameManuals/*.pdf` files in this checkout are Git LFS pointers rather than PDF contents. A read-only attempt to obtain `Manual.pdf` at the baseline revision returned HTTP 404, so no manual-page claim here depends on reading those absent PDFs. The survey's manual/walkthrough summaries remain secondary evidence.

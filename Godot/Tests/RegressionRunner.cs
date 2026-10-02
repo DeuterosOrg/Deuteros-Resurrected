@@ -139,6 +139,7 @@ namespace Deuteros.Tests
             Check("Window close drains resources whose finalizers are still pending", PendingFinalizersAtShutdown);
             await RunEngineDamageRegressions();
             await RunDfccFuelRegressions();
+            RunAsteroidAccRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -162,9 +162,17 @@ namespace Deuteros.Code.Objects
 			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids)
 			{
 				var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
+				var hasAma = Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
+				// Original engaged ACC stops at a scan without AMA, before mineral/size filters.
+				// Leave the scan for manual grappling; Complete Cycle is a separate command.
+				if (Active && !CycleMode && scanResults != null && !hasAma)
+				{
+					Active = Refuelling = false;
+					return;
+				}
 
-                    //Check if we have an AMA on-board and the relevant equipment and crew
-                if (Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a) && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0)
+				//Check if we have an AMA on-board and the relevant equipment and crew
+				if (hasAma && Ship.Pilot != null && Ship.Pilot.GetLevel() > 0)
 				{
 					//Our cargo hold is full and we are undocked, so we need to go home
 					if (!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250))
