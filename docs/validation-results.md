@@ -509,3 +509,23 @@ Fresh full Mac and native Windows validation each passes **385/385**, strict imp
 Evidence is retained under `artifacts/validation/evidence/production-rod/` and `artifacts/windows-handoff/ca54582-evidence/`. The verified source bundle SHA-256 is `58d3c39c52a5a05f90a024893db8ee9f849e5d1f427f955d2a9f084d7c0c0fee`. Both aggregate processes and the Windows collector exited zero; all collected case logs, source/export smoke and package contents were audited locally.
 
 Counts are now **34/48 with implementation evidence and 0/48 fully accepted**. Original-emulator wall-clock comparison and Windows desktop acceptance remain outstanding. The human desktop handoff at `8cdd458` remains unchanged. Independent [construction-bank research](original-construction-artwork-evidence.md) also recovered 21 frames for seven remaining items, but those are not runtime changes or additional completed tasks.
+
+
+## Recovered construction and research artwork — 2026-10-02
+
+Revision **`5053982b913af9eb8b07ee4da91a4fe09587180a`** restores 21 genuine construction frames for seven items, six original blank SDM/MTX stages, and five missing small research illustrations. One atlas and the existing image-loading paths supply the stage art; no production simulation code changed. The committed recovery script verifies both original disk hashes and reproduces all 33 generated assets with `--check`. [Source evidence](original-construction-artwork-evidence.md) records addresses, masks, colour choices and remaining fidelity limits.
+
+Cases **386–403** cover paid manual/AOC production, all three stages, resource charges, completion/idle and local SDM/MTX installation without extra stock. Native Mac checks pass **262,656 pixel comparisons**, including transparent research backgrounds and opaque black details; reviewed captures include Pulse Blast Laser, Star Drone and SDM. Cases 386/400 preserve pre-fix missing-image and incorrect-static-fallback failures. The retained MFL fallback is not presented as an original construction sequence.
+
+Full Mac and native Windows validation each passes **403/403**, strict import, source startup and Windows export. All nine Python tests pass on each host; Windows packaged startup passes separately. Incremental Mac compilation has zero warnings/errors; fresh Windows retains 14 existing warnings and zero errors. Both packs contain **1,152 entries and no tests**. Windows has 352 import-sidecar line-ending notices and no normalized content differences.
+
+| Export host | Executable bytes | SHA-256 |
+| --- | ---: | --- |
+| Mac | 149,293,616 | `959c90a22e111c13f4cf278df4c2d7c754b7705962e28f1b3b40a3d7e3a3dfdc` |
+| Windows | 149,233,264 | `58538b21645386451f2d12a08c6ea7da411080af4e0ff5019c078ced82656d63` |
+
+All aggregates and the Windows collector exited zero. Case logs, import/build/smoke/export and package contents were audited locally. Evidence is under `artifacts/validation/evidence/construction-recovered/` and `artifacts/windows-handoff/5053982-evidence/`; source bundle SHA-256 is `cb10bcd9b27be8704c2ede5709e8bfd6c51405121eab0bfbe6e9e6fb636286e1`.
+
+Counts remain **34/48 with implementation evidence and 0/48 fully accepted**: this advances the existing animation-inventory task. Windows desktop and original timing/colour comparison remain outstanding, as does review of oversized existing research diagrams. The desktop handoff at `8cdd458` is unchanged.
+
+Two follow-ups were identified during the caller audit. **Confirmed in the Windows package:** dynamic `bandaid.png` is absent while tracked `Bandaid.png` exists; the controlled external probe exited zero and confirmed both values. This is outside the startup smoke's coverage and remains unfixed. **Static finding, reproduction next:** `Research.DrawData` calls `BuildRequirements.Select` for completed Hyperlight despite its null recipe, reachable through button selection and a saved current-research selection. The prior recipe tests covered Stores/Production, so Research needs its own regression and guard. Neither finding is counted as an additional completed Asana task.

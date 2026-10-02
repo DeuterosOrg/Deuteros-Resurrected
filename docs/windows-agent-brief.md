@@ -2,7 +2,7 @@
 
 ## Start here
 
-**Latest verified revision: `ca54582ff13825a78868dc8d33277f7d52797a2c` (2026-10-02).** Mac and native Windows each pass **385/385 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits.
+**Latest verified revision: `5053982b913af9eb8b07ee4da91a4fe09587180a` (2026-10-02).** Mac and native Windows each pass **403/403 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. A separate package probe confirms a pending `bandaid.png` filename-case defect; passing startup does not imply all artwork loads.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -38,6 +38,10 @@ On a revision containing cases **360–374**, use disposable saves and record st
 ### Orbital planet colours follow-up
 
 On a revision containing cases **380–381**, open a ship's enlarged location view while undocked/docking. Compare Earth/Moon, Mars, Neptune, Jupiter, Venus, Mercury, Crete and Julius with/without a local station. The view must contain the supplied artwork; sky/planet highlights change by the decoded palette while fixed station/cockpit colours remain intact. A moon inherits its parent's palette but only shows its own station. Toggle small/large views and repeat docked, travelling and launching states for Shuttle/IOS/SCG; no orbital colour may remain on those other images. Confirm save/reload retains the chosen view. Run native cases 380/381 and repeat in the exported game; distinguish original-emulator comparison from remake-only checks. See [palette evidence](original-planet-palette-evidence.md).
+
+### Recovered construction artwork follow-up
+
+On a revision containing cases **386–403**, manufacture Pulse Blast Laser, SCG chassis, Star Drive, Prejudice launcher, Star Drone, Prison Pod and Sonic Blaster with manual staff and AOC. Verify all three genuine stage images, correct material charges, completion/idle and cancellation. SDM/MTX intentionally show blank original construction stages while installing locally; they must not create stock or repeat an installation. Five formerly missing small illustrations now load for Pulse Blast Laser, MFL, Prejudice, Prison Pod and Sonic Blaster: inspect Production and Research pages, including transparent page background versus opaque black details. Original empty MFL stages retain a static fallback; no three-frame sequence is claimed. Run native cases 386–403, repeat visual/control checks in the export, and distinguish staged prerequisites from normal campaign discovery. See [recovery evidence](original-construction-artwork-evidence.md). Existing oversized research diagrams and calibrated original colour/timing comparison remain follow-ups.
 
 ### Production rod follow-up
 

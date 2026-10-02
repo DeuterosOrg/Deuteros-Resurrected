@@ -1,6 +1,6 @@
 # Original construction artwork bank
 
-Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. The seven frame sets, original blank SDM/MTX stages and five missing research illustrations are now wired through the existing resource paths. Full cross-platform validation and desktop acceptance are recorded separately.
+Traced 2026-10-02 for the missing-animation inventory, task **1215683087492495**. Seven remaining placeholder sheets have genuine construction images on Disk 2. The seven frame sets, original blank SDM/MTX stages and five missing research illustrations are now wired through the existing resource paths. Full 403-case Mac/Windows validation passes at `5053982`; desktop acceptance remains pending.
 
 ## Source and loader
 
@@ -41,3 +41,5 @@ Cases **386–403** exercise paid manual/AOC production for all nine stage sets:
 The empty MFL graphics section still uses its now-recovered static illustration fallback; this is not claimed as an original construction sequence. Hyperlight remains research-only. Some existing research PNGs (including Star Drone) are oversized diagrams; their replacement and complete original small-panel geometry need a separate check. Original stage timing and Windows desktop source/export acceptance remain outstanding.
 
 Ignored reproducible evidence is under `artifacts/research/mtx/`: `construction-loader.txt`, `construction-screen-palette.txt`, `construction-codec.txt`, `decode-construction.py`, and `construction-bank.json`. The JSON records every item, bitmap address, encoded size, used palette indices and decoded SHA-256. Run `python3 artifacts/research/mtx/decode-construction.py` against the pinned disk images; it reuses `decode-planets.py` and requires only Python's standard library.
+
+The five small-image mappings and decoded/runtime hashes are retained in `artifacts/research/mtx/research-illustration-mapping.json`; the masked-blit and palette call sites are in `research-illustration-lookup-and-mask.txt`. Research-page controls share the recovered resource paths but still need native acceptance; the separate null-recipe Research finding is recorded in the validation report.

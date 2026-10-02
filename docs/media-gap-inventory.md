@@ -45,7 +45,7 @@ The audit checked all `AnimatedSprite2D`/`AnimationPlayer` scene nodes, controll
 | --- | --- | --- |
 | **Time device — A1**, [1215691800680640](https://app.asana.com/0/1214891399253076/1215691800680640) | `Sprites/Buttons/Nav_Animations/Time_Sheet.png` + `Time_Static.png` → `Screens/Base/MenuBase.tscn/Top/Time/TimeAnimation` (8 frames, 5 fps) → `MainMenu.UpdateAnimations()` | **State wiring fixed; eight isolated regressions pass.** The time indicator now follows `TimeSkip`/`TimeSkipDay` independently of selected-screen icons, including click, hold, release, pointer exit and automatic stop. Repeated refresh preserves frame progress; blocked pointer input cannot start the clock. Existing eight-frame/5 fps artwork is unchanged. Native visual acceptance and original cadence remain unverified. |
 | **Production rod — A2**, [1215691951441144](https://app.asana.com/0/1214891399253076/1215691951441144) | `Production.tscn` now overlays the three recovered atlas frames. `Production._Process` drives the original counter at nominal PAL cadence when the selected factory has a current product. | **Implemented; desktop/original acceptance pending.** [Instruction and pixel evidence](original-production-rod-evidence.md) establishes resources 130→129→128, x240/y96, the short initial phase and retained counter. Cases 382–385 pass headless/native on Mac, including 3,456 rendered pixel comparisons. |
-| **Product construction stages — A3** | `Production.DrawData()` selects `Sprites/Items/Production/{ItemType}_{Production_Complete}.png` or a recovered `.tres` atlas, then falls back to the existing research illustration if neither exists. | **Nine frames wired for three items; seven more genuine sets located on Disk 2**, listed below. Native pixel checks verify the wired art and magenta display mask. The original bank also distinguishes blank SDM/MTX stages from empty Hyperlight/MFL sections; see [new source evidence](original-construction-artwork-evidence.md). Construction stages remain separate from the production rod (A2) and do not certify original animation timing. |
+| **Product construction stages — A3** | `Production.DrawData()` selects `Sprites/Items/Production/{ItemType}_{Production_Complete}.png` or a recovered `.tres` atlas, then falls back to the existing research illustration if neither exists. | **Thirty visible stages now wired for ten items**, plus six original blank SDM/MTX stages. The 21 newly decoded visible frames and five missing small research illustrations have cases 386–403 and native Mac pixel checks. Empty Hyperlight/MFL sections remain explicitly distinguished; see [source evidence](original-construction-artwork-evidence.md). Construction stages remain separate from the production rod (A2) and do not certify original animation timing. |
 | Training doors | `PreFabs/TrainingDoors.tscn` has `open`, `closed`, `opening`, `close`; three instances in `Screens/Earth/Training.tscn`; `Training.DrawData()` plays transitions from model lock changes; completion handler settles state/unlocks UI | Wired; original cadence and concurrent-door/audio synchronization unverified. |
 | Menu and item indicators | `Screens/Base/MenuBase.tscn` uses seven `Nav_Animations` sheets; `MainMenu.UpdateAnimations()` calls `Play`. Research/Production/Store button prefabs share `Research_Animations` frames, driven by their respective `*Button.cs` scripts. | Wired; production currently selects static states while research/store can blink. Do not declare every supplied blink sequence required/implemented: original active/queued/selected rules need comparison. |
 | Ship bay and MTX movement | `ShipBay.ScrollToScreen()` tweens the component strip; `MTX.cs` creates scrolling tweens on arrow actions | Wired movement, not missing sprite animation. Verify view arrival and interrupted/repeated scroll; the entry jiggle has a separate regression fix. |
@@ -62,23 +62,25 @@ Visual inspection of all 14 candidate sheets found complete, unlabelled construc
 | `i_drive` | `item_interplanetary_drive.png` | Cases 208–209; native case 208 checks all frame pixels. |
 | `r_frame` | `item_resource_frame.png` | Cases 210–211; native case 210 checks all frame pixels. |
 
-The **11** candidate sheets below still lack complete, verified runtime stage sets. Paths are under `SourceMaterials/SpriteSheets/`; their placeholders must not be exported as original art. A subsequent [Disk 2 loader/bitmap trace](original-construction-artwork-evidence.md) recovered genuine three-stage artwork for **seven** of these items. SDM/MTX have three intentionally blank original bitmaps; Hyperlight/MFL have empty graphics sections. This corrects the earlier assumption that all eleven require newly sourced pictures. Runtime recovery, palette verification and the blank/empty display paths remain to implement.
+The **11** previously unresolved sheets are now classified by the [original Disk 2 bank](original-construction-artwork-evidence.md). Placeholder text in the supplied sheets was not exported. `scripts/recover_construction.py` decodes pinned disk inputs reproducibly, with `--check` for byte comparison. The seven visible sets share one atlas; SDM/MTX use its opaque black rows. Existing atlas loading handles all stages without new simulation code.
 
-| Runtime item | Candidate sheet | Inspection result | Small research image absent? |
-| --- | --- | --- | --- |
-| `pulse_blaster_laser` | `item_blaser.png` | Empty magenta boxes, `p` label | Yes |
-| `g_chassis` | `item_star_chassis.png` | Chassis drawing overprinted with `place` labels/numbers | No |
-| `star_drive` | `item_star_drive.png` | Drive drawing overprinted with `place` labels | No |
-| `s__d__m` | `item_self_destruct.png` | `place 1/2/3` boxes; no construction art | No |
-| `hyperlight` | `item_hyper_light.png` | Empty magenta boxes, `p` label | No |
-| `m__t__x` | `item_mass_transceiver.png` | `place 1/2/3` boxes; no construction art | No |
-| `m__f__l` | `item_fuzlaser.png` | Empty magenta boxes, `p` label | Yes |
-| `prejudice_torpedo_launcher` | `item_torpedo_launcher.png` | `place 1/2/3` boxes; no construction art | Yes |
-| `star_drone` | `item_drone_star.png` | Drone drawings with `p`/`place` labels; sequence identity remains unverified | No |
-| `prison_pod` | `item_pod_prison.png` | `place 1/2/3` boxes; no construction art | Yes |
-| `sonic_blaster` | `item_blaster.png` | Empty magenta boxes, `p` label | Yes |
+| Runtime item | Original-source result | Current runtime status |
+| --- | --- | --- |
+| `pulse_blaster_laser` | Three visible stages, index 9 | Stages and missing small illustration restored |
+| `g_chassis` | Three visible stages, index 12 | Stages restored; existing large research diagram remains |
+| `star_drive` | Three visible stages, index 13 | Stages restored; existing large research diagram remains |
+| `s__d__m` | Three blank stages, index 18 | Original blank construction restored; installation behavior preserved |
+| `hyperlight` | Empty graphics section, index 22 | Research-only; no manufactured construction sequence invented |
+| `m__t__x` | Three blank stages, index 23 | Original blank construction restored; installation behavior preserved |
+| `m__f__l` | Empty graphics section, index 24 | Missing small illustration restored; static construction fallback retained, not claimed as original stage art |
+| `prejudice_torpedo_launcher` | Three visible stages, index 26 | Stages and missing small illustration restored |
+| `star_drone` | Three visible stages, index 29 | Stages restored; existing large research diagram remains |
+| `prison_pod` | Three visible stages, index 30 | Stages and missing small illustration restored |
+| `sonic_blaster` | Three visible stages, index 31 | Stages and missing small illustration restored |
 
-The five missing small research images need genuine source art as well. `meh_fuel`/`hed_fuel` are `AutoProduce`, so absent manual construction stages are not counted; `alien_artifact` is collected/researched rather than an ordinary recipe. The production rod (A2) now has separate implementation and native Mac evidence. Native Windows visual acceptance and original stage timing remain unverified for the recovered frames.
+Cases 386–403 cover paid manual/AOC production, all stages, completion/idle, correct resource charges and installed-module output. Native Mac checks compare **262,656 pixels**, including transparent research backgrounds versus opaque black details. The recovered images retain the remake's metal-colour convention; calibrated original RGB4 display parity is not claimed. Several existing small-image paths actually contain 183×177 diagrams; original small-panel geometry and those replacements remain a follow-up. Research-page rendering and Windows source/export desktop checks also remain pending.
+
+`meh_fuel`/`hed_fuel` are `AutoProduce`; their original empty graphics sections are not missing manual stages. The alien artifact is collected/researched and has original blank stages. The production rod (A2) has its own implementation and native Mac evidence. Original production-stage timing remains unverified.
 
 ### Related static artwork, kept distinct
 
@@ -88,4 +90,4 @@ The initial neutral moon-preview fallback has been superseded by the [orbital pa
 
 ## Evidence and handoff limits
 
-The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1/S2 native Windows listening and Windows acceptance for recovered A3 frames. Source the remaining genuine A3 artwork and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.
+The sound cue sheet and original frame cadence remain incomplete: the Asana inventory tasks supply no recordings; still attachments cannot establish motion or audio; repository manual PDFs are LFS pointers (see [original evidence](original-behavior-evidence.md)). The local inventory is actionable without claiming original audiovisual parity. Complete S1/S2 native Windows listening and Windows acceptance for recovered A3 frames. Complete the remaining A3 geometry/fallback review and gather original recordings/address-backed mappings for S3/S4 and A1/A2 timing. Each implementation should retain its own native audio/visual acceptance record; passing headless gameplay tests does not prove playback quality.
