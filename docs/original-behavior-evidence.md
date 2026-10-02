@@ -19,7 +19,7 @@ The parallel repository is an evidence archive, not a second independent specifi
 | [1215716464570923 — idle clock](https://app.asana.com/0/1214891399253076/1215716464570923) | High for raw clock cadence | Normal mode adds one raw unit per 315.6 seconds at PAL 50 Hz, subject to a consumer handshake; confirm fractional display and pause behavior. |
 | [1215716464570927 — staff attrition](https://app.asana.com/0/1214891399253076/1215716464570927) | High for numeric kernel; medium for cryo semantics | Exact countdown/RNG kernel recovered; map freeze/stage identities and time units before full integration. |
 | [1215685674676229 — self-destruct](https://app.asana.com/0/1214891399253076/1215685674676229) | Medium | An SDM-rigged enemy station capture destroyed station and capturing fleet in recorded play; full trigger/defusing rules missing. |
-| [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Proxima-return promotion is walkthrough lore; exact eligibility/trigger is undecoded. |
+| [1215716464570913 — Warlord](https://app.asana.com/0/1214891399253076/1215716464570913) | Low | Hyperlight-specific promotion handler is now traced; travel-phase timing still needs verification. See [follow-up](original-warlord-evidence.md). |
 | [1215683087492485 — MTX installation](https://app.asana.com/0/1214891399253076/1215683087492485) | High for completion flag and duplicate queue guard | Item 24 completion sets the local installed flag, bypassing ordinary stock output; automated production skips an already installed module. Implemented with cases 174–190; Windows acceptance remains pending. |
 | [1216073204565506 — engine damage](https://app.asana.com/0/1214891399253076/1216073204565506) | Original recovery and escape transition traced | Damaged travel doubles duration; replacement consumes a drive and damaged removal returns none. Reconcile task wording with the original escape roll. |
 | [1215691951441128 — Methanoid trading](https://app.asana.com/0/1214891399253076/1215691951441128) | High for verified instruction paths/table | [Accept/decline, exchange and war-gate rules recovered](original-trade-evidence.md). Refusal decrements; later port prose claiming all outcomes increment is contradicted by original bytes. Timeout duration and full cargo-field semantics remain open. |
@@ -116,6 +116,8 @@ The newest relevant [M2 Addendum 7, 2026-08-26](https://github.com/WizzoUK2/deut
 **Next verification:** retain a save before the first rigged enemy-station capture, record every ship/drone/pilot and station state before/after, repeat after SDM research/exposure, then test an enemy taking a player-rigged station. Recover the state bit and detonation writer while stepping capture resolution. Add deterministic regressions for each demonstrated case.
 
 ## 1215716464570913 — Warlord rank
+
+**2026-10-02 follow-up:** [The original promotion handler and its Hyperlight-specific SCG trigger are now traced](original-warlord-evidence.md). The earlier missing-facts list below records the initial uncertainty; exact travel-phase timing and remake integration remain open.
 
 The [specification survey](https://github.com/WizzoUK2/deuteros-parallel/blob/faf3a30beb07868e06e01ebb306f63b2b42affed/outputs/Deuteros-Spec-Survey.md#L96-L123) attributes Warlord to walkthroughs, with the claim that Admirals gain it by flying to Proxima and back; its cited manual rank list stops at Admiral. This is a research lead, not an original routine or measured threshold.
 
