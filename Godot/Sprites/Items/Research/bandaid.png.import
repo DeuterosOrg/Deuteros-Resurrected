@@ -3,15 +3,15 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bt0exl5yfta2u"
-path="res://.godot/imported/Bandaid.png-8365605fe929b8671f7e45b14d4f2209.ctex"
+path="res://.godot/imported/bandaid.png-4688b045f4d6ee717d5eb3595987f02f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://Sprites/Items/Research/Bandaid.png"
-dest_files=["res://.godot/imported/Bandaid.png-8365605fe929b8671f7e45b14d4f2209.ctex"]
+source_file="res://Sprites/Items/Research/bandaid.png"
+dest_files=["res://.godot/imported/bandaid.png-4688b045f4d6ee717d5eb3595987f02f.ctex"]
 
 [params]
 

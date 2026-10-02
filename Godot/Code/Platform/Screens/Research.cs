@@ -165,6 +165,11 @@ namespace Deuteros.Code.Platform.Screens
 					ResearchedNode.Visible = true;
 
 					ResearchImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + researchItem.Research.ItemType.ToString() + ".png", ResearchImageTextureRect);
+					if (researchItem.BuildRequirements == null)
+					{
+						ItemNotesLabel.Text = "Research complete";
+						return;
+					}
 					MassLabel.Text = "Mass " + "".PadRight(researchItem.Mass.ToString().Length, ' ') + "t.";
 					MassDataLabel.Text = researchItem.Mass.ToString();
 					TeamWorkingLabel.Text = "";

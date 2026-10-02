@@ -153,6 +153,7 @@ namespace Deuteros.Tests
             await RunPlanetViewRegressions();
             await RunProductionRodRegressions();
             await RunRecoveredConstructionRegressions();
+            await RunResearchDetailRegressions();
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

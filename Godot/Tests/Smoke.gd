@@ -6,6 +6,11 @@ func _initialize() -> void:
 	call_deferred("_run")
 
 func _run() -> void:
+	# Source hosts can hide filename-case errors that break the embedded pack.
+	if load("res://Sprites/Items/Research/bandaid.png") == null:
+		push_error("Canonical Bandaid research image failed to load")
+		quit(1)
+		return
 	var scene := load(ProjectSettings.get_setting("application/run/main_scene")) as PackedScene
 	var game := scene.instantiate()
 	root.add_child(game)

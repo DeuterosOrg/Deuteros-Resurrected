@@ -22,6 +22,70 @@ namespace Deuteros.Tests
             Check("Automatic fuel refining still consumes real recipes outside manual production", AutomaticFuelRecipes);
         }
 
+        private async Task RunResearchDetailRegressions()
+        {
+            foreach (var restored in new[] { false, true })
+                await CheckAsync($"Research-only completion displays safely and physical recipes recover restored={restored}",
+                    () => ResearchOnlyDetails(restored));
+        }
+
+        private async Task ResearchOnlyDetails(bool restored)
+        {
+            InitializeUi();
+            var hyperlight = CompleteHyperlightForRecipeTest();
+            if (restored)
+            {
+                GameCore.Earth.CurrentResearchItem = hyperlight.Research;
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            }
+            else
+            {
+                hyperlight.Research.Researched = false;
+                hyperlight.Research.ResearchPercentageComplete = 99;
+                hyperlight.Research.ResearchValue = 255;
+                GameCore.Earth.ResearchStaff = new Staff { Type = StaffType.Research, Count = 200, Leader = "Research" };
+                GameCore.Earth.ResearchStaff.AddAction(9);
+            }
+            GameCore.SingletonInstance.ChangeScene(Scenes.Earth_Research, new List<SceneVariables> { SceneVariables.Ground });
+            var research = ActiveScreen<Research>();
+            if (!restored)
+            {
+                research.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.hyperlight).EmitSignal(BaseButton.SignalName.Pressed);
+                Research.UpdateResearch(0, 1);
+                Equal(true, hyperlight.Research.Researched, "normal research simulation completes the technology");
+                research.UpdateResearchButton(true);
+            }
+            research.DrawData(false);
+            Equal("Research complete", research.GetNode<Label>("Labels/Researched/ItemNotesLabel").Text, "technology is not offered for manufacture");
+            foreach (var label in new[] { "MassLabel", "MassDataLabel", "ProductionAmountListLabel", "ProductionMaterialListLabel", "ItemNotesDataLabel" })
+                Equal("", research.GetNode<Label>("Labels/Researched/" + label).Text, "no fictional technology recipe or mass: " + label);
+            Equal("Hyperlight Travel", research.GetNode<Label>("Labels/ItemNameLabel").Text, "technology details remain visible");
+            await InputFrames();
+            await CaptureDisplayEvidence("research-hyperlight-" + restored);
+
+            foreach (var type in new[] { ItemTypes.derrick, ItemTypes.bandaid, ItemTypes.pulse_blaster_laser,
+                ItemTypes.m__f__l, ItemTypes.prejudice_torpedo_launcher, ItemTypes.prison_pod, ItemTypes.sonic_blaster })
+            {
+                var item = GameCore.SingletonInstance.GameData.GetItem(type);
+                item.Locked = item.Research.Locked = false;
+                item.Research.Researched = true;
+                research.Buttons.Single(b => b.ObjectData?.ItemType == type).EmitSignal(BaseButton.SignalName.Pressed);
+                research.DrawData(false);
+                Equal(string.Join('\n', item.BuildRequirements.Select(r => r.ItemCount)),
+                    research.GetNode<Label>("Labels/Researched/ProductionAmountListLabel").Text, "physical recipe returns after technology");
+                Equal(item.Mass.ToString(), research.GetNode<Label>("Labels/Researched/MassDataLabel").Text, "physical mass returns");
+                var image = research.GetNode<TextureRect>("Sprites/ResearchImage");
+                Equal(true, image.Texture != null, "completed item illustration loads");
+                Equal(new Vector2(48, 48), image.Texture.GetSize(), "recovered/canonical illustration canvas");
+                await InputFrames();
+                if (type == ItemTypes.pulse_blaster_laser) await CaptureDisplayEvidence("research-recovered-" + restored);
+            }
+            research.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.hyperlight).EmitSignal(BaseButton.SignalName.Pressed);
+            research.DrawData(false);
+            Equal("", research.GetNode<Label>("Labels/Researched/ProductionAmountListLabel").Text, "switching back clears prior recipe");
+            Equal("Research complete", research.GetNode<Label>("Labels/Researched/ItemNotesLabel").Text, "repeat selection remains safe");
+        }
+
         private Item CompleteHyperlightForRecipeTest()
         {
             PrepareRecipeStocks();
