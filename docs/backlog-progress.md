@@ -13,6 +13,8 @@ Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), 
 
 At this point, 34 Asana-linked fixes have local regression evidence; none of the 48 tasks has been declared fully accepted. The [409-case suite also passes natively on Windows](windows-validation-results.md), including source startup, release export and packaged smoke; desktop and normal progression checks remain outstanding. Additional fixes in the first contribution are separate review findings, not extra completed Asana rows. The latest follow-ups also restore artifact recovery, manufacture and hull fitting; [421-case runners](validation-results.md#artifact-recovery-manufacture-and-tool-fitting--2026-10-02) pass on both hosts, with Mac evidence audited and Windows package collection pending SSH access. The [Godot 4.2.2 script-lifetime correction](validation-results.md#godot-422-script-lifetime-fix--2026-10-02) supports reliable validation of these fixes; it is not counted as an additional Asana completion.
 
+The capture/transmission, News and battle follow-ups are now consolidated locally after [442-case Mac validation](validation-results.md#battle-lifecycle-and-consolidated-candidate--2026-10-02). Windows execution of this candidate remains pending; historical isolated checkpoints in the rows below retain their exact verification scope. The 34/48 and 0/48 totals are unchanged.
+
 ## Task ledger
 
 | Task | Local status | Next acceptance step |

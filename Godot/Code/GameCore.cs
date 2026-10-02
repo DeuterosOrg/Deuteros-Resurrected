@@ -330,8 +330,25 @@ namespace Deuteros.Code
 		{
 			SimulationDayPassed?.Invoke(previousDay, currentDay);
 			DayPassed?.Invoke(previousDay, currentDay);
+			PublishPendingStory();
 			// Refresh repair-dependent services without replacing the current screen's header.
 			_menuScreen?.SetupMenus();
+		}
+
+		private void PublishPendingStory()
+		{
+			// Existing discoveries and modal owners keep priority; an undisplayed notice stays saved.
+			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+			var save = GameData.ActiveSaveFile;
+			if (save.AlienTransmissions?.Advance() == true)
+			{
+				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+				_menuScreen.Location.Text = "News Bulletins";
+				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
+			}
+			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
@@ -446,6 +463,15 @@ namespace Deuteros.Code
 			{
 				_menuScreen.Location.Text = GetCurrentPlanet().PlanetId.ToScreenString(" ") + " Orbital";
 			}
+		}
+
+		public void ShowAlienTransmission()
+		{
+			var save = GameData.ActiveSaveFile;
+			if (save.AlienTransmissions?.LastStage is not >= 0) return;
+			ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+			_menuScreen.Location.Text = "News Bulletins";
+			((Bulletins)_currentScreen).DisplayAlienTransmission(save, true);
 		}
 
 		public void ShowBulletin(BulletinTypes bulletin)

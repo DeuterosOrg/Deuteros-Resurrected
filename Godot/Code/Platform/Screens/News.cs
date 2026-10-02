@@ -22,7 +22,12 @@ namespace Deuteros.Code.Platform.Screens
 
 			for (int i = 0; i < 12; i++)
 			{
-				NewsLabels.Add(GetNode<Label>("NewsLines/" + i.ToString().PadLeft(2, '0')));
+                var label = GetNode<Label>("NewsLines/" + i.ToString().PadLeft(2, '0'));
+                label.ClipText = true;
+                label.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+                label.Size = new Vector2(240, 8);
+                label.MouseFilter = Control.MouseFilterEnum.Pass;
+                NewsLabels.Add(label);
 			}
 
 			ReplayIcon = GetNode<TextureButton>("Images/Icon");
@@ -36,8 +41,12 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ReplayIcon_Pressed()
 		{
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin != Enums.BulletinTypes.None)
-				GameCore.SingletonInstance.ShowBulletin(GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin);
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+			if (save.News.LastBulletin is Enums.BulletinTypes.Transmission1 or Enums.BulletinTypes.Transmission2
+				&& save.AlienTransmissions?.LastStage is >= 0)
+				GameCore.SingletonInstance.ShowAlienTransmission();
+			else if (save.News.LastBulletin != Enums.BulletinTypes.None)
+				GameCore.SingletonInstance.ShowBulletin(save.News.LastBulletin);
 		}
 
 		protected override void DayTick(uint previousDay, uint currentDay)
@@ -50,16 +59,18 @@ namespace Deuteros.Code.Platform.Screens
 			ReplayIcon.Disabled = GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin == Enums.BulletinTypes.None;
 			var rowCount = 0;
 
-			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.News.GetNews(12))
+			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.News.GetNews(12).AsEnumerable().Reverse())
 			{
-				NewsLabels[11 - rowCount].Text = item;
+				NewsLabels[rowCount].Text = item;
+                NewsLabels[rowCount].TooltipText = item;
 
 				rowCount++;
 			}
 
 			while (rowCount < 12)
 			{
-				NewsLabels[11 - rowCount].Text = "";
+				NewsLabels[rowCount].Text = "";
+                NewsLabels[rowCount].TooltipText = "";
 
 				rowCount++;
 			}

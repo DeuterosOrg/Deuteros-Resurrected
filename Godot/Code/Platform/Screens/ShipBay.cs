@@ -420,7 +420,8 @@ namespace Deuteros.Code.Platform.Screens
 			foreach (var staff in returningStaff)
 				ResourceList.AddStaff(staff);
 
-			GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(Ship);
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            if (save.Ships.Remove(Ship)) save.News.AddNews(Ship.Name + " Scrapped.");
 			Ship = null;
 			UpdateScreenState(0);
 			UpdateState();

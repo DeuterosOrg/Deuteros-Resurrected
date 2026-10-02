@@ -60,6 +60,7 @@ namespace Deuteros.Code
 			newGameSave.CurrentDay = 0;
             newGameSave.AtWar = false;
             newGameSave.WarDeclaredDay = 0;
+            newGameSave.AlienTransmissions = new AlienTransmissions();
 			newGameSave.EnemyBuildDay = 0;
             newGameSave.GameConfig.ShuttleRefuelThreshold = 50;
 			newGameSave.GameConfig.IOSRefuelThreshold = 200;
@@ -4175,20 +4176,6 @@ namespace Deuteros.Code
                 starCounts.Add(StellarBodies.cygni, 16);
                 starCounts.Add(StellarBodies.procyon, 10);
                 starCounts.Add(StellarBodies.tau_ceti, 16);
-
-				//first alien artifact is always in orbit of earth
-                StaticGameData.Stars[StellarBodies.the_sun].ArtifactLocation = Enums.StellarBodies.earth;
-
-                //setup random alien artifact locations on all stars except the sun
-                foreach (var s in StaticGameData.Stars.Values)
-                {
-                    if (s.StarId != StellarBodies.the_sun)
-                    {
-                        var planets = StaticGameData.Planets.Values.Where(p => p.ParentStar == s.StarId).ToList();
-                        var p = planets[Random.Shared.Next(planets.Count - 1)];
-                        s.ArtifactLocation = p.PlanetId;
-                    }
-                }
 
                 //setup random methanoid locations on all stars
                 //except the sun

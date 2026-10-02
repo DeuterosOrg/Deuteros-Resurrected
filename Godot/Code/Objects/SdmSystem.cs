@@ -45,6 +45,7 @@ namespace Deuteros.Code.Objects
                         .Where(p => p != planet && !p.ActiveMethanoid && p.Station.Built)
                         .Select(p => p.Station.StationOrdinal).DefaultIfEmpty(0).Max() + 1;
                     save.News.AddNews(planet.PlanetId.ToScreenString(" ") + " station captured; SDM defused.");
+                    save.AlienTransmissions?.StationCaptured(save, planet.ParentStar);
                 }
             }
             return true;

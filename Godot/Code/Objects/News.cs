@@ -23,6 +23,11 @@ namespace Deuteros.Code.Objects
 			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay.ToString().PadRight(3, ' ') + ": " + NewsItem);
 		}
 
+        public void AddShipLoss(Interfaces.IShip ship)
+        {
+            if (ship is not EnemyFleet) AddNews(ship.Name + " Destroyed.");
+        }
+
 		public List<string> GetNews(int count)
 		{
 			return NewsItems.TakeLast(count).ToList();

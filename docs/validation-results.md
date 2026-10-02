@@ -2,9 +2,9 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-02): **421/421**, strict import, source smoke and Windows export at `f5a9cbb994b2f904426c0744856405328f243a16`; nine Python tests pass. The Windows runner also exited zero after all 421 cases, source smoke and export. Its packaged smoke and individual-log collection are pending renewed SSH authentication; the last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-02): **442/442** at `625cae94ef40f4552399781b8ba205e1593b5ec0`, with nine Python tests, strict import, startup and audited Windows cross-export. Its gameplay changes are now consolidated locally into the contribution branch; Windows execution remains pending. The preceding **421/421** checkpoint also passed strict import, source smoke and Windows export at `f5a9cbb994b2f904426c0744856405328f243a16`; nine Python tests pass. The Windows runner also exited zero after all 421 cases, source smoke and export. Its packaged smoke and individual-log collection are pending renewed SSH authentication; the last fully audited Windows package remains `a54e899` (409 cases).
 
-The latest changes restore eight-delivery artifact recovery, zero-material orbital manufacture and original hull tool fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
+The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
 
 ## Reproduced gameplay fixes
 
@@ -639,3 +639,14 @@ Cases **436/437** reproduce silent losses and station attacks. Existing **297/30
 **Fresh full Mac validation passed 437/437**, nine Python tests, strict import, source startup and Windows cross-export. Individual logs and package contents were audited. Export: **149,341,328 bytes**, SHA-256 **`57b54722c1cfbead9fbd5e3bd305fd3dbc8b733382b32ad5d5f98a6207e983b2`**; **1,221 entries**, **64 illustration imports**, **zero tests**. Build: 14 existing warnings, zero errors. Evidence: `artifacts/validation/evidence/news-events/full-run-9b245f5/`, with red/focused/native evidence alongside it.
 
 This branch is still separate from the contribution branch and has not run on Windows. The subsequent battle callback review reproduced leaked windows and lost reserved drones on interruption; those follow-ups are being tested in `codex/battle-cleanup`, not claimed fixed by this 437-case checkpoint. Counts remain **34/48 with implementation evidence, 0/48 fully accepted**. The read-only evening Asana refresh confirmed the same 48 open IDs; no external task changes were made.
+
+
+## Battle lifecycle and consolidated candidate — 2026-10-02
+
+Candidate **`625cae94ef40f4552399781b8ba205e1593b5ec0`** includes capture/discovery, saved alien transmissions, News producers/layout and battle cleanup. **442/442** isolated Mac regressions, nine Python tests, strict import, source startup and Windows cross-export pass. All individual logs and package contents were audited. Export: **149,343,296 bytes**, SHA-256 **`040e4c75a8e169afb3e53b9c039959fc748d08d4ba7f1ece0a2b71d35fa8b64c`**; **1,221 pack entries**, **64 illustration imports**, **zero test resources**. This incremental build reports zero warnings and zero errors; it does not establish removal of the 14 warnings recorded by earlier fresh builds. Evidence: `artifacts/validation/evidence/battle-cleanup/full-run-625cae9/`.
+
+Cases **438–442** reproduce and fix leaked battle windows, lost reserved station drones and a defeated ship surviving interruption during result presentation. Completed results settle once, interrupted encounters preserve calculated casualties, and old encounters cannot mutate replacement saves or redirect newer screens. Focused native Mac checks pass; see [battle details](battle-lifecycle.md) for the staged-fixture limits and desktop scenarios.
+
+These runtime changes are now consolidated into the local contribution branch. Its `Godot/`, `scripts/` and `.github/` trees match the validated candidate; merge resolutions only retain newer documentation. This is a local merge, with no push or PR. Windows execution and interactive acceptance are pending; the stable `8cdd458` desktop handoff remains unchanged. Counts stay **34/48 with implementation evidence, 0/48 fully accepted**.
+
+A complete local Git bundle is prepared at `artifacts/windows-handoff/deuteros-625cae9.bundle`, SHA-256 **`4a620311be107eca189cfb11816b09c50e02e4aaca7e816e44a41357ec322d8f`**. It is not uploaded: the latest SSH retry still rejects authentication. The separate `desktop-prompt-625cae9.txt` alongside it describes validation and report requirements once transferred.

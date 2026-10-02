@@ -13,9 +13,11 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-## Isolated transmission candidate
+The transmission, News and battle candidates below are now consolidated locally; the newest runtime checkpoint is `625cae9`, with 442/442 Mac regressions and an audited cross-export. Its complete bundle is prepared on the Mac but not uploaded. No Windows execution of that candidate is claimed.
 
-Mac-only candidate **`642ed00a61817b3a09a2eece2d0df69ad787337f`** on `codex/alien-capture` passes all 435 regressions, strict import, startup and Windows cross-export. It is not yet in the contribution branch or uploaded to the Windows host. Keep existing `8cdd458` desktop work separate. Once Craig supplies this exact revision, run full validation and record the new export hash before the following desktop checks:
+## Transmission candidate
+
+Mac-only candidate **`642ed00a61817b3a09a2eece2d0df69ad787337f`** on `codex/alien-capture` passes all 435 regressions, strict import, startup and Windows cross-export. It is now included in the contribution branch through the validated battle candidate, but has not been uploaded to the Windows host. Keep existing `8cdd458` desktop work separate. Once Craig supplies this exact revision, run full validation and record the new export hash before the following desktop checks:
 
 - Trigger war through trade and sixth-station deployment. Verify the introductory notice, keyboard/pointer acknowledgement, typing sound, input release and News replay in source and export.
 - Leave a notice before acknowledgement and save/load. It must return without skipping a stage; replay must not change the countdown. The original glyph decoding mask does rotate again on replay.
@@ -30,7 +32,7 @@ Candidate **`9b245f52d977e93074ee2ed459d0d39ab68fda65`** on `codex/news-events` 
 
 ## Isolated battle follow-up
 
-Candidate **`625cae94ef40f4552399781b8ba205e1593b5ec0`** on `codex/battle-cleanup` includes the transmission and News candidates above. Cases 438–442 pass focused headless and native Mac checks; its full 442-case Mac run is still pending. It has not been uploaded or executed on Windows. Preserve the `8cdd458` desktop pass and use a separate checkout when this candidate is supplied.
+Candidate **`625cae94ef40f4552399781b8ba205e1593b5ec0`** on `codex/battle-cleanup` includes the transmission and News candidates above. Cases 438–442 pass focused headless and native Mac checks; its full 442-case Mac run and audited Windows cross-export also pass. It has not been uploaded or executed on Windows. Preserve the `8cdd458` desktop pass and use a separate checkout when this candidate is supplied.
 
 - Fight both station defenders and a roaming fleet through the DFCC control. Verify victory, defeat and retreat, with no detached battle window or retained-resource errors after closing the game.
 - Leave an unfinished encounter and return. Surviving drones must remain on the player ship and the original defending station; reopening must not duplicate them. A roaming fleet's survivors must not be credited to a station.

@@ -168,6 +168,27 @@ namespace Deuteros.Tests
                 await CheckAsync($"Tool selector follows original hull eligibility and exposes its last row hull={hull}", () => ToolFittingHull(hull));
             await CheckAsync("Legacy incompatible equipment is returned once when replaced", ToolFittingLegacyEquipment);
             await CheckAsync("Recovered manufactured device fits one SCG tool slot and survives a save", ArtifactManufactureToFitting);
+            Check("New campaigns do not expose artifacts before system capture", ArtifactsStartHidden);
+            CheckUi("Only the final hostile station capture reveals one persistent artifact", ArtifactCaptureAssignment);
+            CheckUi("Legacy artifact locations and held cargo survive capture-state migration", ArtifactCaptureLegacy);
+            CheckUi("Malformed artifact assignment state cannot replace the active save", ArtifactCaptureInvalidSave);
+            CheckUi("Eight captured systems reveal eight segments while destruction grants none", ArtifactCaptureAllSystems);
+            await CheckAsync("Clearing Sol discovers SCG research after earlier bulletins without granting production", CaptureDiscoversScg);
+            await CheckAsync("Trade war starts the first saved transmission after ten eligible updates", TradeWarTransmission);
+            await CheckAsync("Six-station war starts the first saved transmission after ten eligible updates", StationWarTransmission);
+            await CheckAsync("Transmission stages use original delays and save replay context", TransmissionStageSequence);
+            CheckUi("Invalid saved transmission stages and locations cannot replace the world", TransmissionInvalidState);
+            await CheckAsync("Interrupted transmission notices retain their stage and release only their own locks", TransmissionNoticeInterruption);
+            await CheckAsync("Eight capture reports lead through real grapple recovery to final instructions", TransmissionCaptureToFinal);
+            CheckUi("Final recovery supersedes queued segment notices exactly once", TransmissionFinalOverridesLocations);
+            await CheckAsync("News replay rotates the original decoding mask without advancing transmission progress", TransmissionReplayMask);
+            await CheckAsync("Ship attack and loss transitions publish persistent News once", NewsShipEvents);
+            await CheckAsync("Fleet station attack and capture publish ordered News once", NewsStationEvents);
+            await CheckAsync("Battle defeat frees its window and closes the destroyed ship controls", BattleLossCleanup);
+            await CheckAsync("Leaving battle returns reserved drones and cancels its pending timer", () => BattleInterrupted(false));
+            await CheckAsync("Replacing the world during battle cannot mutate the new save", () => BattleInterrupted(true));
+            await CheckAsync("Leaving just-completed battle cannot rescue a defeated ship", BattleCompletedThenLeave);
+            await CheckAsync("Completed enemy retreat settles survivors and attack threshold once", BattleEnemyFleesOnce);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -32,6 +32,7 @@ public partial class Battle : BaseSubScene
 	StarsCanvas StarsCanvas { get; set; }
 
 	BattleLogic _battle;
+    private bool exiting;
 	
 
 	// Called when the node enters the scene tree for the first time.
@@ -71,6 +72,13 @@ public partial class Battle : BaseSubScene
 
 	}
 
+    public override void _ExitTree()
+    {
+        exiting = true;
+        BattleTimer.Stop();
+        base._ExitTree();
+    }
+
 	private void FleeButton_Pressed()
 	{
 		if (_battle.canFlee())
@@ -96,13 +104,12 @@ public partial class Battle : BaseSubScene
 	}
 	private async Task WaitMs(int ms)
 	{
-		await ToSignal(
-			GetTree().CreateTimer(ms / 1000.0),
-			SceneTreeTimer.SignalName.Timeout
-		);
+        if (exiting) throw new OperationCanceledException();
+        await ToSignal(GetTree().CreateTimer(ms / 1000.0), SceneTreeTimer.SignalName.Timeout);
+        if (exiting) throw new OperationCanceledException();
 	}
 
-	public async Task DoBattle(InterStellarShip player, EnemyFleet enemy)
+	public async Task DoBattle(InterStellarShip player, EnemyFleet enemy, Action onCompleted)
 	{
 		if (player == null)
 		{
@@ -137,6 +144,20 @@ public partial class Battle : BaseSubScene
 
 		_battle = new BattleLogic(player, enemy, fleeCount, PlayerPower, PlayerShips, EnemyPower, EnemyShips, BattleCanvas);
 		BattleCanvas.BattleLogic = _battle;
+        var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+        var completionReported = false;
+        void SettleResult()
+        {
+            player.DroneCount = _battle.Player1Ships;
+            enemy.DroneCount = _battle.Player2Ships;
+            if (!_battle.Completed() || completionReported) return;
+            completionReported = true;
+            if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)) return;
+            if (_battle.EnemyFled) enemy.Attacking = false;
+            if (_battle.PlayerFled) player.EngageEngine();
+            onCompleted();
+        }
+        TreeExiting += SettleResult;
 
 		if (!_battle.hasPTL())
 			PTLButton.Hide();
@@ -154,15 +175,7 @@ public partial class Battle : BaseSubScene
 		}
 		BattleTimer.Stop();
 
-		player.DroneCount = _battle.Player1Ships;
-		enemy.DroneCount = _battle.Player2Ships;
-
-		if (_battle.EnemyFled)
-			enemy.Attacking = false;
-
-        if (_battle.PlayerFled)
-            player.EngageEngine();
-
+        SettleResult();
         await WaitMs(1000);
 	}
 }

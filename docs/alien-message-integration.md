@@ -1,10 +1,10 @@
 # Alien transmission integration
 
-Implementation design for Asana 1215691951441134, based on [the original trace](original-alien-message-evidence.md). Direct recovery credit, legacy credit conversion, device manufacture and normal-hull fitting are on the contribution branch. Capture assignment and transmission delivery are implemented in the isolated branch below; device activation and the ending remain outstanding. Preserve the existing Windows desktop handoff and complete each change in an isolated checkout while aggregate validation runs.
+Implementation design for Asana 1215691951441134, based on [the original trace](original-alien-message-evidence.md). Direct recovery credit, legacy credit conversion, device manufacture and normal-hull fitting are on the contribution branch. Capture assignment and transmission delivery are now consolidated into the contribution branch after full 442-case Mac validation at `625cae9`; device activation and the ending remain outstanding. Preserve the existing Windows desktop handoff and complete each change in an isolated checkout while aggregate validation runs.
 
-## Isolated work in progress
+## Implementation checkpoints
 
-Branch `codex/alien-capture`, in `artifacts/worktrees/scg-names`, now removes startup placement and assigns an artifact only after a system's final hostile station is captured. Sun is excluded. Assignment history survives collection and save/load; old saves preserve all prior assignments and held cargo. Pending location notices are saved in capture order. This branch is **not merged into the contribution branch**: message delivery must be connected before replacing the playable checkpoint.
+Branch `codex/alien-capture`, in `artifacts/worktrees/scg-names`, now removes startup placement and assigns an artifact only after a system's final hostile station is captured. Sun is excluded. Assignment history survives collection and save/load; old saves preserve all prior assignments and held cargo. Pending location notices are saved in capture order. Capture assignment and subsequent message delivery are now included in the locally consolidated contribution branch.
 
 Focused cases **422–426** pass for initial absence, final-capture gating, duplicate prevention, eight systems, destruction exclusion, legacy saves and invalid saved state. Existing recovery/SDM cases 135/360/374/410/411 also pass. These are focused checks, not a full 426-case or desktop acceptance run. Evidence is under `artifacts/validation/evidence/alien-capture/`.
 
@@ -16,7 +16,7 @@ The isolated branch now starts saved stages/countdowns from both real war paths,
 
 Cases **428–435** cover both war triggers, all introductory stage boundaries with save/load, invalid saved fields, interrupted/stale acknowledgements, eight real capture→scan→grapple→bay-unload paths, final-message precedence and replay mask rotation. Existing 424/426 now also cover legacy war/completion migration and draining eight queued notices. Focused checks pass; native Mac 430/433/435 pass. Screenshot review found overlapping alien glyph rows; removing the bulletin’s negative line separation for alien text fixes it, and case 430 now checks each laid-out row is at least eight pixels apart as well as total panel height. The corrected stage screenshots were inspected. Evidence: `artifacts/validation/evidence/alien-transmissions/` (retain the failing `layout-red` and passing `layout-green` logs).
 
-Full **435-case Mac validation passed at `642ed00a61817b3a09a2eece2d0df69ad787337f`**, together with nine Python tests, strict import, startup smoke and Windows cross-export. All individual logs and package contents are audited (1,221 entries, 64 illustration imports, no tests). Windows execution of this isolated revision is still pending. It is not yet a replacement for either the contribution branch or the stable human desktop handoff.
+Full **435-case Mac validation passed at `642ed00a61817b3a09a2eece2d0df69ad787337f`**, together with nine Python tests, strict import, startup smoke and Windows cross-export. All individual logs and package contents are audited (1,221 entries, 64 illustration imports, no tests). Windows execution of this isolated revision is still pending. The subsequent 442-case candidate includes this work in the contribution branch; the stable human desktop handoff remains unchanged.
 
 ## Intended result
 
