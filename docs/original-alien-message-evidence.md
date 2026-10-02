@@ -68,13 +68,19 @@ Raw evidence: `transmitter-candidates.txt`, `transmitter-context.txt`, `manufact
 
 ## Recovery correction
 
-Artifact unloading now credits completion directly using the original sequence, stops at 100, and announces completion once. Scientists neither advance it nor receive promotion credit. Research displays recovered progress without requiring a research team. Existing `ResearchLimit` stores recovered progress; no save field or format version was added. Loading ordinary legacy credits (multiples of 11 through 99) converts them once, caps the old ninth credit at completion, and preserves ships, cargo and artifact locations. Already completed and nonstandard edited states are left unchanged.
+Artifact unloading now credits completion directly using the original sequence, stops at 100, and announces completion once. Scientists neither advance it nor receive promotion credit. Research displays recovered progress without requiring a research team. Existing `ResearchLimit` stores recovered progress; no save field or format version was added. Loading ordinary legacy credits (multiples of 11 through 99) converts them once, caps the old ninth credit at completion, and preserves ships, cargo and artifact locations. Already completed and nonstandard edited research progress is left unchanged.
 
 Case **135** reproduced the real grapple unload leaving completion at 1%; it now reaches 12% and rejects duplicate close credit. **410** covers all eight increments, a ninth delivery, scientist independence, visible progress and save references; **411** covers legacy zero-through-nine credits, idempotence, retained cargo and edited-state preservation. Focused headless/native Mac checks and full **411-case Mac validation** pass at `d3f00ac`; Windows execution is pending. This corrects recovery credit, not the entire campaign.
 
+## Manufacture correction
+
+Manufacture is restored at **`ef21e5ea9487ec66215472eff86acc5502ca8611`**: completing recovery exposes the original `Unknown` device recipe, with zero materials, mass 2000 and orbital-only production. Legacy saves acquire missing names/recipe and the orbital restriction without replacing research progress or queued item references. Stores identifies a zero-material recipe explicitly. Both manual and AOC controls enforce the factory restriction; pending AOC orders and loaded paid ground orders cannot bypass it.
+
+Cases **412–416** reproduce the missing recipe, misleading zero-supplies label, automated ground-order bypass and paid ground-order completion. All pass focused headless/native Mac checks; manual/AOC manufacture resumes from an actually loaded save. Sixteen existing production/MTX/SDM compatibility cases pass. Native screenshots were inspected for readable recipe/name rendering. Full 416-case validation is running; Windows execution remains pending keychain access. Evidence is under `artifacts/validation/evidence/artifact-manufacture/`.
+
 ## Remake work still required
 
-The remake still has no saved transmission stage/countdown or alien News replay. `CoreData` still preassigns nine artifacts, including Earth; capture-driven assignment, device manufacture/fitting and the ending are unfinished. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
+The remake still has no saved transmission stage/countdown or alien News replay. `CoreData` still preassigns nine artifacts, including Earth; capture-driven assignment, device fitting/activation and the ending are unfinished. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
 
 Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, direct completion credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Device activation also depends on the [Warlord promotion path](original-warlord-evidence.md). Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
 
