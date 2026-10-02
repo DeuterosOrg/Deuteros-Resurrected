@@ -32,6 +32,18 @@ namespace Deuteros.Tests
                 new WeakReference<GodotObject>(new Resource { ResourceName = "shutdown-regression-" + index })).ToArray();
         }
 
+        private void ParsedInputAtShutdown(bool dispose)
+        {
+            // Godot 4.2.2's debug input cache retains the event beyond managed
+            // shutdown, even after FlushBufferedEvents or explicit Dispose.
+            var input = new InputEventMouseMotion { Position = new Vector2(3, 3) };
+            Input.ParseInputEvent(input);
+            Input.FlushBufferedEvents();
+            if (dispose) input.Dispose();
+            closeWindowAfterTests = true;
+            // Strict log inspection and process exit are the assertion here.
+        }
+
         private void PendingFinalizersAtShutdown()
         {
             // Godot 4.2.2 tracks wrappers through weak references. Cleared weak

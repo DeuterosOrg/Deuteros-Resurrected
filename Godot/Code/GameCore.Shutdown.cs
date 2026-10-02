@@ -48,6 +48,14 @@ namespace Deuteros.Code
                 GD.PushError("Audio mixer did not finish shutdown within two seconds.");
                 if (exitCode == 0) exitCode = 1;
             }
+            if (OS.IsDebugBuild())
+            {
+                // The audio wait above also advances beyond the input frame.
+                // A native-only replacement releases Godot 4.2.2's debug input
+                // cache before C# bindings are torn down (upstream #92201).
+                using var inputCleanup = GD.Load<GDScript>("res://Code/Utility/ShutdownInput.gd").New().AsGodotObject();
+                inputCleanup.Call("release_managed_events", tree.Root);
+            }
             // Godot 4.2's shutdown tracker skips wrappers whose weak targets
             // were cleared while their native-resource finalizers are pending.
             // Drain those finalizers while the engine and bindings still exist.
