@@ -962,7 +962,7 @@ namespace Deuteros.Code.Platform.Screens
         private bool CanReturnToStores(ItemTypes item, int count)
         {
             if (count <= 0 || item == ItemTypes.none || count <= 50000 - ResourceList.Stores[item]) return true;
-            GameCore.ShowError(this, "Not Enough Space\nIn Stores");
+            GameCore.ShowError(this, "Not Enough\nStore Space");
             return false;
         }
 
