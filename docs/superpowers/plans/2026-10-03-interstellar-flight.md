@@ -43,11 +43,11 @@
 
 **Interfaces:** Consume `SCG.Flight` and its actual arrival result. Promotion occurs only at the Hyperlight arrival boundary, never when research is discovered or a route is selected. `Staff.GetLevel()`/`GetLevelString()` remain the public rank APIs.
 
-- [ ] Reproduce missing Warlord through a complete Hyperlight route with an Admiral; pin one saved rank report, retained actions, no promotion for Captain/ordinary arrival and no repeat promotion after reload.
-- [ ] Persist the rank milestone, validate it only on eligible staff, and audit every rank consumer before updating display/combat behavior. Keep ordinary action thresholds unchanged.
-- [ ] Reproduce stale/misleading flight ETA/date or route controls through actual scenes. Show the private flight clock and remaining leg correctly without mutating state from getters. Preserve cancellation and ACC complete-cycle behavior.
-- [ ] Cover exact/insufficient fuel, damage, research completed mid-flight, blocked natural updates, mixed modes, losses while viewing the ship, and saves before Hyperlight arrival. Expected: source-backed outcomes, conserved inventories and no duplicate notifications.
-- [ ] Run native UI/rank/loss/save cases, inspect screenshots and commit after focused compatibility passes.
+- [x] Reproduce missing Warlord through a complete Hyperlight route with an Admiral; pin one saved rank report, retained actions, no promotion for Captain/ordinary arrival and no repeat promotion after reload.
+- [x] Persist the rank milestone, validate it only on eligible staff, and audit every rank consumer before updating display/combat behavior. Keep ordinary action thresholds unchanged.
+- [x] Reproduce stale/misleading flight ETA/date or route controls through actual scenes. Show the private flight clock and remaining leg correctly without mutating state from getters. Preserve cancellation and ACC complete-cycle behavior.
+- [x] Cover exact/insufficient fuel, damage, research completed mid-flight, blocked natural updates, mixed modes, losses while viewing the ship, and saves before Hyperlight arrival. Expected: source-backed outcomes, conserved inventories and no duplicate notifications.
+- [x] Run native UI/rank/loss/save cases, inspect screenshots and commit after focused compatibility passes.
 
 ## Task 3: Complete-path verification and local integration
 

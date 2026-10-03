@@ -249,6 +249,16 @@ namespace Deuteros.Tests
             CheckUi("Malformed SCG flight saves cannot replace the active world", InterstellarMalformedSave);
             CheckUi("Empty-fuel SCG star arrival strands before body approach", InterstellarEmptyStarArrival);
             CheckUi("SCG disengagement respects accelerated and local flight boundaries", InterstellarDisengagement);
+            CheckUi("Hyperlight arrival promotes and persists one Warlord milestone", HyperlightWarlord);
+            CheckUi("Hyperlight eligibility precedes ordinary arrival experience", HyperlightRankBoundary);
+            await CheckAsync("SCG screen follows private star clocks and Hyperlight rank", InterstellarClockDisplay);
+            await CheckAsync("Active SCG flight rejects retained course selection", InterstellarCourseLock);
+            await CheckAsync("SCG phase-fuel loss exits the active interior once", InterstellarLossScreen);
+            CheckUi("Warlord saves validate rank and preserve frozen transferred and combat crews", WarlordSaveAndConsumers);
+            CheckUi("SCG damaged routes and research completed mid-flight retain original transitions", InterstellarDamageAndDiscovery);
+            CheckUi("SCG private clock preserves pending blocked updates across reload", InterstellarPendingClock);
+            CheckUi("SCG ACC completes only at final body arrival without duplicate delivery", InterstellarAccFinish);
+            CheckUi("SCG ACC roundtrip saves correct legs cargo and finishing mode", InterstellarAccRoundTrip);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

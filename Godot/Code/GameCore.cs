@@ -211,6 +211,10 @@ namespace Deuteros.Code
 		private int _lockCount;
 		public Enums.Scenes currentScene;
 
+		internal long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
+			? scg.AbsoluteClock
+			: 310000000L + (long)GameData.ActiveSaveFile.Clock.DateCentidays + InterstellarFlight.StarOffset(GetCurrentPlanet().ParentStar);
+
 		public static GameCore SingletonInstance
 		{
 			get
@@ -554,6 +558,7 @@ namespace Deuteros.Code
 			}
 
 			ShipSelected = Guid.Empty;
+			_menuScreen?.DayTick(GameData.ActiveSaveFile.CurrentDay, GameData.ActiveSaveFile.CurrentDay);
 		}
 
 		public void UpdateMenuButtons(bool ground, bool orbit)
@@ -569,7 +574,7 @@ namespace Deuteros.Code
 				if (_menuScreen != null && ship.ShipState == Ship_States.InTransit)
 				{
 					_menuScreen.MenuButtons = OverviewMenuButtons;
-					_menuScreen.Star.Text = ship.StarLocation.ToScreenString(" ");
+					_menuScreen.Star.Text = (ship is SCG scg ? scg.ClockStar : ship.StarLocation).ToScreenString(" ");
 					UpdateLocationText(orbit);
 					_menuScreen.SetupMenus();
 					return;

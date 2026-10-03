@@ -14,8 +14,9 @@ namespace Deuteros.Code.Objects
         [JsonIgnore] public ulong PreviousCentidays { get; private set; }
         public string RelativeDate => (DateCentidays / 100m).ToString("0.##", CultureInfo.InvariantCulture);
 
-        public static string FormatDate(ulong centidays) => FormattableString.Invariant(
-            $"{3100 + centidays / 100000} {(centidays / 100) % 1000:000}.{centidays % 100:00}");
+        public static string FormatDate(ulong centidays) => FormatAbsoluteDate(310000000L + (long)centidays);
+        public static string FormatAbsoluteDate(long centidays) => FormattableString.Invariant(
+            $"{centidays / 100000:0000} {(centidays / 100) % 1000:000}.{centidays % 100:00}");
 
         public void AdvanceNormal(double delta)
         {

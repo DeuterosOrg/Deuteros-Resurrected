@@ -174,7 +174,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void UpdateTime(uint previousDay, uint currentDay)
 		{
-			Time.Text = Deuteros.Code.Objects.GameClock.FormatDate(GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.DateCentidays);
+			Time.Text = GameClock.FormatAbsoluteDate(GameCore.SingletonInstance.DisplayClock);
 		}
 
 		public void UpdateAnimations()

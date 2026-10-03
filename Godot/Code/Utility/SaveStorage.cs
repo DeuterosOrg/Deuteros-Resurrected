@@ -70,7 +70,7 @@ namespace Deuteros.Code.Utility
                     else if (typeof(InterStellarShip).IsAssignableFrom(type) && property.PropertyName == nameof(InterStellarShip.AutomationSlot))
                         property.Required = Required.DisallowNull;
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
-                    else if (type == typeof(Staff) && property.PropertyName == nameof(Staff.AttritionCountdown))
+                    else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(News) && property.PropertyName == nameof(News.PendingBulletins))
                         property.Required = Required.DisallowNull;
@@ -269,16 +269,22 @@ namespace Deuteros.Code.Utility
             Require(data.ResourceRate_Per_Derrick != null && data.ResourceLevels_Survey_Multiplier != null, "mining rules");
             Require(data.ResourceRate_Per_Derrick.Values.All(rate => rate >= 0 && rate <= 255)
                 && data.ResourceLevels_Survey_Multiplier.Values.All(multiplier => multiplier >= 1 && multiplier <= 255), "mining rule ranges");
+            void CheckStaff(Staff team)
+            {
+                Require(team == null || !team.Warlord || team.CanBeWarlord, "Warlord rank");
+            }
             void CheckFactory(Factory factory)
             {
                 Require(factory?.ProductionQueue != null && factory.ProductionQueue.All(p => p?.Product != null
                     && data.ItemList.Contains(p.Product)), "factory queue");
                 Require(factory.ProductionQueue.Count(p => p.Active) <= 1, "active production");
+                CheckStaff(factory.Builder);
             }
             void CheckResource(Deuteros.Code.Platform.Resource resource)
             {
                 Require(resource?.Staff?.Length == 4 && resource.Stores?.Items != null
                     && resource.Stores.MTX?.SendItems != null && resource.Stores.MTX.BalanceItems != null, "inventory");
+                foreach (var team in resource.Staff) CheckStaff(team);
                 Require(resource.Stores.Items.All(pair => Enum.IsDefined(typeof(ItemTypes), pair.Key) && pair.Value >= 0), "stock quantities");
             }
             foreach (var pair in data.Planets)
@@ -308,6 +314,7 @@ namespace Deuteros.Code.Utility
             var earth = (Earth)earthPlanet;
             Require(earth.TrainingData != null, "training");
             CheckFactory(earth.Factory);
+            CheckStaff(earth.ResearchStaff);
             Require(earth.CurrentResearchItem == null || data.ItemList.Any(i => ReferenceEquals(i.Research, earth.CurrentResearchItem)), "current research");
             Require(save.Ships.All(s => s != null) && save.Ships.Select(s => s.ShipID).Distinct().Count() == save.Ships.Count, "ship identities");
             foreach (var ship in save.Ships)
@@ -326,6 +333,8 @@ namespace Deuteros.Code.Utility
                     || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "in-flight destination");
                 Require(ship is not SCG { Flight: not null } scg || scg.Flight.IsValid(scg, save), "interstellar flight");
                 Require(ship.Modules != null && ship.Modules.All(m => m != null && m.ItemCount >= 0), "ship modules");
+                CheckStaff(ship.Pilot);
+                foreach (var module in ship.Modules) CheckStaff(module.StaffStored);
                 Require(ship.ACC == null || (ReferenceEquals(ship, ship.ACC.Ship) && ship.ACC.SourceItems != null && ship.ACC.DestinationItems != null), "ACC owner");
                 if (ship.ACC != null)
                     Require(ship.ACC.CurrentSource >= ItemTypes.iron && ship.ACC.CurrentSource <= ItemTypes.hed_fuel

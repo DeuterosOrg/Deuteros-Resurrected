@@ -110,7 +110,7 @@ namespace Deuteros.Code.Objects
                 var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
                 StarLocation = planets[PlanetLocation].ParentStar;
                 DestinationStarLocation = planets[DestinationPlanetLocation].ParentStar;
-                if (Pilot != null) Pilot.AddAction();
+                if (Pilot != null && (this is not SCG || StarLocation == DestinationStarLocation)) Pilot.AddAction();
 
                 // Original danger-state departure rolls for damage only without DFCC.
                 // A damaged drive remains usable, so keep it distinct from absence.

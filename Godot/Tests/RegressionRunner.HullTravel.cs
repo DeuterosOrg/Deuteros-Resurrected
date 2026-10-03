@@ -61,7 +61,7 @@ namespace Deuteros.Tests
             Equal(scg ? Ship_States.InTransit : Ship_States.UnDocked, ship.ShipState, "rejection does not start transit");
             Equal(scg, ship.EngineEngaged, "engine follows acceptance");
             Equal(scg ? (uint)100 : 0, ship.StartTravelDay, "rejection preserves timestamp");
-            Equal(scg ? (int)StaffLevel_Marines.Captain : (int)StaffLevel_Marines.Pilot, ship.Pilot.GetLevel(), "rejection does not award a pilot action");
+            Equal((int)StaffLevel_Marines.Pilot, ship.Pilot.GetLevel(), "rejection and interstellar departure do not award an arrival action");
             Equal(100, ship.Fuel, "engaging or rejecting does not consume fuel immediately");
             if (scg)
             {

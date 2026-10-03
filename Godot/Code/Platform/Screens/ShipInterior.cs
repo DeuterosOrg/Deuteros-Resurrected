@@ -147,8 +147,11 @@ namespace Deuteros.Code.Platform.Screens
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             arrivalTimeSkip = save.TimeSkip;
             // Projection follows the current mode, including controls and simulation-triggered stops.
-            var remaining = (ulong)Math.Max(0, Ship.TravelTimeRemain());
-            ETA.Text = "ETA:\n" + GameClock.FormatDate(save.Clock.DateCentidays + remaining * (arrivalTimeSkip ? 100ul : 1ul));
+            var projection = Ship is SCG scg ? scg.ProjectedArrival()
+                : (Updates: Ship.TravelTimeRemain(), ArrivalOffset: (long?)InterstellarFlight.StarOffset(save.BaseGameData.Planets[Ship.PlanetLocation].ParentStar));
+            var remaining = (long)Math.Max(0, projection.Updates);
+            ETA.Text = projection.ArrivalOffset == null ? "ETA:\nUnavailable" : "ETA:\n" + GameClock.FormatAbsoluteDate(
+                310000000L + (long)save.Clock.DateCentidays + projection.ArrivalOffset.Value + remaining * (arrivalTimeSkip ? 100 : 1));
         }
 
 		private void tradeItems(Dictionary<ShipModule,Enums.ItemTypes> olditemlist, Dictionary<ShipModule, Enums.ItemTypes> newitemlist)
@@ -643,6 +646,7 @@ namespace Deuteros.Code.Platform.Screens
 		private void DisengageEngine_Pressed()
 		{
 			Ship.DisengageEngine();
+			UpdateState();
 		}
 
 		private void EngageEngine_Pressed()
@@ -656,8 +660,11 @@ namespace Deuteros.Code.Platform.Screens
             UpdateState();
 		}
 
+        private bool CanSetCourse => Ship is not SCG { Flight: not null };
+
 		private void SetCourse_Pressed()
 		{
+            if (!CanSetCourse) return;
 			DestinationStarMap = GD.Load<PackedScene>("res://PreFabs/StarMap.tscn").Instantiate<StarMap>();
 			DestinationStarMap.ShowResources = false;
 
@@ -695,7 +702,7 @@ namespace Deuteros.Code.Platform.Screens
 			ShipName.Text = Ship.Name;
 			GetNode<Button>("TextLayout/RenameShip").TooltipText = Ship.Name;
 
-			if (Ship.GetType() != typeof(Shuttle) && GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
+			if (Ship.GetType() != typeof(Shuttle) && Ship.ShipState == Ship_States.UnDocked && GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 				(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid ||
 				GameCore.SingletonInstance.GameData.PlanetUnderAttack(Ship.PlanetLocation)))
 				Status.Text = "UNDER ATTACK !\n" + Ship.PlanetLocation.ToScreenString(" ");
@@ -718,7 +725,11 @@ namespace Deuteros.Code.Platform.Screens
 					Status.Text = "Refueling at\n" + Ship.PlanetLocation.ToScreenString(" ");
 				else
 					Status.Text = "Docked Above\n" + Ship.PlanetLocation.ToScreenString(" ");
-			else if (Ship.ShipState == Ship_States.InTransit)
+			else if (Ship is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Stranded })
+                Status.Text = "Stranded At\n" + Ship.DestinationStarLocation.ToScreenString(" ");
+            else if (Ship is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Local })
+                Status.Text = (Ship.EngineEngaged ? "Approaching\n" : "Drifting To\n") + Ship.DestinationPlanetLocation.ToScreenString(" ");
+            else if (Ship.ShipState == Ship_States.InTransit)
 				if (Ship.EngineEngaged)
 					Status.Text = "In Transit To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 				else
@@ -899,6 +910,8 @@ namespace Deuteros.Code.Platform.Screens
 					SmallLocation.TextureNormal = null;
 			}
 
+            SetCourse.Disabled = !CanSetCourse;
+            DisengageEngine.Disabled = Ship is SCG { Flight: not null } flying && flying.Flight.Leg != InterstellarFlight.FlightLeg.Local;
 			SetCourse.Visible = Ship.ShipType != Ship_Types.Shuttle;
 
 			if (sceneReady)
@@ -969,7 +982,7 @@ namespace Deuteros.Code.Platform.Screens
 						// Closing a system or galaxy view cancels selection and preserves the course.
 						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.TryGetValue(DestinationStarMap.CurrentLocation, out var newDestination))
 						{
-							if (!Ship.CanTravelTo(newDestination.PlanetId))
+							if (!CanSetCourse || !Ship.CanTravelTo(newDestination.PlanetId))
 								courseRejected = true;
 							else
 							{

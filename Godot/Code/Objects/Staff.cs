@@ -12,6 +12,15 @@ namespace Deuteros.Code.Objects
         public int Count { get; set; }
         public int AttritionCountdown { get; set; }
         public Enums.StaffType Type { get; set; }
+        public bool Warlord { get; set; }
+        internal bool CanBeWarlord => Type == Enums.StaffType.Marines && ActionsTaken >= 40;
+
+        internal void PromoteWarlord()
+        {
+            if (Type != Enums.StaffType.Marines || GetLevel() != (int)Enums.StaffLevel_Marines.Admiral) return;
+            Warlord = true;
+            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Warlord");
+        }
 
         public Staff()
         {
@@ -72,6 +81,7 @@ namespace Deuteros.Code.Objects
             }
             else if (Type == Enums.StaffType.Marines)
             {
+                if (Warlord) return (int)Enums.StaffLevel_Marines.Warlord;
                 if (ActionsTaken >= 10 && ActionsTaken < 40)
                     return (int)Enums.StaffLevel_Marines.Captain;
                 else if (ActionsTaken >= 40)

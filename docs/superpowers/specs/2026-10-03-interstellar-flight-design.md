@@ -34,7 +34,7 @@ Engine damage, interruption, inadequate fuel, save/reload, route previews and ET
 
 ## Warlord and display
 
-Persist Warlord separately from ordinary action experience. Existing saves default to ordinary rank; valid promotion retains actions and emits one rank report. Audit all `GetLevel`/rank consumers, including crew display, cryopods, battle, attrition and save validation. Ordinary promotions retain their current thresholds and cap.
+Persist Warlord separately from ordinary action experience. Existing saves default to ordinary rank; valid promotion retains actions and emits one rank report. Audit all `GetLevel`/rank consumers, including crew display, cryopods, battle, attrition and save validation. Ordinary promotions retain their current thresholds and cap. For new interstellar routes, award each completed leg's experience at the original arrival boundary, after the Hyperlight rank check; selecting/starting the route cannot turn a 39-action Captain into an eligible Admiral early. Local and legacy journey experience stays on its existing path.
 
 The ship interior must show the real remaining journey and private-clock date/projection while travelling. Keep body selection and cancelled-course behavior intact. The composed route is a remake UI convenience, not a claim that the original automatically selected the final body.
 

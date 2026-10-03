@@ -59,12 +59,17 @@ namespace Deuteros.Code.Objects
 
         internal Outcome Advance(SCG ship, SaveFile save)
         {
+            var previousLeg = Leg;
             var fuel = ship.Fuel;
             var outcome = Step(ref fuel, save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Researched,
                 310000000L + (long)save.Clock.DateCentidays, StarOffset(ship.DestinationStarLocation),
                 LocalDistance(ship.DestinationPlanetLocation) * (ship.EngineDamaged ? 2 : 1));
             if (ship.Fuel > 0 && fuel == 0) ship.EngineEngaged = false;
             ship.Fuel = fuel;
+            if (previousLeg == FlightLeg.Hyperlight && Leg != previousLeg) ship.Pilot?.PromoteWarlord();
+            // Original $31564 awards experience after Hyperlight's rank check, once per completed leg.
+            if ((previousLeg != Leg && (Leg == FlightLeg.Local || Leg == FlightLeg.Stranded)) || outcome == Outcome.Arrived)
+                ship.Pilot?.AddAction();
             return outcome;
         }
 
@@ -118,15 +123,17 @@ namespace Deuteros.Code.Objects
             return Outcome.Travelling;
         }
 
-        internal int ProjectedUpdates(SCG ship, SaveFile save)
+        internal (int Updates, long? ArrivalOffset) Project(SCG ship, SaveFile save)
         {
             var projected = (InterstellarFlight)MemberwiseClone();
             var fuel = ship.Fuel;
             var hyperlight = save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Researched;
             for (var updates = 1; updates <= 50000; updates++)
-                if (projected.Step(ref fuel, hyperlight, 310000000L + (long)save.Clock.DateCentidays,
-                    StarOffset(ship.DestinationStarLocation), LocalDistance(ship.DestinationPlanetLocation) * (ship.EngineDamaged ? 2 : 1)) != Outcome.Travelling)
-                    return updates;
+            {
+                var outcome = projected.Step(ref fuel, hyperlight, 310000000L + (long)save.Clock.DateCentidays,
+                    StarOffset(ship.DestinationStarLocation), LocalDistance(ship.DestinationPlanetLocation) * (ship.EngineDamaged ? 2 : 1));
+                if (outcome != Outcome.Travelling) return (updates, outcome == Outcome.Arrived ? projected.ClockOffset : null);
+            }
             throw new InvalidOperationException("Interstellar flight did not terminate.");
         }
 
