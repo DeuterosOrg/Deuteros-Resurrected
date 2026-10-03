@@ -9,6 +9,62 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private void MtxProductionOrder(bool completedOutput)
+        {
+            ClearAttritionWorld();
+            DisableFuelRefining();
+            Save.Unlocks.Add(Game_Unlocks.Mass_Tranceiver);
+            var moon = (Planet)Save.BaseGameData.Planets[StellarBodies.the_moon];
+            PrepareTickMining(moon);
+            var source = moon.Station;
+            var destination = GameCore.Earth.Station;
+            source.Built = destination.Built = true;
+            source.MtxInstalled = destination.MtxInstalled = true;
+            var item = completedOutput ? ItemTypes.derrick : ItemTypes.iron;
+            var research = GameCore.SingletonInstance.GameData.GetItem(item).Research;
+            if (research != null)
+            {
+                research.Researched = true;
+                research.ResearchPercentageComplete = 100;
+            }
+            source.Resources.Stores[item] = completedOutput ? 0 : 8;
+            destination.Resources.Stores[item] = 0;
+            var route = source.Resources.Stores.MTX;
+            route.Target = StellarBodies.earth;
+            route.CurrentItem = item;
+            route.SendItems.Add(item);
+            var factory = completedOutput ? source.Factory : destination.Factory;
+            factory.AOC = true;
+            factory.Ground = false;
+            var order = new ProductionItem(Product());
+            if (completedOutput)
+            {
+                order.Active = true;
+                order.Production_Complete = 3;
+                order.Production_Value = 255;
+            }
+            factory.ProductionQueue.Add(order);
+
+            AdvanceTickDay();
+
+            if (completedOutput)
+            {
+                Equal(1, source.Resources.Stores[item], "new factory output remains after the earlier MTX phase");
+                Equal(0, destination.Resources.Stores[item], "MTX cannot send this update's future output");
+                AdvanceTickDay();
+                Equal(0, source.Resources.Stores[item], "completed output leaves on the next update");
+                Equal(1, destination.Resources.Stores[item], "next MTX phase delivers output once");
+            }
+            else
+            {
+                Equal(0, source.Resources.Stores[item], "MTX sends stored eight plus two newly extracted iron");
+                Equal(true, order.Active, "factory starts using this update's MTX delivery");
+                Equal(128, order.Production_Value, "paid factory order progresses in the delivery update");
+                Equal(0, destination.Resources.Stores[item], "factory charges all ten delivered iron once");
+                Equal(998, moon.PlanetResources.Materials[0].GroundAmount, "extraction precedes transfer");
+            }
+        }
+
         private sealed class MiningTrainingProbe : Planet
         {
             public int ResearchersAtMining;

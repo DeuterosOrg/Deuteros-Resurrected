@@ -298,16 +298,16 @@ namespace Deuteros.Code
 
 			_screenLocker = GetNode<InputBlocker>("/root/Master/InputBlocker");
 
-			// Model updates are registered once; work and attrition precede ships, then refining.
+			// Original order: extraction, MTX, factory/research work, attrition, ships, refining.
 			SimulationDayPassed += _unlocker.DayTick;
 			SimulationDayPassed += UpdatePlanets;
+			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 			SimulationDayPassed += Code.Platform.Screens.Production.UpdateProduction;
 			SimulationDayPassed += Code.Platform.Screens.Research.UpdateResearch;
 			SimulationDayPassed += StaffAttrition.DayTick;
 			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			SimulationDayPassed += FuelRefining.DayTick;
 			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
-			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 			SimulationDayPassed += RogueCrew.DayTick;
 			SimulationDayPassed += SdmSystem.DayTick;
 

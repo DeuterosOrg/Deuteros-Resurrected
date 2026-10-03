@@ -341,6 +341,8 @@ namespace Deuteros.Tests
             await CheckAsync("Interior service rejects unavailable bays and retained locked commands", InteriorServiceGates);
             await CheckAsync("Takeoff awards experience and clears bay state only for an actual departure", InteriorTakeoffGates);
             CheckUi("AMA departure remains possible after approach exhausts the last fuel", AmaEmptyFuelDeparture);
+            CheckUi("MTX delivers freshly extracted materials before factory work", () => MtxProductionOrder(false));
+            CheckUi("MTX sends newly completed factory output on the following update", () => MtxProductionOrder(true));
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -114,3 +114,10 @@ Disk 2 is the existing pinned image SHA-256 `99909db1e190be02e049084743af44f00e3
 Consequently the active original order is **training → Earth extraction → local extraction → MTX → production → research → attrition → ships → refining**, subject to the already recorded gates/early return. A destination factory can use MTX-delivered materials in that same consumed update; an item newly completed by production cannot be sent by the earlier MTX phase until a later update. The current remake reverses both dependencies. This is instruction-derived behavior, not a measured original-runtime observation.
 
 Reproduce with `artifacts/research/event-order/trace-mtx-overlay.py` using the two pinned local disks and Capstone 5.0.7. It checks disk hashes and dispatch bytes and writes the aligned loader, dispatcher, send and balance traces. Trace SHA-256: `bbaca3f7e5adce2c16d5b72e442d65020e806d6d9069aa1c77aecab4b1f19cc6`; machine-readable facts are in `mtx-overlay-facts.json`. The next implementation check must exercise both material-arrival and completed-output dependencies through the actual master update.
+
+
+## MTX ordering correction
+
+Cases 596–597 exercise the actual master update. With the previous registration order, an AOC factory remains idle even after MTX delivers eight stored plus two newly extracted iron, and a just-completed derrick is sent immediately. Both fail before moving the existing MTX registration directly after active-world extraction and before production. Afterward the ten iron are charged once and production advances in that update; a newly completed derrick stays at its source until the following MTX phase. No transfer algorithm or timing unit changes.
+
+Both focused cases and existing 42–44/451–452 pass. Evidence is `artifacts/validation/evidence/mtx-order/{red,green}/`; the first material fixture incorrectly assumed raw iron had research data and is retained separately under `setup/`, not counted as a reproduction. Full aggregate and Windows execution are pending. This addresses the traced transfer boundary, not independent star clocks, original discovery priority or original-runtime comparison.
