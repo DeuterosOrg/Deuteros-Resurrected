@@ -37,7 +37,7 @@ namespace Deuteros.Code.Platform.Screens
                     : module.ModuleType.ToString();
                 var label = new Label { Name = "Cargo", Text = $"{slot + 1}: {description}", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
                 row.AddChild(label);
-                var ditch = new Button { Name = "Ditch", Text = "Ditch", CustomMinimumSize = new Vector2(52, 19),
+                var ditch = new Button { Name = "Ditch", Text = "Ditch", CustomMinimumSize = new Vector2(52, 16),
                     Disabled = module.ModuleType != Module_Types.Supply || count <= 0 };
                 row.AddChild(ditch);
                 ditch.Pressed += () =>

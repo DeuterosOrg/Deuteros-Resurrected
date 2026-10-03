@@ -54,7 +54,7 @@ namespace Deuteros.Code.Platform.Screens
 		Label PilotCount { get; set; }
 		Label EngineStatusValue { get; set; }
 		Label ACCStatus { get; set; }
-		Label[] CargoValues { get; set; } = new Label[5];
+		Label[] CargoValues { get; set; } = new Label[6];
 		Label CourseText { get; set; }
 		Label CourseValue { get; set; }
 		Label ETA { get; set; }

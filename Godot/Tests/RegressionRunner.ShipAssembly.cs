@@ -243,6 +243,30 @@ namespace Deuteros.Tests
             Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/AddSupplyPod");
             Equal(Module_Types.Supply, Save.Ships.Single().Modules[5].ModuleType, "migrated sixth mount can fit a pod");
             Equal(0, bay.ResourceList.Stores[ItemTypes.supply_pod], "migrated mount consumes actual stock");
+            Save.Ships.Single().Modules[5].ItemStored = ItemTypes.titanium;
+            Save.Ships.Single().Modules[5].ItemCount = 250;
+            Press(bay, ShipParts + "Torso6/OpenShipInterior");
+            await InputFrames();
+            var interior = ActiveScreen<ShipInterior>();
+            Equal("250 Titanium", interior.GetNode<Label>("TextLayout/CargoValue6").Text, "interior displays sixth cargo");
+            await CaptureDisplayEvidence("scg-six-cargo-interior");
+            var dialog = await OpenSupplyPods(interior);
+            try
+            {
+                var ditch = dialog.GetNode<Button>("Rows/Pod5/Ditch");
+                var close = dialog.GetNode<Button>("Close");
+                Equal(false, ditch.GetGlobalRect().Intersects(close.GetGlobalRect()), "sixth cargo row does not overlap Close");
+                Equal(true, dialog.GetGlobalRect().Encloses(ditch.GetGlobalRect()), "sixth cargo action remains inside dialog");
+                await CaptureDisplayEvidence("scg-six-cargo-dialog");
+                var point = ditch.GetGlobalRect().GetCenter();
+                GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+                foreach (var pressed in new[] { true, false })
+                    GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                await InputFrames();
+                Equal(0, Save.Ships.Single().Modules[5].ItemCount, "sixth cargo can be ditched by pointer");
+                Equal(123, Save.Ships.Single().Modules[4].ItemCount, "ditching sixth cargo preserves fifth");
+            }
+            finally { Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay(); await InputFrames(); }
         }
 
         private async Task AssemblyReturnCapacity()
