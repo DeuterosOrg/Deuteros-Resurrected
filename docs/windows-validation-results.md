@@ -106,3 +106,21 @@ Revision `d0d15f7` renames the PNG and import sidecar to lowercase while retaini
 Latest raw logs and environment/export hashes were collected under ignored `artifacts/windows-handoff/a54e899-evidence/`. The earlier `baseline-evidence/` archive preserves the missing-RCEdit failure and its separate repair. Remote evidence is retained in the isolated validation checkout. Generated executables, caches and logs are not committed.
 
 Merge independently observed desktop results into this report. The canonical Windows command now passes with the corrected installer/validator. Preserve commit identities when adding newer fixes. Team PR readiness still requires the feature acceptance checks in [the Windows brief](windows-agent-brief.md).
+
+
+## Desktop agent reports retrieved 2026-10-03
+
+The Mac agent retrieved these reports from Asana comments at 13:06 UTC. They are **reported Windows source checks**, not independently audited artifacts or matching-export acceptance. The desktop checkout starts at `44e37ba74c98fbf7f070eb77c051a3caa1fdbba2`; subsequent changes are identified below. Its shared `DEUTEROS-COORDINATION.md` and patch bundle are not yet accessible to SSH user `builder`. The running desktop Godot process was left untouched.
+
+| Area | Reported result | Remaining work |
+| --- | --- | --- |
+| [SCG](https://app.asana.com/0/1214891399253076/1215685674676241) | Staged hull/drive fitting, five pod mounts, deductions, save/reload and cargo layout passed. Commit `5a9b1ef` fixes a navigation container blocking the build-button centre; existing case 263 failed before and passed after. | Collect/reconcile patch; matching export, current six-mount implementation and normal progression. |
+| [Supply discard](https://app.asana.com/0/1214891399253076/1215685674676219) | Docked staged SCG discarded only selected cargo, retained the pod and preserved other modules/stores. Empty/non-supply controls did nothing. | Reload, other hulls, transit, ACC/AMA and normal progression. |
+| [ACC](https://app.asana.com/0/1214891399253076/1215683087492480) | Qualified grapple/supply IOS engaged, found and disengaged at asteroids; manual small-asteroid capture and reload passed. Earlier right-click failure was not reproduced twice. | Large asteroids, AMA, Complete Cycle, balancing and export. |
+| [DFCC](https://app.asana.com/0/1214891399253076/1215716464570901) | Staged zero-drone IOS required ten MeH per tank; insufficient stock did nothing, save/restart retained fuel, removal refunded ten. | SCG/HeD, drone/cargo capacity, ACC, legacy saves and export. |
+| [Stocktaker](https://app.asana.com/0/1214891399253076/1215685674676245) | Day-219 normal play reproduced Advance Time blocked by `TradStore`. Local one-line mouse-filter fix passed extended case 112 and physical time/category clicks. | Collect uncommitted patch and audit against current suite/export. |
+| [Service](https://app.asana.com/0/1214891399253076/1215691951441136) | Commit `878d74dc69b48e2144a1ab3ce7dd38e6a82cb165` fixed the reported day-439 control. Staged eligibility/lock checks and physical click/save/restart passed; Craig confirmed it. | Reconcile with Mac Service fix `50ea4af`; matching export still untested. |
+| Pod fitting feedback | Same Supply task reports a local shared-handler popup for unavailable supply/tool/cryo pods; new Windows case 311 failed before and passed after. | Collect patch; normal pointer check and export. Fitting animation remains unresolved. |
+| [Audio](https://app.asana.com/0/1214891399253076/1215683087492491) | Craig reported missing training-door/production sounds and an incorrect Advance Time cue. | No audio fix or listening acceptance; agent reports gameplay was prioritized. |
+
+Windows case numbers refer to its older checkout and must not be copied over current case numbers. Detailed retrieved comments are retained locally at `artifacts/research/windows-agent-asana-2026-10-03.json`; Windows screenshots/logs remain under its `artifacts/windows-validation/desktop-01` through `desktop-03`. All 48 tasks remain open; no acceptance count or Asana status was changed.
