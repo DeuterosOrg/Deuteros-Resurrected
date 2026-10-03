@@ -6,7 +6,7 @@ Source audit: **2026-10-02**, current C# checkout. This supplies the inventories
 
 ## Sounds
 
-All **12** runtime audio files were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, one typing WAV, and the recovered SDM alarm WAV. All twelve now have playback paths; the training-door follow-up corrects the previously loaded but unplayed WAV. Original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
+The **12** audio files under `Godot/Sounds/` were checked against scene references and dynamic paths: seven background OGGs, three button WAVs, one typing WAV, and the recovered SDM alarm WAV. All twelve now have playback paths; the training-door follow-up corrects the previously loaded but unplayed WAV. Original cue completeness and native Windows listening remain unverified. The OGG import settings all enable looping. [`BackgroundSound.cs`](../Godot/Code/Platform/BackgroundSound.cs) resolves the `BackgroundSound` enum to `Sounds/Background/{name}.ogg`, plays on `_Ready`, and stops on exit.
 
 | Supplied asset under `Godot/Sounds/` | Runtime evidence | Status |
 | --- | --- | --- |
@@ -102,3 +102,7 @@ Case 469 separately reproduced missing door playback. A dedicated player preserv
 ### Training animation ownership follow-up
 
 Case 470 reproduces a static closed door releasing another owner's input lock. After suppressing static playback, it separately reproduces the shared completion handler prematurely settling another moving door. Completion now settles only its originating door and releases its recorded lock once; scene exit stops unfinished doors and releases only their locks. Case 469 additionally exits during active door playback. Focused 468–470 and transmission-interruption compatibility case 432 pass headless; 468–470 also pass natively. A physical Mac close immediately after starting all three training queues releases three locks and exits cleanly; exact frame timing and audible fidelity are not claimed. Full-suite validation and Windows acceptance remain pending. This fixes callback ownership, not original animation cadence.
+
+### Transmitter ending follow-up
+
+The ending adds a thirteenth runtime audio file, `Godot/Ending/music.wav`, outside the Sounds directory. Its original Disk 2 score and samples are compiled to stereo PCM alongside indexed artwork and bitmap labels in `Ending/sequence.json`; the mounted transmitter activates the native player. Cases 573–586, source-derived texture/PCM checks, 19 Python tests and the full 586-case Mac checkpoint pass. Physical Mac playback reached the labels and automatic replay and closed cleanly. See [ending provenance and limits](original-ending-evidence.md). This fills the ending presentation gap; original-emulator cadence, subjective listening, Windows and unstaged campaign acceptance remain separate.

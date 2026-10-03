@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`941eca947db76c714a5cabe9829869851b324d78`**, with **572/572 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`89d39ffb164ac1c6cffe21f2cfff18610e193bbe`**, with **589/589 regressions**, 19 Python checks and an audited cross-export. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Rogue crew and prison acceptance
@@ -433,6 +433,6 @@ Inspect the package for `Ending/sequence.json` and imported lossless music; no o
 
 ## Overview capacity follow-up
 
-Master Control now pages stations, IOS and SCG fleets in groups of 16, filters hostile stations before assigning controls, and clamps the page after loss/capture. The pager appears only when needed; existing single-page spacing remains. This preserves large remake saves rather than imposing original-world capacity limits.
+Runtime `89d39ffb164ac1c6cffe21f2cfff18610e193bbe` passes full 589-case Mac validation and audited cross-export. Master Control now pages stations, IOS and SCG fleets in groups of 16, filters hostile stations before assigning controls, and clamps the page after loss/capture. The pager appears only when needed; existing single-page spacing remains. This preserves large remake saves rather than imposing original-world capacity limits.
 
 On source and exported Windows builds, load a save with more than 16 friendly stations and fleets. Reach every entry with Prev/Next, inspect hover names/drone counts, and open a station/ship on the last page. Remove or lose the last-page entry and confirm the page clamps without stale selection. Check 16 friendly stations plus hostile stations, overlay/input locks and the single-page layout. Repeat the full eight-recovery transmitter save: normal Load → all five overview pages → station beyond slot 16 → back → SCG → mounted ending. Cases 587–589 cover station, IOS and SCG capacity; focused Mac/native and physical full-save navigation pass. Record the exact candidate revision and distinguish these checks from unstaged campaign acceptance.
