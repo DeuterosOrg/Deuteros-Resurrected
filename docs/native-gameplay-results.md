@@ -81,3 +81,14 @@ This route exposed hardcoded breakup quantities (`100 … 50000`) despite the co
 
 
 A separate physical reload at `0a2f417` confirms the delivered 250 palladium, empty grapple, 32T tank and Captain Blunket's eight crew. Service again opens the correct Earth orbital IOS crew bay. Native close exits zero, the strict log audit passes and exact original saves are restored. Evidence: `artifacts/salvage-reload/`. The next normal campaign checkpoint remains the unmodified `artifacts/salvage-campaign/final-slot-4.json`.
+
+
+## Three-grapple salvage and sequential unloading
+
+Normal Mac play at `bcaeb1c` manufactured and fitted two additional tool pods/grapples, refuelled WAYFARER, completed AMA research and captured naturally scanned 250T silver, 100T silica and 50T platinum. All three distinct held objects survived save/reload. The return to Earth consumed eight fuel in flight and one docking, leaving 32T; Blunket remained Admiral with eight crew. No save values or scan outcomes were edited.
+
+This exposed a remaining defect in [grapple unloading](https://app.asana.com/0/1214891399253076/1215716464570921): after the timed dialog closed, its invisible enclosing control still intercepted pod clicks. Leaving and re-entering the bay worked around it. The existing regression emitted button signals and missed this pointer-only failure. Case 26 now uses real GUI hit-testing through a SubViewport, covers all three mounts and retains stock-cap, lock and day-refresh checks. It fails on the second unload before the one-line enclosing-panel cleanup and passes afterward.
+
+A physical replay of the unedited captured-object checkpoint then unloaded all three consecutively in one bay visit. Screenshots show `250 Silver 250`, `100 Silica 100` and `50 Platinum 50`; the correct orbital stocks survive save/reload. Both native sessions exited zero, strict log checks passed, and the exact original save inventory was restored. Full-suite and Windows validation of the cleanup are pending.
+
+Evidence: `artifacts/ama-salvage-campaign/`; corrected final slot SHA-256 `8fc343d0d9d5d71776d8813ad978e93db1403951b445936fefe0d20d282c916f`. A separate display finding remains open: grapple panels label every mount as `1`; the AMA panel has the same hardcoded number.

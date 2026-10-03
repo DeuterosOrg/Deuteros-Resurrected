@@ -491,3 +491,10 @@ At `bcaeb1c`, stage two separately equipped IOS hulls approaching large asteroid
 Use the main `Godot_v4.2.2-stable_mono_win64.exe` printed by the updated installer for Python validation. The console wrapper waited for a background .NET child after successful export and reached the 600-second limit. Direct export passed in 33.26 seconds and packaged startup passed; [evidence](windows-validation-results.md#direct-export-and-package-audit--2026-10-03) preserves both outcomes. No full aggregate rerun is claimed.
 
 The latest desktop handoff also reports `unavailable-pod-feedback-v2.patch`, including responsive error-box sizing and physical normal-play verification. Preserve desktop process 30940 and its saves. Return that existing four-file patch instead of the superseded v1, alongside the Stocktaker/navigation patches; matching-export acceptance remains pending.
+
+
+## Consecutive grapple unloading by pointer
+
+A normal Mac three-grapple trip exposed a missed input-layer defect: the timed breakup dialog hid its child but left an invisible parent over the pod click area. The candidate hides that parent in `GrappleClosed`; existing case 26 now reproduces the failure using pointer hit-testing, then passes three sequential unloads after correction. Physical Mac replay and saved stock checks pass; full candidate validation is pending.
+
+In current Windows source and its matching export, carry distinct asteroids in all three IOS grapples. Unload each by clicking its bay selector and pod, waiting for the timed dialog to close, **without leaving/reopening the bay**. Verify every next pod responds, quantities match the held mass and capped stock, no duplicate credits occur, and stocks persist after save/reload. Repeat an unknown-object analysis followed by another pod interaction. Record the exact revision. The old direct-signal regression did not establish this pointer behavior.

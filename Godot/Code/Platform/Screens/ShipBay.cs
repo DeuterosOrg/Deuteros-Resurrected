@@ -717,6 +717,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void GrappleClosed(object DataObject)
 		{
+            GrappleWindowControl.Visible = false;
             if (RejectShipCommand())
             {
                 if (IsInsideTree() && !IsQueuedForDeletion() && GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Contains(Ship)) GameCore.UnLockScreen();

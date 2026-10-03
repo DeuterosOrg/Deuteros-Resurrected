@@ -58,10 +58,10 @@ namespace Deuteros.Tests
 
         public async Task RunTimedUiRegressions()
         {
-            await CheckAsync("Two grapple pods unload consecutively without reopening the bay", async () =>
+            await CheckAsync("Three grapple pods unload consecutively without reopening the bay", async () =>
             {
                 InitializeUi();
-                await UnloadBothGrapples();
+                await UnloadAllGrapples();
             });
         }
 
@@ -170,13 +170,14 @@ namespace Deuteros.Tests
             }
         }
 
-        private async Task UnloadBothGrapples()
+        private async Task UnloadAllGrapples()
         {
             var ship = NavigationShip();
             var stores = GameCore.Earth.Station.Resources.Stores;
             stores[ItemTypes.iron] = 12;
             stores[ItemTypes.carbon] = 49900;
-            for (int i = 0; i < 2; i++)
+            stores[ItemTypes.platinum] = 0;
+            for (int i = 0; i < 3; i++)
             {
                 ship.Modules[i].ModuleType = Module_Types.Tool;
                 ship.Modules[i].ItemStored = ItemTypes.grapple;
@@ -184,20 +185,31 @@ namespace Deuteros.Tests
                 ship.Modules[i].HeldItem = new Asteroid
                 {
                     GrappleItemType = GrappleItemTypes.Asteroid,
-                    Type = i == 0 ? ItemTypes.iron : ItemTypes.carbon, Mass = i == 0 ? 250 : 150
+                    Type = i == 0 ? ItemTypes.iron : i == 1 ? ItemTypes.carbon : ItemTypes.platinum,
+                    Mass = i == 0 ? 250 : i == 1 ? 150 : 50
                 };
             }
+            var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
+            AddChild(viewport);
             var bay = OpenEquippedBay(ship);
+            bay.Reparent(viewport);
+            await InputFrames();
             var window = bay.GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier");
             var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
             try
             {
-                for (int i = 0; i < 2; i++)
+                for (int i = 0; i < 3; i++)
                 {
-                    Press(bay, "Buttons/ShipNav/Nav_Torso" + (i + 1));
-                    Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso" + (i + 1) + "/SpriteHolder/Buttons/ActivatePod");
+                    ClickMenu(viewport, bay.GetNode<BaseButton>("Buttons/ShipNav/Nav_Torso" + (i + 1)));
+                    await ToSignal(GetTree().CreateTimer(1.1), SceneTreeTimer.SignalName.Timeout);
+                    Equal((i + 1) * 224, bay.ScrollContainer.ScrollHorizontal, "selected pod is visible before unloading");
+                    AdvanceTickDay();
+                    await InputFrames();
+                    Equal((i + 1) * 224, bay.ScrollContainer.ScrollHorizontal, "day refresh preserves the selected pod");
+                    ClickMenu(viewport, bay.GetNode<BaseButton>("ShipContainer/ScrollContainer2/HBoxContainer/Torso" + (i + 1) + "/SpriteHolder/Buttons/ActivatePod"));
+                    await InputFrames();
                     Equal(true, window.IsVisibleInTree(), "unload window visible for pod " + (i + 1));
-                    Equal(i == 0 ? "250 Iron 262" : "150 Carbon 50000", window.GetNode<Label>("Quantites").Text,
+                    Equal(i == 0 ? "250 Iron 262" : i == 1 ? "150 Carbon 50000" : "50 Platinum 50", window.GetNode<Label>("Quantites").Text,
                         "breakup shows held mass and resulting capped stock");
                     Equal(true, blocker.Blocked, "unload locks input");
                     await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
@@ -206,11 +218,12 @@ namespace Deuteros.Tests
                 }
                 Equal(262, stores[ItemTypes.iron], "first pod stock credited once");
                 Equal(50000, stores[ItemTypes.carbon], "second pod stock capped");
+                Equal(50, stores[ItemTypes.platinum], "third pod credited once");
             }
             finally
             {
                 if (blocker.Blocked) GameCore.UnLockScreen();
-                bay.Free();
+                viewport.Free();
             }
         }
 
