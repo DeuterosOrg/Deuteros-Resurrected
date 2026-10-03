@@ -53,7 +53,7 @@
 
 **Files:** `docs/{validation-results,backlog-progress,windows-agent-brief,save-files,original-interstellar-travel-evidence,original-warlord-evidence}.md`.
 
-- [ ] Review the entire branch against the spec and the five review-focus conditions. Dispatch the executing-plans skill's one final reviewer; reproduce/fix Important/Critical findings once and record declined judgments.
-- [ ] Run nine Python tests and full `scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` with the toolchain sourced. Expected: all discovered fresh-process cases, strict import, source smoke and export pass.
-- [ ] Independently audit current manifest/log freshness, package assets and exclusion of tests. Record native/physical evidence separately from staged fixtures and Windows acceptance.
-- [ ] Integrate the verified runtime locally, verify runtime-tree identity, update the exact Windows candidate/acceptance brief and preserve failure evidence. Keep total48 acceptance claims tied to task evidence, not test count.
+- [x] Review the entire branch against the spec and the five review-focus conditions. Dispatch the executing-plans skill's one final reviewer; reproduce/fix Important/Critical findings once and record declined judgments.
+- [x] Run nine Python tests and full `scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` with the toolchain sourced. Expected: all discovered fresh-process cases, strict import, source smoke and export pass.
+- [x] Independently audit current manifest/log freshness, package assets and exclusion of tests. Record native/physical evidence separately from staged fixtures and Windows acceptance.
+- [x] Integrate the verified runtime locally, verify runtime-tree identity, update the exact Windows candidate/acceptance brief and preserve failure evidence. Keep total48 acceptance claims tied to task evidence, not test count.

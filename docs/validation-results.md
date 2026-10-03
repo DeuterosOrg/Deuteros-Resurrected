@@ -2,9 +2,9 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest completed Mac checkpoint (2026-10-03 BST): **493/493** at `e369433757efc6654e62d8ee39ab6a767d2b7c86`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest completed Mac checkpoint (2026-10-03 BST): **513/513** at `e1754ebb7779e433c9c516dfcb98baeaabc807c9`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
-The latest additions connect alien transmissions and News events and correct battle lifecycle handling, building on artifact recovery, manufacture and hull fitting. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals stay **34/48 with implementation evidence, 0/48 fully accepted**.
+The latest additions connect saved interstellar travel, private/star clocks and Hyperlight-specific Warlord promotion, building on the earlier transmission, simulation and UI fixes. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals are **35/48 with implementation evidence, 0/48 fully accepted**.
 
 ## Reproduced gameplay fixes
 
@@ -761,3 +761,16 @@ Full Mac validation at `e369433757efc6654e62d8ee39ab6a767d2b7c86` passes **493/4
 The earlier `391822a` full attempt stopped at import with a Timer lifecycle error and script reformatting during editor shutdown. Restoring the mismatched new indentation reproduced both; matching the surrounding tabs produced a strict clean import without changing source bytes. No Timer diagnostic was exempted. Earlier fixture registration/initialization errors and a native font-wrapper teardown experiment are retained separately from gameplay failures.
 
 Integrated locally without push/PR. Windows execution, measured original timing, independent star/SCG clocks and the remaining Hyperlight/rogue-crew/ending work remain open. Keep the `8cdd458` human desktop handoff separate. Totals remain **34/48 with implementation evidence, 0/48 fully accepted**; this batch advances several partial tasks without declaring full acceptance.
+
+
+## Saved interstellar travel and Warlord (513-case checkpoint)
+
+New SCG cross-star routes now consume the original 9×9 distance table, fixed-point acceleration, phase fuel and private-clock progress. Ordinary star arrival requires the exact destination clock; Hyperlight synchronizes it. The existing body-to-body course interface composes that star leg with the destination-star-to-body approach. Only the final body arrival notifies ACC, preserving cargo and complete-cycle behavior. Existing in-flight saves without `Flight` retain their old countdown for that journey.
+
+An Admiral becomes Warlord only on an actual Hyperlight arrival, before ordinary arrival experience is awarded. The saved milestone survives crew transfers, cryopods and reload; ordinary experience still caps at Admiral. Screens display the private/star calendar, destination ETA and local approach. Active-flight course edits, including retained callbacks, cannot invalidate saved progress. Source-traced boundaries include late Hyperlight research, drive damage, final-unit coasting, phase-fuel underflow and a six-update stranded countdown after empty-fuel star arrival.
+
+Cases **494–513** cover these paths. Reproductions established instant cross-star arrival, wrong fuel, missing promotion, premature rank eligibility, wrong displayed clock, retained-map rerouting and missing stranded/control boundaries. The independent whole-branch review found one Important regression: excluding generic fuel also excluded an old fall-counter reset. Case 513 reproduced premature loss after a rescued SCG's later empty-fuel arrival; the shared reset is restored and the case passes headlessly and natively. No Critical or Minor findings remain from that review. Initial build and fixture catch/return-duration mistakes are retained separately and are not counted as game defects.
+
+Full Mac validation at `e1754ebb7779e433c9c516dfcb98baeaabc807c9` passes **513/513**, nine Python tests, strict import, source startup and Windows cross-export. The build has zero errors and the existing warning set. Individual case logs are audited against discovery and freshness; package audit: **1,224 entries, 64 illustration imports, zero test resources**, **149,377,456 bytes**, SHA-256 `43d014cd5924f78855092caa059eb7f4623b239321b29742fac62eb2c2b96a7c`. Evidence: `artifacts/validation/evidence/interstellar-flight/full-run-e1754eb/`. Native cases 503/505–508/510–513 pass; Warlord/arrival and loss-screen screenshots were inspected. These are staged real-engine/native checks, not an unstaged campaign playthrough or original-runtime comparison.
+
+This adds Warlord implementation evidence, bringing the ledger to **35/48 with implementation evidence, 0/48 fully accepted**. Windows execution of this revision, original-runtime comparison, rogue crews, transmitter activation and ending remain open. Preserve the separate `8cdd458` human handoff. No push, PR or Asana status change is made.

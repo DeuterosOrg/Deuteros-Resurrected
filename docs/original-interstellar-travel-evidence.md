@@ -1,6 +1,6 @@
 # Original interstellar travel and Hyperlight
 
-Research follow-up for **SCGs (1215685674676241)** and **Warlord promotion (1215716464570913)**, 2026-10-02. This establishes mechanics missing from the remake; it does not certify an implemented travel system.
+Research follow-up for **SCGs (1215685674676241)** and **Warlord promotion (1215716464570913)**, 2026-10-02. This records static source evidence; the integrated remake implementation and its acceptance limits are described below.
 
 ## Source and route distance
 
@@ -51,12 +51,17 @@ The nine initial star clocks at `$13792` are:
 
 A new SCG copies its current star's clock into its slot in `$137B6` at `$2FCEE–$2FD0E`. The clock interrupt advances all nine star clocks and sixteen ship clocks by the same ordinary increment. Accelerated travel additionally adds `distance advanced * 100` to that ship clock (`$23A30–$23A48`).
 
-Ordinary arrival `$314B2–$314E0` requires exact equality between the ship and destination-star clocks. A mismatch jumps to `$36362`, which clears the SCG record and releases its crew/modules before emitting loss news. Hyperlight arrival instead explicitly copies the destination clock. Therefore a simple distance countdown that always arrives safely omits a material original rule. Emulator comparison should confirm the visible warning/loss behavior before reproducing it in the remake.
+Ordinary arrival `$314B2–$314E0` requires exact equality between the ship and destination-star clocks. A mismatch jumps to `$36362`, which clears the SCG record and releases its crew/modules before emitting loss news. Hyperlight arrival instead explicitly copies the destination clock. Therefore a simple distance countdown that always arrives safely omits a material original rule. Emulator comparison must still confirm the visible warning/loss behavior before full acceptance.
 
-## Integration work remaining
+## Integrated travel and compatibility boundary
 
-The remake now saves one global fractional calendar plus an independent consumed-update counter, generic transit state and a start-update timestamp. It still lacks per-star/ship clocks, fixed-point accelerated travel progress and Hyperlight travel. SCG and delayed Hyperlight discovery are now connected; their original clock/campaign acceptance remains pending. A faithful implementation needs a save migration and complete travel/fuel/arrival handling; merely assigning Warlord on any cross-star arrival would be incorrect. Craig has been asked whether the intended port preserves original star arrivals/clocks or adapts them to direct planet-to-planet routes. Keep that scope decision separate from proven instruction arithmetic.
+The `e1754eb` runtime now uses the original distance, phase/fuel and clock rules for new cross-star SCG journeys. Existing body-to-body UI routes compose a star leg with the destination-star-to-body leg (`$3523C–$35256`). The latter measures from the system's first encoded body plus four; original Solar grouping starts Earth, Mercury, Venus. This composition is a deliberate remake convenience, not original UI parity.
 
+The model saves phase, fraction, remaining distance, leg and signed private-clock offset. Star dates derive from Sol plus original initial offsets. Ordinary arrival checks exact clock equality; Hyperlight synchronizes and invokes the Warlord path. Source underflow `$23ABE–$23AC2` selects action 17 decimal (`$11`) → `$3145A` immediate loss. Burning the last ordinary fuel unit at `$239C0` doubles its countdown before decrement; zero-fuel star arrival follows `$311EE` → `$3143A` into six stranded updates. `$30FE0` permits local disengagement but rejects accelerated/Hyperlight states. Actions 15/22/23 share arrival experience through `$31564` after the special rank check.
+
+Case 494 reproduces the former one-update cross-star arrival; 495 the generic fuel error. Cases 496–513 cover all 81 distance-table entries, clock equality/mismatch, save/legacy/malformed state, damage, late research, exact fuel, stranded loss, controls, private-clock UI and ACC delivery/roundtrips. Full 513 Mac validation and audited cross-export pass; native checks and screenshots are recorded in [validation results](validation-results.md#saved-interstellar-travel-and-warlord-513-case-checkpoint). Additional aligned traces are in local `artifacts/research/interstellar-flight/`.
+
+Already travelling legacy saves without `Flight` keep one old countdown. Local-only routes and their existing body-arrival/fall handling are unchanged. Original-runtime comparison, normal campaign progression and native Windows acceptance remain outstanding; code/source traces are not emulator observations.
 
 ## Hyperlight discovery producer (additional static trace)
 
@@ -68,7 +73,7 @@ The master tail consumes that flag through `$3769C`, after the higher-priority `
 
 Raw traces and exact tables are under `artifacts/research/supply-pod/hyperlight-*`; `hyperlight-discovery-facts.json` records file hashes. The bulletin renderer indexes a runtime table at `$29540`; that table is unpopulated at the static disk mapping, so the rendered bulletin text is not established by this extract. The remake now connects the corresponding research and bulletin definitions through the saved discovery producer described below.
 
-This narrows the missing progression path. The count is sampled by the original enemy scheduler, so an immediate capture callback alone would not reproduce its timing. Saved delay/pending state, competing bulletin delivery, save/load and research completion now have integrated tests. Actual Hyperlight travel still needs implementation. No new task is declared complete.
+This narrows the missing progression path. The count is sampled by the original enemy scheduler, so an immediate capture callback alone would not reproduce its timing. Saved delay/pending state, competing bulletin delivery, save/load and research completion now have integrated tests. Hyperlight travel is now implemented in the later integration above; the discovery trace itself establishes no travel acceptance.
 
 
 ## Hyperlight discovery correction
@@ -77,7 +82,7 @@ The locally integrated correction now samples hostile-system counts at the exist
 
 Cases 459–461 reproduced the missing discovery through real simulation updates, including a save mid-delay and ownership changes between enemy samples. Cases 462–464 cover competing notices and saved pending state, Research-screen selection and completion, legacy/malformed saves, all system-count boundaries and recapture. Focused checks pass, including existing transmission cases 427–432/434–435. Full 464-case Mac validation and native cases 459/460/461/462/464 pass at `fbffac5`; Windows execution remains pending. An initial 462 assertion incorrectly expected Hyperlight to bypass an unacknowledged transmission; the fixture now acknowledges that message and proves the pending discovery survives it.
 
-This restores discovery within the remake's current scheduler. The [enemy build-frequency correction](original-enemy-production-evidence.md) separately restores the remaining-system lookup; exact fractional enemy deadlines are now implemented, while original independent Sol-clock cadence and initialization remain unverified. Hyperlight acceleration/arrival, per-star clocks, Warlord and transmitter activation remain outstanding; this branch is not full acceptance of the travel or campaign tasks. Evidence is retained under `artifacts/validation/evidence/hyperlight-discovery/`.
+This restores discovery within the remake's current scheduler. The [enemy build-frequency correction](original-enemy-production-evidence.md) separately restores the remaining-system lookup; exact fractional enemy deadlines are now implemented, while original independent Sol-clock cadence and initialization remain unverified. At that historical checkpoint, Hyperlight acceleration/arrival, per-star clocks, Warlord and transmitter activation remained outstanding; this branch is not full acceptance of the travel or campaign tasks. Evidence is retained under `artifacts/validation/evidence/hyperlight-discovery/`.
 
 ### Countdown-order follow-up
 

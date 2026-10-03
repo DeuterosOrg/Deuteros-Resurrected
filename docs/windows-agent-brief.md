@@ -2,9 +2,9 @@
 
 ## Start here
 
-**Latest revision verified on both hosts: `a54e899d4c6796e6f406733112d39a7ba424e7d0` (2026-10-02).** Mac and native Windows each pass **409/409 regressions**, import, source startup and Windows export; the Windows package also passes startup. There are **34/48 tasks with implementation evidence and 0/48 fully accepted**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
+**Latest revision verified on both hosts: `a54e899d4c6796e6f406733112d39a7ba424e7d0` (2026-10-02).** Mac and native Windows each pass **409/409 regressions**, import, source startup and Windows export; the Windows package also passes startup. At that checkpoint there were **34/48 tasks with implementation evidence and 0/48 fully accepted**; the later Mac checkpoint below raises implementation evidence to **35/48**. See [Windows results](windows-validation-results.md) for hashes and limits. The packaged smoke now also verifies the corrected lowercase `bandaid.png` resource; interactive artwork checks remain pending.
 
-Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, manufacture and original hull fitting. Full **421-case validation passed on Mac and in the Windows runner**, including source startup and export. Mac logs/package are audited; Windows packaged smoke and individual-log collection are pending a fresh SSH authentication failure. The fully audited Windows checkpoint above therefore remains `a54e899`. Preserve the existing `8cdd458` desktop handoff.
+Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, manufacture and original hull fitting. Full **421-case validation passed on Mac and in the Windows runner**, including source startup and export. Mac logs/package are audited; Windows packaged smoke and individual-log collection are pending a fresh SSH authentication failure. The fully audited Windows checkpoint above therefore remains `a54e899`. Preserve the existing `8cdd458` desktop handoff.
 
 1. **Use the exact handoff revision.** Work in your own checkout from Craig's verified bundle or explicitly supplied remote branch, `codex/build-tests-and-gameplay-fixes`. Inspect existing changes before switching; preserve previous work and the SSH validation checkouts. No push has been made by the Mac agent. An earlier desktop pass already underway at `d11ff3b` or `8cdd458` should retain that revision in its report, then test the newer changes separately.
 2. **Read the current instructions.** Preserve root `AGENTS.md`; its initial toolchain/testing notes are superseded by [README](../README.md), [contributing](../CONTRIBUTING.md) and [testing](testing.md). Read [backlog progress](backlog-progress.md), [validation results](validation-results.md) and the [48-task snapshot](asana-triage.md).
@@ -13,7 +13,21 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`e369433`**, with **493/493 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`e1754eb`**, with **513/513 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+
+
+## Interstellar travel and Warlord acceptance
+
+Candidate **`e1754ebb7779e433c9c516dfcb98baeaabc807c9`** passes **513/513 Mac regressions**, strict import, source startup and audited Windows cross-export. It has not executed on Windows. Keep the existing `8cdd458` desktop report separate; use disposable save copies because older builds reject the new flight/rank fields. Run the full source validation and export this exact revision before desktop acceptance.
+
+- Start a new Mercury → Atlantic SCG journey with 250 fuel and completed Hyperlight. It must remain travelling after the first update. Without damage, the star leg takes 12 consumed updates and leaves 141 fuel; the four-update Atlantic approach leaves 137. Manual and natural modes change displayed time per update, not these phase counts.
+- Save before Hyperlight, during its transition and during the body approach. Reload must preserve fuel/progress and produce one arrival. Check the private date resets during transition, synchronizes to Proxima and remains correct after leaving/re-entering the ship screen. Test hold/release ETA changes.
+- Use an Admiral for the route: Warlord and one rank report occur at Hyperlight arrival. A Captain at 39 ordinary actions becomes Admiral only after the eligibility check. Ordinary travel/experience must not grant Warlord; transfers and cryopods must retain it.
+- Record staged ordinary-flight clock mismatch, insufficient phase fuel and empty-fuel star arrival separately from normal progression. The latter strands for six updates. Confirm one loss report and exit from destroyed-ship controls. Case 513 covers reset of earlier fall debt during a rescued fuelled journey.
+- Exercise complete-cycle and automatic roundtrip cargo delivery, damaged travel, research completed mid-flight and an open course map when travel starts. No intermediate star arrival may credit a station; active-flight rerouting is disabled.
+- Load a pre-flight-field save already travelling: that one legacy journey keeps its old countdown. Loading alone must not create a phase, promote a crew, spend fuel or lose a ship.
+
+Run native cases 494–513 as automated evidence, then report physical acceptance separately with exact revision, steps, screenshots/logs and save provenance. The body-to-body composition is a deliberate remake UI adaptation, requiring team review; original star/body controls are not claimed. Existing local-only flight timing and ordinary body-arrival fall behavior remain on the shared legacy path. Preserve all failure logs and do not overwrite the older handoff.
 
 ## Fractional clock and AMA phase follow-up
 
@@ -25,7 +39,7 @@ Candidate **`e369433757efc6654e62d8ee39ab6a767d2b7c86`** adds cases **475–493*
 - Exercise actual AMA scan/mine/return with empty, compatible, incompatible and full cargo. IOS allocation is per star; SCG allocation is global. Ship removal/reload must not shift another ship's cadence. Mining matches its four-phase clock gate and scanning its eight-phase gate; asteroid approach/departure each consume two updates. Normal-mode actions can take several minutes, so distinguish accelerated fixtures from normal play.
 - Use staged saves for a calendar attrition boundary and the enemy scheduler's exact 9.50-day interval (three remaining hostile systems). Record those fixtures and verify reload does not cause early or duplicate work. Run native cases 475–493 as automated evidence, separately from physical acceptance.
 
-Compare original-runtime timing where available. Independent star/SCG clocks, full Hyperlight/rogue crews/ending, original SCG mining eligibility and the original sixteen-slot construction limit remain open. Report PASS/FAIL/NOT TESTED with exact revision, source/export distinction, logs and screenshots; do not close Asana tasks from passing automated checks alone.
+Compare original-runtime timing where available. The later 513-case checkpoint adds star/SCG clocks and Hyperlight travel; original-runtime comparison, rogue crews/ending, original SCG mining eligibility and the original sixteen-slot construction limit remain open. Report PASS/FAIL/NOT TESTED with exact revision, source/export distinction, logs and screenshots; do not close Asana tasks from passing automated checks alone.
 
 ## Transmission candidate
 

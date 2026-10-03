@@ -49,3 +49,14 @@ The loader rejects explicit null clocks, missing required clock members, non-fin
 Interstellar ships now save `AutomationSlot` for scan/mining phases. Missing legacy values allocate deterministically into free slots: IOS per star, SCG globally. Surviving ships keep their slot after another is removed or the collection reordered. Existing fleets above sixteen ships are preserved. Duplicate allocated slots within a pool and invalid negative/null values are rejected.
 
 Older builds reject these added fields. Preserve backups and record the originating revision when moving saves between builds. Cases 476–484/486/490–492 cover mixed timing, legacy migration, pending updates, slots, countdowns and malformed-state rejection.
+
+
+## Interstellar flights and Warlord
+
+Version 1 now permits nullable `SCG.Flight`. New cross-star departures save `Leg`, `Remaining`, `Phase`, `Fraction` and signed `ClockOffset`; local-only routes retain their existing path. The offset is relative to the absolute Sol clock, so ordinary/pending calendar increments are followed once without storing nine redundant star clocks. Hyperlight's transient zero private clock requires a negative offset. Initial star offsets come from the original table.
+
+Missing or null `Flight` on an already travelling legacy SCG retains its old countdown until that journey finishes. No phase, fuel expenditure, rank or loss is reconstructed on load. New saved flights preserve acceleration, Hyperlight, local approach or stranded countdown. Invalid route/state combinations, missing members, phases, fractions, remaining distance, fuel and clock offsets are rejected before activation; successful arrival clears the flight before saving.
+
+`Staff.Warlord` is an additive milestone separate from private `ActionsTaken`. Missing legacy values default to false; explicit null and milestones on non-marine/underqualified staff are invalid. Ordinary actions never infer Warlord. All crew locations, including factory/research assignments and cryopods, are checked. Promotion/news occurs on eligible Hyperlight arrival, not during load.
+
+Save-slot dates remain the global Sol calendar; a selected remote star or SCG can display its own later/private date. Older builds reject the added fields. Preserve backups and record save provenance. Cases 494–513 cover phase-by-phase and blocked-pending reload, legacy fallback, malformed state, crew transfers and rank-news uniqueness.

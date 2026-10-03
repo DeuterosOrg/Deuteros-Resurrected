@@ -69,7 +69,7 @@ Cases 471–472 reproduce missing crew reports through actual ship fuel losses, 
 
 The master calls `$39878` only while fewer than five systems retain hostile stations and `$1C372` is zero. The selector requires a nonzero Hyperlight research byte, a qualifying SCG and rank 4. `$39930–$39980` records the selected crew, changes its low rank bits to 5, sets the ship's high flag bit, renames it `BOUNTY` and starts controller stage 11. The 20-entry controller at `$39B3A` dispatches stage 18 to `$39F98`; that handler advances its stage before testing whether `random & 7 == 4`. Only the matching branch writes `$96` to the station's SDM byte and publishes type-11 News.
 
-Thus the warning belongs to the rogue-crew controller, not ordinary player arming or hostile docking. Warlord/Hyperlight travel and this controller remain absent in the remake; adding a message to an unrelated SDM path would invent behavior. The exact selector also tests ship flags, fuel and packed module slots; their complete gameplay eligibility still needs mapping and original-runtime comparison. Trace and decoded dispatch targets: `artifacts/research/news/pirate-controller.txt` and `pirate-controller-facts.json` (trace SHA-256 `aef7cd78368990030a7bea80abf447cecaee8c7ae4c82d9df21b824817307352`).
+Thus the warning belongs to the rogue-crew controller, not ordinary player arming or hostile docking. Warlord/Hyperlight travel is implemented at `e1754eb`, but this controller remains absent; adding a message to an unrelated SDM path would invent behavior. The exact selector also tests ship flags, fuel and packed module slots; their complete gameplay eligibility still needs mapping and original-runtime comparison. Trace and decoded dispatch targets: `artifacts/research/news/pirate-controller.txt` and `pirate-controller-facts.json` (trace SHA-256 `aef7cd78368990030a7bea80abf447cecaee8c7ae4c82d9df21b824817307352`).
 
 ## Rogue routing follow-up
 
@@ -78,3 +78,12 @@ Additional aligned trace `pirate-routing-followup.txt` covers the previously mis
 The route selects a station with owner byte 9, confirmed by enemy capture `$38EF4`, and separately searches owner 8 with at least five drones; if none qualifies, the second location defaults to the first. A cross-star leg sets destination code `$A0 + star` and controller stage 13. Stage 5 uses the second location; the other selector calls use the first. The shared docking helper accepts states 3/16 and schedules state 4/action 5 with count 1.
 
 On the refit path `$39D18`, fuel becomes 250 and all six module words become `$4000`, before departure and stage advance. This is destructive rogue-controller behavior, not a safe independent player-ship correction. Full ownership/crew transitions, packed module eligibility and original-runtime comparison remain required before porting it. Cross-reference trace SHA-256 `d3231d9b1e0bad3c8991cc6e1a41051de4e5f26f9556a4a0cc92c02d63d5d135`; decoded facts are in `artifacts/research/news/pirate-routing-facts.json`. No new gameplay or acceptance result is claimed.
+
+
+## Rogue eligibility follow-up
+
+Aligned selector `$39882–$398A6` chooses the first system containing both hostile and human stations before scanning SCGs. A vessel must match that system, be undocked (state 3), have exactly 250 fuel, acceptable nonzero hull flags below 8, and an assigned Warlord. This is narrower than searching every mixed-ownership system for any eligible ship.
+
+The six packed module words at `$398D4–$398F0` reject nonzero low-byte entries of kind `$C000`. Cryopod transfer `$32A86` maps the low 14 bits of that kind to a one-based roster reference: occupied cryopods exclude the ship, empty cryopods do not. The exact low-byte test retains a reference-range caveat. The remake currently has five mounts; this trace alone does not justify changing their count.
+
+Cargo selector `$39EA6` uses mask `$C606`, selecting zero-based store indices 1, 2, 9, 10, 14 and 15. Resource names still require an independent original item-order mapping. Full rogue ownership, crew takeover/recovery and scheduling must be understood before integrating the destructive refit. This is static source evidence, not gameplay acceptance. Trace: `artifacts/research/news/pirate-eligibility-crossrefs.txt`, SHA-256 `18b033b1b7e9ecf921a38b8d132172c7e7eb53b266ef6475080880467daa278b`; decoded facts are alongside it.

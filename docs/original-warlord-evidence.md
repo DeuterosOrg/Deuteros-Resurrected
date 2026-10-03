@@ -20,8 +20,10 @@ The SCG walker at `$23990` traverses 16 records at `$1BC66`, stride `$22`. Withi
 
 `$1A1C6` is byte 2 of recipe/research record `$1A1C4`, index 22 (record ID `$17`). The item-name mapping `$101 + index` gives text `$117`, **Hyperlight**. This ties the observed promotion path to completed Hyperlight research and its special travel transition. It is stronger evidence than the walkthrough description “fly an Admiral to Proxima and back”; the precise meaning of the travel-phase/countdown transition still needs comparison with gameplay.
 
-## Implementation boundary
+## Implemented arrival path and remaining acceptance
 
-The remake has only Pilot/Captain/Admiral and a single generic transit-arrival path. Its travel calculator currently has no Hyperlight branch. Do not promote every Admiral on an ordinary cross-star arrival or invent a battle-win threshold. First establish the Hyperlight transition and its eligibility/timing, then persist the rank, emit one promotion report, and test save/load and combat/display use.
+The `e1754eb` runtime reaches this promotion through saved Hyperlight travel. It persists `Staff.Warlord` independently of ordinary actions, exposes rank 4 through the existing rank APIs and emits one report. Promotion happens at star arrival before `$31564`-style ordinary experience: a Captain at 39 actions becomes Admiral afterwards, without chaining Warlord on that arrival. Ordinary arrival or additional actions never grant the milestone. Missing legacy flags default to false; invalid crew milestones are rejected before save activation.
 
-The ordinary rank-display inconsistency is now corrected: marine text derives from `GetLevel`, so Admiral is shown at 40 actions, matching promotion news. Cases 330–332 cover boundaries and save/load. This does not implement Warlord. The [travel follow-up](original-interstellar-travel-evidence.md) now traces acceleration, Hyperlight and per-star/ship clocks; integration scope remains to be settled.
+Cases 503–505/508 cover the real route, pre-arrival reload, repeated travel/news, Captain/Admiral boundary, ordinary arrival, rendered crew rank, combat strength, frozen/returned teams and malformed saves. Full 513 Mac validation and audited cross-export pass; native route/UI/transfer checks pass and screenshots were inspected. See [validation](validation-results.md#saved-interstellar-travel-and-warlord-513-case-checkpoint) and [save compatibility](save-files.md#interstellar-flights-and-warlord).
+
+This adds implementation evidence for the Warlord task. Native Windows, original-runtime comparison and unstaged normal-campaign acceptance remain pending. Rogue-crew progression, transmitter activation and ending are separate unfinished mechanics.
