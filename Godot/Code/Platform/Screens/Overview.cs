@@ -182,7 +182,7 @@ public partial class Overview : BaseSubScene
             foreach (var column in group.GetChildren().Cast<VBoxContainer>())
             {
                 column.Size = new Vector2(column.Size.X, pages.Visible ? 140 : 148);
-                column.AddThemeConstantOverride("separation", pages.Visible ? 1 : 4);
+                column.AddThemeConstantOverride("separation", pages.Visible ? 1 : name == "Stations" ? 5 : 4);
             }
         }
         pageNumber.Text = $"Page {page + 1}/{pageCount}";

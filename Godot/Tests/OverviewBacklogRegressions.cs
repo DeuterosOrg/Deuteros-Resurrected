@@ -157,6 +157,7 @@ namespace Deuteros.Tests
                 for (var i = 16; i < 33; i++) planets[i].ActiveMethanoid = true;
                 RefreshOverview(overview);
                 Equal(false, overview.GetNode<Control>("Pages").Visible, "one-page controls hidden after capture");
+                Equal(5, overview.GetNode<VBoxContainer>("Stations/Col0").GetThemeConstant("separation"), "single-page station spacing restored");
                 Equal(16, VisibleOverviewButtons(overview, "Stations").Count, "sixteen friendly plus hostile tail remains valid");
                 Equal(planets[0].PlanetId.ToScreenString(" "), GameCore.HoverText, "hover follows remapped identity");
                 Press(overview, "Stations/Col0/Station00"); await InputFrames();
