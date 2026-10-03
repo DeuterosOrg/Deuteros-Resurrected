@@ -1141,6 +1141,7 @@ namespace Deuteros.Code.Platform.Screens
 			ACC.RemoveChild(ACCScreen);
 			ACCScreen.QueueFree();
 			ACCScreen = null;
+			GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
 
 			UpdateState();
 		}

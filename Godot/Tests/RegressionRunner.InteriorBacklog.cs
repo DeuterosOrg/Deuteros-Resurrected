@@ -60,6 +60,15 @@ namespace Deuteros.Tests
                 ship.Modules[0].ItemStored = ItemTypes.of_frame;
                 ship.Modules[0].ItemCount = 1;
                 GameCore.Earth.ShuttleState = GameCore.Earth.Station.ShuttleState = GameCore.Earth.Station.StarShipState = 1;
+                ship.ACC = new Deuteros.Code.Objects.ACC
+                {
+                    Ship = ship, Source = StellarBodies.earth, Destination = StellarBodies.the_moon,
+                    SourceItems = new(), DestinationItems = new()
+                };
+                interior.UpdateState();
+                Press(interior, "OpenACC");
+                var acc = interior.GetNode<Control>("ACCScreen").GetChildren().OfType<Deuteros.Code.Platform.Screens.ACC>().Single();
+                Press(acc, "Window/Buttons/Disengage");
                 var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
                 AddChild(viewport);
                 interior.Reparent(viewport);
