@@ -56,7 +56,7 @@ namespace Deuteros.Code.Objects
         internal void TakeOff(bool requireFuel)
         {
             // Original internal $30B48 skips the manual wrapper's fuel check, but still requires an engine.
-            if (Engine && (!requireFuel || Fuel > 0) && ShipState != Ship_States.CrewRepairing)
+            if (Engine && (!requireFuel || Fuel > 0) && ShipState == Ship_States.Docked)
             {
                 if (Pilot != null) Pilot.AddAction();
 

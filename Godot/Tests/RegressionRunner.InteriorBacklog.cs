@@ -153,6 +153,39 @@ namespace Deuteros.Tests
             await InputFrames();
         }
 
+        private async Task InteriorTakeoffGates()
+        {
+            foreach (var entry in new[] { (Ship_Types.Shuttle, false), (Ship_Types.Shuttle, true),
+                (Ship_Types.IOS, true), (Ship_Types.SCG, true) })
+            {
+                var interior = await OpenInterior(entry.Item1, entry.Item2);
+                var ship = interior.Ship;
+                ship.Pilot = new Staff { Leader = "Launch crew", Type = StaffType.Marines, Count = 10 };
+                int Actions() => (int)Newtonsoft.Json.Linq.JObject.Parse(SaveStorage.Serialize(Save))["Game"]["Ships"][0]["Pilot"]["ActionsTaken"];
+                foreach (var state in Enum.GetValues<Ship_States>().Where(s => s != Ship_States.Docked))
+                {
+                    ship.ShipState = state;
+                    ship.StartTravelDay = 17;
+                    GameCore.Earth.ShuttleState = GameCore.Earth.Station.ShuttleState = GameCore.Earth.Station.StarShipState = 1;
+                    Press(interior, "TakeOff");
+                    ((Ship)ship).TakeOff(requireFuel: false);
+                    Equal(0, Actions(), "rejected departure gives no experience: " + state);
+                    Equal(state, ship.ShipState, "rejected departure preserves flight state");
+                    Equal(17u, ship.StartTravelDay, "rejected departure preserves flight clock");
+                    Equal(1, GameCore.Earth.ShuttleState, "rejected departure preserves ground bay");
+                    Equal(1, GameCore.Earth.Station.ShuttleState, "rejected departure preserves orbital shuttle bay");
+                    Equal(1, GameCore.Earth.Station.StarShipState, "rejected departure preserves ship bay");
+                }
+                ship.ShipState = Ship_States.Docked;
+                Press(interior, "TakeOff");
+                Equal(entry.Item1 == Ship_Types.Shuttle && !entry.Item2 ? Ship_States.TakingOff : Ship_States.Launching,
+                    ship.ShipState, "docked ship starts real departure");
+                Equal(1, Actions(), "real departure earns exactly one action");
+                Press(interior, "TakeOff");
+                Equal(1, Actions(), "repeat departure cannot farm experience");
+            }
+        }
+
         private async Task InteriorEntryMenus()
         {
             var interior = await OpenInterior(Ship_Types.Shuttle, true);

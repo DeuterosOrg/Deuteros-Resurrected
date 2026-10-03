@@ -339,6 +339,7 @@ namespace Deuteros.Tests
             await CheckAsync("Research mass units do not overlap one to four digit values", ResearchMassLayout);
             await CheckAsync("Interior service artwork opens the correct docked ship bay by pointer", InteriorServiceNavigation);
             await CheckAsync("Interior service rejects unavailable bays and retained locked commands", InteriorServiceGates);
+            await CheckAsync("Takeoff awards experience and clears bay state only for an actual departure", InteriorTakeoffGates);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
