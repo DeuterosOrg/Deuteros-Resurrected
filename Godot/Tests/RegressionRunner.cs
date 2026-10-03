@@ -332,6 +332,9 @@ namespace Deuteros.Tests
             await CheckAsync("Transmitter rejects travel and rogue commands while preserving docked bay access", TransmitterStateAndRogueGates);
             await CheckAsync("Ending rejects retained ship controls while owned rename and cargo overlays work", TransmitterRetainedControls);
             await CheckAsync("Eight captured recovered segments manufacture fit and activate the original ending", TransmitterRecoveredCampaign);
+            await CheckAsync("Overview pages all stations and survives hostile tails and recapture", OverviewStationCapacity);
+            await CheckAsync("Overview pages IOS fleets without losing selection hover or drone counts", () => OverviewFleetCapacity(false));
+            await CheckAsync("Overview pages SCG fleets without losing selection hover or drone counts", () => OverviewFleetCapacity(true));
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
