@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest completed Mac-audited runtime checkpoint is **`20e74aaf48de64834b5bb533dc3f21ac4032adfc`**, with **594/594 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh and docked-only TakeOff corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest completed Mac-audited runtime checkpoint is **`b2c435c7c38923297af432db8dab94d7f6d93126`**, with **595/595 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh, docked-only TakeOff and empty-tank asteroid-departure corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Rogue crew and prison acceptance
@@ -468,3 +468,8 @@ Read the [retrieved desktop reports](windows-validation-results.md#desktop-agent
 ## Cargo stock and repeated Take Off
 
 For `20e74aa` or later, load/unload MeH and HeD cargo while the selector stays open: the lower bay stock must match the selector immediately, without changing tank fuel. Check shuttle/IOS/SCG as available. One real departure should grant one pilot action; repeated Take Off commands while launching, orbiting or travelling must grant none and must not clear another docked hull's bay. Current cases 515–517 and 594 cover staged boundaries; Mac normal-save physical checks also pass. Record current source and matching export separately; neither has been run on Windows by the Mac agent.
+
+
+## AMA empty-tank departure follow-up
+
+Candidate `b2c435c7c38923297af432db8dab94d7f6d93126` adds case 595. In a separate staged save, start an asteroid approach with one tank unit and verify the completed approach reaches zero. Both manual Take Off and automatic departure when no pod accepts the ore should leave the asteroid while preserving cargo and zero fuel. Ordinary station departure with an empty tank remains rejected; subsequent stranding rules still apply. The fix uses the original manual mining-state exception and shared TakeOff guard. Focused Mac headless/native checks pass; use the completed aggregate recorded in validation results before claiming broader coverage. Record actual Windows clicks and matching-export behavior separately.

@@ -66,3 +66,25 @@ Raw traces: `artifacts/research/ama-generation/ship-allocation.txt` and `slot-re
 `$31810–$3182E` first rejects zero fuel (ship byte `+6`), then requires scanning state `$0C`, before calling `$31834`. That shared entry requires the valid-scan bit and zero-based class at least five. The automatic scanner at `$23C0E` jumps directly to `$31834`; this manual fuel check alone is not evidence for changing every automatic/docking caller.
 
 Case **444** reproduced the remake entering `Docking` with zero fuel. The manual control and callback now share an eligibility check for undocked asteroid scans, class at least six and positive fuel. Rejected commands leave the mining timestamp unchanged; refuelling and an eligible scan permit retry. Focused headless and native Mac checks pass, alongside 307/310–313/443 compatibility checks. Automatic mining and generic docking are unchanged. This follow-up is included in later aggregate checkpoints; Windows acceptance remains pending.
+
+
+## Departure with an exhausted tank
+
+A fresh aligned Disk 1 trace confirms a deliberate exception to the manual fuel check. At `$30B34`, zero fuel follows `$30B3A–$30B42`: mining state `$0D` jumps directly to `$30C08`. That helper selects launch state 1, return-to-scan action `$0C` and countdown 2. The automatic no-compatible-pod path `$23CA2` reaches the same helper through `$30B48`. Ordinary landed/docked states with zero fuel remain rejected by the manual wrapper. The engine-state helper is called separately; this is not permission to create fuel or enable ordinary empty-tank departures.
+
+The remake could consume its last unit during asteroid approach, then remain docked because the shared TakeOff guard required positive fuel. Case **595** reproduces that outcome, then verifies manual and automatic incompatible-cargo departures after a real two-update approach. A shared guard exception for a docked interstellar hull at the asteroid field fixes both callers. Cargo and zero fuel are preserved; ordinary station departure still rejects zero fuel. The earlier docked-state restriction remains. Focused headless/native checks and 13 compatibility cases pass at `b2c435c`; the full 595-case Mac aggregate and audited cross-export also pass. Windows and normal-expedition acceptance remain pending.
+
+Trace: `artifacts/research/ama-generation/empty-fuel-departure.txt`, SHA-256 `dafa8f3e366b5aadb757bdfa210aa16faf7343e41ddfa1d14d1e56c21814195e`. This is static instruction evidence plus staged remake verification, not an original-emulator observation or an unstaged mining expedition.
+
+A separate fuel-cadence lead remains open: original scanning/mining states `$0C/$0D` use mask `$7F` in table `$3680C`. The shared nonzero byte counter `$1BF30` cycles 1–255; only 128 passes that mask. The remake currently does not charge fuel while scanning/mining. This is not simply one unit every 128 displayed days: update consumption, counter wrap, state mapping and zero-fuel consequences need verification before changing the simulation. Raw table bytes and findings are preserved in `artifacts/research/ama-generation/fuel-mask-followup.json`.
+
+
+## Manual tool rank gates and exhaustion limits
+
+The original AMA window handler `$343B4` selects minimum rank **1** in `$33D22`; it accepts mining state `$0D` directly, or scanning state `$0C` through the shared rank check `$34014`. The grapple handler `$3441E` selects minimum rank **2** and accepts ordinary orbit/scanning states. That shared check resolves the assigned roster reference, masks its rank with 7 and rejects ranks below the requested minimum. A nonzero override byte `$1BF36` bypasses this check; its ownership is not established by this extract. The initialized rank-text table maps 1 to Pilot and 2 to Captain. Thus higher rank gates these manual tools; it does not change the already-traced 12–43 mining yield.
+
+This is a manual-window finding, not proof that the original background scanner requires a pilot or tool: `$23AF8` has no such test, and asteroid arrival `$31590–$315AC` selects scanning after a fuel check. Keep that distinction when comparing the remake's scanner eligibility.
+
+Exhaustion has another boundary: mining-entry completion `$31608` returns without selecting mining state when fuel is zero. This differs from the remake's current approach completion, which can finish with an empty tank; case 595 exercises that reachable remake state, not an assertion that the whole original approach behaves identically. A fuel-cadence port must resolve this transition and stranded-state behavior together. No further simulation change is claimed here.
+
+Aligned trace: `artifacts/research/ama-generation/module-rank-and-zero-fuel.txt`, SHA-256 `ef5d8407c122ea0d79a620f635445ae42844e54adf1b10bf1b83ac5a5c25e8da`. Rank text was decoded from the initialized original table in `artifacts/research/news/crew-rank-texts.json`. These findings reduce the open eligibility questions; original-runtime and complete expedition checks remain outstanding.
