@@ -6,8 +6,13 @@ namespace Deuteros.Code.Objects
 {
     public static class StaffAttrition
     {
-        public static void DayTick(uint previousDay, uint currentDay) =>
-            Advance(GameCore.SingletonInstance.GameData.ActiveSaveFile, previousDay, currentDay, Random.Shared.Next);
+        public static void DayTick(uint previousDay, uint currentDay)
+        {
+            if (currentDay <= previousDay) return;
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            Advance(save, (uint)(save.Clock.PreviousCentidays / 100),
+                (uint)(save.Clock.DateCentidays / 100), Random.Shared.Next);
+        }
 
         internal static void Advance(SaveFile save, uint previousDay, uint currentDay, Func<int> random)
         {

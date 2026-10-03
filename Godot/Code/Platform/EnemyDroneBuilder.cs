@@ -47,15 +47,14 @@ namespace Deuteros.Code.Platform
 
         public static void BuildDrones(uint previousDay, uint currentDay)
         {
-            if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar)
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            if (save.AtWar)
             {
-                if (currentDay >= GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay)
+                if (save.Clock.DateCentidays >= save.EnemyBuildDay)
                 {
-                    var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
                     save.AlienTransmissions.SampleEnemySystems(save);
                     var buildfrequency = BuildFrequencies[save.AlienTransmissions.EnemySystems];
-                    // ponytail: retain whole-day truncation until the original fractional clock is integrated.
-                    save.EnemyBuildDay = currentDay + buildfrequency / 100;
+                    save.EnemyBuildDay = save.Clock.DateCentidays + buildfrequency;
 
                     foreach (var star in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Keys)
                     {

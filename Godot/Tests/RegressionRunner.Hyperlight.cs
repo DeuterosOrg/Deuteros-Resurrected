@@ -67,7 +67,7 @@ namespace Deuteros.Tests
             recaptured.ActiveMethanoid = true;
             AdvanceTickDay(); // Sample eight hostile systems at the enemy scheduling boundary.
             recaptured.ActiveMethanoid = false;
-            Save.EnemyBuildDay = Save.CurrentDay + 12;
+            Save.EnemyBuildDay = Save.Clock.DateCentidays + 1200;
             for (var tick = 0; tick < 11; tick++) AdvanceTickDay();
             Equal(true, core.GameData.GetItem(ItemTypes.hyperlight).Research.Locked, "capture cannot bypass enemy count sampling");
             AdvanceTickDay(); // Sample seven and start its eight-pass delay.

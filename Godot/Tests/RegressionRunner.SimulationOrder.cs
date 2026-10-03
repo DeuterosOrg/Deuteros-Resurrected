@@ -27,6 +27,7 @@ namespace Deuteros.Tests
             var core = GameCore.SingletonInstance;
             var earth = GameCore.Earth;
             Save.CurrentDay = 99;
+            Save.Clock.DateCentidays = 9900;
             PrepareTickMining(earth);
             var mercury = Save.BaseGameData.Planets[StellarBodies.mercury];
             var mining = new MiningTrainingProbe { PlanetResources = mercury.PlanetResources,
@@ -105,6 +106,7 @@ namespace Deuteros.Tests
             ClearAttritionWorld();
             DisableFuelRefining();
             Save.CurrentDay = 99;
+            Save.Clock.DateCentidays = 9900;
             var frozen = AttritionTeam(countdown: 1);
             var ship = new ArrivalCrewProbe
             {

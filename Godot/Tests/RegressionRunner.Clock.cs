@@ -15,6 +15,60 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private void FractionalAttritionGate()
+        {
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            ClearAttritionWorld();
+            var team = AttritionTeam(countdown: 3);
+            GameCore.Earth.PlanetResources.AddStaff(team);
+            Save.CurrentDay = 99;
+            Save.Clock.DateCentidays = 5000;
+            core._Process(315.6);
+            Equal(3, team.AttritionCountdown, "100th simulation update is not a 100-day calendar crossing");
+            Save.Clock.DateCentidays = 9999;
+            core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            team = GameCore.Earth.PlanetResources.Staff.Single(s => s?.Leader == "Attrition");
+            core._Process(315.6);
+            Equal(2, team.AttritionCountdown, "saved natural interval crosses the real 100-day boundary once");
+            Save.Clock.DateCentidays = 19950;
+            AdvanceTickDay();
+            Equal(1, team.AttritionCountdown, "manual day crosses the next calendar boundary");
+            core._Process(315.6);
+            Equal(1, team.AttritionCountdown, "following fractional update cannot age the team again");
+        }
+
+        private void FractionalEnemyDeadline()
+        {
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            Save.AtWar = true;
+            Save.Ships.Clear();
+            foreach (var planet in Save.BaseGameData.Planets.Values) planet.ActiveMethanoid = false;
+            var stars = Save.BaseGameData.Stars.Keys.Take(3).ToArray();
+            foreach (var star in stars)
+            {
+                var planet = Save.BaseGameData.Planets.Values.First(p => p.ParentStar == star);
+                planet.ActiveMethanoid = true;
+                planet.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
+            }
+            var station = Save.BaseGameData.Planets.Values.First(p => p.ActiveMethanoid);
+            Save.EnemyBuildDay = 0;
+            Save.CurrentDay = 7;
+            Save.Clock.DateCentidays = 9999;
+            core._Process(315.6);
+            Equal(2, station.Station.Resources.Stores[ItemTypes.ios_drone], "due batch produces two drones");
+            Equal(10950ul, (ulong)Save.EnemyBuildDay, "three hostile systems schedule exactly 950 centidays later");
+            core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            station = Save.BaseGameData.Planets[station.PlanetId];
+            Save.Clock.DateCentidays = 10948;
+            core._Process(315.6);
+            Equal(2, station.Station.Resources.Stores[ItemTypes.ios_drone], "saved deadline does not round down to nine days");
+            core._Process(315.6);
+            Equal(4, station.Station.Resources.Stores[ItemTypes.ios_drone], "batch fires at the exact saved half-day deadline");
+            Equal(11900ul, (ulong)Save.EnemyBuildDay, "next fractional deadline retains the full interval");
+        }
+
         private async Task FractionalNewsAndSlot()
         {
             var news = await OpenNews();
@@ -69,6 +123,7 @@ namespace Deuteros.Tests
         private void LegacyClockSave()
         {
             Save.CurrentDay = 100;
+            Save.EnemyBuildDay = 107;
             var ship = NavigationShip();
             ship.DestinationPlanetLocation = StellarBodies.mars;
             ship.ShipState = Ship_States.InTransit;
@@ -84,6 +139,7 @@ namespace Deuteros.Tests
             ((JObject)document["Game"]).Property("Clock").Remove();
             var loaded = SaveStorage.Deserialize(document.ToString());
             Equal(10000ul, loaded.Clock.DateCentidays, "missing legacy clock preserves old displayed date");
+            Equal(10700ul, (ulong)loaded.EnemyBuildDay, "legacy enemy deadline preserves its displayed date");
             Equal(0d, loaded.Clock.NormalElapsed, "legacy save starts a fresh natural interval");
             GameCore.SingletonInstance.GameData.ActiveSaveFile = loaded;
             Equal(remaining, Save.Ships.Single(s => s.ShipID == ship.ShipID).TravelTimeRemain(), "legacy flight keeps remaining updates");

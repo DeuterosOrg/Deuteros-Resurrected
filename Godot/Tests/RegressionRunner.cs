@@ -231,6 +231,8 @@ namespace Deuteros.Tests
             CheckUi("Malformed saved clocks cannot replace the active world", RejectMalformedClock);
             CheckUi("Paused and invalid frame intervals cannot advance or poison the clock", PausedClock);
             CheckUi("A queued natural increment cannot discard a later manual day request", ManualAfterPendingClock);
+            CheckUi("Staff age on displayed calendar crossings independently of simulation count", FractionalAttritionGate);
+            CheckUi("Enemy production preserves exact fractional deadlines across saving", FractionalEnemyDeadline);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

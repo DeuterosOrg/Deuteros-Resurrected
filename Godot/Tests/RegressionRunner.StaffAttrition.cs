@@ -172,6 +172,9 @@ namespace Deuteros.Tests
             var team = AttritionTeam(countdown: 1);
             GameCore.Earth.PlanetResources.AddStaff(team);
             Save.CurrentDay = 100;
+            Save.Clock.DateCentidays = 9900;
+            Save.Clock.QueueManual();
+            Save.Clock.Consume();
             var observed = -1;
             void Observe(uint previous, uint current) => observed = team.AttritionCountdown;
             var core = GameCore.SingletonInstance;

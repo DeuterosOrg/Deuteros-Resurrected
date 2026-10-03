@@ -14,18 +14,22 @@ namespace Deuteros.Tests
             Save.Ships.Clear();
             foreach (var planet in Save.BaseGameData.Planets.Values) planet.ActiveMethanoid = false;
             Save.EnemyBuildDay = 0;
+            Save.Clock.DateCentidays = 10000;
             EnemyDroneBuilder.BuildDrones(99, 100);
             var station = Save.BaseGameData.Planets.Values.First();
             station.ActiveMethanoid = true;
             station.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
+            Save.Clock.DateCentidays = 10100;
             EnemyDroneBuilder.BuildDrones(100, 101);
             Equal(2, station.Station.Resources.Stores[ItemTypes.ios_drone], "recapture resumes production after zero-system interval");
             Equal(1, Save.AlienTransmissions.EnemySystems, "recapture refreshes the hostile-system sample");
-            Save.EnemyBuildDay = 107;
+            Save.EnemyBuildDay = 10700;
+            Save.Clock.DateCentidays = 10900;
             EnemyDroneBuilder.BuildDrones(106, 109);
             Equal(4, station.Station.Resources.Stores[ItemTypes.ios_drone], "crossing a deadline performs one production batch");
-            Equal((uint)116, Save.EnemyBuildDay, "overdue batch schedules from the current day");
+            Equal(11600ul, Save.EnemyBuildDay, "overdue batch schedules from the current day");
             Save.AtWar = false;
+            Save.Clock.DateCentidays = 11600;
             EnemyDroneBuilder.BuildDrones(115, 116);
             Equal(4, station.Station.Resources.Stores[ItemTypes.ios_drone], "peace still prevents production");
         }
@@ -36,8 +40,8 @@ namespace Deuteros.Tests
             Save.AtWar = true;
             Save.Ships.Clear();
             var stars = Save.BaseGameData.Stars.Keys.ToArray();
-            // Original $38A42 intervals translated through the existing whole-day scheduler.
-            var nextDays = new uint[] { 100, 107, 110, 109, 109, 109, 108, 107, 107, 108 };
+            // Original $38A42 raw intervals retain the half-day value.
+            var nextDates = new ulong[] { 10000, 10700, 11000, 10950, 10900, 10900, 10800, 10700, 10700, 10800 };
             for (var count = 9; count >= 0; count--)
             {
                 foreach (var planet in Save.BaseGameData.Planets.Values) planet.ActiveMethanoid = false;
@@ -48,8 +52,9 @@ namespace Deuteros.Tests
                     planet.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
                 }
                 Save.EnemyBuildDay = 0;
+                Save.Clock.DateCentidays = 10000;
                 EnemyDroneBuilder.BuildDrones(99, 100);
-                Equal(nextDays[count], Save.EnemyBuildDay, "production interval follows remaining hostile systems " + count);
+                Equal(nextDates[count], Save.EnemyBuildDay, "production interval follows remaining hostile systems " + count);
                 Equal(count, Save.AlienTransmissions.EnemySystems, "production and story share the same sampled count");
             }
             var station = Save.BaseGameData.Planets.Values.First();
@@ -57,13 +62,16 @@ namespace Deuteros.Tests
             station.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
             Save.EnemyBuildDay = 0;
             Save.StarSystemsCaptured = int.MaxValue; // Historical unused field cannot index production.
+            Save.Clock.DateCentidays = 10000;
             EnemyDroneBuilder.BuildDrones(99, 100);
             Equal(2, station.Station.Resources.Stores[ItemTypes.ios_drone], "first production batch");
             GameCore.SingletonInstance.GameData.ActiveSaveFile = Deuteros.Code.Utility.SaveStorage.Deserialize(
                 Deuteros.Code.Utility.SaveStorage.Serialize(Save));
             station = Save.BaseGameData.Planets[station.PlanetId];
+            Save.Clock.DateCentidays = 10600;
             EnemyDroneBuilder.BuildDrones(105, 106);
             Equal(2, station.Station.Resources.Stores[ItemTypes.ios_drone], "saved deadline prevents early production");
+            Save.Clock.DateCentidays = 10700;
             EnemyDroneBuilder.BuildDrones(106, 107);
             Equal(4, station.Station.Resources.Stores[ItemTypes.ios_drone], "saved deadline produces the next batch");
         }
