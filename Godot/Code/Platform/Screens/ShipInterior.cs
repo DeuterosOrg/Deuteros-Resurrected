@@ -1079,6 +1079,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
             if (currentDay <= previousDay) return;
             InterStellarShip.EnsureAutomationSlots(GameCore.SingletonInstance.GameData.ActiveSaveFile);
+            var flightLosses = new HashSet<Guid>();
 
 			foreach (var ship in GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships)
 			{
@@ -1103,7 +1104,7 @@ namespace Deuteros.Code.Platform.Screens
 					}
 				}
 
-				if ((ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0)
+				if ((ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0 && ship is not SCG { Flight: not null })
 				{
 					ship.Fuel--;
 					ship.FallingCount = 0;
@@ -1145,7 +1146,16 @@ namespace Deuteros.Code.Platform.Screens
 					}
 					else if (ship.ShipState == Ship_States.InTransit)
 					{
-						if (ship.TravelTimeRemain() <= 0)
+						var arrived = false;
+                        if (ship is SCG { Flight: not null } scg)
+                        {
+                            var result = scg.Flight.Advance(scg, GameCore.SingletonInstance.GameData.ActiveSaveFile);
+                            if (result == InterstellarFlight.Outcome.Lost) { flightLosses.Add(ship.ShipID); continue; }
+                            arrived = result == InterstellarFlight.Outcome.Arrived;
+                            if (arrived) scg.Flight = null;
+                        }
+                        else arrived = ship.TravelTimeRemain() <= 0;
+                        if (arrived)
 						{
 							ship.ShipState = Ship_States.UnDocked;
 
@@ -1233,7 +1243,7 @@ namespace Deuteros.Code.Platform.Screens
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             save.Ships.RemoveAll(ship =>
             {
-                var lost = ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
+                var lost = flightLosses.Contains(ship.ShipID) || ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
                 if (lost) save.News.AddShipLoss(ship);
                 return lost;
             });

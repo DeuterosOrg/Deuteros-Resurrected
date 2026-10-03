@@ -240,6 +240,15 @@ namespace Deuteros.Tests
             CheckUi("Ship automation slots migrate legacy saves and reject malformed allocation", AutomationSlotSaveValidation);
             CheckUi("Asteroid approach and departure each consume two saved updates", AsteroidApproachCountdown);
             await CheckAsync("Arrival date follows time controls and external stops without waiting for a tick", ArrivalModeControls);
+            CheckUi("SCG cross-star travel cannot arrive from matching local orbit indices", InterstellarNotInstant);
+            CheckUi("SCG acceleration charges original phase fuel without generic double burn", InterstellarPhaseFuel);
+            CheckUi("SCG uses original star distances clocks and local entry mapping", InterstellarTables);
+            CheckUi("SCG reload preserves every flight phase and mixed-mode clock", InterstellarSaveJourney);
+            CheckUi("Ordinary SCG arrival checks exact star clock and reports loss once", InterstellarOrdinaryClocks);
+            CheckUi("SCG exact phase fuel and final ordinary unit follow original boundaries", InterstellarFuelBoundaries);
+            CheckUi("Malformed SCG flight saves cannot replace the active world", InterstellarMalformedSave);
+            CheckUi("Empty-fuel SCG star arrival strands before body approach", InterstellarEmptyStarArrival);
+            CheckUi("SCG disengagement respects accelerated and local flight boundaries", InterstellarDisengagement);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -87,6 +87,8 @@ namespace Deuteros.Code.Utility
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.Clock))
                         property.Required = Required.DisallowNull;
+                    else if (type == typeof(SCG) && property.PropertyName == nameof(SCG.Flight))
+                        property.Required = Required.Default;
                     else if (property.Required == Required.Default) property.Required = Required.AllowNull;
                 }
                 return properties;
@@ -322,6 +324,7 @@ namespace Deuteros.Code.Utility
                 Require(ship is not InterStellarShip vessel || vessel.AutomationSlot >= -1, "ship automation slot");
                 Require(ship is not InterStellarShip || ship.ShipState != Ship_States.InTransit
                     || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "in-flight destination");
+                Require(ship is not SCG { Flight: not null } scg || scg.Flight.IsValid(scg, save), "interstellar flight");
                 Require(ship.Modules != null && ship.Modules.All(m => m != null && m.ItemCount >= 0), "ship modules");
                 Require(ship.ACC == null || (ReferenceEquals(ship, ship.ACC.Ship) && ship.ACC.SourceItems != null && ship.ACC.DestinationItems != null), "ACC owner");
                 if (ship.ACC != null)

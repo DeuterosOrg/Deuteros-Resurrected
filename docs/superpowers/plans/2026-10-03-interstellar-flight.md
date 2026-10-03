@@ -31,11 +31,11 @@
 
 **Interfaces:** `SCG.Flight` is nullable saved `InterstellarFlight`; null with existing transit denotes the legacy journey. The flight owns leg, remaining distance, phase, fraction and signed private-clock offset. `SCG.TravelTimeRemain()` supplies the remaining projected consumed updates; new-departure initialization and shared update paths own mutations, never display getters.
 
-- [ ] Add case494 to the real updater: ready SCG at Mercury, destination Atlantic, completed Hyperlight, fuel250. Engage, advance one update, assert it remains in transit at its origin. Run before production edits; expected failure is immediate arrival.
-- [ ] Add source-table/phase/fuel/clock regressions, each failing against the current path. Pin Mercury→Atlantic interstellar distance4300, phase1 first step2, next phase2 cost2, and no generic extra fuel charge.
-- [ ] Implement the saved flight and route table using the source formulas in the spec. Add strict save validation and legacy-null fallback together with the model. Test a save/reload after each phase change and malformed values before activation.
-- [ ] Integrate new departure/update handling once in the shared ship path. Preserve ordinary local/legacy transit, handle underflow and mismatched arrival as committed loss, and defer ACC arrival until the final body leg.
-- [ ] Run targeted494+ and existing236–247/277–304/314–329/475–493 checks. Expected: all pass with no engine errors; commit the working model/integration together.
+- [x] Add case494 to the real updater: ready SCG at Mercury, destination Atlantic, completed Hyperlight, fuel250. Engage, advance one update, assert it remains in transit at its origin. Run before production edits; expected failure is immediate arrival.
+- [x] Add source-table/phase/fuel/clock regressions, each failing against the current path. Pin Mercury→Atlantic interstellar distance4300, phase1 first step2, next phase2 cost2, and no generic extra fuel charge.
+- [x] Implement the saved flight and route table using the source formulas in the spec. Add strict save validation and legacy-null fallback together with the model. Test a save/reload after each phase change and malformed values before activation.
+- [x] Integrate new departure/update handling once in the shared ship path. Preserve ordinary local/legacy transit, handle underflow and mismatched arrival as committed loss, and defer ACC arrival until the final body leg.
+- [x] Run targeted494+ and existing236–247/277–304/314–329/475–493 checks. Expected: all pass with no engine errors; commit the working model/integration together.
 
 ## Task 2: Hyperlight arrival, rank and UI integration
 

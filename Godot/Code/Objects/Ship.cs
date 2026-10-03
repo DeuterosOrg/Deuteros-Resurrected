@@ -96,6 +96,13 @@ namespace Deuteros.Code.Objects
 
         internal bool EngageEngine(Func<bool> engineDamageRoll)
         {
+            if (this is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Local } drifting
+                && ShipState == Ship_States.InTransit && !EngineEngaged && Engine && Fuel > 0)
+            {
+                drifting.Flight.Remaining = InterstellarFlight.LocalDistance(DestinationPlanetLocation) * (EngineDamaged ? 2 : 1);
+                EngineEngaged = true;
+                return true;
+            }
             if (ShipState == Ship_States.UnDocked && Engine && Fuel > 0 && DestinationPlanetLocation != PlanetLocation
                 && CanTravelTo(DestinationPlanetLocation))
             {
@@ -113,6 +120,8 @@ namespace Deuteros.Code.Objects
                     && (planets[PlanetLocation].ActiveMethanoid || data.PlanetUnderAttack(PlanetLocation)))
                     EngineDamaged = engineDamageRoll();
 
+                if (this is SCG scg) scg.Flight = InterstellarFlight.Start(scg);
+
                 EngineEngaged = true;
                 ShipState = Ship_States.InTransit;
                 StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
@@ -127,6 +136,8 @@ namespace Deuteros.Code.Objects
 
         public void DisengageEngine()
         {
+            // Original $30FE0 accepts local state9, but rejects accelerated and Hyperlight states.
+            if (this is SCG { Flight: not null } scg && scg.Flight.Leg != InterstellarFlight.FlightLeg.Local) return;
             EngineEngaged = false;
         }
 

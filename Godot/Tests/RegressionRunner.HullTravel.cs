@@ -27,7 +27,7 @@ namespace Deuteros.Tests
             CheckUi("Previously active invalid IOS ACC stops before resupply", HullAccResume);
             await CheckAsync("ACC Cycle control cannot reactivate an invalid IOS route", HullAccCycle);
             CheckUi("SCG completes outbound and return travel with consistent star metadata", HullRoundTrip);
-            CheckUi("SCG arrival resolves when equal orbital indexes produce an elapsed deadline", HullElapsedArrival);
+            CheckUi("Legacy SCG arrival retains its elapsed deadline without invented flight history", HullElapsedArrival);
         }
 
         private Ship HullShip(bool scg)
@@ -182,9 +182,11 @@ namespace Deuteros.Tests
 
         private void HullRoundTrip()
         {
-            var ship = HullShip(true);
+            var ship = NewInterstellarRoute();
+            ship.PlanetLocation = StellarBodies.earth;
             foreach (var destination in new[] { StellarBodies.atlantic, StellarBodies.earth })
             {
+                ship.Fuel = 250; // Refuel between star journeys, as a real station/ACC would.
                 Equal(destination, ship.DestinationPlanetLocation, "return leg retained");
                 Equal(true, ship.EngageEngine(), "SCG departs");
                 for (var day = 0; day < 100 && ship.ShipState == Ship_States.InTransit; day++)
@@ -205,7 +207,13 @@ namespace Deuteros.Tests
             ship.DestinationStarLocation = StellarBodies.centauri;
             Equal(Save.BaseGameData.Planets[StellarBodies.earth].Order,
                 Save.BaseGameData.Planets[StellarBodies.cerberus].Order, "different stars have matching local orbital indexes");
-            Equal(true, ship.EngageEngine(), "SCG starts valid route");
+            // A legacy save already in transit has no phase/private-clock history to reconstruct.
+            ship.ShipState = Ship_States.InTransit;
+            ship.StartTravelDay = Save.CurrentDay;
+            var document = Newtonsoft.Json.Linq.JObject.Parse(Deuteros.Code.Utility.SaveStorage.Serialize(Save));
+            ((Newtonsoft.Json.Linq.JObject)document["Game"]["Ships"][0]).Remove("Flight");
+            GameCore.SingletonInstance.GameData.ActiveSaveFile = Deuteros.Code.Utility.SaveStorage.Deserialize(document.ToString());
+            ship = (Ship)Save.Ships.Single(s => s.ShipID == ship.ShipID);
             var before = Save.CurrentDay++;
             ShipInterior.UpdateShips(before, Save.CurrentDay);
             Equal(Ship_States.UnDocked, ship.ShipState, "elapsed deadline cannot strand SCG in transit");
