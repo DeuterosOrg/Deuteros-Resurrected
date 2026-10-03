@@ -110,6 +110,12 @@ namespace Deuteros.Code.Objects
             }
             if (ship.ACC != null) ship.ACC.Active = ship.ACC.CycleMode = ship.ACC.Refuelling = false;
             var planet = save.BaseGameData.Planets[ship.PlanetLocation];
+            if (Stage is 17 or 18 && !planet.Station.Built)
+            {
+                RestoreCrewCount();
+                Stage = 1;
+                return;
+            }
             switch (Stage)
             {
                 case 1:
@@ -178,13 +184,13 @@ namespace Deuteros.Code.Objects
                     if (ship.ShipState == Ship_States.UnDocked && ship.EngageEngine()) Stage++;
                     break;
                 case 17:
-                    if (ship.ShipState != Ship_States.UnDocked || !planet.Station.Built) break;
+                    if (ship.ShipState != Ship_States.UnDocked) break;
                     OriginalCrewCount = Crew.Count;
                     Crew.Count >>= 3;
                     Stage++;
                     break;
                 case 18:
-                    if (ship.ShipState != Ship_States.UnDocked || !planet.Station.Built) break;
+                    if (ship.ShipState != Ship_States.UnDocked) break;
                     Stage++;
                     if ((random() & 7) != 4) break;
                     planet.Station.SdmCountdown = 150;
@@ -263,7 +269,8 @@ namespace Deuteros.Code.Objects
 
         private void RestoreCrewCount()
         {
-            if (Crew != null && OriginalCrewCount.HasValue) Crew.Count = OriginalCrewCount.Value;
+            if (Crew != null && OriginalCrewCount.HasValue)
+                Crew.Count += OriginalCrewCount.Value - (OriginalCrewCount.Value >> 3);
             OriginalCrewCount = null;
         }
 

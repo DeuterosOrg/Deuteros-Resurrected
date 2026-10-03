@@ -1054,6 +1054,59 @@ namespace Deuteros.Tests
             Equal(true,restored.RogueCrew.Contained(restored),"paid prison containment survives save");
         }
 
+        private void RogueSabotageAttrition()
+        {
+            foreach (var recovery in new[] { false, true })
+            {
+                var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save); ship.Pilot.Count = 81;
+                Save.RogueCrew.Stage = 17; AdvanceRogue();
+                ship.Pilot.AttritionCountdown = 0;
+                StaffAttrition.Advance(Save, 99, 100, () => 1);
+                Equal(9, ship.Pilot.Count, "active sabotage team suffers one real attrition casualty");
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                ship = Save.Ships.OfType<SCG>().Single();
+                var crew = ship.Pilot;
+                if (recovery)
+                {
+                    ship.ShipState = Ship_States.Docked;
+                    var resource = Save.BaseGameData.Planets[ship.PlanetLocation].Station.Resources;
+                    Equal(true, Save.RogueCrew.TryTransferPilot(Save, ship, resource, null), "recovery interrupts sabotage");
+                }
+                else { AdvanceRogue(0); AdvanceRogue(); }
+                Equal(80, crew.Count, "rejoined crew does not resurrect the casualty");
+                Equal<int?>(null, Save.RogueCrew.OriginalCrewCount, "withheld strength restored once");
+                AdvanceRogue();
+                Equal(80, crew.Count, "later routing cannot restore casualty again");
+                SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            }
+        }
+
+        private void RogueSabotageDestroyedTarget()
+        {
+            foreach (var split in new[] { false, true })
+            {
+                var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save); ship.Pilot.Count = 81;
+                Save.RogueCrew.Stage = 17;
+                if (split) AdvanceRogue();
+                var planet = Save.BaseGameData.Planets[ship.PlanetLocation];
+                planet.Station.SdmCountdown = 1;
+                SdmSystem.AdvanceTime(1);
+                Equal(false, planet.Station.Built, "actual SDM destroys sabotage target");
+                Equal(true, Save.Ships.Contains(ship), "rogue survives in orbit");
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                ship = Save.Ships.OfType<SCG>().Single();
+                var rolls = 0;
+                Save.RogueCrew.Advance(Save, () => { rolls++; return 4; });
+                Equal(1, Save.RogueCrew.Stage, "missing sabotage target resets routing");
+                Equal(81, ship.Pilot.Count, "surviving crew rejoins ship");
+                Equal<int?>(null, Save.RogueCrew.OriginalCrewCount, "temporary strength cleared");
+                Equal(0, rolls, "destroyed target cannot consume another sabotage roll");
+                AdvanceRogue();
+                Equal(2, Save.RogueCrew.Stage, "next update selects a surviving enemy station");
+                SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            }
+        }
+
         private async Task RoguePrisonHelpBounds()
         {
             var bay=await OpenRoguePrison();

@@ -316,6 +316,8 @@ namespace Deuteros.Tests
             await CheckAsync("Normal simulation and story phases preserve mutiny and prison bulletin priority", RogueStoryIntegration);
             await CheckAsync("Prison research paid manufacture fitting and capture use normal controls", RoguePrisonPaidProgression);
             await CheckAsync("Prison capture instructions fit the native panel width", RoguePrisonHelpBounds);
+            CheckUi("Sabotage crew restoration preserves attrition across reload and recovery", RogueSabotageAttrition);
+            CheckUi("Destroyed sabotage targets release surviving rogue crews and resume routing", RogueSabotageDestroyedTarget);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
