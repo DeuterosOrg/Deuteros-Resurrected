@@ -115,3 +115,11 @@ Cockpit transfer `$326C8–$327F2` provides a distinct recovery path. Choosing a
 Dismantling has an additional fidelity trap: the Prison branch at `$3352E–$3353C` tests register `d0`, which still contains tool-kind 2, rather than the packed prisoner byte in `d2`. These instructions reject even an empty prison; they must not be documented as an occupancy check. Preserving modern empty-prison returns while rejecting occupied-prison removal is a possible adaptation, not implemented or original-verified behavior. The neighboring DFCC dismantle path clears flags and returns drones; it does not establish equivalence with the remake's standalone equipment selector.
 
 Aligned traces: `artifacts/research/news/pirate-control-and-dismantle.txt`, SHA-256 `6806a2e45817f85246628027ba184c7c7e3551d34daaf930978dc4233e15218e`; `pirate-cockpit-transfer.txt`, SHA-256 `f41a57e959fb4390db8de78fd2fa996c9cff38220f53a0ea5f908be5b381cc95`. Decoded facts are alongside them. These are static source findings, not implemented rogue gameplay or a newly resolved Asana task.
+
+## Occupied docking triggers sabotage
+
+Resolver `$310EC–$31164` resolves the current body's station and its cached bay. It rejects an absent/unfinished station; the rogue bit bypasses the wartime restriction on unconverted ships at an enemy station. Dock completion `$3138C` tests the cached bay flag. When occupied, a rogue dispatches `$39F64`: return to undocked state through `$311EE`, clear the countdown and select controller stage 16. Stages 16–19 then wait for that state, temporarily divide crew count by eight, roll for SDM arming, and restore crew count before loading one supply mount. Thus occupied docking is a concrete trigger for sabotage, not evidence that every station visit arms an SDM.
+
+Successful docking commits state 5. At an enemy station, `$3140E` returns for the rogue flag before the ordinary wartime SDM countdown of 16 is written. Hostile-orbit danger likewise branches around its attack path at `$3120C`. The remake currently waits indefinitely for occupied docking and has no rogue exemption; integration must cover these shared boundaries together.
+
+Aligned ranges and facts: `artifacts/research/news/pirate-occupied-docking.txt`, SHA-256 `d1b728cbb34d787a0273bea583872e9a138435dc18a2ca058a74647ebb4dd424`. This is instruction evidence, not an observed original playthrough.
