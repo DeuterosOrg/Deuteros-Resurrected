@@ -261,6 +261,10 @@ namespace Deuteros.Tests
             CheckUi("SCG ACC roundtrip saves correct legs cargo and finishing mode", InterstellarAccRoundTrip);
             CheckUi("Fuelled SCG flight clears old fall debt before later exhaustion", InterstellarRescuedFallCounter);
             await CheckAsync("Legacy SCG saves preserve cargo and gain a functional sixth mount", ScgLegacySixthMount);
+            foreach (var hull in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+                await CheckAsync($"{hull} manual cargo service preserves capacity and blocked transfers", () => BayCargoCapacity(hull));
+            await CheckAsync("Equipment replacement checks all returns before changing fuel or fittings", BayEquipmentCapacity);
+            await CheckAsync("Empty pod removal and replacement respect spare stock capacity", BayPodCapacity);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -959,6 +959,13 @@ namespace Deuteros.Code.Platform.Screens
 			return ResourceList.Staff;
 		}
 
+        private bool CanReturnToStores(ItemTypes item, int count)
+        {
+            if (count <= 0 || item == ItemTypes.none || count <= 50000 - ResourceList.Stores[item]) return true;
+            GameCore.ShowError(this, "Not Enough Space\nIn Stores");
+            return false;
+        }
+
 		private bool ShipBay_ModuleChanged(Enums.Module_Types moduleType, int torsoSection)
 		{
 			var currentModule = Ship.Modules[torsoSection];
@@ -978,8 +985,16 @@ namespace Deuteros.Code.Platform.Screens
 				return false;
 			else if (moduleType == Module_Types.Cryo && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.cryo_pod).Locked || currentStore[Enums.ItemTypes.cryo_pod] == 0))
 				return false;
-			else
-				Ship.Modules[torsoSection].ModuleType = moduleType;
+
+            var returnedPod = oldType switch
+            {
+                Module_Types.Supply => ItemTypes.supply_pod,
+                Module_Types.Tool => ItemTypes.tool_pod,
+                Module_Types.Cryo => ItemTypes.cryo_pod,
+                _ => ItemTypes.none
+            };
+            if (!CanReturnToStores(returnedPod, 1)) return false;
+            currentModule.ModuleType = moduleType;
 
 
 			switch (moduleType)
@@ -1148,6 +1163,9 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.Modules[ScreenState - 1].ItemStored != itemType && ResourceList.Stores[itemType] <= 0)
 				return;
 
+            var currentModule = Ship.Modules[ScreenState - 1];
+            if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount)) return;
+
 			// Empty the old tank before DFCC changes its stock value. Reject the
             // entire fitting if its fuel cannot be returned without loss.
             if (itemType == ItemTypes.d__f__c__c && Ship is InterStellarShip { DFCC: false }
@@ -1224,6 +1242,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void SelectMineral(ItemTypes itemType)
 		{
+            var currentModule = Ship.Modules[ScreenState - 1];
+            if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount)) return;
+
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
 			{
 				ResourceList.Stores[Ship.Modules[ScreenState - 1].ItemStored] += Ship.Modules[ScreenState - 1].ItemCount;
