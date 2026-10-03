@@ -73,14 +73,14 @@ var frame = (int)(seconds * sequence.Rate);
 
 **Interfaces:** Consumes Task2 scene via existing OverlayManager. Produces normal mounted-item activation while preserving ItemTypes.alien_artifact and existing manufacture/fitting/save contracts.
 
-- [ ] Add failing real-interior cases for rank3 rejection/rank4 activation, docked/travelling/rogue rejection, fitted sixth mount, DFCC precedence, repeated/retained callback and full eight-recovery-to-manufacture-to-fit activation. Assert campaign date/fuel/module counts stay unchanged during ending; save/load preserves replay eligibility.
+- [x] Add failing real-interior cases for rank3 rejection/rank4 activation, docked/travelling/rogue rejection, fitted sixth mount, DFCC precedence, repeated/retained callback and full eight-recovery-to-manufacture-to-fit activation. Assert campaign date/fuel/module counts stay unchanged during ending; save/load preserves replay eligibility.
 ```csharp
 Equal(Ship_States.UnDocked, ship.ShipState, "normal activation state");
 Equal(ItemTypes.alien_artifact, ship.Modules[5].ItemStored, "normal fitted transmitter");
 // Emit the real sixth module Pressed signal, then assert the ending overlay.
 ```
-- [ ] Run focused cases. Expected: eligible transmitter currently does not open the ending.
-- [ ] Route the fitted tool before generic DFCC interception; check UnDocked and Pilot.GetLevel()>=4 plus existing shared rogue/lifecycle guard, then ShowOverlay once. Use existing warning panel for low rank; preserve docked bay navigation and do not consume fuel/item or create saved flags.
-- [ ] Run focused/native compatibility and a desktop staged normal-path activation through complete playback/replay/window close. Expected: intended labels/artwork/music/input/fade and frozen campaign; original saves restored. Record evidence before claiming it.
-- [ ] Run `python3 scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` and `python3 -m unittest discover -s scripts -p 'test_*.py'`. Expected: all cases/import/build/startup/export pass; package contains timeline/music and excludes tests. Review each log and manifest.
-- [ ] Update docs/counts only from demonstrated evidence; commit with `git commit -m "Activate the recovered transmitter from the normal ship controls"`. Obtain the required fresh whole-branch review, reproduce/fix Important findings, rerun affected/full checks, then locally integrate under the merge lock.
+- [x] Run focused cases. Expected: eligible transmitter currently does not open the ending.
+- [x] Route the fitted tool before generic DFCC interception; check UnDocked and Pilot.GetLevel()>=4 plus existing shared rogue/lifecycle guard, then ShowOverlay once. Use existing warning panel for low rank; preserve docked bay navigation and do not consume fuel/item or create saved flags.
+- [x] Run focused/native compatibility and a desktop staged normal-path activation through complete playback/replay/window close. Expected: intended labels/artwork/music/input/fade and frozen campaign; original saves restored. Record evidence before claiming it.
+- [x] Run `python3 scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` and `python3 -m unittest discover -s scripts -p 'test_*.py'`. Expected: all cases/import/build/startup/export pass; package contains timeline/music and excludes tests. Review each log and manifest.
+- [x] Update docs/counts only from demonstrated evidence; commit with `git commit -m "Activate the recovered transmitter from the normal ship controls"`. Obtain the required fresh whole-branch review, reproduce/fix Important findings, rerun affected/full checks, then locally integrate under the merge lock.
