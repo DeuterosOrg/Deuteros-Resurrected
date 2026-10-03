@@ -149,3 +149,8 @@ The sound/animation inventory now includes the Windows listening reports and mis
 ### Normal salvage and quantity readout — 2026-10-03
 
 Normal Mac play now covers a naturally generated 250T palladium capture, held-object reload, return/docking, unload and delivered-stock reload. The route exposed a false breakup readout; `0a2f417` fixes it through the shared display and extends existing case 26. Full 595-case validation, 19 Python checks and audited cross-export pass. Original animated counters and current Windows acceptance remain open. This strengthens existing grapple/supply-pod evidence; totals stay **35/48 implementation evidence, 0/48 accepted**.
+
+
+### Concurrent mining approaches — 2026-10-03
+
+`bcaeb1c` fixes the station occupancy rule preventing a second IOS from finishing its asteroid approach. Extended case 492 reproduces it and verifies both approaches across reload, independent mining/departure and retained ordinary-station limits. Focused headless/native checks and the full **595/595**, **19 Python checks**, startup and audited cross-export pass. Current Windows and a normal two-hull expedition remain pending. Totals remain **35/48 implementation evidence, 0/48 fully accepted**.

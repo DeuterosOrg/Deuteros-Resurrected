@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest completed Mac-audited runtime checkpoint is **`0a2f417eb8821d704d71a8b7ec85aae1d6cf0ff0`**, with **595/595 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh, docked-only TakeOff and empty-tank asteroid-departure corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest completed Mac-audited runtime checkpoint is **`bcaeb1cc9da5ae956059857f822296a1d86988d8`**, with **595/595 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh, docked-only TakeOff, empty-tank asteroid departure, grapple readout and concurrent asteroid-mining corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Rogue crew and prison acceptance
@@ -478,3 +478,8 @@ Candidate `b2c435c7c38923297af432db8dab94d7f6d93126` adds case 595. In a separat
 ## Grapple breakup readout follow-up
 
 Candidate `0a2f417` retains 595 cases and extends existing case 26. Verify both grapple pods unload consecutively without reopening the bay; the panel must show actual mass and projected capped stock, rather than `100 … 50000`. Staged examples are 250T iron with 12 already stored (262 result), then 150T carbon with 49,900 stored (50,000 cap). Confirm timed input release, empty grapple and saved final stocks in source and matching export. This is a static readout correction; original animated decrement/increment remains tracked as A5 in the media inventory. The Mac full aggregate and normal palladium recovery/reload pass. Windows execution is pending; preserve the other agent's running game and collect its existing patches first.
+
+
+## Concurrent asteroid mining follow-up
+
+At `bcaeb1c`, stage two separately equipped IOS hulls approaching large asteroids together. Save after their first update, reload, and verify both enter mining on their second update. Each should collect its own scanned mineral; neither should continue burning approach fuel while the other mines. Depart with one and leave the other mining. Also repeat docking at an occupied ordinary station: the second IOS must still wait. Existing case 492 now covers these boundaries, with focused headless/native Mac passes; aggregate status is in validation results. Current Windows and normal two-hull campaign acceptance remain pending.

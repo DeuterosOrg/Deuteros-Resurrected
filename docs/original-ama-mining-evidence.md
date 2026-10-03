@@ -88,3 +88,18 @@ This is a manual-window finding, not proof that the original background scanner 
 Exhaustion has another boundary: mining-entry completion `$31608` returns without selecting mining state when fuel is zero. This differs from the remake's current approach completion, which can finish with an empty tank; case 595 exercises that reachable remake state, not an assertion that the whole original approach behaves identically. A fuel-cadence port must resolve this transition and stranded-state behavior together. No further simulation change is claimed here.
 
 Aligned trace: `artifacts/research/ama-generation/module-rank-and-zero-fuel.txt`, SHA-256 `ef5d8407c122ea0d79a620f635445ae42844e54adf1b10bf1b83ac5a5c25e8da`. Rank text was decoded from the initialized original table in `artifacts/research/news/crew-rank-texts.json`. These findings reduce the open eligibility questions; original-runtime and complete expedition checks remain outstanding.
+
+
+## Independent mining approaches
+
+Original `$31834–$3186A` validates the current hull's scan/class and writes its own approach state/action/countdown. Completion `$31608–$3161A` checks that hull's fuel and sets its mining state; `$30E32` only updates its engine flag. None of these operations reserves a station bay or checks another mining hull. The IOS scheduler walks individual records and dispatches mining for each eligible slot.
+
+The remake reused the ordinary station occupancy guard for the asteroid field. Existing case 492, extended to two independently equipped IOS hulls and a mid-approach reload, reproduced the second hull remaining `Docking` after two updates. Runtime `bcaeb1c` exempts asteroid approaches from that station guard. Both hulls now mine in their own saved phases; one departure leaves the other mining. The same regression keeps ordinary station occupancy blocked. Focused headless/native checks pass; aggregate and Windows results are recorded separately. This is staged fleet evidence, not a normal two-IOS expedition.
+
+## Fuel exhaustion dispatch follow-up
+
+The aligned helper trace resolves previously open effects without changing fuel behavior. The initialized global counter byte is zero; the five absolute references found in this disk image all belong to `$2384E` and its three hull loops. Original action table `$237D8` maps actions `$0C/$0D/$11` to `$31590/$31608/$3145A`.
+
+`$30E2C` sets engine bit 6 and `$30E32` clears it; neither helper checks or reserves a bay. `$3143A` stops active ACC through `$33CAE`, clears the engine bit, then selects stranded state `$10`, destruction action `$11` and a six-update countdown. Its caller `$31590` takes that path when asteroid arrival has zero fuel. By contrast, an already scanning/mining IOS reaches `$23AF8/$23C14` immediately after the shared fuel deduction even when the last unit was consumed; the inspected dispatch does not call the stranded helper there. Mining completion `$31608` simply returns if fuel is zero. Therefore adding a periodic fuel decrement alone would interact incorrectly with the remake's generic five-update undocked loss rule and reachable empty-tank approach.
+
+Raw aligned instructions and action-table targets: `artifacts/research/ama-generation/fuel-exhaustion-helpers.txt` (SHA-256 `110f540606e474ad8752de1b6135bcb446dfa2c17abcc63642065582149fc49f`) and `fuel-exhaustion-manifest.json`. Full original runtime behavior, save/reset ownership of the counter, and a coherent port of exhaustion remain open; no emulator observation is claimed.
