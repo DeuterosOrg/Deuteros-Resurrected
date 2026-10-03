@@ -259,6 +259,7 @@ namespace Deuteros.Tests
             CheckUi("SCG private clock preserves pending blocked updates across reload", InterstellarPendingClock);
             CheckUi("SCG ACC completes only at final body arrival without duplicate delivery", InterstellarAccFinish);
             CheckUi("SCG ACC roundtrip saves correct legs cargo and finishing mode", InterstellarAccRoundTrip);
+            CheckUi("Fuelled SCG flight clears old fall debt before later exhaustion", InterstellarRescuedFallCounter);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

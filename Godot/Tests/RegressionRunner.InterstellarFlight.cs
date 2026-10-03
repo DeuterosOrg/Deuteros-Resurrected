@@ -463,5 +463,24 @@ namespace Deuteros.Tests
             Equal(20, Save.BaseGameData.Planets[StellarBodies.mercury].Station.Resources.Stores[ItemTypes.copper], "return cargo conserved");
             Equal(12, Save.BaseGameData.Planets[StellarBodies.atlantic].Station.Resources.Stores[ItemTypes.iron], "return never repeats outbound delivery");
         }
+
+        private void InterstellarRescuedFallCounter()
+        {
+            var ship = NewInterstellarRoute();
+            ship.PlanetLocation = StellarBodies.atlantic;
+            ship.DestinationPlanetLocation = StellarBodies.neptune;
+            ship.Fuel = 137;
+            ship.FallingCount = 4;
+            ship.EngageEngine();
+            for (var update = 0; update < 100 && ship.ShipState == Ship_States.InTransit; update++) AdvanceInterstellar();
+            Equal(StellarBodies.neptune, ship.PlanetLocation, "resupplied SCG completes Hyperlight and long coasting approach");
+            Equal(0, ship.Fuel, "long destination approach exhausts remaining fuel");
+            for (var update = 1; update <= 5; update++)
+            {
+                AdvanceInterstellar();
+                Equal(update < 5, Save.Ships.Contains(ship), "fuelled flight clears previous fall debt before a new empty-fuel arrival");
+            }
+            Equal(1, Save.News.GetNews(100).Count(n => n.Contains(ship.Name + " Destroyed.")), "new fall countdown reports one loss");
+        }
     }
 }

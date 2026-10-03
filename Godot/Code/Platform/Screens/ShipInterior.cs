@@ -1117,9 +1117,9 @@ namespace Deuteros.Code.Platform.Screens
 					}
 				}
 
-				if ((ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0 && ship is not SCG { Flight: not null })
+				if ((ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0)
 				{
-					ship.Fuel--;
+					if (ship is not SCG { Flight: not null }) ship.Fuel--;
 					ship.FallingCount = 0;
 				}
 				else if (ship.Fuel == 0 && ship.ShipState == Ship_States.UnDocked)
