@@ -1064,6 +1064,8 @@ namespace Deuteros.Code.Platform.Screens
 
 		public static void UpdateShips(uint previousDay, uint currentDay)
 		{
+            if (currentDay <= previousDay) return;
+            InterStellarShip.EnsureAutomationSlots(GameCore.SingletonInstance.GameData.ActiveSaveFile);
 
 			foreach (var ship in GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships)
 			{
@@ -1106,6 +1108,8 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (ship.ShipState == Ship_States.Launching)
 					{
+                        if (ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
+                            && currentDay - ship.StartTravelDay < 2) continue;
 						ship.ShipState = Ship_States.UnDocked;
 						ship.ACC?.Update(Ship_States.Launching);
 					}
@@ -1146,6 +1150,8 @@ namespace Deuteros.Code.Platform.Screens
 					}
 					else if (ship.ShipState == Ship_States.Docking)
 					{
+                        if (ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
+                            && currentDay - ship.StartTravelDay < 2) continue;
 						if (ship.ShipType == Ship_Types.Shuttle || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
 						{
 							ship.ShipState = Ship_States.Docked;
@@ -1161,7 +1167,7 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						var asteroid = ((InterStellarShip)ship).AsteroidScanResults;
 						var ama = ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
-						var minedAmount = AMA.Mine(asteroid, ama);
+						var minedAmount = AMA.Mine((InterStellarShip)ship);
 						if (minedAmount > 0)
 						{
 							// A partial pod of another mineral cannot accept this ore.
@@ -1194,11 +1200,11 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						//Check grapple first
 						if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.grapple && ship.Pilot != null && ship.Pilot.GetLevel() > 1))
-							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids((InterStellarShip)ship);
 
 						//The grapple check failed, check the AMA
 						else if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a && ship.Pilot != null && ship.Pilot.GetLevel() > 0))
-							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids((InterStellarShip)ship);
 					}
 					else
 					{

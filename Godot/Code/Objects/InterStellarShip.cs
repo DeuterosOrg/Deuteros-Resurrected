@@ -21,6 +21,28 @@ namespace Deuteros.Code.Objects
         public bool PTL { get; set; }
         public int DroneCount { get; set; }
         public int AttackedCount { get; set; }
+        // Zero-based local IOS allocation, or global SCG allocation; -1 is not allocated yet.
+        public int AutomationSlot { get; set; } = -1;
+
+        public static void EnsureAutomationSlots(GameData.SaveFile save)
+        {
+            foreach (var pool in save.Ships.OfType<InterStellarShip>().Where(s => s is not EnemyFleet)
+                .GroupBy(s => (s.ShipType, s is SCG ? Enums.StellarBodies.none : s.StarLocation)))
+            {
+                var used = pool.Where(s => s.AutomationSlot >= 0).Select(s => s.AutomationSlot).ToHashSet();
+                foreach (var ship in pool.Where(s => s.AutomationSlot < 0))
+                {
+                    // ponytail: preserve remake fleets above 16 slots; enforce original capacity at construction if required.
+                    ship.AutomationSlot = Enumerable.Range(0, pool.Count()).First(slot => !used.Contains(slot));
+                    used.Add(ship.AutomationSlot);
+                }
+            }
+        }
+
+        internal bool AsteroidClockPhase(int mask) => AutomationSlot >= 0
+            && (AutomationSlot & mask) == (int)(((310000000ul
+                + GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.DateCentidays) >> 7) & (ulong)mask);
+
 
         public override int TravelTimeRemain()
         {

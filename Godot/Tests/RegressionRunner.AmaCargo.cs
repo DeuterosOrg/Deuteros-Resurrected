@@ -40,11 +40,12 @@ namespace Deuteros.Tests
             }
             Equal(64, combinations.Count, "all eight minerals and eight classes are reachable");
             var amounts = new HashSet<int>();
-            var module = new ShipModule();
+            var miningShip = new IOS { AutomationSlot = 0 };
+            Save.Clock.DateCentidays = 200;
             for (var i = 0; i < 4096; i++)
             {
                 Save.CurrentDay = (uint)(i * 5 + 5);
-                var amount = AMA.Mine(null, module, random);
+                var amount = AMA.Mine(miningShip, random);
                 Equal(true, amount >= 12 && amount <= 43, "original masked random amount plus twelve");
                 amounts.Add(amount);
             }
@@ -109,6 +110,7 @@ namespace Deuteros.Tests
             ship.ACC.Active = false;
             ship.ShipState = Ship_States.Docked;
             Save.CurrentDay = 100;
+            Save.Clock.DateCentidays = 200;
             ship.Modules[0].ItemStored = ItemTypes.a__m__a;
             ship.Modules[0].LastMinedDay = 95;
             ship.Modules[1].ItemStored = ItemTypes.iron;

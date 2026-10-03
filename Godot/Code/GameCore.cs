@@ -393,6 +393,7 @@ namespace Deuteros.Code
 
 		public void TriggerShipCreated(IShip ship)
 		{
+            InterStellarShip.EnsureAutomationSlots(GameData.ActiveSaveFile);
 			ShipCreated?.Invoke(ship);
 		}
 

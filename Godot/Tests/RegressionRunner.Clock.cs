@@ -155,6 +155,12 @@ namespace Deuteros.Tests
             var corruptions = new Action<JObject>[]
             {
                 doc => doc["Game"]["Clock"]["DateCentidays"] = ulong.MaxValue,
+                doc => doc["Game"]["EnemyBuildDay"] = ulong.MaxValue,
+                doc =>
+                {
+                    ((JObject)doc["Game"]).Property("Clock").Remove();
+                    doc["Game"]["EnemyBuildDay"] = (ulong)uint.MaxValue + 1;
+                },
                 doc => doc["Game"]["Clock"] = null,
                 doc => ((JObject)doc["Game"]["Clock"]).Property("NormalElapsed").Remove(),
                 doc => doc["Game"]["Clock"]["NormalElapsed"] = -1,

@@ -233,6 +233,12 @@ namespace Deuteros.Tests
             CheckUi("A queued natural increment cannot discard a later manual day request", ManualAfterPendingClock);
             CheckUi("Staff age on displayed calendar crossings independently of simulation count", FractionalAttritionGate);
             CheckUi("Enemy production preserves exact fractional deadlines across saving", FractionalEnemyDeadline);
+            CheckUi("AMA mines once per consumed natural update only in its original slot phase", NaturalAmaPhase);
+            CheckUi("Manual AMA mining follows the original irregular clock-bit schedule", ManualAmaPhases);
+            CheckUi("Asteroid scanning uses the eight-phase ship clock gate", AsteroidScanClockPhase);
+            CheckUi("Ship automation slots survive removal reload and interstellar movement", StableAutomationSlots);
+            CheckUi("Ship automation slots migrate legacy saves and reject malformed allocation", AutomationSlotSaveValidation);
+            CheckUi("Asteroid approach and departure each consume two saved updates", AsteroidApproachCountdown);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

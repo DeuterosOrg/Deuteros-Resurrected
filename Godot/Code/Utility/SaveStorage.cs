@@ -67,6 +67,8 @@ namespace Deuteros.Code.Utility
                     // Version-1 saves written before engine damage have no flag; default healthy.
                     if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
                         property.Required = Required.DisallowNull;
+                    else if (typeof(InterStellarShip).IsAssignableFrom(type) && property.PropertyName == nameof(InterStellarShip.AutomationSlot))
+                        property.Required = Required.DisallowNull;
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
                     else if (type == typeof(Staff) && property.PropertyName == nameof(Staff.AttritionCountdown))
                         property.Required = Required.DisallowNull;
@@ -150,6 +152,7 @@ namespace Deuteros.Code.Utility
             Validate(document.Game);
             var save = document.Game;
             ArtifactRecovery.RestoreLegacy(save);
+            InterStellarShip.EnsureAutomationSlots(save);
             // Every legacy system was assigned at startup; a missing location means it was collected.
             // Keep those assignments and held cargo instead of spawning replacement segments.
             if (save.AlienTransmissions == null)
@@ -316,6 +319,7 @@ namespace Deuteros.Code.Utility
                     || (ship is IOS && ship.ShipType == Ship_Types.IOS)
                     || (ship is SCG && ship.ShipType == Ship_Types.SCG), "hull type");
                 Require(Enum.IsDefined(typeof(Ship_States), ship.ShipState), "ship state");
+                Require(ship is not InterStellarShip vessel || vessel.AutomationSlot >= -1, "ship automation slot");
                 Require(ship is not InterStellarShip || ship.ShipState != Ship_States.InTransit
                     || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "in-flight destination");
                 Require(ship.Modules != null && ship.Modules.All(m => m != null && m.ItemCount >= 0), "ship modules");
@@ -323,6 +327,12 @@ namespace Deuteros.Code.Utility
                 if (ship.ACC != null)
                     Require(ship.ACC.CurrentSource >= ItemTypes.iron && ship.ACC.CurrentSource <= ItemTypes.hed_fuel
                         && ship.ACC.CurrentDestination >= ItemTypes.iron && ship.ACC.CurrentDestination <= ItemTypes.hed_fuel, "ACC cycle cursor");
+            }
+            foreach (var pool in save.Ships.OfType<InterStellarShip>().Where(s => s is not EnemyFleet)
+                .GroupBy(s => (s.ShipType, s is SCG ? StellarBodies.none : s.StarLocation)))
+            {
+                var slots = pool.Where(s => s.AutomationSlot >= 0).Select(s => s.AutomationSlot).ToList();
+                Require(slots.Distinct().Count() == slots.Count, "ship automation allocation");
             }
         }
     }

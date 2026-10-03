@@ -45,9 +45,9 @@
 
 **Interfaces:** Consume Task 1's displayed centidays and previous date. Keep per-update `CurrentDay` timestamps for travel/repair/training; migrate enemy build deadlines to exact centidays. Stable IOS/SCG allocation must survive save/load/removal and use original phase masks from the linked AMA evidence.
 
-- [ ] Reproduce attrition at a true 100-day crossing with a different update count, exact 950-unit enemy intervals, and AMA phase drift/missing natural scheduling.
-- [ ] Implement original date gates and slot-based scheduling; trace any still-unmapped eligibility before changing it.
-- [ ] Cover manual/natural crossings, peaceful/hostile transitions, allocation reuse, old saves, full/incompatible cargo and removal. Commit only after focused headless/native checks pass.
+- [x] Reproduce attrition at a true 100-day crossing with a different update count, exact 950-unit enemy intervals, and AMA phase drift/missing natural scheduling.
+- [x] Implement original date gates and slot-based scheduling; trace any still-unmapped eligibility before changing it.
+- [x] Cover manual/natural crossings, peaceful/hostile transitions, allocation reuse, old saves, full/incompatible cargo and removal. Commit only after focused headless/native checks pass.
 
 ## Task 3: Whole-path acceptance and contribution integration
 

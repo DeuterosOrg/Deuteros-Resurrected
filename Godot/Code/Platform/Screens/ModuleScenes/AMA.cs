@@ -156,26 +156,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		#region statics
 
-		// Original mining amount is independent of asteroid class; cadence remains provisional.
-		public static int Mine(Asteroid asteroid, ShipModule shipModule, Random random = null)
-		{
-			random ??= Random.Shared;
-			var minedAmount = 0;
-
-			//There is a 1/20 chance for an instant mine, but only on the first day
-			if (shipModule.LastMinedDay + 1 == GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay && random.Next(0, 20) == 10)
-			{
-				return random.Next(12, 44);
-			}
-			//Otherwise it is a 5 day mining cycle
-			else if (GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - shipModule.LastMinedDay  == 5)
-			{
-				shipModule.LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-				return random.Next(12, 44);
-			}
-
-			return minedAmount;
-		}
+        // Original mining runs on every consumed update whose slot matches the clock bits.
+        public static int Mine(InterStellarShip ship, Random random = null) =>
+            ship.AsteroidClockPhase(3) ? (random ?? Random.Shared).Next(12, 44) : 0;
 
 		#endregion
 	}

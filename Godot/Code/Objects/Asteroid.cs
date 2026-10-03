@@ -23,36 +23,8 @@ namespace Deuteros.Code.Objects
 		public string MassName { get; set; }
 		public int DayCount { get; set; }
 
-		//TODO Temporary asteroid randomisation
-		public static Asteroid ScanAsteroids(Asteroid currentAsteroid)
-		{
-			if (currentAsteroid != null)
-			{
-				//Check if we should change the current asteroid
-				var asteroidChangeChance = Random.Shared.Next(0, 10-currentAsteroid.DayCount);
-
-				//It's a new one!
-				if (asteroidChangeChance == 0)
-					currentAsteroid = GenerateAsteroid();
-				else
-					currentAsteroid.DayCount++;
-
-				return currentAsteroid;
-			}
-			else
-			{
-				var asteroidChance = Random.Shared.Next(0, 5);
-
-				if (asteroidChance == 0)
-				{
-					return GenerateAsteroid();
-				}
-				else
-				{
-					return null;
-				}
-			}
-		}
+        public static Asteroid ScanAsteroids(InterStellarShip ship) =>
+            ship.AsteroidClockPhase(7) ? GenerateAsteroid() : ship.AsteroidScanResults;
 
 		public static Asteroid GenerateAsteroid(Random random = null)
 		{
