@@ -271,5 +271,34 @@ namespace Deuteros.Tests
             Equal("Damaged !", interior.GetNode<Label>("TextLayout/EngineStatusValue").Text, "warning persists in transit");
             await CaptureDisplayEvidence("damaged-engine-in-transit");
         }
+        private async Task EngineDriftReadout()
+        {
+            foreach (var type in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var interior = await OpenInterior(type, true);
+                var ship = interior.Ship;
+                ship.Engine = true;
+                ship.EngineEngaged = true;
+                ship.ShipState = Ship_States.InTransit;
+                interior.UpdateState();
+                var label = interior.GetNode<Label>("TextLayout/EngineStatusValue");
+                Equal("Engaged", label.Text, "powered transit readout: " + type);
+                Press(interior, "EngineControls/DisengageEngine");
+                Equal(false, ship.EngineEngaged, "real disengage callback: " + type);
+                Equal("Disengaged", label.Text, "drift readout: " + type);
+                Equal(Save.BaseGameData.Red, label.GetThemeColor("font_color"), "drift warning colour: " + type);
+                Equal(true, interior.GetNode<Label>("TextLayout/Status").Text.StartsWith("Drifting To"), "consistent flight status: " + type);
+                ship.EngineDamaged = true; interior.UpdateState();
+                Equal("Damaged !", label.Text, "damage retains precedence: " + type);
+                ship.EngineDamaged = false;
+                foreach (var state in new[] { Ship_States.Launching, Ship_States.Docking, Ship_States.TakingOff, Ship_States.Landing })
+                {
+                    ship.ShipState = state; interior.UpdateState();
+                    Equal("Engaged", label.Text, "powered transition retains readout: " + state);
+                }
+                ship.ShipState = Ship_States.InTransit; interior.UpdateState();
+                await CaptureDisplayEvidence("drifting-engine-" + type);
+            }
+        }
     }
 }

@@ -269,6 +269,7 @@ namespace Deuteros.Tests
                 await CheckAsync($"{hull} DFCC removal returns converted fuel and drones and restores ordinary controls", () => DfccRemoval(hull));
             await CheckAsync("DFCC removal rejects every insufficient return capacity before mutation", DfccRemovalCapacity);
             await CheckAsync("Remaining controllers and legacy converted hulls retain DFCC state", DfccRemainingControllers);
+            await CheckAsync("Engine readout distinguishes drifting from powered transit on every hull", EngineDriftReadout);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
