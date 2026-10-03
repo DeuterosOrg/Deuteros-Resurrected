@@ -1,6 +1,6 @@
 # Original transmitter ending
 
-Follow-up for the open alien-message/campaign work, 2026-10-02. This establishes the correct ending disk, container and script format. The source-derived assets are now compiled reproducibly; native playback and normal activation are still implementation work. This is not an original-emulator comparison.
+Follow-up for the open alien-message/campaign work, 2026-10-02. This establishes the correct ending disk, container and script format. The source-derived assets are now compiled reproducibly; native playback now has focused engine checks; normal activation and full uninterrupted playback remain implementation/acceptance work. This is not an original-emulator comparison.
 
 ## Activation and required disk
 
@@ -36,3 +36,9 @@ Images use16-pixel x words. Ordinary copies write zero pixels;8000 sprites mask 
 The custom15-instrument tracker uses VBlank tick counts, including speeds above31; these are not standard MOD BPM commands. Instruments start DMA one tick after a note and install repeat registers on the following tick. Two-word repeats point to four silent bytes. The digital mixer uses PAL3546895ticks/second and channels0/3 left,1/2 right, consistent with the [Commodore Amiga Hardware Reference Manual, Audio Hardware](https://www.amigarealm.com/computing/knowledge/hardref/ch5.htm). It preserves integer volume scaling, period slides and the ending fade. PCM sample range is−32512..32384, without clipping.
 
 The compiler tests cover literal/repeat RLE layouts, transparent zero/clipping, full-row snapshots, exact glyph/string boundaries, strict music-row waits, high tick speeds, delayed DMA/silent repeats, and malformed inputs. Run `python3 -m unittest discover -s scripts -p 'test_*.py'`; optionally set `DEUTEROS_ENDING_DISK2` to verify the original final cue and artwork directly. Subjective listening, analogue Amiga output/filter characteristics, measured original cadence, native Windows and complete campaign acceptance remain pending.
+
+## Native player checkpoint
+
+`Ending.tscn` uses the existing paused overlay, native PCM audio and indexed image composition. Visual position follows the mixer clock, including output latency; terminal replay waits for left-button release. The underlying world or scene being replaced removes the old presentation and restores its previous pause. Escape cannot skip it. Game shutdown now frees overlay audio before the existing mixer-drain wait.
+
+Cases573–580 cover exact artwork/label/fade/black pixels, pause/input/duplicate activation, audio-end replay, replacement world, native window close, large audio-clock jumps, malformed timelines and a previously paused scene. All eight pass headlessly; seven also pass with native Mac windows. Four native texture hashes match the independently composed frames. Headless Godot's dummy texture retains its initial backing after updates, so headless checks inspect the composed Image; native checks additionally inspect the real texture. Existing settings/overlay/audio compatibility checks pass. These are focused component results, not a full aggregate or native Windows acceptance.

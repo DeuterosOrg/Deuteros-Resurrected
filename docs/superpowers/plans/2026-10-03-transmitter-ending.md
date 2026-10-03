@@ -52,20 +52,20 @@ python3 scripts/extract_ending.py /absolute/path/disk2.adf Godot/Ending
 
 **Interfaces:** Consumes Task1 JSON schema and native imported WAV. Produces full-size Control `Ending`, loaded as `res://PreFabs/Ending.tscn` by OverlayManager; exposes only ordinary playback state required by UI, not test-only mutators. Existing overlay callers retain their behavior.
 
-- [ ] Append actual-player cases after572. Check native image pixels at source frames, audio-clock catchup, full playback/black/replay with left held, keyboard/mouse suppression, parent removal and window close; catch a duplicate active player. Use existing runner reflection/input helpers for controlled state.
+- [x] Append actual-player cases after572. Check native image pixels at source frames, audio-clock catchup, full playback/black/replay with left held, keyboard/mouse suppression, parent removal and window close; catch a duplicate active player. Use existing runner reflection/input helpers for controlled state.
 ```csharp
 var node = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false);
 Equal(true, GetTree().Paused, "ending freezes campaign");
 Equal(true, node is Control, "full ending player exists");
 ```
-- [ ] Build/run focused cases through `scripts/validate.py --godot /tmp/deuteros-godot-isolated --case N`. Expected: missing playback behavior fails before implementation; validate actual CLI flags first and ledger any command correction.
-- [ ] Implement the player with native AudioStreamPlayer and ImageTexture. Deserialize/validate bounded resource data once, draw clipped indexed layers with global palette, select latest frame from corrected audio position, and restart only after completion and released left mouse. Consume input via `_Input`; stop/free owned audio on teardown. Make shutdown synchronously remove an open overlay before waiting for mixer drainage. Explicitly include Ending/sequence.json in exports.
+- [x] Build/run focused cases through `scripts/validate.py --godot /tmp/deuteros-godot-isolated --case N`. Expected: missing playback behavior fails before implementation; validate actual CLI flags first and ledger any command correction.
+- [x] Implement the player with native AudioStreamPlayer and ImageTexture. Deserialize/validate bounded resource data once, draw clipped indexed layers with global palette, select latest frame from corrected audio position, and restart only after completion and released left mouse. Consume input via `_Input`; stop/free owned audio on teardown. Make shutdown synchronously remove an open overlay before waiting for mixer drainage. Explicitly include Ending/sequence.json in exports.
 ```csharp
 var seconds = Math.Max(0, audio.GetPlaybackPosition() + AudioServer.GetTimeSinceLastMix() - AudioServer.GetOutputLatency());
 var frame = (int)(seconds * sequence.Rate);
 ```
-- [ ] Run focused headless/native and existing overlay/shutdown compatibility cases. Expected: strict terminal PASS, zero engine errors, no audio leak, original pause state restored after controlled close or failed load. Capture and inspect representative images.
-- [ ] Commit with `git commit -m "Play the original ending in a synchronized native overlay"`.
+- [x] Run focused headless/native and existing overlay/shutdown compatibility cases. Expected: strict terminal PASS, zero engine errors, no audio leak, original pause state restored after controlled close or failed load. Capture and inspect representative images.
+- [x] Commit with `git commit -m "Play the original ending in a synchronized native overlay"`.
 
 ### Task 3: Normal transmitter activation and acceptance evidence
 

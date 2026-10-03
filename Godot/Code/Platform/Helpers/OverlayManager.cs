@@ -103,6 +103,14 @@ namespace Deuteros.Code.Platform.Helpers
             CallDeferred(nameof(FinishClose));
         }
 
+        public void CloseForShutdown()
+        {
+            // Free paused overlay audio before GameCore waits for mixer disposal.
+            _overlayRoot?.Free();
+            _contentInstance = null;
+            _overlayRoot = null;
+        }
+
         private void FinishClose()
         {
             // Drop any lingering key presses so the base scene doesn't see them.

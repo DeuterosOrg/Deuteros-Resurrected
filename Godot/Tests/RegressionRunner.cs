@@ -318,6 +318,14 @@ namespace Deuteros.Tests
             await CheckAsync("Prison capture instructions fit the native panel width", RoguePrisonHelpBounds);
             CheckUi("Sabotage crew restoration preserves attrition across reload and recovery", RogueSabotageAttrition);
             CheckUi("Destroyed sabotage targets release surviving rogue crews and resume routing", RogueSabotageDestroyedTarget);
+            await CheckAsync("Ending renders original indexed artwork labels fade and black", EndingPixels);
+            await CheckAsync("Ending pauses campaign suppresses Escape and rejects duplicate activation", EndingPauseAndInput);
+            await CheckAsync("Ending completes to black and waits for mouse release before replay", EndingHeldReplay);
+            await CheckAsync("Ending releases an obsolete world without retaining its pause", EndingWorldReplacement);
+            await CheckAsync("Closing the window during ending playback drains native audio", EndingWindowClose);
+            await CheckAsync("Ending follows audio clock after a long frame stall", EndingClockCatchup);
+            await CheckAsync("Ending rejects malformed timeline and releases its pause", EndingRejectsMalformedTimeline);
+            await CheckAsync("Ending scene exit preserves a pre-existing pause", EndingSceneExitAndPriorPause);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

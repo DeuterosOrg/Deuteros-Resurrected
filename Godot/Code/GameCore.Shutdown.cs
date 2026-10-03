@@ -25,6 +25,7 @@ namespace Deuteros.Code
             SetProcess(false);
             SetProcessInput(false);
             tree.Paused = true;
+            Platform.Helpers.OverlayManager.Instance?.CloseForShutdown();
             // Scene exit cancels typing and stops background players. Do this
             // while the mixer and managed runtime are still available.
             foreach (var scene in GetNode("MainScene").GetChildren()) scene.Free();
