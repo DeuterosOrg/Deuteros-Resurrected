@@ -150,7 +150,22 @@ namespace Deuteros.Tests
             bay = await NavigationBay();
             bay.ResourceList.Staff[0] = new Staff { Type = StaffType.Production, Count = 5, Leader = "Builder" };
             bay.GetNode<Deuteros.Code.Platform.StaffList>(ShipParts + "Cockpit/StaffList").UpdateStaff(bay.ResourceList.Staff);
-            ExpectHover(bay.GetNode<Control>(ShipParts + "Cockpit/StaffList/Staff/Buttons/01"), "");
+            var assignment = bay.GetNode<Control>(ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            var factory = GameCore.Earth.Station.Factory;
+            factory.Builder = null;
+            factory.AOC = false;
+            ExpectHover(assignment, "Assign crew to production");
+            factory.AOC = true;
+            ExpectHover(assignment, "");
+            factory.AOC = false;
+            factory.Builder = new Staff { Type = StaffType.Production, Count = 1 };
+            ExpectHover(assignment, "");
+            factory.Builder = null;
+            var staff = bay.ResourceList.Staff[0];
+            Press(bay, ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            Equal(staff, factory.Builder, "orbital hover describes the actual assignment");
+            Equal(5, factory.Builder.Count, "assignment preserves transported staff");
+            ExpectHover(assignment, "Remove ship's crew");
         }
 
         private async Task PointAt(Control control)

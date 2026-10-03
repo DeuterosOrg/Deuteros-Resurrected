@@ -291,7 +291,9 @@ namespace Deuteros.Code.Platform.Screens
 			var staff = ResourceList.Staff[index];
 			if (staff == null) return ShipPresent && Ship.Pilot != null ? "Remove ship's crew" : "";
 			if (staff.Type == StaffType.Marines) return ShipPresent ? "Assign ship's crew" : "";
-			if (staff.Type == StaffType.Production && Ground && Earth && GameCore.Earth.Factory.Builder == null)
+			if (staff.Type == StaffType.Production && (Ground
+				? Earth && GameCore.Earth.Factory.Builder == null
+				: !CurrentPlanet.Station.Factory.AOC && CurrentPlanet.Station.Factory.Builder == null))
 				return "Assign crew to production";
 			return "";
 		}
