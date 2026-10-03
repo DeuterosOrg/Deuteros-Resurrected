@@ -1266,7 +1266,8 @@ namespace Deuteros.Code.Platform.Screens
 					{
                         if (ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
                             && currentDay - ship.StartTravelDay < 2) continue;
-						if (ship.ShipType == Ship_Types.Shuttle || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
+						if (ship.ShipType == Ship_Types.Shuttle || ship.PlanetLocation == StellarBodies.asteroids
+                            || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
 						{
 							ship.ShipState = Ship_States.Docked;
                             SdmSystem.Docked(ship);

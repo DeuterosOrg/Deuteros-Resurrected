@@ -141,20 +141,44 @@ namespace Deuteros.Tests
             var core = GameCore.SingletonInstance;
             core.SetProcess(false);
             var ship = AmaCargoShip();
-            ship.ShipState = Ship_States.UnDocked;
-            ship.Modules[1].ItemCount = 0;
-            ship.Dock();
+            var other = AmaCargoShip(); // The helper replaces the fleet; keep both independently equipped hulls.
+            Save.Ships.Add(ship);
+            var shipId = ship.ShipID;
+            var otherId = other.ShipID;
+            foreach (var miner in new[] { ship, other })
+            {
+                miner.ShipState = Ship_States.UnDocked;
+                miner.Modules[1].ItemCount = 0;
+                miner.Dock();
+            }
             core._Process(315.6);
-            Equal(Ship_States.Docking, ship.ShipState, "asteroid approach retains its second consumed update");
+            Equal(true, Save.Ships.All(s => s.ShipState == Ship_States.Docking), "both approaches retain their second consumed update");
             core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
-            ship = (IOS)Save.Ships.Single();
+            ship = (IOS)Save.Ships.Single(s => s.ShipID == shipId);
+            other = (IOS)Save.Ships.Single(s => s.ShipID == otherId);
             core._Process(315.6);
-            Equal(Ship_States.Docked, ship.ShipState, "loaded approach completes on the second update");
+            Equal(Ship_States.Docked, other.ShipState, "first loaded approach completes on the second update");
+            Equal(Ship_States.Docked, ship.ShipState, "another asteroid miner must not occupy a station bay");
+            for (var i = 0; i < 8; i++) AdvanceTickDay();
+            foreach (var miner in new[] { ship, other })
+            {
+                Equal(true, miner.Modules[1].ItemCount > 0, "both independent mining slots receive ore");
+                Equal(ItemTypes.titanium, miner.Modules[1].ItemStored, "each pod receives its scanned mineral");
+                Equal(98, miner.Fuel, "completed approach must not keep consuming travel fuel");
+            }
             ship.TakeOff();
             core._Process(315.6);
             Equal(Ship_States.Launching, ship.ShipState, "asteroid departure retains its second consumed update");
             core._Process(315.6);
             Equal(Ship_States.UnDocked, ship.ShipState, "second departure update resumes scanning");
+            Equal(Ship_States.Docked, other.ShipState, "one miner leaving does not disturb the other");
+
+            other.PlanetLocation = ship.PlanetLocation = StellarBodies.earth;
+            GameCore.Earth.Station.Built = true;
+            ship.Dock();
+            core._Process(315.6);
+            Equal(Ship_States.Docking, ship.ShipState, "occupied ordinary station still blocks a second hull");
+            Equal(Ship_States.Docked, other.ShipState, "station occupant stays docked");
         }
     }
 }
