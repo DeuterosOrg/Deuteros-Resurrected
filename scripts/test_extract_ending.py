@@ -86,6 +86,17 @@ class EndingTests(unittest.TestCase):
         self.assertEqual((8192,0),struct.unpack_from('<hh',pcm,6*882*4))
         self.assertEqual(bytes(882*4),pcm[-882*4:])
 
+    def test_order_jump_preserves_original_order_table_pointer_increment(self):
+        music=bytearray(0x1bc+0x800)
+        struct.pack_into('>I',music,0xf0,2)
+        struct.pack_into('>2H',music,0xf4,0,0x400)
+        struct.pack_into('>2H',music,0x1bc,0,0x0501)
+        struct.pack_into('>2H',music,0x1bc+0x400,0,0x0807)
+        player=ending.Music(bytes(music))
+        for _ in range(12):player.tick()
+        self.assertEqual(7,player.speed) #22676storesF4;2243Aadds2beforefetchingF6.
+        self.assertEqual((1,1),(player.order,player.row))
+
     def test_unknown_opcode_and_truncated_image_rejected(self):
         with self.assertRaises(ValueError):ending.compile_sequence(fixture([99]),bytes(728))
         with self.assertRaises(ValueError):ending.decode_image(b'\0\4\0\1\4\xff',0)

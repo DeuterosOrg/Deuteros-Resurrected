@@ -326,6 +326,12 @@ namespace Deuteros.Tests
             await CheckAsync("Ending follows audio clock after a long frame stall", EndingClockCatchup);
             await CheckAsync("Ending rejects malformed timeline and releases its pause", EndingRejectsMalformedTimeline);
             await CheckAsync("Ending scene exit preserves a pre-existing pause", EndingSceneExitAndPriorPause);
+            await CheckAsync("Fitted transmitter activates with an undocked Warlord and survives reload", () => TransmitterActivation(false));
+            await CheckAsync("Fitted transmitter takes precedence over DFCC generic module interception", () => TransmitterActivation(true));
+            await CheckAsync("Transmitter explains its Warlord requirement and preserves original rank gate", TransmitterRankGate);
+            await CheckAsync("Transmitter rejects travel and rogue commands while preserving docked bay access", TransmitterStateAndRogueGates);
+            await CheckAsync("Ending rejects retained ship controls while owned rename and cargo overlays work", TransmitterRetainedControls);
+            await CheckAsync("Eight captured recovered segments manufacture fit and activate the original ending", TransmitterRecoveredCampaign);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

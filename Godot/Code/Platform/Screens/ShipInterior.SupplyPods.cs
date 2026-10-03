@@ -43,7 +43,7 @@ namespace Deuteros.Code.Platform.Screens
                 row.AddChild(ditch);
                 ditch.Pressed += () =>
                 {
-                    if (RejectShipCommand() || ditch.Disabled || supplyPods != dialog || dialog.IsQueuedForDeletion() ||
+                    if (RejectShipCommand(dialog) || ditch.Disabled || supplyPods != dialog || dialog.IsQueuedForDeletion() ||
                         !OverlayManager.Instance.IsOpen || !IsInsideTree() || IsQueuedForDeletion() ||
                         !core.GameData.ActiveSaveFile.Ships.Contains(ship) || slot >= ship.Modules.Count ||
                         ship.Modules[slot] != module || module.ModuleType != Module_Types.Supply ||

@@ -214,7 +214,27 @@ namespace Deuteros.Code.Platform.Screens
 
 		private async Task HandleModulePress(int modulePressed)
 		{
-            if (RejectShipCommand()) return;
+            if (RejectShipCommand() || modulePressed < 0 || modulePressed >= Ship.Modules.Count) return;
+            var mounted = Ship.Modules[modulePressed];
+            // The original item action precedes the remake's generic DFCC interception.
+            if (Ship.ShipState != Ship_States.Docked && mounted.ModuleType == Module_Types.Tool
+                && mounted.ItemStored == ItemTypes.alien_artifact)
+            {
+                if (Ship.ShipState != Ship_States.UnDocked) return;
+                if (Ship.Pilot == null || Ship.Pilot.GetLevel() < 4)
+                {
+                    var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
+                    if (warning != null)
+                    {
+                        warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
+                        warning.GetNode<Label>("Labels/ToolType").Text = "Unknown";
+                        warning.GetNode<RichTextLabel>("Labels/WarningBody").Text = "A [color=yellow]Crew[/color] Is Required\nTo Operate This\nEquipment And Must\nBe Ranked [color=yellow]Warlord[/color]";
+                        warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
+                    }
+                }
+                else OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false);
+                return;
+            }
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
 			{
 				var sceneVariables = new List<SceneVariables>();
@@ -578,10 +598,11 @@ namespace Deuteros.Code.Platform.Screens
 			*/
 		}
 
-        private bool RejectShipCommand()
+        private bool RejectShipCommand(Node owningOverlay = null)
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             if (!IsInsideTree() || IsQueuedForDeletion()) return true;
+            if (GetTree().Paused && !OverlayManager.Instance.IsShowing(owningOverlay)) return true;
             return save.RogueCrew.RejectCommand(save, Ship);
         }
 
@@ -604,7 +625,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			void ConfirmName()
 			{
-                if (RejectShipCommand()) return;
+                if (RejectShipCommand(dialog)) return;
 				var name = nameEdit.Text.Trim();
 				if (name.Length == 0 || name.Length > 24 || name.Any(char.IsControl))
 				{
@@ -651,6 +672,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void SmallLocation_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			Ship.LocationView = !Ship.LocationView;
 
 			UpdateState();

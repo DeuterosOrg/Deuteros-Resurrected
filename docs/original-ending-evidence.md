@@ -1,6 +1,6 @@
 # Original transmitter ending
 
-Follow-up for the open alien-message/campaign work, 2026-10-02. This establishes the correct ending disk, container and script format. The source-derived assets are now compiled reproducibly; native playback now has focused engine checks; normal activation and full uninterrupted playback remain implementation/acceptance work. This is not an original-emulator comparison.
+Follow-up for the open alien-message/campaign work, 2026-10-02. This establishes the correct ending disk, container and script format. The source-derived assets are now compiled reproducibly; native playback and normal mounted-tool activation have focused engine checks and a physical Mac playback/replay check. Full campaign acceptance remains open. This is not an original-emulator comparison.
 
 ## Activation and required disk
 
@@ -42,3 +42,11 @@ The compiler tests cover literal/repeat RLE layouts, transparent zero/clipping, 
 `Ending.tscn` uses the existing paused overlay, native PCM audio and indexed image composition. Visual position follows the mixer clock, including output latency; terminal replay waits for left-button release. The underlying world or scene being replaced removes the old presentation and restores its previous pause. Escape cannot skip it. Game shutdown now frees overlay audio before the existing mixer-drain wait.
 
 Cases573–580 cover exact artwork/label/fade/black pixels, pause/input/duplicate activation, audio-end replay, replacement world, native window close, large audio-clock jumps, malformed timelines and a previously paused scene. All eight pass headlessly; seven also pass with native Mac windows. Four native texture hashes match the independently composed frames. Headless Godot's dummy texture retains its initial backing after updates, so headless checks inspect the composed Image; native checks additionally inspect the real texture. Existing settings/overlay/audio compatibility checks pass. These are focused component results, not a full aggregate or native Windows acceptance.
+
+## Mounted activation and desktop evidence
+
+An undocked ship with the fitted device and rank4 Warlord opens the ending through its normal module control, including the sixth SCG mount and DFCC hulls. Docked clicks still navigate to the bay; travelling, rogue and lower-rank crews cannot activate it. Fuel and device counts are unchanged. Retained ship callbacks now respect the existing overlay pause, while callbacks owned by the active Rename/Cargo overlay remain usable. No new save flag is needed.
+
+Cases581–586 pass headless and natively on Mac. The staged integration performs eight captures and grapple recoveries, final instructions, manufacture, fitting, launch and activation. A physical Load/SCG/module click ran through the six original labels and returned to opening artwork without seeking; Escape and mouse buttons did not dismiss it, and native window close exited cleanly. The existing user save backup was restored exactly. The desktop fixture was narrowed to nine stations after the unrestricted recovery fixture exposed a separate Master Control overflow beyond16 visible stations. This limits the campaign claim; source save and failing log are retained for follow-up.
+
+The compiler's order-jump test also preserves the original independent order-table pointer increment. Regeneration leaves both assets byte-identical because the relevant jump is beyond the compiled ending. There are19Pythonchecks with the original disk supplied. Full aggregate validation, independent review and Windows execution are separate gates.

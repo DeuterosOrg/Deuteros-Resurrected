@@ -1,5 +1,11 @@
 using System;
 using System.Reflection;
+using System.Linq;
+using System.Collections.Generic;
+using Deuteros.Code.Objects;
+using Deuteros.Code.Utility;
+using Deuteros.Code.Platform.Screens;
+using static Deuteros.Code.Enums;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using Deuteros.Code;
@@ -142,6 +148,142 @@ namespace Deuteros.Tests
             Equal(false, OverlayManager.Instance.IsOpen, "leaving underlying scene removes ending");
             Equal(true, GetTree().Paused, "pre-existing pause survives teardown");
             GetTree().Paused = false;
+        }
+
+        private SCG NewEndingShip(bool fitted = true)
+        {
+            InitializeUi(); GameCore.SingletonInstance.SetProcess(false);
+            var ship = NewInterstellarRoute(); ship.Pilot.AddAction(31); ship.EngageEngine();
+            for (var update = 0; update < 16; update++) AdvanceInterstellar();
+            Equal(4, ship.Pilot.GetLevel(), "actual Hyperlight arrival earns Warlord");
+            ship.FuelType = ItemTypes.hed_fuel;
+            ship.ACC = new Deuteros.Code.Objects.ACC { Ship = ship, Source = ship.PlanetLocation, Destination = StellarBodies.earth,
+                SourceItems = new List<ItemTypes>(), DestinationItems = new List<ItemTypes>(),
+                CurrentSource = ItemTypes.iron, CurrentDestination = ItemTypes.iron };
+            while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
+            ship.Modules[5].ModuleType = Module_Types.Tool;
+            ship.Modules[5].ItemStored = fitted ? ItemTypes.alien_artifact : ItemTypes.none;
+            ship.Modules[5].ItemCount = fitted ? 1 : 0;
+            return ship;
+        }
+
+        private async Task TransmitterActivation(bool dfcc)
+        {
+            var ship = NewEndingShip(); ship.DFCC = dfcc; ship.Fuel = 0;
+            var interior = await OpenInterstellarInterior(ship);
+            var before = SaveStorage.Serialize(Save);
+            Press(interior, "Modules/05"); await InputFrames();
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "fitted sixth-mount transmitter plays ending");
+            Press(interior, "Modules/05");
+            Equal(true, before == SaveStorage.Serialize(Save), "activation consumes no fuel item crew or campaign time");
+            OverlayManager.Instance.CloseOverlay(); await InputFrames();
+            GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(before);
+            ship = Save.Ships.OfType<SCG>().Single();
+            interior = await OpenInterstellarInterior(ship); Press(interior, "Modules/05"); await InputFrames();
+            Equal(true, OverlayManager.Instance.IsOpen, "ordinary save retains replay eligibility");
+            OverlayManager.Instance.CloseOverlay();
+        }
+
+        private async Task TransmitterRankGate()
+        {
+            var ship = NewEndingShip(); var crew = ship.Pilot;
+            foreach (var absent in new[] { false, true })
+            {
+                crew.Warlord = false; ship.Pilot = absent ? null : crew;
+                var interior = await OpenInterstellarInterior(ship);
+                Press(interior, "Modules/05"); await InputFrames();
+                Equal(true, OverlayManager.Instance.IsOpen, "low or missing rank receives module warning");
+                Equal(true, OverlayManager.Instance.GetNode<RichTextLabel>("GlobalOverlay/Center/OFPilotWarning/Labels/WarningBody").GetParsedText().Contains("Warlord"), "warning explains required rank");
+                await CaptureDisplayEvidence("transmitter-rank-" + absent);
+                OverlayManager.Instance.CloseOverlay(); await InputFrames();
+            }
+            ship.Pilot = crew; crew.Warlord = true; crew.Count = 0;
+            var qualified = await OpenInterstellarInterior(ship); Press(qualified, "Modules/05"); await InputFrames();
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "original action checks assigned rank without inventing a crew-count gate");
+            OverlayManager.Instance.CloseOverlay();
+        }
+
+        private async Task TransmitterStateAndRogueGates()
+        {
+            var ship = NewEndingShip();
+            ship.DestinationPlanetLocation = StellarBodies.earth; ship.Fuel = 250; ship.EngageEngine();
+            var interior = await OpenInterstellarInterior(ship); Press(interior, "Modules/05"); await InputFrames();
+            Equal(false, OverlayManager.Instance.IsOpen, "travelling transmitter cannot activate");
+            for (var i = 0; i < 100 && ship.ShipState != Ship_States.UnDocked; i++) AdvanceInterstellar();
+            Equal(StellarBodies.earth, ship.PlanetLocation, "actual return trip reaches Earth");
+            GameCore.Earth.Station.Built = true; GameCore.Earth.Station.BuildParts = 8;
+            ship.Dock(); for (var i = 0; i < 20 && ship.ShipState != Ship_States.Docked; i++) AdvanceInterstellar();
+            Equal(Ship_States.Docked, ship.ShipState, "actual docking completed");
+            interior = await OpenInterstellarInterior(ship); Press(interior, "Modules/05"); await InputFrames();
+            Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "docked click retains ordinary bay navigation");
+            Equal(false, OverlayManager.Instance.IsOpen, "docked transmitter does not play ending");
+            ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save);
+            ship.Modules[5].ModuleType = Module_Types.Tool; ship.Modules[5].ItemStored = ItemTypes.alien_artifact; ship.Modules[5].ItemCount = 1;
+            interior = await OpenInterstellarInterior(ship); Press(interior, "Modules/05"); await InputFrames();
+            Equal(false, OverlayManager.Instance.IsOpen, "rogue crew cannot manually activate transmitter");
+        }
+
+        private async Task TransmitterRetainedControls()
+        {
+            var ship = NewEndingShip(); var interior = await OpenInterstellarInterior(ship);
+            Press(interior, "Modules/05"); await InputFrames();
+            Equal(true, OverlayManager.Instance.IsOpen, "ending starts before retained controls");
+            var before = SaveStorage.Serialize(Save);
+            foreach (var path in new[] { "EngineControls/EngageEngine", "EngineControls/DisengageEngine", "Dock", "TakeOff", "Land", "Location/SmallLocation", "OpenACC", "Modules/05", "TextLayout/RenameShip", "TextLayout/CargoActions" }) Press(interior, path);
+            Equal(true, before == SaveStorage.Serialize(Save), "retained controls cannot mutate paused ending world");
+            Equal(0, interior.GetNode("ACCScreen").GetChildCount(), "retained ACC cannot open behind ending");
+            OverlayManager.Instance.CloseOverlay(); await InputFrames();
+            // Allowed owned overlay callbacks still work after the shared pause guard.
+            Press(interior, "TextLayout/RenameShip"); await InputFrames();
+            var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/RenameShip");
+            dialog.GetNode<LineEdit>("NameEdit").Text = "Transmitter crew";
+            Press(dialog, "Confirm"); await InputFrames();
+            Equal("Transmitter crew", ship.Name, "owned rename confirmation remains usable");
+            Press(interior, "TextLayout/CargoActions"); await InputFrames();
+            var cargo = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/SupplyPods");
+            Press(cargo, "Rows/Pod0/Ditch");
+            Equal(0, ship.Modules[0].ItemCount, "owned cargo confirmation remains usable");
+            OverlayManager.Instance.CloseOverlay();
+        }
+
+        private async Task TransmitterRecoveredCampaign()
+        {
+            await TransmissionCaptureToFinal();
+            var core = GameCore.SingletonInstance; var ship = NewEndingShip(false);
+            ship.DestinationPlanetLocation = StellarBodies.earth; ship.Fuel = 250; ship.EngageEngine();
+            for (var i = 0; i < 100 && ship.ShipState != Ship_States.UnDocked; i++) AdvanceInterstellar();
+            Equal(StellarBodies.earth, ship.PlanetLocation, "Warlord returns to manufacturing station");
+            GameCore.Earth.Station.Built = true; GameCore.Earth.Station.BuildParts = 8;
+            Save.CurrentPlanet = StellarBodies.earth;
+            var factory = GameCore.Earth.Station.Factory; factory.AOC = true;
+            var production = OpenMtxProduction();
+            try
+            {
+                production.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.alien_artifact).EmitSignal(BaseButton.SignalName.Pressed);
+                ProductionDays(50);
+            }
+            finally { production.Free(); }
+            Equal(1, GameCore.Earth.Station.Resources.Stores[ItemTypes.alien_artifact], "eight real recoveries permit normal manufacture");
+            ship.Dock(); for (var i = 0; i < 20 && ship.ShipState != Ship_States.Docked; i++) AdvanceInterstellar();
+            Equal(Ship_States.Docked, ship.ShipState, "manufactured tool is fitted in a real docked bay");
+            var tweens = GetTree().GetProcessedTweens().ToHashSet(); var bay = OpenUi<ShipBay>("res://Screens/ShipBay.tscn", new List<SceneVariables> { SceneVariables.Orbit, SceneVariables.Ship });
+            try
+            {
+                Press(bay, "Buttons/ShipNav/Nav_Torso6");
+                Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso6/SpriteHolder/Buttons/ActivatePod");
+                PressEquipmentNamed(bay, "Unknown");
+                Equal(ItemTypes.alien_artifact, ship.Modules[5].ItemStored, "normal equipment controls fit the sixth mount");
+            }
+            finally { CloseDismantleBay(bay, tweens); }
+            ship.TakeOff(); for (var i = 0; i < 20 && ship.ShipState != Ship_States.UnDocked; i++) AdvanceInterstellar();
+            var interior = await OpenInterstellarInterior(ship);
+            await CaptureDisplayEvidence("transmitter-fitted-warlord");
+            var evidence = OS.GetEnvironment("DEUTEROS_SCREENSHOT_DIR");
+            if (!string.IsNullOrEmpty(evidence))
+                System.IO.File.WriteAllText(System.IO.Path.Combine(evidence, "transmitter-ready.json"), SaveStorage.Serialize(Save));
+            Press(interior, "Modules/05"); await InputFrames();
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "eight captures recovery manufacture fitting launch and activation reach original ending");
+            OverlayManager.Instance.CloseOverlay();
         }
 
         private async Task EndingWindowClose()

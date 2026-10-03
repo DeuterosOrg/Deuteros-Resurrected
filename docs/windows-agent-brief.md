@@ -422,3 +422,11 @@ Full 523-case Mac validation and cross-export, four focused native cases and a p
 ## Drifting engine readout
 
 Follow-up `01c2942` adds case 524 after the full 523 Mac checkpoint. Disengage a travelling IOS or an SCG on its local destination approach: the status must say Drifting and the engine line Disengaged in red. Re-engaged travel says Engaged; takeoff/landing/docking/launching retain that powered indication, and Damaged still overrides it. The shared readout also covers shuttle state. Focused Mac headless/native and five related checks pass; full 524 and Windows checks remain pending.
+
+## Transmitter ending follow-up
+
+The local `codex/transmitter-ending` candidate adds original Disk2 artwork, bitmap labels and reconstructed PCM music. Use the integrated revision once available; prior409/421 Windows results do not cover this work. Cases573–586 cover playback, lifetime, eligibility, pause isolation and eight-recovery activation on Mac.
+
+On Windows source and exported builds, recover all eight segments, manufacture the existing Unknown device, fit an SCG mount, assign a Warlord, launch, then press that mount. Verify the original sequence and six labels, audible stereo music, final fade/black and automatic replay after releasing the left mouse button. Check Escape/right-click cannot expose the campaign, the campaign clock/fuel/items remain frozen, and physical window close exits cleanly. Repeat after normal save/load, on the sixth mount and with DFCC. Lower ranks get the existing Warlord warning; docked clicks retain bay access and travelling/rogue vessels cannot activate it.
+
+Inspect the package for `Ending/sequence.json` and imported lossless music; no original disk or test scenes are required at runtime. Compare cadence/audio with the original if available: Mac PCM/texture checks do not establish subjective audio fidelity. Report the exact source/export revisions and evidence. A separate Mac desktop failure is recorded for Master Control with more than16 visible stations; keep that test distinct from ending acceptance.

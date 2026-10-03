@@ -12,6 +12,7 @@ namespace Deuteros.Code.Platform.Helpers
         private bool _wasPaused;
 
         public bool IsOpen => _overlayRoot != null;
+        public bool IsShowing(Node content) => content != null && _contentInstance == content;
 
         public override void _Ready()
         {

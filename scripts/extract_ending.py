@@ -92,6 +92,7 @@ class Music:
         self.channels = [dict(period=0, slide=0, volume=0, active=False, pending=0,
                               sample=b'', loop=b'', installed=False, position=0.0) for _ in range(4)]
         self.speed, self.counter, self.row, self.order, self.pointer = 6, 0, 64, 0, 0
+        self.order_pointer = 0xf2
         self.filter_enabled = False
 
     def tick(self):
@@ -105,8 +106,10 @@ class Music:
         if self.counter < self.speed: return
         self.counter = 0; self.row += 1
         if self.row == 65:
-            self.order = self.order % self.order_count + 1; self.row = 1
-            self.pointer = 0x1bc + self.orders[self.order - 1]
+            self.order += 1; self.row = 1
+            if self.order > self.order_count: self.order, self.order_pointer = 1, 0xf2
+            self.order_pointer += 2
+            self.pointer = 0x1bc + u16(self.data, self.order_pointer)
         pointer = self.pointer; self.pointer += 16
         for i, ch in enumerate(self.channels):
             period, event = u16(self.data, pointer + i * 4), u16(self.data, pointer + i * 4 + 2)
@@ -125,6 +128,7 @@ class Music:
                 # Source replaces a0 with the order-table address for subsequent channels.
                 if not 1 <= value <= self.order_count: raise ValueError('Invalid order jump')
                 self.order = value - 1; self.row = 64; pointer = 0xf4 + (value - 1) * 2
+                self.order_pointer = pointer
             elif effect in (6, 7): self.filter_enabled = effect == 6
             elif effect == 8:
                 if not value: raise ValueError('Zero music speed')
