@@ -157,6 +157,37 @@ namespace Deuteros.Tests
             ship.ItemScanResults = new Asteroid { Type = ItemTypes.titanium, Class = 6, Mass = 10000, MassName = "Large" };
             ship.ACC.Update(Ship_States.UnDocked);
             Equal(Ship_States.UnDocked, ship.ShipState, "finish mode cannot start an automatic mining approach");
+
+            // Finishing a mining departure must still complete the return leg.
+            Save.CurrentDay = 100;
+            GameCore.Earth.Station.Built = true;
+            GameCore.Earth.Station.Resources.Stores[ItemTypes.titanium] = 10;
+            ship.Modules[1].ItemStored = ItemTypes.titanium;
+            ship.Modules[1].ItemCount = 250;
+            ship.ShipState = Ship_States.Docked;
+            ship.ACC.CycleMode = false;
+            ship.ACC.Active = true;
+            ship.TakeOff();
+            AccCyclePress(ship, "Cycle");
+            GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            ship = (IOS)Save.Ships.Single();
+            for (var i = 0; i < 2; i++)
+            {
+                var before = Save.CurrentDay++;
+                ShipInterior.UpdateShips(before, Save.CurrentDay);
+            }
+            Equal(Ship_States.InTransit, ship.ShipState, "finishing after asteroid launch starts the return journey");
+            Equal(250, ship.Modules[1].ItemCount, "departure preserves mined cargo");
+            for (var i = 0; i < 12; i++)
+            {
+                var before = Save.CurrentDay++;
+                ShipInterior.UpdateShips(before, Save.CurrentDay);
+            }
+            Equal(StellarBodies.earth, ship.PlanetLocation, "return reaches Earth");
+            Equal(Ship_States.Docked, ship.ShipState, "complete cycle stays docked");
+            Equal(false, ship.ACC.Active || ship.ACC.CycleMode, "arrival stops automation");
+            Equal(260, GameCore.Earth.Station.Resources.Stores[ItemTypes.titanium], "mined cargo delivered once");
+            Equal(0, ship.Modules[1].ItemCount, "delivered pod is empty");
         }
 
         private void AccCycleDuringFuelWait()

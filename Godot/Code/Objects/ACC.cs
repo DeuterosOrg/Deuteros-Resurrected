@@ -161,8 +161,9 @@ namespace Deuteros.Code.Objects
 			{
 				//Do nothing
 			}
-			//We're undocked at the asteroids
-			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids)
+			// Scanning must not intercept a completed launch's normal return-flight transition.
+			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids
+				&& oldState != Ship_States.Launching)
 			{
 				// Original scan automation requires Engage, not Complete Cycle.
 				if (CycleMode) return;
