@@ -127,6 +127,7 @@ namespace Deuteros.Code.Platform.Screens
 			Dock.Pressed += Dock_Pressed;
 			TakeOff.Pressed += TakeOff_Pressed;
 			Land.Pressed += Land_Pressed;
+			GetNode<Button>("Service").Pressed += Service_Pressed;
 
 			foreach (var cargoValue in CargoValues) cargoValue.Text = "";
 
@@ -598,6 +599,36 @@ namespace Deuteros.Code.Platform.Screens
 			*/
 		}
 
+        private bool CanService
+        {
+            get
+            {
+                if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids) return false;
+                var planet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
+                return !planet.ActiveMethanoid && (Ship is Shuttle { OnGround: true }
+                    ? planet.PlanetId == StellarBodies.earth || planet.BaseBuildParts == 2 : planet.Station.Built);
+            }
+        }
+
+        private void Service_Pressed()
+        {
+            if (RejectShipCommand() || !CanService) return;
+            var core = GameCore.SingletonInstance;
+            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked
+                || core.GetNode<GlobalInput>("VirtualCursorView").IsLocked) return;
+            var ground = Ship is Shuttle { OnGround: true };
+            core.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
+            core.ShipSelected = Ship.ShipID;
+            if (ground) CurrentPlanet.ShuttleState = 0;
+            else if (Ship is Shuttle) CurrentPlanet.Station.ShuttleState = 0;
+            else CurrentPlanet.Station.StarShipState = 0;
+            core.ChangeScene(Scenes.ShipBay, new List<SceneVariables>
+            {
+                ground ? Enums.SceneVariables.Ground : Enums.SceneVariables.Orbit,
+                Ship is Shuttle ? Enums.SceneVariables.Shuttle : Enums.SceneVariables.Ship
+            });
+        }
+
         private bool RejectShipCommand(Node owningOverlay = null)
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
@@ -953,6 +984,7 @@ namespace Deuteros.Code.Platform.Screens
 
             SetCourse.Disabled = !CanSetCourse;
             var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
+            GetNode<Button>("Service").Disabled = rogue || !CanService;
             GetNode<Button>("TextLayout/RenameShip").Disabled = GetNode<Button>("TextLayout/CargoActions").Disabled = rogue;
             OpenACC.Disabled = EngageEngine.Disabled = Dock.Disabled = TakeOff.Disabled = Land.Disabled = rogue;
             foreach (var button in Modules) button.Disabled = rogue;

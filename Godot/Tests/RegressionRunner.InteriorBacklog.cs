@@ -48,6 +48,111 @@ namespace Deuteros.Tests
             Equal(interior.Ship.PlanetLocation, Save.CurrentPlanet, "active planet follows ship");
         }
 
+        private async Task InteriorServiceNavigation()
+        {
+            foreach (var entry in new[] { (Ship_Types.Shuttle, false), (Ship_Types.Shuttle, true),
+                (Ship_Types.IOS, true), (Ship_Types.SCG, true) })
+            {
+                var interior = await OpenInterior(entry.Item1, entry.Item2);
+                var ship = interior.Ship;
+                var fuel = ship.Fuel;
+                ship.Modules[0].ModuleType = Module_Types.Tool;
+                ship.Modules[0].ItemStored = ItemTypes.of_frame;
+                ship.Modules[0].ItemCount = 1;
+                GameCore.Earth.ShuttleState = GameCore.Earth.Station.ShuttleState = GameCore.Earth.Station.StarShipState = 1;
+                var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
+                AddChild(viewport);
+                interior.Reparent(viewport);
+                try
+                {
+                    await InputFrames();
+                    // The existing service artwork is at the upper-left of the cockpit.
+                    var point = new Vector2(62, 24);
+                    MenuPointer(viewport, point);
+                    MenuPointer(viewport, point, true);
+                    MenuPointer(viewport, point, false);
+                    await InputFrames();
+                    Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "service pointer opens bay " + entry);
+                    var bay = ActiveScreen<ShipBay>();
+                    Equal(ship, bay.Ship, "same ship is serviced");
+                    Equal(!entry.Item2, bay.Ground, "ground versus orbital resource context");
+                    Equal(entry.Item1 == Ship_Types.Shuttle, bay.Shuttle, "correct hull bay");
+                    Equal(0, bay.ScreenState, "service starts at crew section");
+                    Equal(fuel, ship.Fuel, "navigation does not spend fuel");
+                    Equal(ItemTypes.of_frame, ship.Modules[0].ItemStored, "navigation does not activate equipment");
+                }
+                finally { viewport.Free(); }
+            }
+        }
+
+        private async Task InteriorServiceGates()
+        {
+            var interior = await OpenInterior(Ship_Types.Shuttle);
+            var button = interior.GetNodeOrNull<Button>("Service");
+            Equal(true, button != null, "service has an interactive control");
+            void Rejected(string reason)
+            {
+                button.EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(Scenes.ShipInterior, GameCore.SingletonInstance.currentScene, reason);
+            }
+            foreach (var state in new[] { Ship_States.TakingOff, Ship_States.Landing, Ship_States.UnDocked,
+                Ship_States.CrewRepairing, Ship_States.InTransit, Ship_States.Docking })
+            {
+                interior.Ship.ShipState = state;
+                interior.UpdateState();
+                Equal(true, button.Disabled, "service unavailable during " + state);
+                Rejected("retained service rejects " + state);
+            }
+            interior.Ship.ShipState = Ship_States.Docked;
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            try
+            {
+                blocker.SetBlocked(true); Rejected("screen lock"); blocker.SetBlocked(false);
+                GlobalInput.LockUi(); Rejected("UI lock"); GlobalInput.UnlockUi();
+                Cursor.LockToRect(new Rect2(0, 0, 10, 10)); Rejected("cursor lock"); Cursor.Unlock();
+                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                Rejected("overlay owns input"); OverlayManager.Instance.CloseOverlay();
+                GameCore.Earth.ActiveMethanoid = true; Rejected("hostile bay"); GameCore.Earth.ActiveMethanoid = false;
+                ((Shuttle)interior.Ship).OnGround = false;
+                GameCore.Earth.Station.Built = false; Rejected("unfinished station");
+                GameCore.Earth.Station.Built = true;
+                interior.Ship.PlanetLocation = StellarBodies.asteroids; Rejected("no asteroid bay");
+                interior.Ship.PlanetLocation = StellarBodies.earth;
+                interior.UpdateState();
+                Equal(false, button.Disabled, "service returns after docking");
+                button.EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "unlocked station bay opens");
+            }
+            finally
+            {
+                blocker.SetBlocked(false); Cursor.Unlock(); GlobalInput.UnlockUi();
+                if (OverlayManager.Instance.IsOpen) OverlayManager.Instance.CloseOverlay();
+            }
+            await InputFrames();
+            interior = await OpenInterior(Ship_Types.Shuttle);
+            interior.Ship.PlanetLocation = StellarBodies.the_moon;
+            var moon = Save.BaseGameData.Planets[StellarBodies.the_moon];
+            moon.ActiveMethanoid = false;
+            moon.BaseBuildParts = 1;
+            interior.UpdateState();
+            button = interior.GetNode<Button>("Service");
+            Rejected("unfinished ground base");
+            moon.BaseBuildParts = 2;
+            moon.BaseDamaged = true;
+            interior.UpdateState();
+            button.EmitSignal(BaseButton.SignalName.Pressed);
+            Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "damaged base still permits service and repair fitting");
+            Equal(moon.PlanetResources, ActiveScreen<ShipBay>().ResourceList, "colony ground stores selected");
+            await InputFrames();
+            interior = await OpenInterior(Ship_Types.SCG);
+            Save.RogueCrew.Crew = interior.Ship.Pilot;
+            interior.UpdateState();
+            button = interior.GetNode<Button>("Service");
+            Equal(true, button.Disabled, "rogue crew cannot open service");
+            Rejected("retained rogue command cannot enter bay");
+            await InputFrames();
+        }
+
         private async Task InteriorEntryMenus()
         {
             var interior = await OpenInterior(Ship_Types.Shuttle, true);

@@ -337,6 +337,8 @@ namespace Deuteros.Tests
             await CheckAsync("Overview pages SCG fleets without losing selection hover or drone counts", () => OverviewFleetCapacity(true));
             await CheckAsync("Training allocations share the remaining recruit population", TrainingRecruitCapacity);
             await CheckAsync("Research mass units do not overlap one to four digit values", ResearchMassLayout);
+            await CheckAsync("Interior service artwork opens the correct docked ship bay by pointer", InteriorServiceNavigation);
+            await CheckAsync("Interior service rejects unavailable bays and retained locked commands", InteriorServiceGates);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

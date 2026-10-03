@@ -362,6 +362,15 @@ mouse_filter = 2
 texture = ExtResource("2_x7crv")
 metadata/_edit_use_anchors_ = true
 
+[node name="Service" type="Button" parent="."]
+offset_left = 51.0
+offset_top = 16.0
+offset_right = 74.0
+offset_bottom = 36.0
+flat = true
+script = ExtResource("14_rename")
+HoverText = "Service ship"
+
 [node name="EngineControls" type="TextureRect" parent="."]
 offset_left = 280.0
 offset_top = 112.0
