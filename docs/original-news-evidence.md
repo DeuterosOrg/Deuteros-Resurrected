@@ -87,3 +87,9 @@ Aligned selector `$39882–$398A6` chooses the first system containing both host
 The six packed module words at `$398D4–$398F0` reject nonzero low-byte entries of kind `$C000`. Cryopod transfer `$32A86` maps the low 14 bits of that kind to a one-based roster reference: occupied cryopods exclude the ship, empty cryopods do not. The exact low-byte test retains a reference-range caveat. The remake currently has five mounts; this trace alone does not justify changing their count.
 
 Cargo selector `$39EA6` uses mask `$C606`, selecting zero-based store indices 1, 2, 9, 10, 14 and 15. Resource names still require an independent original item-order mapping. Full rogue ownership, crew takeover/recovery and scheduling must be understood before integrating the destructive refit. This is static source evidence, not gameplay acceptance. Trace: `artifacts/research/news/pirate-eligibility-crossrefs.txt`, SHA-256 `18b033b1b7e9ecf921a38b8d132172c7e7eb53b266ef6475080880467daa278b`; decoded facts are alongside it.
+
+## Rogue crew lifecycle follow-up
+
+The selected rogue reference is more than a ship flag. `$39A68–$39B18` finds that crew in the four local station slots, swaps it with a docked SCG's pilot, updates both roster locations and resumes controller stage 10. `$32AA6–$32AAC` prevents that selected crew from entering the ordinary cryopod swap. Crew loss `$36192–$3619A` clears the selected reference; this routine does not clear the active-event flag, so repeat eligibility must not be inferred from it.
+
+Aligned traces are in `artifacts/research/news/pirate-crew-lifecycle.txt`, SHA-256 `e80333ec0d9132c55e08a4a01edd1bfdca5f60bf7cb9efb851b923088c040dbe`, with decoded facts alongside. Full controller scheduling and ownership remain implementation work; these static findings do not count as another resolved task.
