@@ -17,7 +17,7 @@ Useful separate entry points are `$230CE`, `$231E0`, `$235E2`, `$2364A`, `$2376C
 | `$23CD6` | `$22E86` | The three training pipelines; see the staff evidence. |
 | `$23CDA` | `$230CE` | Earth mineral survey/extraction, including alternating accumulator gates. |
 | `$23CDE` | `$231E0` | Local mineral survey/extraction through `$23234`. |
-| `$23CE2` | `$79E7A` | In this disk image, jumps to an `RTS` at `$79E1C`. Runtime patching has not been excluded. |
+| `$23CE2` | `$79E7A` | MTX transfer after the active Disk 2 overlay replaces this initial `RTS` stub; see the overlay trace below. |
 | `$23CF2` | `$235E2` | Ground then local factory production through `$232E0`; this includes the separately traced SDM/MTX completion branches. |
 | `$23CF6` | `$2364A` | Research: team/rank checks, progress accumulator, completion and promotion. |
 | `$23CFA` | `$2376C` | Staff attrition, when its separate gate is set. |
@@ -80,3 +80,37 @@ Cases 473–474 reproduce actual production and research completing in the same 
 Focused 473/474/126/128/199/427/432/462 and native 473/474/128/462 pass. Checks include saved delivery, old saves with no pending field, rejected null/unknown/duplicate IDs, input ownership, real producers and replay controls. The native screenshot was inspected. Evidence: `artifacts/validation/evidence/bulletin-delivery/`; `setup/invalid-headless-screenshot.log` is a harness configuration mistake, not a gameplay failure. Full aggregate and Windows results are recorded separately. New saves include the pending list and require this or a newer build; preserve backups for older builds.
 
 This correction preserves the remake's current producer order. It does not claim the original flag-priority scheduler: initialized text-table decoding maps `$1C2D6/$1C2D0/$1C2D2/$1C2D4` to **Blaser → SDM → MTX → Hyperlight**, with descriptor words `[9,0,9]`, `[18,0,4]`, `[23,0,5]`, `[22,0,8]`. Exact decoded descriptors are in `artifacts/research/event-order/discovery-priority-descriptors.json`. Implementing that priority alongside the original deferred unlock semantics remains open; fractional-clock integration alone does not implement that priority.
+
+
+## Named subsystem coverage — 2026-10-03
+
+A fresh read-only task lookup confirms seven explicitly named areas: current screen, AMA, ACC, ships, resource extraction, MTX and menus. It asks for source investigation; the broader runtime comparisons above remain verification work, and unresolved source mappings below still prevent accepting this research task.
+
+| Requested area | Established order and remaining limit |
+| --- | --- |
+| Current screen | The selector at `$22D34` indexes the callback table at `$22D36`; the master calls the selected entry at `$23E3E`, after its model/story branches and before date acknowledgement at `$23E40`. Selector zero skips the callback. Early returns can skip this tail. |
+| AMA | Inside the IOS portion of `$2384E`, scanning state `$0C` dispatches to `$23AF8`; mining state `$0D` dispatches to `$23C14` at `$23952`. These are ship-update branches, not a separate screen-driven mining tick. [Phase and yield details](original-ama-mining-evidence.md) remain separate. |
+| ACC | Automatic completion is nested in ship action dispatch, including arrival/unload/disengage and next-departure handling. The [Complete Cycle trace](original-acc-cycle-evidence.md) identifies `$31492 → $33AE2` then `$31498 → $33CAE`. There is no separately established global ACC pass between mining and ships. |
+| Ships | `$23CFE → $2384E` follows research and attrition and precedes refining. The updater processes shuttle records, then IOS records; independent interstellar time remains separately documented. |
+| Planet extraction | Earth `$230CE`, then local `$231E0`, precede production. Training `$22E86` runs before both. |
+| MTX | The active Disk 2 overlay resolves `$23CE2 → $79E7A → $7CE0A` to transfer/balance processing: after extraction, before production/research/ships. Screen callback 8 separately resolves to `$7CDBC`. Initial Disk 1 stubs are inactive implementations, not the full running program. |
+| Menus | The master can redirect station/screen state through `$21140` before later story events, then calls the selected screen callback and date refresh. This establishes those boundaries, not a single universal menu-only pass or the identity of every screen helper. |
+
+The callback table has nineteen nonzero selector entries in the region ending before `$22D86`. Selectors 9/14/17/19 point to the bare `RTS` at `$23838`; selector 7 points to `$30490`, which reads the selected ship pointer `$19D30`, detects state changes and calls shared UI helpers. The entries and direct immediate selector writes are retained in `artifacts/research/event-order/screen-callbacks.json`. Linear entry excerpts and the specific branch below are in `screen-callbacks.txt`, SHA-256 `9f3409d75d9ab105033b333bb290cebc21d289a54cbb13ff1b4debc2ffcb3550`. They are entry excerpts, not complete control-flow graphs. The original disk hash and address mapping remain those above.
+
+**Screen callbacks are not proven read-only.** Selector 3 enters `$24868`, reads the current record pointer from `$19D16`, and can call `$248A6`. When `$24700` is nonzero and record byte `+1` is zero, `$248BE–$248C2` writes the default value `2` into that byte before calculating its item-table address. This narrow conditional write disproves treating every original callback as a passive renderer; it does not establish an additional extraction, production or ship simulation pass.
+
+At remake runtime `06d09c3`, `GameCore` explicitly runs unlocks → active-world training/extraction → production → research → attrition → ships → refining → enemy production → MTX → rogue crews → SDM; public display observers follow, then pending-story delivery and menu refresh. The MTX position conflicts with the newly resolved original overlay order below. Correcting that position requires a failing simultaneous transfer/production regression; it is not included in the frozen `06d09c3` grapple candidate. Original discovery priority and broader screen-specific side effects remain separate boundaries.
+
+
+## MTX overlay resolves the missing transfer phase
+
+The initial main image is insufficient for this subsystem. Selector `$385DC` compares gate `$1A176` with the installed-overlay marker `$38092` and requests mode 0 or 1 through `$38840` when they differ. The loader first checks Disk 2 identifier `$8B632804` using `$3880A`, disables the timing callback, then sets destination `$79E1E`, length `$5800` and source offset `$1B800` (mode 0) or `$21000` (mode 1). `$208C0` copies that disk region; `$38880` records the mode and `$38886` reinstalls timing. Loader register roles follow the reader: `d0` is length, `d1` destination and incoming `d7` becomes source offset `d2`.
+
+Disk 2 is the existing pinned image SHA-256 `99909db1e190be02e049084743af44f00e331be6bf2d97b4831ada5fe4c30b4a`. Mode 0 overlay SHA-256 is `6d7dbce7e3ec2eb920ba1440b4700e262081ac3cf6d3ca5a558514e20f26b91c`; mode 1 is `df04433b4dc420b8f1c500981fd8d4873bc8ef42134effadfb2aa2095b4217c2`. In mode 1, `$79E7A` contains `4ef90007ce0a`, while screen callback `$79E74` contains `4ef90007cdbc`. Both mode 0 entries still point to the `RTS`. These are the loaded addresses, not addresses obtained by applying the main-image mapping to overlay bytes.
+
+`$7CE0A` checks the MTX research byte `$1A1EE` (item 24 record `+2`), refreshes eligible item mappings through `$7C6CC`, then walks local records at `$13810` with stride `$F6`. It skips hostile records (`+$F1` bit 7), requires station type 8 and the installed MTX bit (record `+$36` bit 6), resolves the saved target, and selects an enabled item from its rotating cursor/bitsets. `$7CEC0` calls send routine `$7CEE8`; `$7CEC8` calls balance routine `$7CFF6`. The mineral send path caps destination stock at 50,000 and keeps overflow at the source; the balance path splits total stock with an odd remainder retained by the source. These independent stock writes and the installed flag establish MTX transfer identity.
+
+Consequently the active original order is **training → Earth extraction → local extraction → MTX → production → research → attrition → ships → refining**, subject to the already recorded gates/early return. A destination factory can use MTX-delivered materials in that same consumed update; an item newly completed by production cannot be sent by the earlier MTX phase until a later update. The current remake reverses both dependencies. This is instruction-derived behavior, not a measured original-runtime observation.
+
+Reproduce with `artifacts/research/event-order/trace-mtx-overlay.py` using the two pinned local disks and Capstone 5.0.7. It checks disk hashes and dispatch bytes and writes the aligned loader, dispatcher, send and balance traces. Trace SHA-256: `bbaca3f7e5adce2c16d5b72e442d65020e806d6d9069aa1c77aecab4b1f19cc6`; machine-readable facts are in `mtx-overlay-facts.json`. The next implementation check must exercise both material-arrival and completed-output dependencies through the actual master update.
