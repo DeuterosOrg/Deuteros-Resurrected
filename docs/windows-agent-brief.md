@@ -395,3 +395,7 @@ At `34440aac483d537561abb43f01eaa42a4c273897`, cause production and research dis
 At `771ceea` or later, build an SCG and fit all six pods. Select pod 6, load/unload cargo, remove/refit the empty pod, and move to the engine mounting. Enter the ship: all six cargo labels must display without errors. Open Cargo, click the sixth Ditch button and check it does not overlap Close or change pod 5. Repeat in the exported build.
 
 Load an older five-mount SCG save containing fifth-pod cargo, a frozen team and a loaded grapple. It must gain one empty mount, retain the original five pods and their contents, and remain at six after repeated save/load. No free pod or cargo is added. Native Mac cases 263/267/514 pass with screenshots; full 514 Mac validation and Windows cross-export pass. Native Windows and normal campaign acceptance remain pending; preserve the separate `8cdd458` human handoff.
+
+## Manual bay capacity follow-up
+
+Candidate `70cabb8` adds cases 515–519 after the latest full Mac aggregate. In shuttle, IOS and SCG bays, try returning 250 cargo units to a store holding 49,751; both unloading and swapping resources must leave cargo and both stocks unchanged. At 49,750, the return must succeed. Repeat with stacked equipment and a full spare-pod store, including replacement and the sixth SCG mount. A rejected DFCC fitting must not refund fuel or change hull mode. Confirm the warning fits its panel, dismiss it, and retry after making room. Five new Mac headless/native cases and 15 related checks pass; full 519-case and Windows validation are pending.

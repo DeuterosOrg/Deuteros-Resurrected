@@ -96,3 +96,7 @@ Saved SCG travel, private/star clocks and actual Hyperlight Warlord promotion ar
 ## Six-mount SCG follow-up
 
 The original six-slot layout now works through hull creation, bay fitting/service, save migration, interior display and pointer-driven cargo disposal. Full **514/514 Mac** validation and audited Windows cross-export pass at `771ceea`; native 263/267/514 screenshots were inspected. Old fifth-slot cargo, frozen crews and grapple contents survive loading. Counts remain **35/48 with implementation evidence, 0/48 fully accepted**. The [Windows brief](windows-agent-brief.md#six-scg-mounts-and-legacy-saves) adds the exact checks. Rogue-crew source work additionally maps stolen resources, prison containment, bulletin scheduling and SDM escape; its gameplay controller remains open.
+
+## Manual bay capacity follow-up
+
+Shared manual-transfer checks now prevent cargo, equipment and removed pods from overflowing stores, including atomic rejection before DFCC fuel conversion. Five new cases (515–519), 15 related checks and targeted native Mac checks pass at `70cabb8`; the warning's layout regression is also corrected. No new Asana row is counted: **35/48 implementation evidence, 0/48 accepted**. Full 519-case and Windows runs remain pending; see [validation](validation-results.md#manual-bay-stock-capacity-follow-up).
