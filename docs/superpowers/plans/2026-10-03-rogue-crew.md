@@ -31,8 +31,8 @@
 
 **Interfaces:** `SaveFile.RogueCrew` is a nonnull saved model after legacy initialization. Persist `Occurred:bool`, `Crew:Staff`, `Stage:int`, `MutinyPending:bool`, `PrisonCountdown:int`, `PrisonDivider:int`, `OriginalCrewCount:int?`. Add `Staff.Pirate:bool`, enum marine rank5. Model exposes `bool Controls(IShip ship)`, `bool Contained(SaveFile save)`, `void TryStart(SaveFile save)`, `void CrewLost(Staff crew)`, and `void Validate(SaveFile save)` (throws InvalidDataException). No global simulation hook yet.
 
-- [ ] Add failing cases for missing rank/selection/save behavior. Use existing `NewInterstellarRoute()`/`Save`, promote an Admiral through the actual Hyperlight route, stage mixed station ownership and call TryStart. Assert `Occurred`, selected reference, BOUNTY, stage11, Pirate5, ACC inactive and unchanged cargo. Pin `TryStart` idempotence.
-- [ ] Cover each gate independently: five enemy systems versus four, undiscovered research with initial progress1, discovered partial progress, first mixed star without a qualifying ship, exact249/250fuel, occupied/empty cryo, Blaser exclusion, permitted DFCC/PTL, stable ship slot order and old save absence. Example core check:
+- [x] Add failing cases for missing rank/selection/save behavior. Use existing `NewInterstellarRoute()`/`Save`, promote an Admiral through the actual Hyperlight route, stage mixed station ownership and call TryStart. Assert `Occurred`, selected reference, BOUNTY, stage11, Pirate5, ACC inactive and unchanged cargo. Pin `TryStart` idempotence.
+- [x] Cover each gate independently: five enemy systems versus four, undiscovered research with initial progress1, discovered partial progress, first mixed star without a qualifying ship, exact249/250fuel, occupied/empty cryo, Blaser exclusion, permitted DFCC/PTL, stable ship slot order and old save absence. Example core check:
 ```csharp
 state.TryStart(Save);
 Equal(true, state.Occurred, "one qualifying mutiny");
@@ -40,9 +40,9 @@ Equal(true, ReferenceEquals(ship.Pilot, state.Crew), "selected identity");
 Equal(5, ship.Pilot.GetLevel(), "Pirate rank");
 Equal(11, state.Stage, "initial wait stage");
 ```
-- [ ] Implement state, selection and rank without enabling gameplay. Default missing legacy fields explicitly through ModelContract/Deserialize, preserve references, and validate phase ranges/location uniqueness. Count physical pilot/module/roster positions, excluding the controller's tracking reference and synthetic enemy crews; reject factory/research/ordinary-cryo locations for the selected rogue.
-- [ ] Roundtrip with real Serialize/Deserialize, then corrupt Stage, divider, temporary count, Crew reference and rank. Assert failure leaves the active Save reference unchanged. Retain observed compile/API absence separately from semantic failures; run new cases plus existing Warlord/save cases.
-- [ ] Commit the model/selection and verified tests on the isolated branch; do not wire it or integrate it independently.
+- [x] Implement state, selection and rank without enabling gameplay. Default missing legacy fields explicitly through ModelContract/Deserialize, preserve references, and validate phase ranges/location uniqueness. Count physical pilot/module/roster positions, excluding the controller's tracking reference and synthetic enemy crews; reject factory/research/ordinary-cryo locations for the selected rogue.
+- [x] Roundtrip with real Serialize/Deserialize, then corrupt Stage, divider, temporary count, Crew reference and rank. Assert failure leaves the active Save reference unchanged. Retain observed compile/API absence separately from semantic failures; run new cases plus existing Warlord/save cases.
+- [x] Commit the model/selection and verified tests on the isolated branch; do not wire it or integrate it independently.
 
 ## Task 2: Full controller, raids and shared simulation boundaries
 

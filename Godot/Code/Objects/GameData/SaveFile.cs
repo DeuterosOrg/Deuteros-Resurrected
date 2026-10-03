@@ -30,6 +30,7 @@ namespace Deuteros.Code.Objects.GameData
         public int MethanoidTradeCount { get; set; }
         public int StarSystemsCaptured { get; set; }
         public AlienTransmissions AlienTransmissions { get; set; }
+        public RogueCrew RogueCrew { get; set; } = new();
         // Historical save name: next enemy batch in displayed centidays.
         public ulong EnemyBuildDay { get; set; }
         public int EnemyStarCursor { get; set; }

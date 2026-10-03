@@ -270,6 +270,12 @@ namespace Deuteros.Tests
             await CheckAsync("DFCC removal rejects every insufficient return capacity before mutation", DfccRemovalCapacity);
             await CheckAsync("Remaining controllers and legacy converted hulls retain DFCC state", DfccRemainingControllers);
             await CheckAsync("Engine readout distinguishes drifting from powered transit on every hull", EngineDriftReadout);
+            CheckUi("Qualifying Hyperlight Warlord mutinies once without premature cargo loss", RogueSelection);
+            CheckUi("Rogue selection follows original eligibility rather than unrelated hull flags", RogueSelectionGates);
+            CheckUi("Older saves preserve Warlords without inventing a rogue event", RogueSaveLegacy);
+            CheckUi("Rogue save identity rejects malformed and duplicated crew state", RogueSaveValidation);
+            CheckUi("Rogue crew identity follows roster prison and loss without a second mutiny", RogueCrewLocations);
+            CheckUi("Rogue selection follows allocated slots and disconnects active ACC", RogueStableSelection);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

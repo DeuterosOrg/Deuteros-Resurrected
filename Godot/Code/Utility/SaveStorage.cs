@@ -70,7 +70,7 @@ namespace Deuteros.Code.Utility
                     else if (typeof(InterStellarShip).IsAssignableFrom(type) && property.PropertyName == nameof(InterStellarShip.AutomationSlot))
                         property.Required = Required.DisallowNull;
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
-                    else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord)))
+                    else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord) || property.PropertyName == nameof(Staff.Pirate)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(News) && property.PropertyName == nameof(News.PendingBulletins))
                         property.Required = Required.DisallowNull;
@@ -83,7 +83,7 @@ namespace Deuteros.Code.Utility
                         || property.PropertyName == nameof(AlienTransmissions.HyperlightCountdown)
                         || property.PropertyName == nameof(AlienTransmissions.HyperlightPending)))
                         property.Required = Required.DisallowNull;
-                    else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.AlienTransmissions))
+                    else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.AlienTransmissions) || property.PropertyName == nameof(SaveFile.RogueCrew)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.Clock))
                         property.Required = Required.DisallowNull;
@@ -343,6 +343,8 @@ namespace Deuteros.Code.Utility
                     Require(ship.ACC.CurrentSource >= ItemTypes.iron && ship.ACC.CurrentSource <= ItemTypes.hed_fuel
                         && ship.ACC.CurrentDestination >= ItemTypes.iron && ship.ACC.CurrentDestination <= ItemTypes.hed_fuel, "ACC cycle cursor");
             }
+            Require(save.RogueCrew != null, "rogue state");
+            save.RogueCrew.Validate(save);
             foreach (var pool in save.Ships.OfType<InterStellarShip>().Where(s => s is not EnemyFleet)
                 .GroupBy(s => (s.ShipType, s is SCG ? StellarBodies.none : s.StarLocation)))
             {

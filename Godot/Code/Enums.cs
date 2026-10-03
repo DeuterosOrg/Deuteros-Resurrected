@@ -367,7 +367,8 @@ namespace Deuteros.Code
             Pilot = 1,
             Captain = 2,
             Admiral = 3,
-            Warlord = 4
+            Warlord = 4,
+            Pirate = 5
         }
 
         public enum Game_Unlocks

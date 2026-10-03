@@ -13,6 +13,7 @@ namespace Deuteros.Code.Objects
         public int AttritionCountdown { get; set; }
         public Enums.StaffType Type { get; set; }
         public bool Warlord { get; set; }
+        public bool Pirate { get; set; }
         internal bool CanBeWarlord => Type == Enums.StaffType.Marines && ActionsTaken >= 40;
 
         internal void PromoteWarlord()
@@ -81,6 +82,7 @@ namespace Deuteros.Code.Objects
             }
             else if (Type == Enums.StaffType.Marines)
             {
+                if (Pirate) return (int)Enums.StaffLevel_Marines.Pirate;
                 if (Warlord) return (int)Enums.StaffLevel_Marines.Warlord;
                 if (ActionsTaken >= 10 && ActionsTaken < 40)
                     return (int)Enums.StaffLevel_Marines.Captain;
