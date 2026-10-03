@@ -150,3 +150,10 @@ Windows case numbers refer to its older checkout and must not be copied over cur
 The latest Supply task comment reports an additional physical failure: missing-pod text overflowed the fixed 128×57 error box. The Windows agent replaced its geometry with `PanelContainer`/`MarginContainer`, strengthened its existing case 311, and reports a normal day-981 source click with enclosed text after restart. Player saves were preserved. The running desktop process **30940** belongs to this playtest and was not disturbed by SSH validation.
 
 `unavailable-pod-feedback-v2.patch` supersedes the earlier patch and includes four files over `878d74d`. It remains uncommitted in the desktop checkout and has not been collected/integrated here; original box fidelity and matching export remain untested. Retrieved source: `artifacts/research/windows-agent-asana-2026-10-03-1552.json`. This report adds no accepted task and no Asana changes.
+
+
+## Popup wording confirmation — 2026-10-03
+
+A read-only refresh of the [Supply pod task](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676219) retrieves a 19:39 UTC comment reporting that Craig confirmed the resized popup works and accepts “Pod Not Available” for this batch. Exact original wording is explicitly deferred for this feedback fix. This is the Windows report's acceptance evidence, not a new Mac test or completion of the broader Ditch/AMA task. Patch integration and matching export checks remain open.
+
+The latest Mac-audited source bundle, `deuteros-22b2474.bundle`, is uploaded to `C:/Users/builder/Downloads/`; local and remote SHA-256 match `d8759542f0cb7cc8203e7d8707b0f1c3f0036f624c2b6950fa7ebdb46201861d` (15,646,802 bytes). It contains complete history through documentation commit `22b2474` and runtime `2151aa3`, including the ACC cursor-lock and departure-scan fixes. It has not been executed on Windows. The existing Windows game is now PID 8340 and remains untouched. No new patch/report is available in the accessible Downloads handoff folder. Evidence: `artifacts/windows-handoff/bundle-22b2474-upload.json` and `artifacts/research/windows-recheck-1940.json`.
