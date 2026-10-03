@@ -91,7 +91,7 @@ This exposed a remaining defect in [grapple unloading](https://app.asana.com/0/1
 
 A physical replay of the unedited captured-object checkpoint then unloaded all three consecutively in one bay visit. Screenshots show `250 Silver 250`, `100 Silica 100` and `50 Platinum 50`; the correct orbital stocks survive save/reload. Both native sessions exited zero, strict log checks passed, and the exact original save inventory was restored. Runtime `06d09c3` passes all 595 fresh-process regressions, 19 Python checks, strict import/startup and the audited Windows cross-export. Windows execution of this cleanup remains pending.
 
-Evidence: `artifacts/ama-salvage-campaign/`; corrected final slot SHA-256 `8fc343d0d9d5d71776d8813ad978e93db1403951b445936fefe0d20d282c916f`. A separate display finding remains open: grapple panels label every mount as `1`; the AMA panel has the same hardcoded number.
+Evidence: `artifacts/ama-salvage-campaign/`; corrected final slot SHA-256 `8fc343d0d9d5d71776d8813ad978e93db1403951b445936fefe0d20d282c916f`. That run also exposed hardcoded mount numbers in the grapple and AMA panels; the later correction is recorded below.
 
 ## Normal AMA mining and ACC return
 
@@ -104,3 +104,12 @@ Filling the pod to 250 triggers automatic launch. Selecting **Complete Cycle** d
 A physical replay from the unedited mining save fills the pod, selects Complete Cycle from the launch screen, returns to Earth, docks and unloads exactly 250 copper. Orbital copper rises 150→400; the empty pod, 186T tank, seven crew and disengaged ACC survive reload at `3107 918.24`. Service opens the correct Earth orbital IOS bay. Both campaign sessions exit zero with clean strict logs; original saves are restored exactly. Evidence: `artifacts/ama-acc-campaign/`; final slot SHA-256 `67971615e03e1f66304d4f1fa0c0dc06698612ac3c3e6c832e54e3984f731133`.
 
 This covers one normal mining delivery and cycle stop. Repeated continuous trips, a two-hull expedition, original-runtime comparisons and native Windows acceptance remain open; the 48-task acceptance count is unchanged.
+
+
+## AMA removal, refitting and module labels
+
+Runtime `56884880684c054d64446c72ce88fcd6e4c27262` continues from the unedited normal mining-return save. Three physical clicks selecting unavailable ACC equipment leave the installed AMA and zero AMA stock unchanged. Selecting the installed AMA removes it, clears its mount and raises orbital AMA stock exactly 0→1; other orbital stocks and the 186T tank remain unchanged. The removal survives save/reload. This exercises removal and an unavailable-replacement edge case for task 1216065854613348.
+
+Normal refitting puts an existing grapple into mount two, exchanges the empty third supply pod for the returned tool pod, and installs the single AMA in mount three. Saved stock and modules confirm exactly one fitted AMA, two remaining stored grapples, one returned supply pod and no remaining stored tool pod. Undocking consumes one fuel, leaving 185T and seven crew. The grapple window displays **2**, the AMA window **3**, and the AMA number/equipment survive another reload. Both panels previously hardcoded 1; their existing `Load` methods now derive the number from the selected module. Case 65 reproduced each wrong label separately and passes with its modal-close checks retained.
+
+The native session exits zero with a clean strict log, and exact original saves are restored. Evidence is in `artifacts/module-panel-number/physical/`; the refitted orbital checkpoint SHA-256 is `2f6ecc1529cd7d9ac137e1d1ee063b33f7444adc72201bd82b0f12e06cfaa68c`. The main colony continuation may still use the earlier docked mining-return save. An old mining scan was visible on the first undocked Earth update and cleared on the following scan update; no capture exploit or original-fidelity conclusion was established. Windows acceptance remains open.
