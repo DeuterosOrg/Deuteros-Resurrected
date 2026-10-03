@@ -126,3 +126,7 @@ The [591-case checkpoint](validation-results.md#early-game-follow-ups-591-case-c
 ## Interior Service control
 
 The user-reported dead upper-left Service artwork now opens the correct docked hull's existing bay. Cases 592–593 pass headless and natively, and the reported pointer location works in the normal campaign. Full **593/593 Mac**, **19 Python checks**, source startup and audited Windows cross-export pass at `50ea4af`; see [validation results](validation-results.md#interior-service-control-593-case-checkpoint). This additional fix does not change the 35/48 implementation and 0/48 acceptance totals. Windows checks are in the [agent brief](windows-agent-brief.md#interior-service-control).
+
+## Orbital staffing and hover follow-up
+
+Normal play now transports and assigns an experienced team to the first orbital factory, preserving rank, staff count, docked ship state and fuel through save/reload. The missing orbital crew-assignment hint is corrected at `8fec147`; existing case 58 has failing-before/passing-after evidence, and full **593/593 Mac**, **19 Python checks**, startup and export audit pass. The prepared Windows run has not started while another Godot process is present. This supports the existing bay-hover task without changing the **35/48 implementation, 0/48 acceptance** totals. IOS materials/manufacturing and later campaign acceptance remain open.
