@@ -29,6 +29,10 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 		public ShipModule Module { get; set; }
 		public int TorsoSection { get; set; }
 
+        private GameCore animationOwner;
+        private Texture2D removedPod, fittedPod;
+        private double podElapsed;
+
 		public delegate bool ChangeModuleDelegate(Module_Types moduletype, int torsoSection);
 		public event ChangeModuleDelegate ModuleChanged;
 
@@ -51,7 +55,44 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 			AddCryoPod.Pressed += () => ChangeModuleType(Module_Types.Cryo);
 
 			ActivatePod.Pressed += ActivatePod_Pressed;
+			SetProcess(false);
 		}
+
+        public override void _Process(double delta)
+        {
+            if (animationOwner == null) return;
+            podElapsed += delta;
+            // Original: 58 removal offsets 1..115, then 60 fitting offsets 118..0.
+            // Recorded fitting agrees with two rows per nominal PAL frame.
+            var frame = (int)(podElapsed * 50 + 1e-9);
+            var removalFrames = removedPod == null ? 0 : 58;
+            if (frame < removalFrames)
+            {
+                Component.Texture = removedPod;
+                Cargo.Position = new Vector2(0, 1 + frame * 2);
+            }
+            else if (fittedPod != null && frame - removalFrames < 60)
+            {
+                Component.Texture = fittedPod;
+                Cargo.Position = new Vector2(0, 118 - (frame - removalFrames) * 2);
+            }
+            else FinishPodMotion(true);
+        }
+
+        public override void _ExitTree() => FinishPodMotion(false);
+
+        private void FinishPodMotion(bool refresh)
+        {
+            var owner = animationOwner;
+            if (owner == null) return;
+            animationOwner = null;
+            SetProcess(false);
+            Cargo.Position = Vector2.Zero;
+            removedPod = fittedPod = null;
+            if (refresh) UpdateState();
+            if (IsInstanceValid(owner) && ReferenceEquals(owner, GameCore.SingletonInstance) && owner.IsInsideTree())
+                GameCore.UnLockScreen();
+        }
 
 		private void ActivatePod_Pressed()
 		{
@@ -60,6 +101,7 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
 		public void UpdateState()
 		{
+            if (animationOwner != null) return;
 			if (Module.ModuleType == Module_Types.None)
 			{
 				Cargo.Visible = false;
@@ -126,6 +168,8 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
 		public void ChangeModuleType(Module_Types moduleType)
 		{
+			if (animationOwner != null || GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked) return;
+			var oldTexture = Module.ModuleType == Module_Types.None ? null : Component.Texture;
 			bool success;
 
 			if (moduleType == Module.ModuleType)
@@ -133,12 +177,22 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 			else
 				success = ModuleChanged.Invoke(moduleType, TorsoSection);
 
-			if (success)
-				UpdateState();
+			if (!success) return;
+            // Keep the existing capacity-checked stock transaction atomic; only its display is delayed.
+            UpdateState();
+            removedPod = oldTexture;
+            fittedPod = Module.ModuleType == Module_Types.None ? null : Component.Texture;
+            Cargo.Visible = true;
+            podElapsed = 0;
+            animationOwner = GameCore.SingletonInstance;
+            GameCore.LockScreen("Pod fitting");
+            SetProcess(true);
+            _Process(0);
 		}
 
 		public void ChangeModule(ShipModule module)
 		{
+			if (!ReferenceEquals(Module, module)) FinishPodMotion(false);
 			Module = module;
 
 			UpdateState();

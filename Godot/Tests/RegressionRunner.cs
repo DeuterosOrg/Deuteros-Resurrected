@@ -345,6 +345,8 @@ namespace Deuteros.Tests
             CheckUi("MTX sends newly completed factory output on the following update", () => MtxProductionOrder(true));
             CheckUi("ACC Clear immediately refreshes both endpoint selections and cycle markers", AccClearRefresh);
             await CheckAsync("Ground construction and repair require a nonempty pilot crew", GroundWorkRequiresCrew);
+            await CheckAsync("Supply tool and cryo pods animate fitting and removal with one stock transaction", PodFittingMotion);
+            await CheckAsync("Pod replacement animates old then new and releases only its own lock on exit", PodReplacementAndExit);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

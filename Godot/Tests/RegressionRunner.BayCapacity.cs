@@ -151,6 +151,7 @@ namespace Deuteros.Tests
                 Equal(replacement.Item1, pod.ModuleType, "exact capacity permits pod swap");
                 Equal(50000, stores[fitting.Item2], "old pod returned once");
                 Equal(0, stores[replacement.Item2], "new pod charged once");
+                bay.GetNode<Deuteros.Code.Platform.Screens.ShipBayScenes.Torso>(ShipParts + "Torso6")._Process(2.37);
             }
         }
     }

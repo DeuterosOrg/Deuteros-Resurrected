@@ -180,6 +180,7 @@ namespace Deuteros.Tests
                 Press(bay, "Buttons/ShipNav/Nav_Torso" + mount);
                 Press(bay, ShipParts + "Torso" + mount + "/SpriteHolder/Buttons/AddSupplyPod");
                 Equal(Module_Types.Supply, Save.Ships.Single().Modules[mount - 1].ModuleType, "pod fitted to selected mount");
+                bay.GetNode<Deuteros.Code.Platform.Screens.ShipBayScenes.Torso>(ShipParts + "Torso" + mount)._Process(1.21);
             }
             Equal(0, stores[ItemTypes.supply_pod], "six pods fitted exactly once");
             stores[ItemTypes.iron] = 300;
