@@ -778,7 +778,7 @@ namespace Deuteros.Code.Platform.Screens
 				Status.Text = "UNDER ATTACK !\n" + Ship.PlanetLocation.ToScreenString(" ");
 
 			else if (Ship.GetType() == typeof(Shuttle) && Ship.ShipState == Ship_States.CrewRepairing)
-				Status.Text = "Crew Active On\n" + Ship.PlanetLocation.ToScreenString(" ");
+				Status.Text = "Repairing On\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.GetType() == typeof(Shuttle) && Ship.ShipState == Ship_States.Landing)
 				Status.Text = "Landing On\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.GetType() == typeof(Shuttle) && Ship.ShipState == Ship_States.TakingOff)
@@ -789,7 +789,7 @@ namespace Deuteros.Code.Platform.Screens
 				else
 					Status.Text = "In Ground Bay\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.ShipState == Ship_States.Launching)
-				Status.Text = "Launching From\n" + Ship.PlanetLocation.ToScreenString(" ");
+				Status.Text = "Launching\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.ShipState == Ship_States.Docked)
 				if (Ship.ACC != null && (Ship.ACC.Active || Ship.ACC.CycleMode) && Ship.ACC.Refuelling)
 					Status.Text = "Refueling at\n" + Ship.PlanetLocation.ToScreenString(" ");

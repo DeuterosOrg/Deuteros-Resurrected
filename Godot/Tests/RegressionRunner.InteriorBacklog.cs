@@ -105,13 +105,18 @@ namespace Deuteros.Tests
                 Equal(Scenes.ShipInterior, GameCore.SingletonInstance.currentScene, reason);
             }
             foreach (var state in new[] { Ship_States.TakingOff, Ship_States.Landing, Ship_States.UnDocked,
-                Ship_States.CrewRepairing, Ship_States.InTransit, Ship_States.Docking })
+                Ship_States.CrewRepairing, Ship_States.InTransit, Ship_States.Docking, Ship_States.Launching })
             {
                 interior.Ship.ShipState = state;
+                ((Shuttle)interior.Ship).OnGround = state != Ship_States.Launching;
                 interior.UpdateState();
+                var status = interior.GetNode<Label>("TextLayout/Status");
+                Equal(true, status.GetMinimumSize().X <= 104,
+                    "status fits its column without covering cargo during " + state);
                 Equal(true, button.Disabled, "service unavailable during " + state);
                 Rejected("retained service rejects " + state);
             }
+            ((Shuttle)interior.Ship).OnGround = true;
             interior.Ship.ShipState = Ship_States.Docked;
             var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
             try
