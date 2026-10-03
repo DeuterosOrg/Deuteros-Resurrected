@@ -1,6 +1,6 @@
 # Original normal-speed clock
 
-Partial evidence for Asana **1215716464570923**, the request for 0.01 day of natural advancement approximately every 300 seconds. Checked 2026-10-02 against the original Disk 1 image; no timer change is implemented here.
+Partial evidence for Asana **1215716464570923**, the request for 0.01 day of natural advancement approximately every 300 seconds. Source checked against the original Disk 1 image; saved fractional-clock implementation added 2026-10-03. Original-runtime timing and independent interstellar clocks remain unverified.
 
 ## Source and arithmetic
 
@@ -18,9 +18,13 @@ The manual advance mode `$20536` instead writes threshold 60, accumulator 56 and
 
 ## Remake boundary
 
-`GameCore.UpdateTime` currently advances only on a requested day step or held skip; held steps use a 500 ms interval. It has no natural fractional-day producer. Adding only a fractional date label would not reproduce the original: each consumed fractional increment also invokes the simulation, including the AMA clock gate.
+`GameCore.UpdateTime` now produces one centiday after a nominal 315.6 seconds of normal play and consumes one simulation update. Manual steps add 100 centidays while retaining the previous normal-mode remainder. The existing 500 ms hold cadence is retained; this is not a claim that it matches the original manual mode. Pause and intro do not accumulate normal time. A blocked simulation holds one pending increment; stalls do not create a catch-up queue.
 
-Implementation needs a saved fractional clock and a deliberate mapping between simulation updates and displayed days, including load, pause, manual advancement and interstellar star/ship clocks. Verify startup, an uninterrupted normal interval, input-held advancement, paused menus and a save/reload interval in an emulator before claiming exact timing. Keep this task aligned with the pending interstellar clock integration decision.
+The saved `GameClock` holds displayed centidays, partial normal elapsed time and the pending increment. Historical `CurrentDay` remains the consumed-update counter, preserving training, travel and other update-based progress. Missing legacy clocks migrate from `CurrentDay * 100`; malformed clocks/deadlines are rejected before replacing the world. Calendar attrition and enemy deadlines use displayed dates instead. News, save slots, the main clock and ETA use the fractional date; ETA follows hold/release, toggle and external stops on the next display frame.
+
+Cases **475–493** cover timing, mixed modes, stalls, pending save/reload, legacy migration, invalid input, calendar gates, AMA phases and live ETA controls. Native Mac checks include date/News/save/ETA rendering. A physical new-game check at `862e421` queued a research trainee without touching time controls: the observed clock changed from `.00` to `.01` and the training door closed. The screenshots bracket the transition; they do not measure its exact boundary or compare it with an emulator.
+
+Independent star/private-SCG clocks remain open. Compare startup, uninterrupted and held intervals, pauses, stalls and reload with the original runtime before claiming exact timing. See [validation results](validation-results.md#saved-fractional-clock-and-ama-phases-493-case-checkpoint) and the [Windows brief](windows-agent-brief.md#fractional-clock-and-ama-phase-follow-up).
 
 ## Initialization follow-up
 
@@ -28,4 +32,4 @@ The decoded initialization path calls `$403F4` at `$404CE`; `$403FA` then calls 
 
 Aligned instructions and numeric facts are retained in `artifacts/research/mtx/natural-clock-startup.txt` and `natural-clock-startup-facts.json` (trace SHA-256 `3e121ded50aa0984e87334c5b0625e9a4e45d3f6107449fb8fe08165ccf248ec`). The exploratory extract includes misaligned/truncated decoding and is not cited as evidence. The nominal PAL interval remains 315.6 seconds, not a measured runtime result.
 
-The three training consumers at `$22E86` initialize their counters to 24 (`$22EAA/$22F42/$22FDA`) and decrement once per consumed simulation call, including the start call. They do not subtract displayed dates. The remake also defaults all three durations to 24, but compares integer day timestamps; fractional integration must preserve consumed-update behavior rather than merely changing the displayed date. Aligned trace: `artifacts/research/mtx/training-clock-consumer.txt`, SHA-256 `bd6e9c49751184d45bd4cad8ad0d11a73d89af11599f2a672c7dbeed018d2d23`.
+The three training consumers at `$22E86` initialize their counters to 24 (`$22EAA/$22F42/$22FDA`) and decrement once per consumed simulation call, including the start call. They do not subtract displayed dates. The remake also defaults all three durations to 24, but compares integer day timestamps; fractional integration retains that consumed-update counter rather than merely changing the displayed date. Aligned trace: `artifacts/research/mtx/training-clock-consumer.txt`, SHA-256 `bd6e9c49751184d45bd4cad8ad0d11a73d89af11599f2a672c7dbeed018d2d23`.

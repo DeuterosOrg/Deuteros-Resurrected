@@ -55,7 +55,7 @@ Ordinary arrival `$314B2–$314E0` requires exact equality between the ship and 
 
 ## Integration work remaining
 
-The remake currently stores one global integer day, generic transit state and a start day. It lacks per-star/ship clocks, fractional travel progress and Hyperlight travel. SCG and delayed Hyperlight discovery are now connected; their original clock/campaign acceptance remains pending. A faithful implementation needs a save migration and complete travel/fuel/arrival handling; merely assigning Warlord on any cross-star arrival would be incorrect. Craig has been asked whether the intended port preserves original star arrivals/clocks or adapts them to direct planet-to-planet routes. Keep that scope decision separate from proven instruction arithmetic.
+The remake now saves one global fractional calendar plus an independent consumed-update counter, generic transit state and a start-update timestamp. It still lacks per-star/ship clocks, fixed-point accelerated travel progress and Hyperlight travel. SCG and delayed Hyperlight discovery are now connected; their original clock/campaign acceptance remains pending. A faithful implementation needs a save migration and complete travel/fuel/arrival handling; merely assigning Warlord on any cross-star arrival would be incorrect. Craig has been asked whether the intended port preserves original star arrivals/clocks or adapts them to direct planet-to-planet routes. Keep that scope decision separate from proven instruction arithmetic.
 
 
 ## Hyperlight discovery producer (additional static trace)
@@ -77,7 +77,7 @@ The locally integrated correction now samples hostile-system counts at the exist
 
 Cases 459–461 reproduced the missing discovery through real simulation updates, including a save mid-delay and ownership changes between enemy samples. Cases 462–464 cover competing notices and saved pending state, Research-screen selection and completion, legacy/malformed saves, all system-count boundaries and recapture. Focused checks pass, including existing transmission cases 427–432/434–435. Full 464-case Mac validation and native cases 459/460/461/462/464 pass at `fbffac5`; Windows execution remains pending. An initial 462 assertion incorrectly expected Hyperlight to bypass an unacknowledged transmission; the fixture now acknowledges that message and proves the pending discovery survives it.
 
-This restores discovery within the remake's current scheduler. The [enemy build-frequency correction](original-enemy-production-evidence.md) separately restores the remaining-system lookup; the whole-day clock still does not reproduce original enemy cadence. Hyperlight acceleration/arrival, per-star clocks, Warlord and transmitter activation remain outstanding; this branch is not full acceptance of the travel or campaign tasks. Evidence is retained under `artifacts/validation/evidence/hyperlight-discovery/`.
+This restores discovery within the remake's current scheduler. The [enemy build-frequency correction](original-enemy-production-evidence.md) separately restores the remaining-system lookup; exact fractional enemy deadlines are now implemented, while original independent Sol-clock cadence and initialization remain unverified. Hyperlight acceleration/arrival, per-star clocks, Warlord and transmitter activation remain outstanding; this branch is not full acceptance of the travel or campaign tasks. Evidence is retained under `artifacts/validation/evidence/hyperlight-discovery/`.
 
 ### Countdown-order follow-up
 

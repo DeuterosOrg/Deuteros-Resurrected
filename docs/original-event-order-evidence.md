@@ -60,7 +60,7 @@ Differences requiring targeted work:
 4. Original pending discovery flags form a priority chain. Immediate remake callbacks could overwrite a bulletin or replace a locked screen. The delivery correction below preserves notices; original priority remains separate work.
 5. SDM simulation expiry follows ships and enemy actions, while its separate real-time consumer `$23E4E` uses `$20290`. A single day counter cannot stand in for both paths.
 
-This is evidence for the integration work, not a reason to reorder isolated handlers while retaining incompatible timing. The pending fractional/interstellar-clock decision also affects what constitutes a consumed update.
+This is evidence for the integration work, not a reason to reorder isolated handlers while retaining incompatible timing. The subsequent fractional-clock integration consumes one update per centiday or manual whole-day increment; independent interstellar clocks remain pending.
 
 ## Acceptance still required
 
@@ -71,7 +71,7 @@ Instrument one original update with training graduation, extraction, production,
 
 The isolated `codex/simulation-order` branch reproduces research completion observing an already-departed shuttle (451) and arrival seeing its pilot before attrition (452). Moving research and attrition ahead of ships corrects both. A strengthened 451 also reproduces Mercury mining before graduation when only Earth's method is reordered; resolving active-world training before all mining corrects that path. Cases 42–44 guard world replacement and duplicate updates. All these focused checks, 449–450, 350/357–358, and native 451–452 pass. Full Mac validation at `08eda4d` passes 452/452, nine Python checks, strict import, startup and audited Windows cross-export; integrated into the local contribution branch. Windows execution remains outstanding.
 
-Evidence: `artifacts/validation/evidence/simulation-order/{red,training-red,green}/`. The initial 451 fixture had an invalid ACC cursor and was stopped; its log is retained under `setup/invalid-cursor-451.log`, separate from the valid red ordering reproductions. This change preserves the current update unit. It does not resolve fractional/star clocks, original discovery priority, all early-return paths, or original-runtime/Windows comparison.
+Evidence: `artifacts/validation/evidence/simulation-order/{red,training-red,green}/`. The initial 451 fixture had an invalid ACC cursor and was stopped; its log is retained under `setup/invalid-cursor-451.log`, separate from the valid red ordering reproductions. This change preserves the current update unit. The later fractional-clock batch preserves this order. Independent star clocks, original discovery priority, all early-return paths and original-runtime/Windows comparison remain open.
 
 ## Bulletin delivery correction
 
@@ -79,4 +79,4 @@ Cases 473–474 reproduce actual production and research completing in the same 
 
 Focused 473/474/126/128/199/427/432/462 and native 473/474/128/462 pass. Checks include saved delivery, old saves with no pending field, rejected null/unknown/duplicate IDs, input ownership, real producers and replay controls. The native screenshot was inspected. Evidence: `artifacts/validation/evidence/bulletin-delivery/`; `setup/invalid-headless-screenshot.log` is a harness configuration mistake, not a gameplay failure. Full aggregate and Windows results are recorded separately. New saves include the pending list and require this or a newer build; preserve backups for older builds.
 
-This correction preserves the remake's current producer order. It does not claim the original flag-priority scheduler: initialized text-table decoding maps `$1C2D6/$1C2D0/$1C2D2/$1C2D4` to **Blaser → SDM → MTX → Hyperlight**, with descriptor words `[9,0,9]`, `[18,0,4]`, `[23,0,5]`, `[22,0,8]`. Exact decoded descriptors are in `artifacts/research/event-order/discovery-priority-descriptors.json`. Implementing that priority alongside the original deferred unlock semantics and fractional clocks remains open.
+This correction preserves the remake's current producer order. It does not claim the original flag-priority scheduler: initialized text-table decoding maps `$1C2D6/$1C2D0/$1C2D2/$1C2D4` to **Blaser → SDM → MTX → Hyperlight**, with descriptor words `[9,0,9]`, `[18,0,4]`, `[23,0,5]`, `[22,0,8]`. Exact decoded descriptors are in `artifacts/research/event-order/discovery-priority-descriptors.json`. Implementing that priority alongside the original deferred unlock semantics remains open; fractional-clock integration alone does not implement that priority.

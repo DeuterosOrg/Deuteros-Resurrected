@@ -13,7 +13,19 @@ Current candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** adds recovery, 
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`34440aa`**, with **474/474 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`e369433`**, with **493/493 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+
+## Fractional clock and AMA phase follow-up
+
+Candidate **`e369433757efc6654e62d8ee39ab6a767d2b7c86`** adds cases **475–493**. Keep the existing `8cdd458` desktop report separate and use a disposable copy of saves; newer clock/slot fields are not supported by older builds. Run full source validation and make a fresh export of this exact candidate before testing both:
+
+- Start a new game, queue a trainee, and leave time controls untouched for a little over 315.6 seconds. Record timestamps and video: the date should gain `.01` and training should start. Pause must stop accumulation. The interval is nominal PAL-derived, not yet an original-runtime measurement.
+- Partway through a normal interval, save/reload and continue. Manual steps add `1.00` and preserve the partial normal interval; a natural step adds `.01`. Check training/travel consume one update, not 100. Compare old-save dates, stocks and remaining training/flight with their original values.
+- Inspect main date, News, save slots and ship ETA, including a year boundary. Hold/release and toggle fast-forward while watching ETA; an external stop should also refresh its projection without another simulation tick. Check labels fit and saving/reopening preserves fractions.
+- Exercise actual AMA scan/mine/return with empty, compatible, incompatible and full cargo. IOS allocation is per star; SCG allocation is global. Ship removal/reload must not shift another ship's cadence. Mining matches its four-phase clock gate and scanning its eight-phase gate; asteroid approach/departure each consume two updates. Normal-mode actions can take several minutes, so distinguish accelerated fixtures from normal play.
+- Use staged saves for a calendar attrition boundary and the enemy scheduler's exact 9.50-day interval (three remaining hostile systems). Record those fixtures and verify reload does not cause early or duplicate work. Run native cases 475–493 as automated evidence, separately from physical acceptance.
+
+Compare original-runtime timing where available. Independent star/SCG clocks, full Hyperlight/rogue crews/ending, original SCG mining eligibility and the original sixteen-slot construction limit remain open. Report PASS/FAIL/NOT TESTED with exact revision, source/export distinction, logs and screenshots; do not close Asana tasks from passing automated checks alone.
 
 ## Transmission candidate
 
@@ -43,7 +55,7 @@ Record source and export separately, including exact revision and logs. These fi
 
 ## Later asteroid/AMA follow-up
 
-The contribution branch now also restores all eight original asteroid classes/minerals and mining amounts 12–43 (case 443). This is **not** included in the prepared `625cae9` bundle. The range correction passes full 443-case Mac validation at `e68c6bb`. A subsequent case-444 correction blocks manual mining without fuel and disables ineligible Mine controls; focused native/headless Mac checks pass. Once separately supplied, verify Copper/Silica scans, class-7/8 display and mining, compatible cargo, pod capacity and ACC return in source/export. Try manual Mine with zero fuel, then refuel and retry an eligible scan; rejection must preserve the mining state. The original clock/scan cadence remains unresolved; do not count this range correction as full AMA acceptance.
+The contribution branch now also restores all eight original asteroid classes/minerals and mining amounts 12–43 (case 443). This is **not** included in the prepared `625cae9` bundle. The range correction passes full 443-case Mac validation at `e68c6bb`. A subsequent case-444 correction blocks manual mining without fuel and disables ineligible Mine controls; focused native/headless Mac checks pass. Once separately supplied, verify Copper/Silica scans, class-7/8 display and mining, compatible cargo, pod capacity and ACC return in source/export. Try manual Mine with zero fuel, then refuel and retry an eligible scan; rejection must preserve the mining state. The later fractional-clock follow-up below replaces provisional scan/mining cadence; wider eligibility and original-runtime comparison remain unresolved. Do not count the range correction alone as full AMA acceptance.
 
 ## Feature acceptance details
 

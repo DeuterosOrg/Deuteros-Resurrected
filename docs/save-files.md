@@ -34,8 +34,18 @@ Day updates now run the simulation event before the display event. The simulatio
 
 ## Staff attrition compatibility
 
-Version 1 now includes `Staff.AttritionCountdown`. Missing values from older saves default to zero, matching original team allocation; explicit null is invalid. Loading preserves member counts and applies no historical attrition. The next crossed 100-day boundary begins normal processing. Current saves retain each countdown and the global phase through `CurrentDay`, including teams inside cryopods. Older game builds reject this new field; retain pre-upgrade backups.
+Version 1 now includes `Staff.AttritionCountdown`. Missing values from older saves default to zero, matching original team allocation; explicit null is invalid. Loading preserves member counts and applies no historical attrition. The next crossed 100-day boundary begins normal processing. Current saves retain each countdown and the global phase through the displayed clock, including teams inside cryopods. Older game builds reject this new field; retain pre-upgrade backups.
 
 ## Self-destruct compatibility
 
 Version 1 now includes `SpaceStation.SdmCountdown` and `SaveFile.SdmTimerRemainder`. Older saves missing either field default it to zero; loading does not invent an armed station. Current saves preserve the countdown and subsecond phase, including the simulation skip bit. Explicit nulls, countdowns outside 0–255, non-finite phases and phases outside [0, 1) are invalid. Switch positions are screen state derived on entry, rather than a second saved source of truth. Older builds reject these new fields; preserve backups. See [gameplay limits](self-destruct-implementation.md).
+
+## Fractional clock and automation slots
+
+Version 1 now saves `Clock.DateCentidays`, `Clock.NormalElapsed` and `Clock.PendingIncrement`. `CurrentDay` remains the consumed-update counter, preserving existing training and travel timestamps. A legacy save without `Clock` derives its displayed date from `CurrentDay * 100` and scales its old whole-day `EnemyBuildDay` deadline by 100. New deadlines retain exact centidays. Loading never synthesizes catch-up updates or discards a saved pending increment; fast-forward still stops on load.
+
+The loader rejects explicit null clocks, missing required clock members, non-finite/out-of-range elapsed time, invalid pending increments and dates/deadlines outside the supported range before activating the save. Staff age at displayed calendar boundaries rather than consumed-update counts.
+
+Interstellar ships now save `AutomationSlot` for scan/mining phases. Missing legacy values allocate deterministically into free slots: IOS per star, SCG globally. Surviving ships keep their slot after another is removed or the collection reordered. Existing fleets above sixteen ships are preserved. Duplicate allocated slots within a pool and invalid negative/null values are rejected.
+
+Older builds reject these added fields. Preserve backups and record the originating revision when moving saves between builds. Cases 476–484/486/490–492 cover mixed timing, legacy migration, pending updates, slots, countdowns and malformed-state rejection.

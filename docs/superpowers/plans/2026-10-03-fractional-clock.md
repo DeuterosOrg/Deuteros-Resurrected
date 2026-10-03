@@ -53,10 +53,10 @@
 
 **Files:** Existing validation scripts and `docs/{validation-results,windows-agent-brief,backlog-progress,original-clock-evidence}.md`.
 
-- [ ] Review the full diff against the source evidence, migration rules and all five review-focus conditions; obtain the skill's final independent review and reproduce/fix substantive findings.
-- [ ] Run `python3 -m unittest discover -s scripts -p 'test_*.py'` and `python3 -u scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` from the stable worktree with the toolchain environment sourced.
-- [ ] Audit every case log and the exported package; run relevant native/physical checks. Keep failed attempts separate from accepted results.
-- [ ] Integrate locally and update the Windows brief with the exact revision and acceptance steps. Original-runtime comparison and Windows execution remain required for full task acceptance.
+- [x] Review the full diff against the source evidence, migration rules and all five review-focus conditions; obtain the skill's final independent review and reproduce/fix substantive findings.
+- [x] Run `python3 -m unittest discover -s scripts -p 'test_*.py'` and `python3 -u scripts/validate.py --godot /tmp/deuteros-godot-isolated --export-windows` from the stable worktree with the toolchain environment sourced.
+- [x] Audit every case log and the exported package; run relevant native/physical checks. Keep failed attempts separate from accepted results.
+- [x] Integrate locally and update the Windows brief with the exact revision and acceptance steps. Original-runtime comparison and Windows execution remain required for full task acceptance.
 
 ## Remaining whole-goal work
 
