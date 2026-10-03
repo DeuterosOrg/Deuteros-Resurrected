@@ -88,6 +88,31 @@ namespace Deuteros.Tests
             Equal("Research complete", research.GetNode<Label>("Labels/Researched/ItemNotesLabel").Text, "repeat selection remains safe");
         }
 
+        private async Task ResearchMassLayout()
+        {
+            InitializeUi();
+            GameCore.SingletonInstance.SetProcess(false);
+            foreach (var type in new[] { ItemTypes.meh_fuel, ItemTypes.s_drive, ItemTypes.s_chassis, ItemTypes.g_chassis })
+            {
+                var item = GameCore.SingletonInstance.GameData.GetItem(type);
+                item.Locked = item.Research.Locked = false;
+                item.Research.Researched = true;
+                GameCore.Earth.CurrentResearchItem = item.Research;
+                GameCore.SingletonInstance.ChangeScene(Scenes.Earth_Research, new List<SceneVariables> { SceneVariables.Ground });
+                var screen = ActiveScreen<Research>();
+                await InputFrames();
+                var caption = screen.GetNode<Label>("Labels/Researched/MassLabel");
+                var value = screen.GetNode<Label>("Labels/Researched/MassDataLabel");
+                Equal(item.Mass.ToString(), value.Text, "real item mass remains visible");
+                var captionText = caption.Text;
+                caption.Text = captionText[..captionText.IndexOf('t')];
+                var unitLeft = caption.GlobalPosition.X + caption.GetMinimumSize().X;
+                caption.Text = captionText;
+                Equal(true, unitLeft >= value.GetGlobalRect().End.X, "mass unit clears the right-aligned value: " + type);
+                await CaptureDisplayEvidence("research-mass-" + type);
+            }
+        }
+
         private async Task RecoveredResearchDiagrams()
         {
             InitializeUi();

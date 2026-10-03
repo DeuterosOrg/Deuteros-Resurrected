@@ -170,7 +170,7 @@ namespace Deuteros.Code.Platform.Screens
 						ItemNotesLabel.Text = "Research complete";
 						return;
 					}
-					MassLabel.Text = "Mass " + "".PadRight(researchItem.Mass.ToString().Length, ' ') + "t.";
+					MassLabel.Text = "Mass     t.";
 					MassDataLabel.Text = researchItem.Mass.ToString();
 					TeamWorkingLabel.Text = "";
 					ProjectCompletionLabel.Text = "";

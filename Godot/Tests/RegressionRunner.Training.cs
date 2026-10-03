@@ -18,6 +18,39 @@ namespace Deuteros.Tests
             return ActiveScreen<TrainingScreen>();
         }
 
+        private async Task TrainingRecruitCapacity()
+        {
+            var screen = OpenTraining();
+            GameCore.SingletonInstance.SetProcess(false);
+            var training = GameCore.Earth.TrainingData;
+            training.AvailableTrainees = 3;
+            screen.ResearchPlusButton_Pressed();
+            screen.ProductionPlusButton_Pressed();
+            screen.MarinesPlusButton_Pressed();
+            screen.ResearchPlusButton_Pressed();
+            screen.ProductionPlusButton_Pressed();
+            screen.MarinesPlusButton_Pressed();
+            Equal(1, training.ResearcherTrainingCount, "research cannot spend recruits reserved by other teams");
+            Equal(1, training.ProductionTrainingCount, "production shares the remaining recruit limit");
+            Equal(1, training.MarinesTrainingCount, "marines share the remaining recruit limit");
+            Equal("0", screen.GetNode<Label>("TraineeCountLabel").Text, "remaining recruits never go negative");
+            screen.ResearchMinusButton_Pressed();
+            Equal("1", screen.GetNode<Label>("TraineeCountLabel").Text, "cancelling allocation releases a recruit");
+            screen.MarinesPlusButton_Pressed();
+            Equal(2, training.MarinesTrainingCount, "released recruit can join another team");
+            training.ChildDayTick(0, 1);
+            training.ChildDayTick(1, 24);
+            screen.DrawData();
+            Equal(0, training.AvailableTrainees, "completion consumes exactly the remaining population");
+            Equal(1, GameCore.Earth.Factory.Builder.Count, "one production recruit completed");
+            Equal(2, GameCore.Earth.PlanetResources.Staff.Where(s => s != null).Sum(s => s.Count), "two marine recruits completed");
+            screen.ResearchPlusButton_Pressed();
+            screen.ProductionPlusButton_Pressed();
+            screen.MarinesPlusButton_Pressed();
+            Equal(0, training.ResearcherTrainingCount + training.ProductionTrainingCount + training.MarinesTrainingCount, "exhausted population cannot train free staff");
+            await CaptureDisplayEvidence("training-recruit-capacity");
+        }
+
         private async Task TrainingLighting()
         {
             var screen = OpenTraining();

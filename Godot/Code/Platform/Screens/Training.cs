@@ -137,6 +137,8 @@ namespace Deuteros.Code.Platform.Screens
 			DrawData();
 		}
 
+		private int RemainingTrainees => (GameCore.Earth.TrainingData.AvailableTrainees - (GameCore.Earth.TrainingData.ResearcherTrainingCount + GameCore.Earth.TrainingData.ProductionTrainingCount + GameCore.Earth.TrainingData.MarinesTrainingCount));
+
 		public async void DrawData()
 		{
 			var moving = UpdateDoor(ResearchDoorAnimation, GameCore.Earth.TrainingData.ResearcherLocked);
@@ -149,7 +151,7 @@ namespace Deuteros.Code.Platform.Screens
 			MarinesButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.MarinesLocked);
 			ResearchButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.ResearcherLocked);
 
-			GetNode<Label>("TraineeCountLabel").Text = (GameCore.Earth.TrainingData.AvailableTrainees - (GameCore.Earth.TrainingData.ResearcherTrainingCount + GameCore.Earth.TrainingData.ProductionTrainingCount + GameCore.Earth.TrainingData.MarinesTrainingCount)).ToString();
+			GetNode<Label>("TraineeCountLabel").Text = RemainingTrainees.ToString();
 			GetNode<Label>("Doors/Research/ResearchTrainingCountLabel").Text = GameCore.Earth.TrainingData.ResearcherTrainingCount.ToString();
 			GetNode<Label>("Doors/Production/ProductionTrainingCountLabel").Text = GameCore.Earth.TrainingData.ProductionTrainingCount.ToString();
 			GetNode<Label>("Doors/Marines/MarinesTrainingCountLabel").Text = GameCore.Earth.TrainingData.MarinesTrainingCount.ToString();
@@ -180,7 +182,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);
 
-			if (!GameCore.Earth.TrainingData.ResearcherLocked && GameCore.Earth.TrainingData.ResearcherTrainingMax > GameCore.Earth.TrainingData.ResearcherTrainingCount &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.ResearcherLocked && GameCore.Earth.TrainingData.ResearcherTrainingMax > GameCore.Earth.TrainingData.ResearcherTrainingCount &&
 			(
 				earth.ResearchStaff == null
 				||
@@ -211,7 +213,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void ProductionPlusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.ProductionLocked &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.ProductionLocked &&
 				GameCore.Earth.TrainingData.ProductionTrainingCount < GameCore.Earth.TrainingData.ProductionTrainingMax &&
 				(GameCore.Earth.Factory.Builder == null ? 0 : GameCore.Earth.Factory.Builder.Count) + GameCore.Earth.TrainingData.ProductionTrainingCount < GameCore.Earth.TrainingData.ProductionMaxCount)
 			{
@@ -240,7 +242,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void MarinesPlusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.MarinesLocked &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.MarinesLocked &&
 				GameCore.Earth.TrainingData.MarinesTrainingMax > GameCore.Earth.TrainingData.MarinesTrainingCount)
 			{
 				GameCore.Earth.TrainingData.MarinesTrainingCount++;

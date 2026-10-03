@@ -335,6 +335,8 @@ namespace Deuteros.Tests
             await CheckAsync("Overview pages all stations and survives hostile tails and recapture", OverviewStationCapacity);
             await CheckAsync("Overview pages IOS fleets without losing selection hover or drone counts", () => OverviewFleetCapacity(false));
             await CheckAsync("Overview pages SCG fleets without losing selection hover or drone counts", () => OverviewFleetCapacity(true));
+            await CheckAsync("Training allocations share the remaining recruit population", TrainingRecruitCapacity);
+            await CheckAsync("Research mass units do not overlap one to four digit values", ResearchMassLayout);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
