@@ -172,6 +172,41 @@ namespace Deuteros.Tests
             Equal(0, ship.Modules.Sum(m => m.ItemCount), "retained cargo unloads when room appears");
         }
 
+        private void AccClearRefresh()
+        {
+            var ship = AccBacklogShip(false);
+            GameCore.SingletonInstance.ShipSelected = ship.ShipID;
+            Save.CurrentPlanet = ship.PlanetLocation;
+            var interior = OpenUi<InteriorPanel>("res://Screens/ShipInterior.tscn");
+            try
+            {
+                Press(interior, "OpenACC");
+                var panel = interior.GetNode<Control>("ACCScreen").GetChildren().OfType<AccPanel>().Single();
+                foreach (var side in new[] { "Source", "Destination" })
+                    Press(panel, $"Window/{side}Buttons/Col01/03");
+                var day = Save.CurrentDay;
+                Press(panel, "Window/Buttons/Clear");
+                Equal(0, ship.ACC.SourceItems.Count, "source selection cleared");
+                Equal(0, ship.ACC.DestinationItems.Count, "destination selection cleared");
+                foreach (var side in new[] { "Source", "Destination" })
+                {
+                    Equal("Cross.png", panel.GetNode<TextureButton>($"Window/{side}Buttons/Col01/03")
+                        .TextureNormal.ResourcePath.GetFile(), side + " diamond clears without reopening");
+                    Equal(0f, panel.GetNode<TextureButton>($"Window/CycleIcon/{side}/Col01/03").Modulate.A,
+                        side + " previous cycle marker clears");
+                    Equal(1f, panel.GetNode<TextureButton>($"Window/CycleIcon/{side}/Col01/00").Modulate.A,
+                        side + " cycle marker returns to iron");
+                }
+                Equal(day, Save.CurrentDay, "clear needs no time advance");
+                Equal(Ship_States.Docked, ship.ShipState, "clear does not launch the ship");
+            }
+            finally
+            {
+                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                interior.Free();
+            }
+        }
+
         private void ImmediateAccActivation(bool shuttle, bool destination)
         {
             foreach (var cycle in new[] { false, true })

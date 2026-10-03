@@ -93,6 +93,7 @@ namespace Deuteros.Code.Platform.Screens
 			CurrentACC.SourceItems = new List<ItemTypes>();
 			CurrentACC.CurrentSource = ItemTypes.iron;
 			CurrentACC.CurrentDestination = ItemTypes.iron;
+			UpdateState();
 		}
 
 		private void CycleButton_Pressed()

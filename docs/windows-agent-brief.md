@@ -538,3 +538,9 @@ The long Mac freight/manufacture/repair session logged `Handle is not initialize
 ## Normal Moon mining continuation
 
 After repairing the Moon, manufacture a Derrick locally, carry it down in the shuttle's Tool pod, unload into ground stores, and deploy it through Resources. Confirm that one rig leaves stores, the deployed count increments once, and the station readout agrees. Check credited mineral stock against the corresponding seam decrease across counted updates, then save/reload and repeat. Account for any naturally elapsed 0.01 update while inspecting the game. The [normal Mac route](native-gameplay-results.md#moon-derrick-delivery-mining-and-reload) passes with clean phase/final logs, nine fuel units consumed and unchanged crew. It adds physical evidence to existing mining and station-readout regressions; Windows acceptance and the earlier intermittent handle error remain open.
+
+## ACC balancing and immediate Clear display
+
+For task 1216065854613325, select iron at both endpoints and complete a round trip. Confirm the richer station supplies the poorer one, total stock including cargo is conserved, and an already balanced return loads no cargo. Verify selectors, cargo and automation state after save/reload. The [normal Mac route](native-gameplay-results.md#acc-stock-balancing-and-clear-refresh) passes with 168/191 becoming 179/180 and remaining there on return. Reuse any existing equivalent Windows result rather than repeating it for the ledger.
+
+New case 598 covers an additional Clear display fix: select both sides, click Clear and verify selected diamonds disappear immediately and cycle arrows return to iron, without reopening or advancing time. Targeted headless/native checks and physical Mac replay pass; the latest full aggregate remains 597 at `149ec85`. Record Windows source/export results separately. Preserve the Windows-owned SCG pointer, Stocktaker and six-file pod/bay v3 changes when integrating this candidate.

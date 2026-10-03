@@ -343,6 +343,7 @@ namespace Deuteros.Tests
             CheckUi("AMA departure remains possible after approach exhausts the last fuel", AmaEmptyFuelDeparture);
             CheckUi("MTX delivers freshly extracted materials before factory work", () => MtxProductionOrder(false));
             CheckUi("MTX sends newly completed factory output on the following update", () => MtxProductionOrder(true));
+            CheckUi("ACC Clear immediately refreshes both endpoint selections and cycle markers", AccClearRefresh);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
