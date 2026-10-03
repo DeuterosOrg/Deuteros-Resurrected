@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`e1754eb`**, with **513/513 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`771ceea`**, with **514/514 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Interstellar travel and Warlord acceptance
@@ -145,11 +145,11 @@ Load/swap/unload cryopod teams, save/reload before a boundary, and confirm froze
 
 The latest gameplay follow-up implements task **1215685674676219** through **Cargo...** in the ship interior. Open it, then use **Ditch** beside the chosen supply pod. The [original control and mutation](original-supply-pod-evidence.md) establish discard with no store credit; docked access through this modern dialog follows the task request and is not proof of original screen availability.
 
-Repeat with shuttle, IOS and all five SCG slots; include docking, transit, active ACC and AMA mining. Verify only the selected cargo disappears, its supply pod stays fitted, both ground/orbital stores and neighboring pods are unchanged, and tools/cryo cannot be ditched. Check empty pods, Close/Escape, save/reload, input locks and leaving the screen. Keep normal mining progression distinct from staged fixtures. Cases **265–275** and native Mac captures cover the local implementation; record Windows source/export outcomes separately.
+Repeat with shuttle, IOS and all six SCG slots; include docking, transit, active ACC and AMA mining. Verify only the selected cargo disappears, its supply pod stays fitted, both ground/orbital stores and neighboring pods are unchanged, and tools/cryo cannot be ditched. Check empty pods, Close/Escape, save/reload, input locks and leaving the screen. Keep normal mining progression distinct from staged fixtures. Cases **265–275** and native Mac captures cover the local implementation; record Windows source/export outcomes separately.
 
 ### Ship assembly acceptance
 
-The current follow-up adds passing cases **249–263** for stock conservation and SCG assembly; native Mac cases 250/252/259/260/263 also passed. The [latest validation result](validation-results.md#ship-assembly-and-inventory-conservation--2026-10-02) records the separate case-61 failure and the 262/263 continuation result. On Windows, verify bay entry leaves research locked, the SCG selector follows its own chassis technology, each hull/drive fitting consumes one local part, and repeat creation cannot put two ships in one berth. Fit all five SCG pods and confirm there is no sixth mount. Dismantle powered and unpowered hulls with full and exactly sufficient part storage; repeat a build/fit/dismantle cycle and save/reload between steps.
+The current follow-up adds passing cases **249–263** for stock conservation and SCG assembly; native Mac cases 250/252/259/260/263 also passed. The [latest validation result](validation-results.md#ship-assembly-and-inventory-conservation--2026-10-02) records the separate case-61 failure and the 262/263 continuation result. On Windows, verify bay entry leaves research locked, the SCG selector follows its own chassis technology, each hull/drive fitting consumes one local part, and repeat creation cannot put two ships in one berth. The later six-mount correction below supersedes this checkpoint’s five-mount assumption; fit and service all six SCG pods. Dismantle powered and unpowered hulls with full and exactly sufficient part storage; repeat a build/fit/dismantle cycle and save/reload between steps.
 
 Treat inventories from pre-fix saves separately: historical part deductions cannot be reconstructed. Normal SCG discovery and manufacture remain acceptance gaps; the parallel port's Sol-cleared unlock trigger is documented as a reconstruction, not verified original behavior.
 
@@ -389,3 +389,9 @@ At `2668a0f999c33d4ee56da2f6cbdbc8b6ddb18f2b`, verify actual ship losses report 
 ## Pending bulletin delivery follow-up
 
 At `34440aac483d537561abb43f01eaa42a4c273897`, cause production and research discoveries in the same update. The first report must remain readable; after leaving and advancing time, the second must appear once. Save/reload while a notice is waiting, then produce another: older notices retain request order. Discoveries must not replace a screen owned by a modal/input lock. Replay the current News report while another notice is queued; replay must leave that notice pending. Cases 473/474 and native Mac checks pass, with full 474-case validation and audited cross-export. Verify Windows source/export separately. Pending notices are new save data, so preserve backups before opening them in older builds. Keep the `8cdd458` desktop handoff unchanged.
+
+## Six SCG mounts and legacy saves
+
+At `771ceea` or later, build an SCG and fit all six pods. Select pod 6, load/unload cargo, remove/refit the empty pod, and move to the engine mounting. Enter the ship: all six cargo labels must display without errors. Open Cargo, click the sixth Ditch button and check it does not overlap Close or change pod 5. Repeat in the exported build.
+
+Load an older five-mount SCG save containing fifth-pod cargo, a frozen team and a loaded grapple. It must gain one empty mount, retain the original five pods and their contents, and remain at six after repeated save/load. No free pod or cargo is added. Native Mac cases 263/267/514 pass with screenshots; full 514 Mac validation and Windows cross-export pass. Native Windows and normal campaign acceptance remain pending; preserve the separate `8cdd458` human handoff.

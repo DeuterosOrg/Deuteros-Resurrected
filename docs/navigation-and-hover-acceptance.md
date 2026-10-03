@@ -29,7 +29,7 @@ Paths below are relative to `Screens/ShipBay.tscn`. `ShipParts` abbreviates `Shi
 | Fit ACC | `ShipParts/Cockpit/Buttons/AddACC` | `Fit A.C.C.` |
 | Access ship | `ShipParts/{Cockpit,Torso1…Torso6,Engine}/OpenShipInterior` | `Access ship` when a ship is present |
 | Crew section | `Buttons/ShipNav/Nav_Cockpit` | `Crew section` |
-| Pod mount 1–5 | `Buttons/ShipNav/Nav_Torso1`–`Nav_Torso5` | `Pod mount 1` … `Pod mount 5` |
+| Pod mount 1–6 | `Buttons/ShipNav/Nav_Torso1`–`Nav_Torso6` | `Pod mount 1` … `Pod mount 6` |
 | Engine mounting | `Buttons/ShipNav/Nav_Engine` | `Engine mounting` |
 | Empty fuel | `Fuel/FuelGauge/Minus/RepeatingButton` | `Unload fuel` |
 | Fuel ship | `Fuel/FuelGauge/Plus/RepeatingButton` | `Fuel ship` |
@@ -37,13 +37,13 @@ Paths below are relative to `Screens/ShipBay.tscn`. `ShipParts` abbreviates `Shi
 | Tool pod | `ShipParts/TorsoN/SpriteHolder/Buttons/AddToolPod` | `Install tool pod`; `Remove tool pod` if that mount contains an empty tool pod |
 | Team pod | `ShipParts/TorsoN/SpriteHolder/Buttons/AddCryoPod` | `Install team pod`; `Remove team pod` if that mount contains an empty cryo pod |
 
-Do not invent a sixth usable SCG module: the scene includes `Torso6`/`Nav_Torso6`, while SCG creation allocates five modules. That existing mismatch is outside hover acceptance. Likewise, do not add engine-installation or pod-activation behavior under this task.
+The later source-backed six-mount correction makes `Torso6`/`Nav_Torso6` usable and migrates older saves. Include all six mounts in Windows hover acceptance. Engine-installation and pod-activation behavior have separate acceptance checks.
 
 ### Implementation and verified coverage
 
 `ShipBay.BindHoverLabels` binds existing controls with a small `Control`-based helper. Label callbacks cover contextual roster and pod state. The current hovered control owns its label; leaving, hiding, disabling or freeing it clears that text. Existing control inheritance and button actions are unchanged. The regular menu displays `GameCore.HoverText`.
 
-The six hover regressions cover all listed controls for Shuttle/IOS/SCG, all five SCG mounts, empty-bay creation controls, marine/production/vacant roster rows, Earth-ground versus orbital production eligibility, pod install/remove/occupied wording, and unchanged fuel/module state when hovering. A separate pointer regression exercises actual GUI hit testing over a texture button, repeating button and roster row, then verifies clearing on disable, hide and scene exit.
+The original six hover regressions cover the listed controls for Shuttle/IOS/SCG and the five SCG mounts then available, empty-bay creation controls, marine/production/vacant roster rows, Earth-ground versus orbital production eligibility, pod install/remove/occupied wording, and unchanged fuel/module state when hovering. A separate pointer regression exercises actual GUI hit testing over a texture button, repeating button and roster row, then verifies clearing on disable, hide and scene exit.
 
 The pointer fixture uses the real bay in a `SubViewport`: Godot 4.2 native headless-window hover reads physical DisplayServer mouse state even when `PushInput` delivers GUI motion to the correct control. Instrumentation confirmed that discrepancy. SubViewport input uses injected positions and emits real hover signals; the test does not emit those signals manually. No production pointer workaround was added.
 
