@@ -76,7 +76,7 @@ def main():
     target = args.directory.resolve()
     target.mkdir(parents=True, exist_ok=True)
     choices = {"darwin": ("mono_macos.universal.zip", "Godot_mono.app/Contents/MacOS/Godot"),
-               "win32": ("mono_win64.zip", "Godot_v4.2.2-stable_mono_win64/Godot_v4.2.2-stable_mono_win64_console.exe"),
+               "win32": ("mono_win64.zip", "Godot_v4.2.2-stable_mono_win64/Godot_v4.2.2-stable_mono_win64.exe"),
                "linux": ("mono_linux_x86_64.zip", "Godot_v4.2.2-stable_mono_linux_x86_64/Godot_v4.2.2-stable_mono_linux.x86_64")}
     if sys.platform not in choices or (sys.platform != "darwin" and platform.machine().lower() not in ("x86_64", "amd64")):
         parser.error("Supported: macOS universal, Linux x86_64, Windows x64")

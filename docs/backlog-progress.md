@@ -11,7 +11,7 @@ Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), 
 - Record task-specific blockers and continue independent work. Do not invent original behavior to make a row look finished.
 - Windows verification follows the [agent brief](windows-agent-brief.md). No PR, push or Asana changes are authorized by this ledger.
 
-Current totals: **35/48 with implementation evidence; 2/48 locally accepted against their task requirements**: DayTick event splitting and AMA source investigation. Neither is Windows desktop gameplay acceptance. Asana remains unchanged. The [current Windows source audit](windows-validation-results.md#595-case-source-checkpoint--2026-10-03) verifies all 595 cases, build, import and source startup at `bcaeb1c`; its export/package result is pending. Historical checkpoint counts below describe their dates.
+Current totals: **35/48 with implementation evidence; 2/48 locally accepted against their task requirements**: DayTick event splitting and AMA source investigation. Neither is Windows desktop gameplay acceptance. Asana remains unchanged. The [current Windows source audit](windows-validation-results.md#595-case-source-checkpoint--2026-10-03) verifies all 595 cases, build, import and source startup at `bcaeb1c`; its separate direct export and package startup also pass after a preserved wrapper timeout. Historical checkpoint counts below describe their dates.
 
 ## Requirements accepted — 2026-10-03
 

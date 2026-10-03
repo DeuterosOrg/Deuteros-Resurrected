@@ -4,7 +4,21 @@
 
 The isolated Windows checkout at `dbac18325e92bb214d5524732157d3eb963d22ab` is runtime-identical to `bcaeb1cc9da5ae956059857f822296a1d86988d8`. All **595/595 regressions**, compilation (14 existing warnings), strict import and source startup passed. All 600 collected source-evidence files were independently audited for case discovery, fresh timestamps, individual success markers and engine errors. Evidence: `artifacts/windows-handoff/bcaeb1c-source-evidence/`; archive SHA-256 `55402ad335b83ed3b9c70eda59856bb2ed525413f7133c8a249942e39466b333`.
 
-The runner reports 19 Python checks with one original-disk roundtrip skip; the original disk was not copied to Windows. **Export is still pending and no packaged-startup pass is claimed for this revision.** The complete source-plus-package baseline remains `a54e899`. These headless results do not establish physical Windows controls, rendering, audio or normal campaign acceptance. Task-specific local acceptance is recorded in [the ledger](backlog-progress.md#requirements-accepted--2026-10-03).
+The runner reports 19 Python checks with one original-disk roundtrip skip; the original disk was not copied to Windows. **Separate direct export and packaged startup now pass**, with the audit below. The original full command timed out during console-wrapper exit; it is not recorded as a passing aggregate. These headless results do not establish physical Windows controls, rendering, audio or normal campaign acceptance. Task-specific local acceptance is recorded in [the ledger](backlog-progress.md#requirements-accepted--2026-10-03).
+
+## Direct export and package audit — 2026-10-03
+
+After all 595 cases and source startup passed, the console-wrapper export timed out at 600 seconds. Its retained log contains completed .NET publishing, `savepack: end` and editor shutdown. Only the wrapper and a background `dotnet` process remained from that export; both disappeared at timeout. The unrelated desktop game was preserved.
+
+Godot 4.2.2's [console wrapper](https://github.com/godotengine/godot/blob/4.2.2-stable/platform/windows/console_wrapper_windows.cpp) waits for its entire child job, including background workers. Changing only the invoked executable to the main Godot binary made a separate identical export finish in **33.26 seconds**, with strict logs and exit zero. The installer now selects that binary for Windows automation; Python already waits for it and captures output. The updated installer was checked against the cached pinned Windows distribution and its returned binary's version; all 19 Python tests pass on Mac with the original ending disk. No timeout was extended or error suppressed.
+
+The resulting package passed headless startup and clean exit on Windows. Independent collection audit verifies **1,230 pack entries**, **64 illustration imports**, **zero test resources**, the alien font, ending JSON and music import/sample. Packed payload MD5 values match. Windows checkout converted the JSON's final LF to CRLF; this is the only byte difference from the committed Mac copy, and the decoded JSON is identical. Windows normalized source diff remains empty.
+
+- Executable: **163,833,616 bytes**, SHA-256 `d2cb76c98769773d6a11a0179146a36ac8a6139ab580366b50b7759c8b1fbda5`.
+- Collected archive SHA-256: `3c8af1cff599f02734e905e2dd510127c11ccb9232e2953cf336a5d6c6130336`.
+- Evidence: `artifacts/windows-handoff/bcaeb1c-evidence/`, including `collection-audit.json`, `export-windows-direct.log` and `export-smoke.log`. The original timeout/log is preserved separately in `bcaeb1c-source-evidence/failed-export/`.
+
+This establishes source regressions plus a separately verified export/package at runtime `bcaeb1c`. Physical Windows input, rendering, audio and normal campaign checks remain separate.
 
 ## Historical environment and revision
 
@@ -130,3 +144,9 @@ The Mac agent retrieved these reports from Asana comments at 13:06 UTC. They are
 | [Audio](https://app.asana.com/0/1214891399253076/1215683087492491) | Craig reported missing training-door/production sounds and an incorrect Advance Time cue. | No audio fix or listening acceptance; agent reports gameplay was prioritized. |
 
 Windows case numbers refer to its older checkout and must not be copied over current case numbers. Detailed retrieved comments are retained locally at `artifacts/research/windows-agent-asana-2026-10-03.json`; Windows screenshots/logs remain under its `artifacts/windows-validation/desktop-01` through `desktop-03`. All 48 tasks remain open; no acceptance count or Asana status was changed.
+
+### Desktop popup follow-up retrieved 2026-10-03 15:52 UTC
+
+The latest Supply task comment reports an additional physical failure: missing-pod text overflowed the fixed 128×57 error box. The Windows agent replaced its geometry with `PanelContainer`/`MarginContainer`, strengthened its existing case 311, and reports a normal day-981 source click with enclosed text after restart. Player saves were preserved. The running desktop process **30940** belongs to this playtest and was not disturbed by SSH validation.
+
+`unavailable-pod-feedback-v2.patch` supersedes the earlier patch and includes four files over `878d74d`. It remains uncommitted in the desktop checkout and has not been collected/integrated here; original box fidelity and matching export remain untested. Retrieved source: `artifacts/research/windows-agent-asana-2026-10-03-1552.json`. This report adds no accepted task and no Asana changes.

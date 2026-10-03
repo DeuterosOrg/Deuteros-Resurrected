@@ -2,7 +2,7 @@
 
 A work-in-progress C# / Godot remake of **Deuteros: The Next Millennium** (1991). The project recreates its resource management, research, production, ships and interplanetary logistics.
 
-Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See [backlog progress](docs/backlog-progress.md) for current implementation evidence and remaining acceptance work; the [initial assessment](docs/asana-triage.md) preserves the starting snapshot. Native Windows, complete campaign and original-runtime comparisons remain outstanding.
+Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See [backlog progress](docs/backlog-progress.md) for current implementation evidence and remaining acceptance work; the [initial assessment](docs/asana-triage.md) preserves the starting snapshot. Windows desktop acceptance, complete campaign and original-runtime comparisons remain outstanding.
 
 ## Build and run
 
@@ -70,6 +70,8 @@ python3 scripts/validate.py --godot /full/path/to/Godot --export-windows
 ```
 
 On Windows, the template installer also installs checksum-pinned RCEdit beside Godot for executable icon/version resources. The validator adds that directory to the child-process search path, including when `GODOT` is an absolute path.
+
+For Windows automation, use the main Godot `.exe` printed by the installer. Python waits for its exit and captures its logs. The `_console.exe` wrapper additionally waits for background .NET workers, which can leave an otherwise finished export waiting until validation times out.
 
 The output is `artifacts/windows/Deuteros.exe` and its supporting files. Distribute the entire output directory. The added CI workflow is configured to check Linux and Windows and retain validation logs and the Windows build as workflow artifacts; export success alone does not verify Windows gameplay.
 
