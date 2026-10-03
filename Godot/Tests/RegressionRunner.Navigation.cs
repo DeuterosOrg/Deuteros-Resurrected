@@ -325,6 +325,11 @@ namespace Deuteros.Tests
                 Press(bay, ShipParts + "Torso1/SpriteHolder/Buttons/ActivatePod");
                 Equal(true, Cursor.IsLocked, "panel opened");
                 var panel = bay.GetNode<Control>(kind == Module_Types.Supply ? "CargoService" : kind == Module_Types.Tool ? "EquipmentStock" : "StaffList");
+                var otherMount = bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso2").GetGlobalRect().GetCenter();
+                GetViewport().PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = otherMount, GlobalPosition = otherMount }, true);
+                GetViewport().PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = otherMount, GlobalPosition = otherMount }, true);
+                await InputFrames();
+                Equal(1, bay.ScreenState, "open " + kind + " panel prevents changing its target mount");
                 await RightClick(panel.GetGlobalRect().GetCenter());
                 Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "first click only closes panel");
                 Equal(false, panel.Visible, "panel closed");

@@ -74,6 +74,15 @@ namespace Deuteros.Code.Utility
             IsLocked = false;
         }
 
+        public override void _Input(InputEvent @event)
+        {
+            // Confining the drawn cursor must also protect controls behind the panel.
+            // Keep releases and right-click dismissal available.
+            if (IsLocked && @event is InputEventMouseButton mouse && mouse.Pressed
+                && mouse.ButtonIndex != MouseButton.Right && !LockRect.HasPoint(mouse.Position))
+                GetViewport().SetInputAsHandled();
+        }
+
         private static Vector2 ClampToRect(Vector2 p, Rect2 r)
         {
             // Clamp to inclusive edges
