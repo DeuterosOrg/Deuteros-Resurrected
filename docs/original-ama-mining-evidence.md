@@ -1,6 +1,6 @@
 # AMA mining and cargo compatibility
 
-Partial findings for **1215685674676221 — AMA: investigate source code**, decoded 2026-10-02. The mixed-cargo crash is corrected; full original mining fidelity remains under investigation.
+Findings for **1215685674676221 — AMA: investigate source code**, decoded 2026-10-02–03. The named research questions are answered below; full original mining fidelity remains under investigation.
 
 ## Original evidence
 
@@ -46,7 +46,7 @@ The correction selects a compatible pod explicitly, caps its quantity, and launc
 
 The amount range, generated set and clock-bit cadence are corrected. Cases **487–492** cover natural/manual mining phases, the eight-phase scanner, stable slot reuse and reload, deterministic legacy allocation, malformed slot rejection and two-update approach/departure. Phase evaluation uses the absolute original epoch plus saved centidays. Repeated callbacks without an advancing update cannot mine again. Off-phase scanning preserves the previous result.
 
-IOS slots are allocated per star; SCG slots are global. Existing fleets larger than the original sixteen-slot limit are preserved rather than truncated. Existing crew and SCG mining eligibility also remain: the original SCG dispatch confirms scanning but has no direct mining-state branch in the inspected range. Complete module/crew mapping, private star/SCG clocks, fuel cadence, full ACC expeditions, original-runtime comparison and Windows acceptance remain open. This is not full acceptance of the AMA research task.
+IOS slots are allocated per star; SCG slots are global. Existing fleets larger than the original sixteen-slot limit are preserved rather than truncated. Existing crew and SCG mining eligibility also remain: the original SCG dispatch confirms scanning but has no direct mining-state branch in the inspected range. Complete module/crew mapping, private star/SCG clocks, fuel cadence, full ACC expeditions, original-runtime comparison and Windows acceptance remain open. These limits remain open gameplay-fidelity work; the named research questions are assessed separately below.
 
 Raw traces are under ignored `artifacts/research/supply-pod/ama-{dispatch,mining,clock}-followup.txt`. See [validation](validation-results.md#ama-compatible-cargo--2026-10-02) and the [Windows acceptance brief](windows-agent-brief.md).
 
@@ -103,3 +103,17 @@ The aligned helper trace resolves previously open effects without changing fuel 
 `$30E2C` sets engine bit 6 and `$30E32` clears it; neither helper checks or reserves a bay. `$3143A` stops active ACC through `$33CAE`, clears the engine bit, then selects stranded state `$10`, destruction action `$11` and a six-update countdown. Its caller `$31590` takes that path when asteroid arrival has zero fuel. By contrast, an already scanning/mining IOS reaches `$23AF8/$23C14` immediately after the shared fuel deduction even when the last unit was consumed; the inspected dispatch does not call the stranded helper there. Mining completion `$31608` simply returns if fuel is zero. Therefore adding a periodic fuel decrement alone would interact incorrectly with the remake's generic five-update undocked loss rule and reachable empty-tank approach.
 
 Raw aligned instructions and action-table targets: `artifacts/research/ama-generation/fuel-exhaustion-helpers.txt` (SHA-256 `110f540606e474ad8752de1b6135bcb446dfa2c17abcc63642065582149fc49f`) and `fuel-exhaustion-manifest.json`. Full original runtime behavior, save/reset ownership of the counter, and a coherent port of exhaustion remain open; no emulator observation is claimed.
+
+## Research task acceptance
+
+The current task asks about yield, short cycles, size and pilot skill, and records provisional cargo observations. These research requirements are locally accepted on 2026-10-03:
+
+| Question | Source-backed answer |
+| --- | --- |
+| Ore per cycle | 12–43 before available pod capacity: random value masked with 31, plus 12 at `$23C7C–$23C86`. This establishes bounds, not uniformity. |
+| Why a one-day cycle? | The consumed-update gate compares `(slot-1)&3` with `(clock>>7)&3`. Whole-day advancement can produce adjacent eligible days; fractional increments change intervals. There is no random instant-cycle roll. |
+| Does asteroid size matter? | Entry `$31834` requires visible class 6 or higher. Size does not multiply the mining yield. |
+| Does pilot skill matter? | Manual AMA access requires Pilot through `$343B4/$34014`; the yield routine reads no pilot rank. Background scanner and SCG eligibility remain distinct. |
+| Full, mixed and partially filled cargo | `$23C30–$23CA2` chooses an empty or compatible partial pod, caps at 250 and preserves incompatible cargo. Partial filling does not immediately launch; a later eligible attempt with no usable pod triggers departure. |
+
+The disk identity, aligned addresses, raw trace hashes and phase calculations above make the findings reproducible. This completes the requested source investigation, not an original-emulator observation or full AMA feature acceptance. Fuel cadence/stranding, original-runtime comparison, SCG mining and unstaged expeditions remain documented follow-ups. No Asana status was changed.

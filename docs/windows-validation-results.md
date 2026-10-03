@@ -1,6 +1,12 @@
 # Windows validation results
 
-## Environment and revision
+## 595-case source checkpoint — 2026-10-03
+
+The isolated Windows checkout at `dbac18325e92bb214d5524732157d3eb963d22ab` is runtime-identical to `bcaeb1cc9da5ae956059857f822296a1d86988d8`. All **595/595 regressions**, compilation (14 existing warnings), strict import and source startup passed. All 600 collected source-evidence files were independently audited for case discovery, fresh timestamps, individual success markers and engine errors. Evidence: `artifacts/windows-handoff/bcaeb1c-source-evidence/`; archive SHA-256 `55402ad335b83ed3b9c70eda59856bb2ed525413f7133c8a249942e39466b333`.
+
+The runner reports 19 Python checks with one original-disk roundtrip skip; the original disk was not copied to Windows. **Export is still pending and no packaged-startup pass is claimed for this revision.** The complete source-plus-package baseline remains `a54e899`. These headless results do not establish physical Windows controls, rendering, audio or normal campaign acceptance. Task-specific local acceptance is recorded in [the ledger](backlog-progress.md#requirements-accepted--2026-10-03).
+
+## Historical environment and revision
 
 Tested **2026-10-02** on Windows 11 build **26200**, through the dedicated `builder` SSH account. Latest tested revision **`a54e899d4c6796e6f406733112d39a7ba424e7d0`**, branch `codex/build-tests-and-gameplay-fixes`, cloned from a verified Git bundle. The baseline working tree was clean. Toolchain: Godot **4.2.2 .NET / 15073afe3**, .NET SDK **6.0.428 x64**, Python **3.14.3**. No GitHub push or remote CI run was needed for these checks.
 
