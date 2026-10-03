@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`89d39ffb164ac1c6cffe21f2cfff18610e193bbe`**, with **589/589 regressions**, 19 Python checks and an audited cross-export. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`833cb85da2e7bf6d377b0135e2c8f6c88e5f4a24`**, with **591/591 regressions**, 19 Python checks and an audited cross-export. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Rogue crew and prison acceptance
@@ -436,3 +436,13 @@ Inspect the package for `Ending/sequence.json` and imported lossless music; no o
 Runtime `89d39ffb164ac1c6cffe21f2cfff18610e193bbe` passes full 589-case Mac validation and audited cross-export. Master Control now pages stations, IOS and SCG fleets in groups of 16, filters hostile stations before assigning controls, and clamps the page after loss/capture. The pager appears only when needed; existing single-page spacing remains. This preserves large remake saves rather than imposing original-world capacity limits.
 
 On source and exported Windows builds, load a save with more than 16 friendly stations and fleets. Reach every entry with Prev/Next, inspect hover names/drone counts, and open a station/ship on the last page. Remove or lose the last-page entry and confirm the page clamps without stale selection. Check 16 friendly stations plus hostile stations, overlay/input locks and the single-page layout. Repeat the full eight-recovery transmitter save: normal Load → all five overview pages → station beyond slot 16 → back → SCG → mounted ending. Cases 587–589 cover station, IOS and SCG capacity; focused Mac/native and physical full-save navigation pass. Record the exact candidate revision and distinguish these checks from unstaged campaign acceptance.
+
+## Early-game progression and desktop follow-ups
+
+Follow-up runtime `833cb85da2e7bf6d377b0135e2c8f6c88e5f4a24` adds cases 590–591 for shared recruit capacity and Research mass-unit layout. Focused headless/native Mac checks and the full 591-case aggregate, strict import/startup and audited cross-export pass. See the completed checkpoint in [validation results](validation-results.md) before testing a supplied branch.
+
+- With three available recruits in a declared disposable fixture, allocate one to each training team. Further plus clicks must leave the counts and remaining population unchanged. Cancel one allocation, assign it to another team, complete training and verify no free staff can be trained at zero population. Check press-and-hold as well as clicks.
+- In Research, inspect completed MeH fuel, shuttle drive, shuttle chassis and SCG chassis. The mass value and `t.` must be distinct for one through four digits; switching to research-only technology must still clear its recipe.
+- Repeat the [normal new-game route](native-gameplay-results.md) through training, paid manufacturing, fuel refining, first shuttle flight and save/reload in both source and export. Mac passed that bounded route at 89d39ff; later orbital/campaign progression remains open. Do not substitute a staged fixture for this check.
+
+Preserve your own saves, restore their exact inventory afterwards, and report exact revision, steps and source/export results separately. The Mac checkpoint and screenshots are ignored artifacts and require a separate authorized handoff.

@@ -2,7 +2,7 @@
 
 A work-in-progress C# / Godot remake of **Deuteros: The Next Millennium** (1991). The project recreates its resource management, research, production, ships and interplanetary logistics.
 
-Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See the [backlog assessment](docs/asana-triage.md) for the current implementation gaps and questions requiring original-game evidence. Five local save slots are implemented; Windows acceptance and several later-game features remain outstanding.
+Development and bug reports are tracked in [Deuteros Development on Asana](https://app.asana.com/1/507237966097081/project/1214891399253076). See [backlog progress](docs/backlog-progress.md) for current implementation evidence and remaining acceptance work; the [initial assessment](docs/asana-triage.md) preserves the starting snapshot. Native Windows, complete campaign and original-runtime comparisons remain outstanding.
 
 ## Build and run
 
@@ -38,7 +38,7 @@ Allow the first editor import to finish before running. For an SDK installed in 
 python3 scripts/validate.py --godot /full/path/to/Godot
 ```
 
-This builds C#, imports assets, runs the regression scene against the real game code, and starts/exits the actual entry scene. It checks engine logs as well as process exit codes. Logs are saved in `artifacts/validation/`. See [testing details](docs/testing.md) for coverage and [validation results](docs/validation-results.md) for verified fixes and known runtime limitations.
+This builds C#, imports assets, runs the regression scene against the real game code, and starts/exits the actual entry scene. It checks engine logs as well as process exit codes. Logs are saved in `artifacts/validation/`. See [testing details](docs/testing.md) for coverage, [validation results](docs/validation-results.md) for automated checks and [native gameplay results](docs/native-gameplay-results.md) for the normal new-game route tested so far.
 
 ## Controls
 

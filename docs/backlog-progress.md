@@ -118,3 +118,7 @@ Physical testing additionally reproduced a Master Control crash beyond its 16 st
 ## Overview capacity follow-up
 
 The full recovery save now loads and exposes every station through bounded Master Control pages. Cases 587–589 cover station/IOS/SCG capacity, hover, selection, losses and locks; full **589/589 Mac** validation and audited Windows cross-export pass at `89d39ff`. Physical full-save navigation reaches the last station and then the normally mounted ending; user saves were restored exactly. Windows and unstaged campaign acceptance remain pending. Counts remain **35/48 implementation evidence, 0/48 fully accepted**; see [validation](validation-results.md#overview-capacity-589-case-checkpoint).
+
+## Early-game follow-ups
+
+The [591-case checkpoint](validation-results.md#early-game-follow-ups-591-case-checkpoint) fixes shared recruit over-allocation and Research mass-unit overlap, with failing-before/passing-after and native evidence. The [normal new-game route](native-gameplay-results.md) reaches a first shuttle roundtrip and verifies save/reload without cheats or staged state. These are additional review/acceptance findings; totals remain 35/48 implementation evidence and 0/48 fully accepted. First orbital construction, later campaign and current native Windows acceptance remain open.
