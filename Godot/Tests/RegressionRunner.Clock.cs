@@ -120,6 +120,38 @@ namespace Deuteros.Tests
             await CaptureDisplayEvidence("fractional-arrival");
         }
 
+        private async Task ArrivalModeControls()
+        {
+            var interior = await OpenInterior(Ship_Types.IOS);
+            Save.Clock.DateCentidays = 99998;
+            interior.Ship.DestinationPlanetLocation = StellarBodies.the_moon;
+            interior.UpdateState();
+            var menu = ActiveScreen<MainMenu>();
+            var hold = menu.GetNode<BaseButton>("Time/TimeBox/TimerHoldButton");
+            var eta = interior.GetNode<Label>("TextLayout/ETA");
+            var day = Save.CurrentDay;
+            try
+            {
+                hold.EmitSignal(BaseButton.SignalName.ButtonDown);
+                await InputFrames();
+                Equal("ETA:\n3101 001.98", eta.Text, "hold refreshes projected arrival without a simulation update");
+                // A hold that already consumed a day must not queue the click-to-step action.
+                Save.CurrentDay++;
+                hold.EmitSignal(BaseButton.SignalName.ButtonUp);
+                await InputFrames();
+                Equal("ETA:\n3101 000.00", eta.Text, "release refreshes the normal projection immediately");
+                menu.TimeButton.EmitSignal(BaseButton.SignalName.Pressed);
+                await InputFrames();
+                Equal("ETA:\n3101 001.98", eta.Text, "toggle refreshes the accelerated projection");
+                Save.TimeSkip = false;
+                await InputFrames();
+                Equal("ETA:\n3101 000.00", eta.Text, "external stop refreshes the normal projection");
+                Equal(99998ul, Save.Clock.DateCentidays, "display refresh never advances the date");
+                await CaptureDisplayEvidence("fractional-arrival-controls");
+            }
+            finally { Save.TimeSkip = Save.TimeSkipDay = false; Save.CurrentDay = day; }
+        }
+
         private void LegacyClockSave()
         {
             Save.CurrentDay = 100;

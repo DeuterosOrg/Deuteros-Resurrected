@@ -239,6 +239,7 @@ namespace Deuteros.Tests
             CheckUi("Ship automation slots survive removal reload and interstellar movement", StableAutomationSlots);
             CheckUi("Ship automation slots migrate legacy saves and reject malformed allocation", AutomationSlotSaveValidation);
             CheckUi("Asteroid approach and departure each consume two saved updates", AsteroidApproachCountdown);
+            await CheckAsync("Arrival date follows time controls and external stops without waiting for a tick", ArrivalModeControls);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

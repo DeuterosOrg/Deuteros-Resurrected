@@ -23,6 +23,7 @@ namespace Deuteros.Code.Platform.Screens
 		public IShip Ship { get; set; }
 		public IPlanet CurrentPlanet { get; set; }
 		private bool sceneReady;
+        private bool arrivalTimeSkip;
 
 		Control TextLayout { get; set; }
 		Control StarMap { get; set; }
@@ -134,6 +135,21 @@ namespace Deuteros.Code.Platform.Screens
 			base._Ready();
 			sceneReady = true;
 		}
+
+        public override void _Process(double delta)
+        {
+            if (sceneReady && arrivalTimeSkip != GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
+                UpdateArrivalDate();
+        }
+
+        private void UpdateArrivalDate()
+        {
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            arrivalTimeSkip = save.TimeSkip;
+            // Projection follows the current mode, including controls and simulation-triggered stops.
+            var remaining = (ulong)Math.Max(0, Ship.TravelTimeRemain());
+            ETA.Text = "ETA:\n" + GameClock.FormatDate(save.Clock.DateCentidays + remaining * (arrivalTimeSkip ? 100ul : 1ul));
+        }
 
 		private void tradeItems(Dictionary<ShipModule,Enums.ItemTypes> olditemlist, Dictionary<ShipModule, Enums.ItemTypes> newitemlist)
 		{
@@ -827,10 +843,7 @@ namespace Deuteros.Code.Platform.Screens
 				CourseValue.Text = Ship.PlanetLocation.ToScreenString(" ") + " To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 			}
 
-			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            // Projection assumes the current clock mode; changing modes changes the arrival date.
-            var remaining = (ulong)Math.Max(0, Ship.TravelTimeRemain());
-            ETA.Text = "ETA:\n" + GameClock.FormatDate(save.Clock.DateCentidays + remaining * (save.TimeSkip ? 100ul : 1ul));
+            UpdateArrivalDate();
 
 			if (Ship.ShipType == Ship_Types.Shuttle)
 			{
