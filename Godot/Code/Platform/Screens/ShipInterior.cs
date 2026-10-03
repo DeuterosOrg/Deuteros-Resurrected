@@ -602,7 +602,7 @@ namespace Deuteros.Code.Platform.Screens
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             if (!IsInsideTree() || IsQueuedForDeletion()) return true;
-            if (GetTree().Paused && !OverlayManager.Instance.IsShowing(owningOverlay)) return true;
+            if (OverlayManager.Instance.IsOpen && !OverlayManager.Instance.IsShowing(owningOverlay)) return true;
             return save.RogueCrew.RejectCommand(save, Ship);
         }
 
