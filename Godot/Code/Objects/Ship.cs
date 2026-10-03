@@ -55,8 +55,9 @@ namespace Deuteros.Code.Objects
 
         internal void TakeOff(bool requireFuel)
         {
-            // Original internal $30B48 skips the manual wrapper's fuel check, but still requires an engine.
-            if (Engine && (!requireFuel || Fuel > 0) && ShipState == Ship_States.Docked)
+            // Original $30B2E permits leaving a mining asteroid empty; internal $30B48 also bypasses fuel.
+            if (Engine && ShipState == Ship_States.Docked
+                && (!requireFuel || Fuel > 0 || this is InterStellarShip && PlanetLocation == StellarBodies.asteroids))
             {
                 if (Pilot != null) Pilot.AddAction();
 

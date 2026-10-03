@@ -122,6 +122,34 @@ namespace Deuteros.Tests
             return ship;
         }
 
+        private void AmaEmptyFuelDeparture()
+        {
+            foreach (var automatic in new[] { false, true })
+            {
+                var ship = AmaCargoShip();
+                ship.ShipState = Ship_States.UnDocked;
+                ship.Fuel = 1;
+                ship.Dock();
+                for (var day = 101u; day <= 102; day++)
+                {
+                    Save.CurrentDay = day;
+                    ShipInterior.UpdateShips(day - 1, day);
+                }
+                Equal(Ship_States.Docked, ship.ShipState, "approach completes with exhausted fuel");
+                Equal(0, ship.Fuel, "last fuel consumed during approach");
+                if (automatic) ShipInterior.UpdateShips(102, 103);
+                else ship.TakeOff();
+                Equal(Ship_States.Launching, ship.ShipState, "manual and full-cargo departures allow empty tanks");
+                Equal(0, ship.Fuel, "departure does not create fuel");
+                Equal(12, ship.Modules[1].ItemCount, "departure retains incompatible iron");
+                Equal(20, ship.Modules[2].ItemCount, "departure retains incompatible copper");
+                ship.ShipState = Ship_States.Docked;
+                ship.PlanetLocation = StellarBodies.earth;
+                ship.TakeOff();
+                Equal(Ship_States.Docked, ship.ShipState, "ordinary orbital departure still needs fuel");
+            }
+        }
+
         private void AmaIncompatibleCargo()
         {
             var ship = AmaCargoShip();
