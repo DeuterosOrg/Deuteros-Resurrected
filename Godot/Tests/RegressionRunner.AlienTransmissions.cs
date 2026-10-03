@@ -73,7 +73,6 @@ namespace Deuteros.Tests
         private void ArtifactCaptureLegacy()
         {
             var ship = UnknownObjectShip();
-            Save.Ships.Add(ship);
             ship.Modules[0].HeldItem = new UnknownItem(UnknownItemTypes.AlienArtifact);
             Save.BaseGameData.Stars[StellarBodies.proxima].ArtifactLocation = StellarBodies.baltic;
             Save.BaseGameData.Stars[StellarBodies.centauri].ArtifactLocation = StellarBodies.none;
