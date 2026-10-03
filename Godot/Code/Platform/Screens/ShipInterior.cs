@@ -243,7 +243,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 				{
-					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.r_frame && CurrentPlanet.BaseBuildParts < 2 && Ship.Pilot != null && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
+					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.r_frame && CurrentPlanet.BaseBuildParts < 2 && Ship.Pilot?.Count > 0 && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 					{
 						if (Ship.Pilot != null) Ship.Pilot.AddAction();
 
@@ -264,7 +264,7 @@ namespace Deuteros.Code.Platform.Screens
 						newScene = Enums.Scenes.ShipInterior;
 					}
 
-					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.bandaid && CurrentPlanet.BaseDamaged && Ship.Pilot != null && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
+					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.bandaid && CurrentPlanet.BaseDamaged && Ship.Pilot?.Count > 0 && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 					{
 						((Shuttle)Ship).ShipState = Ship_States.CrewRepairing;
 						((Shuttle)Ship).StartRepairDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;

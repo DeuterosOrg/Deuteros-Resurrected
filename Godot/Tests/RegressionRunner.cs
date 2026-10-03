@@ -344,6 +344,7 @@ namespace Deuteros.Tests
             CheckUi("MTX delivers freshly extracted materials before factory work", () => MtxProductionOrder(false));
             CheckUi("MTX sends newly completed factory output on the following update", () => MtxProductionOrder(true));
             CheckUi("ACC Clear immediately refreshes both endpoint selections and cycle markers", AccClearRefresh);
+            await CheckAsync("Ground construction and repair require a nonempty pilot crew", GroundWorkRequiresCrew);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

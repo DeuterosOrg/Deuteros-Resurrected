@@ -138,6 +138,38 @@ namespace Deuteros.Tests
             }
         }
 
+        private async Task GroundWorkRequiresCrew()
+        {
+            foreach (var item in new[] { ItemTypes.r_frame, ItemTypes.bandaid })
+            foreach (var count in new[] { 0, -1, 1 })
+            {
+                var interior = await DeploymentInterior(Ship_Types.Shuttle, true, Ship_States.Docked, ground: true);
+                var ship = (Shuttle)interior.Ship;
+                var planet = interior.CurrentPlanet;
+                ship.Pilot = count < 0 ? null : new Staff { Type = StaffType.Marines, Leader = "Ground", Count = count };
+                planet.BaseBuildParts = 1;
+                planet.BaseDamaged = true;
+                ship.Modules[0].ItemStored = item;
+                var text = Save.BaseGameData.ModuleFrameTexts[ModuleFrameText.RFrame_Deploy_Complete];
+                var lines = text.Lines;
+                var fuel = ship.Fuel;
+                try
+                {
+                    text.Lines = new List<Line>();
+                    Press(interior, "Modules/00");
+                    await InputFrames();
+                    Equal(count > 0 && item == ItemTypes.r_frame ? 2 : 1, planet.BaseBuildParts,
+                        item + " ground sections with crew count " + count);
+                    Equal(count > 0 && item == ItemTypes.bandaid ? Ship_States.CrewRepairing : Ship_States.Docked,
+                        ship.ShipState, item + " ground work with crew count " + count);
+                    Equal(count > 0 && item == ItemTypes.r_frame ? ItemTypes.none : item,
+                        ship.Modules[0].ItemStored, "only staffed construction consumes its frame");
+                    Equal(fuel, ship.Fuel, "starting or rejecting ground work consumes no fuel");
+                }
+                finally { text.Lines = lines; }
+            }
+        }
+
         private async Task IneligibleDeploymentWarning()
         {
             foreach (var scenario in new[] { "ground", "transit", "complete", "asteroid" })
