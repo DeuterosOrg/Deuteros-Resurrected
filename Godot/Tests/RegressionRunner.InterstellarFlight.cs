@@ -114,7 +114,9 @@ namespace Deuteros.Tests
             Equal(StellarBodies.atlantic, ship.PlanetLocation, "only final leg reaches requested body");
             Equal(137, ship.Fuel, "body leg costs four additional ordinary units");
             Equal<InterstellarFlight>(null, ship.Flight, "completed flight cleared before save");
-            Equal(12, ship.Modules.Single().ItemCount, "cargo conserved across flight and every reload");
+            Equal(6, ship.Modules.Count, "loaded SCG has all six original mounts");
+            Equal(12, ship.Modules[0].ItemCount, "cargo stays in its original mount across every reload");
+            Equal(12, ship.Modules.Sum(module => module.ItemCount), "empty restored mounts create no cargo");
         }
 
         private void InterstellarOrdinaryClocks()
