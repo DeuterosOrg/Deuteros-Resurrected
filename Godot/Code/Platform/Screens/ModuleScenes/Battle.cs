@@ -96,6 +96,8 @@ public partial class Battle : BaseSubScene
 
 	private void TimerTimeout()
 	{
+        FleeButton.Disabled = !_battle.canFlee();
+        PTLButton.Disabled = !_battle.canPTL();
 		BattleCanvas.QueueRedraw();
 	}
 

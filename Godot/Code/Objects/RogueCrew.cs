@@ -4,6 +4,7 @@ using System.IO;
 using System.Collections.Generic;
 using Deuteros.Code.Objects.GameData;
 using Deuteros.Code.Objects.Interfaces;
+using Resource = Deuteros.Code.Platform.Resource;
 using static Deuteros.Code.Enums;
 
 namespace Deuteros.Code.Objects
@@ -57,6 +58,36 @@ namespace Deuteros.Code.Objects
             Stage = 11;
             if (ship.ACC != null) ship.ACC.Active = ship.ACC.CycleMode = ship.ACC.Refuelling = false;
         }
+        public static void DayTick(uint previousDay, uint currentDay)
+        {
+            if (currentDay <= previousDay) return;
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            save.RogueCrew.Advance(save, Random.Shared.Next);
+            save.RogueCrew.TryStart(save);
+        }
+
+        public bool PublishMutiny(SaveFile save)
+        {
+            if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)
+                || !ReferenceEquals(this, save.RogueCrew) || !Occurred || !MutinyPending) return false;
+            MutinyPending = false;
+            PrisonCountdown = 252;
+            PrisonDivider = 0;
+            return true;
+        }
+
+        public bool AdvancePrisonDiscovery(SaveFile save)
+        {
+            if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)
+                || !ReferenceEquals(this, save.RogueCrew) || !Occurred || MutinyPending || PrisonCountdown == 0) return false;
+            var research = save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.prison_pod).Research;
+            if (!research.Locked) return false;
+            PrisonDivider = (PrisonDivider + 1) % 4;
+            if (PrisonDivider != 0 || --PrisonCountdown > 0) return false;
+            research.Locked = false;
+            return true;
+        }
+
         private static readonly ItemTypes[] RaidMaterials = { ItemTypes.titanium, ItemTypes.aluminium,
             ItemTypes.paladium, ItemTypes.platinum, ItemTypes.meh_fuel, ItemTypes.hed_fuel };
 
@@ -67,7 +98,15 @@ namespace Deuteros.Code.Objects
             if (ship == null)
             {
                 if (OriginalCrewCount.HasValue) { RestoreCrewCount(); Stage = 1; }
-                return;
+                if (Crew == null || Contained(save)) return;
+                var station = save.BaseGameData.Planets.Values.FirstOrDefault(p => p.Station.Built
+                    && p.Station.Resources.Staff.Any(t => ReferenceEquals(t, Crew)));
+                if (station == null) return;
+                InterStellarShip.EnsureAutomationSlots(save);
+                ship = save.Ships.OfType<SCG>().Where(s => s.PlanetLocation == station.PlanetId && s.ShipState == Ship_States.Docked)
+                    .OrderBy(s => s.AutomationSlot).FirstOrDefault();
+                if (ship == null || !TryTransferPilot(save, ship, station.Station.Resources, Crew)) return;
+                if (save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.prison_pod).Research.Locked) PrisonCountdown = 2;
             }
             if (ship.ACC != null) ship.ACC.Active = ship.ACC.CycleMode = ship.ACC.Refuelling = false;
             var planet = save.BaseGameData.Planets[ship.PlanetLocation];
@@ -159,6 +198,67 @@ namespace Deuteros.Code.Objects
                     Stage = 1;
                     break;
             }
+        }
+
+        internal static bool CanCommand(IShip ship)
+        {
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            return ship != null && save.Ships.Contains(ship) && !save.RogueCrew.Controls(ship);
+        }
+
+        internal static bool CanTransfer(SaveFile save, IShip ship, Resource resource)
+        {
+            if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)
+                || ship == null || !save.Ships.Contains(ship) || ship.ShipState != Ship_States.Docked
+                || !save.BaseGameData.Planets.TryGetValue(ship.PlanetLocation, out var planet)) return false;
+            return ship is Shuttle { OnGround: true } ? ReferenceEquals(resource, planet.PlanetResources)
+                : planet.Station.Built && ReferenceEquals(resource, planet.Station.Resources);
+        }
+
+        public bool TryTransferPilot(SaveFile save, IShip ship, Resource resource, Staff selected)
+        {
+            if (!CanTransfer(save, ship, resource) || (selected != null && selected.Type != StaffType.Marines)
+                || (Crew != null && ReferenceEquals(selected, Crew) && ship is not SCG)) return false;
+            var slot = Array.FindIndex(resource.Staff, t => ReferenceEquals(t, selected));
+            if (slot < 0 || (selected == null && ship.Pilot == null)) return false;
+            if (Crew != null && (ReferenceEquals(ship.Pilot, Crew) || ReferenceEquals(selected, Crew)))
+            {
+                RestoreCrewCount();
+                Stage = ReferenceEquals(selected, Crew) ? 10 : 1;
+            }
+            resource.Staff[slot] = ship.Pilot;
+            ship.Pilot = selected;
+            if (Controls(ship) && ship.ACC != null) ship.ACC.Active = ship.ACC.CycleMode = ship.ACC.Refuelling = false;
+            return true;
+        }
+
+        private static bool AccessiblePrison(SaveFile save, ShipModule prison, Resource resource) => prison != null
+            && prison.ModuleType == Module_Types.Tool && prison.ItemStored == ItemTypes.prison_pod && prison.ItemCount == 1
+            && save.Ships.OfType<SCG>().Any(s => s.Modules.Contains(prison) && CanTransfer(save, s, resource));
+
+        public bool TryCapture(SaveFile save, ShipModule prison, Resource resource, Staff selected)
+        {
+            if (Crew == null || !ReferenceEquals(selected, Crew) || !AccessiblePrison(save, prison, resource)
+                || prison.StaffStored != null) return false;
+            var slot = Array.FindIndex(resource.Staff, t => ReferenceEquals(t, selected));
+            if (slot < 0) return false;
+            RestoreCrewCount();
+            Stage = 1;
+            resource.Staff[slot] = null;
+            prison.StaffStored = selected;
+            return true;
+        }
+
+        public bool TryRelease(SaveFile save, ShipModule prison, Resource resource)
+        {
+            if (Crew == null || !AccessiblePrison(save, prison, resource) || !ReferenceEquals(prison.StaffStored, Crew)) return false;
+            var slot = Array.FindIndex(resource.Staff, t => t == null);
+            if (slot < 0) return false;
+            RestoreCrewCount();
+            Stage = 1;
+            resource.Staff[slot] = Crew;
+            prison.StaffStored = null;
+            return true;
         }
 
         private void RestoreCrewCount()

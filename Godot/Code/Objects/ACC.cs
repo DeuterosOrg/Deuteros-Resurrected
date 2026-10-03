@@ -263,7 +263,7 @@ namespace Deuteros.Code.Objects
 
         private bool StopRogue()
         {
-            if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship)) return false;
+            if (RogueCrew.CanCommand(Ship)) return false;
             Active = CycleMode = Refuelling = false;
             return true;
         }

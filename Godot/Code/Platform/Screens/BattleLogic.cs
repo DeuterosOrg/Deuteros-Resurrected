@@ -661,12 +661,12 @@ namespace Deuteros.Code.Objects.Battle
 
         public void PlayerFlee()
         {
-            P1fleeing = true;
+            if (canFlee()) P1fleeing = true;
         }
 
         public bool canFlee()
         {
-            return !P1fleeing && !P2fleeing;
+            return RogueCrew.CanCommand(playerShip) && !P1fleeing && !P2fleeing;
         }
 
         public bool hasPTL()
@@ -676,7 +676,7 @@ namespace Deuteros.Code.Objects.Battle
 
         public bool canPTL()
         {
-            return PTLstate == PTLState.NotFired && canFirePtl & BattleState == BattleState.FleetsInBattle && !P1fleeing & !P2fleeing;
+            return RogueCrew.CanCommand(playerShip) && PTLstate == PTLState.NotFired && canFirePtl & BattleState == BattleState.FleetsInBattle && !P1fleeing & !P2fleeing;
         }
 
         public bool Completed()

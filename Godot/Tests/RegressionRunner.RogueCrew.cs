@@ -1,4 +1,6 @@
 using System;
+using System.Threading.Tasks;
+using Godot;
 using System.Linq;
 using System.IO;
 using System.Collections.Generic;
@@ -24,6 +26,7 @@ namespace Deuteros.Tests
             Equal(4, ship.Pilot.GetLevel(), "real Hyperlight arrival supplies Warlord");
             Equal(StellarBodies.atlantic, ship.PlanetLocation, "fixture completed actual journey");
             ship.Fuel = 250;
+            ship.FuelType = ItemTypes.hed_fuel;
             while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
             foreach (var planet in Save.BaseGameData.Planets.Values)
             {
@@ -540,5 +543,524 @@ namespace Deuteros.Tests
                 Equal(condition == 3 ? StellarBodies.earth : StellarBodies.none, mtx.Target, "MTX boundary " + condition);
             }
         }
+
+        private async Task<ShipBay> RogueBay(bool cryo = false)
+        {
+            InitializeUi();
+            var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save); ship.ShipState = Ship_States.Docked;
+            ship.Modules[5] = new ShipModule { ModuleType = cryo ? Module_Types.Cryo : Module_Types.Tool,
+                ItemStored = cryo ? ItemTypes.none : ItemTypes.prison_pod, ItemCount = cryo ? 0 : 1 };
+            Save.CurrentPlanet = ship.PlanetLocation;
+            GameCore.SingletonInstance.ChangeScene(Scenes.ShipBay, new() {SceneVariables.Orbit,SceneVariables.Ship});
+            await InputFrames();
+            return ActiveScreen<ShipBay>();
+        }
+
+        private async Task RogueCockpitRecovery()
+        {
+            var bay = await RogueBay(); var original = bay.Ship; var crew = original.Pilot;
+            Press(bay, ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            Equal<Staff>(null, original.Pilot, "actual cockpit removes rogue pilot");
+            Equal(true, ReferenceEquals(crew, bay.ResourceList.Staff[0]), "crew moves into one roster slot");
+            Equal(false, Save.RogueCrew.Controls(original), "recovered hull is human controlled");
+            Equal(false,bay.GetNode<TextureButton>("Buttons/ShipNav/Nav_Torso6").Disabled,"recovery immediately re-enables prison navigation");
+            original.ShipState = Ship_States.UnDocked;
+            var ios = new IOS { ShipType = Ship_Types.IOS, ShipState = Ship_States.Docked, PlanetLocation = original.PlanetLocation,
+                StarLocation = original.StarLocation, FuelType = ItemTypes.meh_fuel, Modules = Enumerable.Range(0,3).Select(_ => new ShipModule()).ToList(), Name = "Other hull" };
+            Save.Ships.Add(ios);
+            GameCore.SingletonInstance.ChangeScene(Scenes.ShipBay, new() {SceneVariables.Orbit,SceneVariables.Ship});
+            await InputFrames(); bay = ActiveScreen<ShipBay>();
+            Press(bay, ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            Equal<Staff>(null, ios.Pilot, "selected rogue cannot pilot IOS through actual roster button");
+            Equal(true, ReferenceEquals(crew, bay.ResourceList.Staff[0]), "rejected assignment keeps crew in roster");
+            SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+        }
+
+        private async Task RogueCryoRejected()
+        {
+            var bay = await RogueBay(cryo:true); var crew = bay.Ship.Pilot;
+            Press(bay, ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            Press(bay, "Buttons/ShipNav/Nav_Torso6");
+            Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/ActivatePod");
+            Press(bay, "StaffList/Staff/Buttons/01");
+            Equal<Staff>(null, bay.Ship.Modules[5].StaffStored, "ordinary cryopod refuses selected rogue");
+            Equal(true, ReferenceEquals(crew, bay.ResourceList.Staff[0]), "cryo refusal preserves roster identity");
+        }
+
+        private void RoguePrisonModel()
+        {
+            var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save); ship.ShipState = Ship_States.Docked;
+            var crew = ship.Pilot; ship.Pilot = null;
+            var resource = Save.BaseGameData.Planets[ship.PlanetLocation].Station.Resources; resource.Staff[0] = crew;
+            var prison = ship.Modules[5] = new ShipModule { ModuleType = Module_Types.Tool, ItemStored = ItemTypes.prison_pod, ItemCount = 1 };
+            var state = Save.RogueCrew;
+            Equal(true, state.TryCapture(Save, prison, resource, crew),
+                "fitted prison captures selected rogue from local roster");
+            Equal<Staff>(null, resource.Staff[0], "capture vacates roster slot");
+            Equal(true, ReferenceEquals(crew, prison.StaffStored), "capture retains crew object");
+            var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            Equal(true, restored.RogueCrew.Contained(restored), "containment survives save");
+            for (var i=0;i<4;i++) resource.Staff[i] = new Staff {Type=StaffType.Marines,Count=10};
+            Equal(false, state.TryRelease(Save, prison, resource),
+                "full roster retains prisoner");
+            Equal(true, ReferenceEquals(crew,prison.StaffStored), "full release cannot lose crew");
+            resource.Staff[2] = null;
+            Equal(true, state.TryRelease(Save, prison, resource),
+                "available roster slot releases prisoner");
+            Equal(true, ReferenceEquals(crew,resource.Staff[2]), "release preserves selected reference");
+            Equal(5, crew.GetLevel(), "release does not restore Warlord rank");
+            Equal<Staff>(null, prison.StaffStored, "release clears prison");
+        }
+
+        private void RogueRosterHijack()
+        {
+            var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save); ship.ShipState = Ship_States.Docked;
+            var crew = ship.Pilot;
+            var displaced = new Staff { Type=StaffType.Marines,Leader="Displaced",Count=10 };
+            ship.Pilot = displaced;
+            var resource = Save.BaseGameData.Planets[ship.PlanetLocation].Station.Resources;
+            resource.Staff[2] = crew;
+            AdvanceRogue();
+            Equal(true, ReferenceEquals(crew,ship.Pilot), "free rogue hijacks docked SCG");
+            Equal(true, ReferenceEquals(displaced,resource.Staff[2]), "hijack swaps original occupied roster slot");
+            Equal(Ship_States.Launching,ship.ShipState,"hijack dispatches stage10 departure");
+            Equal(11,Save.RogueCrew.Stage,"hijack returns to launch wait");
+            Equal(2,Save.RogueCrew.PrisonCountdown,"hijack shortens prison discovery");
+            SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+        }
+
+        private async Task<ShipBay> OpenRoguePrison()
+        {
+            var bay = await RogueBay();
+            Press(bay, ShipParts + "Cockpit/StaffList/Staff/Buttons/01");
+            Press(bay, "Buttons/ShipNav/Nav_Torso6");
+            Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/ActivatePod");
+            Equal(true, bay.GetNode<Control>("StaffList").Visible, "fitted prison opens local roster");
+            return bay;
+        }
+
+        private async Task RoguePrisonGesture()
+        {
+            foreach (var retain in new[] {false,true})
+            {
+                var bay = await OpenRoguePrison(); var crew = Save.RogueCrew.Crew; var prison = bay.Ship.Modules[5];
+                Press(bay, "StaffList/Staff/Buttons/01");
+                Equal(true, ReferenceEquals(crew,prison.StaffStored), "actual roster press captures prisoner");
+                Press(bay, "StaffList/Staff/Buttons/01");
+                Equal(true, ReferenceEquals(crew,prison.StaffStored), "repeated press cannot undo capture window");
+                var count=crew.Count; StaffAttrition.Advance(Save,0,100,()=>1);
+                Equal(count,crew.Count,"prisoner frozen during attrition");
+                if(retain) await RightClick(bay.GetNode<Control>("StaffList").GetGlobalRect().GetCenter());
+                await ToSignal(GetTree().CreateTimer(.65), SceneTreeTimer.SignalName.Timeout);
+                Equal(retain,ReferenceEquals(crew,prison.StaffStored),"right click retains and timeout releases");
+                Equal(!retain,bay.ResourceList.Staff.Any(t=>ReferenceEquals(t,crew)),"one physical crew location");
+                SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                if(retain)
+                {
+                    Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/ActivatePod");
+                    await CaptureDisplayEvidence("rogue-prison-retained");
+                    Press(bay, "StaffList/Staff/Buttons/01");
+                    Equal<Staff>(null,prison.StaffStored,"empty roster slot releases retained prisoner");
+                }
+            }
+        }
+
+        private async Task RoguePrisonInterruptedUi()
+        {
+            foreach(var replacement in new[]{false,true})
+            {
+                var bay=await OpenRoguePrison(); var active=Save; var prison=bay.Ship.Modules[5];var crew=Save.RogueCrew.Crew;
+                Press(bay,"StaffList/Staff/Buttons/01");
+                if(replacement) GameCore.SingletonInstance.GameData.ActiveSaveFile=SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                else GameCore.SingletonInstance.ChangeScene(Scenes.SaveScreen,new());
+                await ToSignal(GetTree().CreateTimer(.65),SceneTreeTimer.SignalName.Timeout);
+                Equal(true,ReferenceEquals(crew,prison.StaffStored),"interrupted capture retains original prisoner");
+                Equal(false,active.BaseGameData.Planets[StellarBodies.atlantic].Station.Resources.Staff.Any(t=>ReferenceEquals(t,crew)),"interrupted timer cannot reinsert crew");
+                if(replacement) Equal(true,Save.RogueCrew.Contained(Save),"replaced world keeps saved containment");
+            }
+        }
+
+        private async Task RoguePrisonFullRosterUi()
+        {
+            var bay=await OpenRoguePrison();var prison=bay.Ship.Modules[5];var crew=Save.RogueCrew.Crew;
+            Press(bay,"StaffList/Staff/Buttons/01");
+            for(var i=0;i<4;i++) bay.ResourceList.Staff[i]=new Staff{Type=StaffType.Marines,Count=10};
+            await ToSignal(GetTree().CreateTimer(.65),SceneTreeTimer.SignalName.Timeout);
+            Equal(true,ReferenceEquals(crew,prison.StaffStored),"timeout with full roster retains prisoner");
+            Equal(4,bay.ResourceList.Staff.Count(t=>t!=null),"timeout does not overwrite unrelated crew");
+            SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+        }
+
+        private async Task RoguePrisonEquipmentSafety()
+        {
+            var bay=await OpenRoguePrison();var prison=bay.Ship.Modules[5];var crew=Save.RogueCrew.Crew;
+            Press(bay,"StaffList/Staff/Buttons/01");
+            await RightClick(bay.GetNode<Control>("StaffList").GetGlobalRect().GetCenter());
+            foreach(var type in new[]{ItemTypes.prison_pod,ItemTypes.derrick})
+            {
+                var item=GameCore.SingletonInstance.GameData.GetItem(type);item.Locked=false;item.Research.Researched=true;
+                bay.ResourceList.Stores[type]=3;
+            }
+            typeof(ShipBay).GetMethod("UpdateEquipmentStock", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic).Invoke(bay, null);
+            PressEquipmentNamed(bay,GameCore.SingletonInstance.GameData.GetItem(ItemTypes.prison_pod).ShortName);
+            PressEquipmentNamed(bay,GameCore.SingletonInstance.GameData.GetItem(ItemTypes.derrick).ShortName);
+            Press(bay,ShipParts+"Torso6/SpriteHolder/Buttons/AddToolPod");
+            Press(bay,"Buttons/Nav_Dismantle");
+            Equal(true,Save.Ships.Contains(bay.Ship),"occupied prison prevents dismantling");
+            Equal(true,ReferenceEquals(crew,prison.StaffStored),"all removal paths retain crew");
+            Equal(ItemTypes.prison_pod,prison.ItemStored,"all removal paths retain prison equipment");
+            Equal(3,bay.ResourceList.Stores[ItemTypes.prison_pod],"no duplicate prison refund");
+            Equal(3,bay.ResourceList.Stores[ItemTypes.derrick],"no replacement debit");
+        }
+
+        private async Task RogueEmptyPrisonReturn()
+        {
+            var bay = await OpenRoguePrison();
+            var item = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.prison_pod); item.Research.Researched = true; item.Locked = false;
+            var stock = bay.ResourceList.Stores[ItemTypes.prison_pod];
+            var point=bay.GetNode<Button>("StaffList/PrisonEquipment").GetGlobalRect().GetCenter();
+            GetViewport().PushInput(new InputEventMouseMotion{Position=point,GlobalPosition=point},true);
+            foreach(var pressed in new[]{true,false}) GetViewport().PushInput(new InputEventMouseButton{Position=point,GlobalPosition=point,ButtonIndex=MouseButton.Left,Pressed=pressed},true);
+            await InputFrames();
+            Equal(true,bay.GetNode<Control>("EquipmentStock").Visible,"empty prison equipment is reachable through actual pointer hit testing");
+            PressEquipmentNamed(bay,item.ShortName);
+            Equal(ItemTypes.none,bay.Ship.Modules[5].ItemStored,"empty prison can be removed");
+            Equal(stock+1,bay.ResourceList.Stores[ItemTypes.prison_pod],"one empty prison refunded");
+            Equal(true,bay.ResourceList.Staff.Any(t=>ReferenceEquals(t,Save.RogueCrew.Crew)),"equipment removal does not consume free rogue");
+        }
+
+        private async Task RogueBayCommandRejection()
+        {
+            foreach(var button in new[]{"Fuel/FuelGauge/Minus/RepeatingButton","Fuel/FuelGauge/Plus/RepeatingButton",
+                "Buttons/ShipNav/Nav_Torso1","Buttons/ShipNav/Nav_Engine","Buttons/Nav_Dismantle",ShipParts+"Cockpit/Buttons/AddACC"})
+            {
+                var bay=await RogueBay();var ship=bay.Ship;
+                bay.ResourceList.Stores[ItemTypes.a__c__c]=2;
+                Press(bay,button);
+                Equal(Ship_States.Launching,ship.ShipState,"rogue bay command dispatches escape: "+button);
+                Equal(true,Save.Ships.Contains(ship),"command cannot dismantle rogue");
+                Equal(250,ship.Fuel,"command cannot return rogue fuel");
+                Equal(2,bay.ResourceList.Stores[ItemTypes.a__c__c],"command cannot fit ACC");
+            }
+        }
+
+        private async Task<ShipInterior> RogueInterior(bool select = true)
+        {
+            InitializeUi();var ship=NewRogueCandidate();if(select) Save.RogueCrew.TryStart(Save);
+            Save.CurrentPlanet=ship.PlanetLocation;GameCore.SingletonInstance.ShipSelected=ship.ShipID;
+            GameCore.SingletonInstance.ChangeScene(Scenes.ShipInterior,new());await InputFrames();
+            return ActiveScreen<ShipInterior>();
+        }
+
+        private async Task RogueInteriorCommandRejection()
+        {
+            var interior=await RogueInterior();var ship=interior.Ship;
+            var destination=ship.DestinationPlanetLocation;
+            Press(interior,"EngineControls/DisengageEngine");
+            Equal(true,ship.EngineEngaged,"rogue retained engine callback cannot change drive");
+            Press(interior,"SetCourse");
+            Equal(0,interior.GetNode<Control>("StarMap").GetChildCount(),"rogue cannot open course selector");
+            Press(interior,"TextLayout/RenameShip");
+            Equal(false,Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen,"rogue cannot open rename dialog");
+            Press(interior,"TextLayout/CargoActions");
+            Equal(false,Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen,"rogue cannot open cargo disposal");
+            Press(interior,"Modules/00");
+            Equal(Ship_States.UnDocked,ship.ShipState,"rogue module action cannot dock or launch combat");
+            Equal(destination,ship.DestinationPlanetLocation,"rogue course unchanged");
+            Equal(true,interior.GetNode<Button>("EngineControls/DisengageEngine").Disabled,"disabled state matches command guard");
+        }
+
+        private async Task RogueRetainedRename()
+        {
+            var interior=await RogueInterior(false);var ship=interior.Ship;
+            var dialog = OpenRename(interior);
+            var edit=dialog.GetNode<LineEdit>("NameEdit");
+            edit.Text="Stale renamed";
+            Save.RogueCrew.TryStart(Save);
+            dialog.GetNode<Button>("Confirm").EmitSignal(Button.SignalName.Pressed);
+            Equal("BOUNTY",ship.Name,"rename callback retained before mutiny cannot rename rogue");
+            Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay();
+        }
+        private void RogueRetainedModules(string kind)
+        {
+            foreach (var replaced in new[] {false,true})
+            {
+                var ship=NewRogueCandidate();
+                var module=ship.Modules[0];
+                Node panel;
+                if(kind=="mining")
+                {
+                    ship.PlanetLocation=StellarBodies.asteroids; ship.StarLocation=StellarBodies.the_sun;
+                    module.ModuleType=Module_Types.Tool;module.ItemStored=ItemTypes.a__m__a;module.ItemCount=1;module.LastMinedDay=17;
+                    ship.ItemScanResults=new Asteroid{Type=ItemTypes.iron,Class=6,Mass=10000,MassName="Large"};
+                    var ama=OpenUi<Deuteros.Code.Platform.Screens.ModuleScenes.AMA>("res://PreFabs/ShipModuleWindows/AMA.tscn");
+                    ama.Load(ship,module);panel=ama;
+                }
+                else if(kind=="grapple")
+                {
+                    module.ModuleType=Module_Types.Tool;module.ItemStored=ItemTypes.grapple;module.ItemCount=1;
+                    module.HeldItem=new Asteroid{GrappleItemType=GrappleItemTypes.Asteroid,Type=ItemTypes.iron,Mass=37,MassName="Small"};
+                    var grapple=OpenUi<Deuteros.Code.Platform.Screens.ModuleScenes.Grapple>("res://PreFabs/ShipModuleWindows/Grapple.tscn");
+                    grapple.Load(ship,module);panel=grapple;
+                }
+                else if(kind=="acc")
+                {
+                    ship.ACC=new Deuteros.Code.Objects.ACC{Ship=ship,Source=ship.PlanetLocation,Destination=ship.PlanetLocation,
+                        SourceItems=new(){ItemTypes.titanium},DestinationItems=new(),CurrentSource=ItemTypes.titanium,CurrentDestination=ItemTypes.iron};
+                    var acc=OpenUi<Deuteros.Code.Platform.Screens.ACC>("res://PreFabs/ACC.tscn");acc.SetACC(ship.ACC);acc.UpdateState();panel=acc;
+                }
+                else
+                {
+                    ship.DroneCount=10;
+                    var fleet=OpenUi<global::FleetTransfers>("res://PreFabs/ShipModuleWindows/FleetTransfers.tscn");fleet.TransferDrones(ship);panel=fleet;
+                }
+                try
+                {
+                    // Mutiny selection uses the qualifying mixed station, then the retained window acts at its current location.
+                    var location=ship.PlanetLocation;var star=ship.StarLocation;
+                    ship.PlanetLocation=StellarBodies.atlantic;ship.StarLocation=Save.BaseGameData.Planets[StellarBodies.atlantic].ParentStar;
+                    if(!replaced) { Save.RogueCrew.TryStart(Save); Equal(true,Save.RogueCrew.Controls(ship),"retained fixture selects rogue"); }
+                    ship.PlanetLocation=location;ship.StarLocation=star;
+                    if(replaced) { CoreData.CreateBaseGameData(); GameCore.SingletonInstance.GameData.ActiveSaveFile=CoreData.CreateNewSaveFile(); }
+                    if(kind=="mining")
+                    {
+                        Press(panel,"Buttons/Mine");
+                        Equal(Ship_States.UnDocked,ship.ShipState,"retained AMA cannot start mining");
+                        Equal((uint)17,module.LastMinedDay,"rejected AMA preserves mining timer");
+                    }
+                    else if(kind=="grapple")
+                    {
+                        var held=module.HeldItem;Press(panel,"Enabled/Buttons/Release");
+                        Equal(held,module.HeldItem,"retained grapple cannot discard cargo");
+                        module.HeldItem=null;ship.ItemScanResults=held;Press(panel,"Enabled/Buttons/Grab");
+                        Equal<GrappleItem>(null,module.HeldItem,"retained grapple cannot collect cargo");
+                        Equal(held,ship.ItemScanResults,"rejected grapple preserves scan");
+                    }
+                    else if(kind=="acc")
+                    {
+                        Press(panel,"Window/Buttons/Clear");
+                        Equal(true,ship.ACC.SourceItems.Contains(ItemTypes.titanium),"retained ACC cannot clear configuration");
+                        Press(panel,"Window/SourceButtons/Col01/00");
+                        Equal(false,ship.ACC.SourceItems.Contains(ItemTypes.iron),"retained ACC cannot change filters");
+                    }
+                    else
+                    {
+                        Press(panel,"RepeatingButton2");
+                        Equal(10,ship.DroneCount,"retained fleet transfer cannot remove drones");
+                    }
+                }
+                finally{panel.Free();}
+            }
+        }
+
+        private void RogueRetainedBattle()
+        {
+            foreach(var replaced in new[]{false,true})
+            {
+                var ship=NewRogueCandidate();ship.PTL=true;ship.DroneCount=10;
+                var logic=new Deuteros.Code.Objects.Battle.BattleLogic(ship,new EnemyFleet{DroneCount=10},0,null,null,null,null,null);
+                typeof(Deuteros.Code.Objects.Battle.BattleLogic).GetProperty("BattleState", System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)
+                    .SetValue(logic,BattleState.FleetsInBattle);
+                Equal(true,logic.canPTL(),"ordinary battle begins with available PTL");
+                if(replaced) { CoreData.CreateBaseGameData();GameCore.SingletonInstance.GameData.ActiveSaveFile=CoreData.CreateNewSaveFile(); }
+                else Save.RogueCrew.TryStart(Save);
+                logic.LaunchPTL();logic.PlayerFlee();
+                Equal(250,ship.Fuel,"retained battle cannot fire PTL");
+                Equal(false,logic.PlayerFled,"retained battle cannot flee");
+                Equal(false,logic.canPTL()||logic.canFlee(),"battle controls reflect rejection");
+            }
+        }
+
+        private void RogueObsoleteAcc()
+        {
+            var ship=NewRogueCandidate();ship.ShipState=Ship_States.Docked;ship.Fuel=100;
+            ship.ACC=new Deuteros.Code.Objects.ACC{Ship=ship,Source=ship.PlanetLocation,Destination=ship.PlanetLocation,
+                SourceItems=new(){ItemTypes.iron},DestinationItems=new(),CurrentSource=ItemTypes.iron,CurrentDestination=ItemTypes.iron};
+            CoreData.CreateBaseGameData();GameCore.SingletonInstance.GameData.ActiveSaveFile=CoreData.CreateNewSaveFile();
+            var stores=Save.BaseGameData.Planets[ship.PlanetLocation].Station.Resources.Stores;
+            stores[ItemTypes.hed_fuel]=1000;stores[ItemTypes.iron]=500;
+            var cargo=ship.Modules[0].ItemCount;
+            ship.ACC.Refuel();ship.ACC.LoadSupply();ship.ACC.Activate();ship.ACC.Update(Ship_States.Docking);
+            Equal(100,ship.Fuel,"obsolete ACC cannot refuel an old hull");
+            Equal(cargo,ship.Modules[0].ItemCount,"obsolete ACC cannot change old cargo");
+            Equal(1000,stores[ItemTypes.hed_fuel],"obsolete ACC cannot debit replacement fuel");
+            Equal(500,stores[ItemTypes.iron],"obsolete ACC cannot touch replacement stores");
+        }
+
+        private async Task RogueRetainedCargoCourse()
+        {
+            foreach(var replaced in new[]{false,true})
+            foreach(var course in new[]{false,true})
+            {
+                var interior=await RogueInterior(false);var ship=interior.Ship;var destination=ship.DestinationPlanetLocation;
+                Control dialog=null;
+                if(course)
+                {
+                    Press(interior,"SetCourse");
+                    interior.GetNode<Control>("StarMap").GetChild<StarMap>(0).LoadMap(StellarBodies.mars);
+                }
+                else dialog=await OpenSupplyPods(interior);
+                if(replaced) { CoreData.CreateBaseGameData();GameCore.SingletonInstance.GameData.ActiveSaveFile=CoreData.CreateNewSaveFile(); }
+                else Save.RogueCrew.TryStart(Save);
+                if(course)
+                {
+                    await RightClick(interior.GetNode<Control>("StarMap").GetGlobalRect().GetCenter());
+                    Equal(destination,ship.DestinationPlanetLocation,"retained map cannot change course");
+                    Equal(false,Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen,"rejected obsolete or rogue course closes silently");
+                }
+                else
+                {
+                    Press(dialog,"Rows/Pod0/Ditch");
+                    Equal(12,ship.Modules[0].ItemCount,"retained cargo dialog preserves supply");
+                }
+                if(Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen) Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay();
+            }
+        }
+
+        private async Task RogueRetainedBayFitting()
+        {
+            foreach(var replaced in new[]{false,true})
+            foreach(var engine in new[]{false,true})
+            {
+                var bay=await RogueBay();var ship=bay.Ship;var stores=bay.ResourceList.Stores;
+                var module=ship.Modules[0];
+                module.HeldItem=new Asteroid{GrappleItemType=GrappleItemTypes.Asteroid,Type=ItemTypes.iron,Mass=37};
+                var held=module.HeldItem;var stock=stores[ItemTypes.iron];
+                ship.Engine=false;stores[ItemTypes.star_drive]=3;
+                bay.GetNode<Deuteros.Code.Platform.Screens.ShipBayScenes.Engine>(ShipParts+"Engine").Installed=false;
+                if(replaced) { CoreData.CreateBaseGameData();GameCore.SingletonInstance.GameData.ActiveSaveFile=CoreData.CreateNewSaveFile(); }
+                if(engine) Press(bay,ShipParts+"Engine/SpriteHolder/Buttons/InstallEngine");
+                else bay.GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier").Closed(0);
+                Equal(false,ship.Engine,"retained fitting cannot install drive");
+                Equal(3,stores[ItemTypes.star_drive],"retained fitting preserves drive stock");
+                Equal(held,module.HeldItem,"retained bay analysis preserves grapple cargo");
+                Equal(stock,stores[ItemTypes.iron],"retained bay analysis preserves mineral stock");
+            }
+        }
+
+        private void RoguePrisonDiscoveryClock()
+        {
+            NewRogueCandidate();Save.RogueCrew.TryStart(Save);var state=Save.RogueCrew;
+            Equal(false,state.AdvancePrisonDiscovery(Save),"unpublished mutiny cannot advance discovery");
+            Equal(true,state.PublishMutiny(Save),"pending mutiny publishes once");
+            Equal(252,state.PrisonCountdown,"mutiny initializes original discovery countdown");
+            Equal(false,state.PublishMutiny(Save),"mutiny cannot restart its countdown");
+            for(var i=0;i<3;i++) Equal(false,state.AdvancePrisonDiscovery(Save),"first three visits wait");
+            Equal(252,state.PrisonCountdown,"divider preserves countdown between fourth visits");
+            GameCore.SingletonInstance.GameData.ActiveSaveFile=SaveStorage.Deserialize(SaveStorage.Serialize(Save));state=Save.RogueCrew;
+            Equal(false,state.AdvancePrisonDiscovery(Save),"saved fourth visit decrements only");
+            Equal(251,state.PrisonCountdown,"saved divider does not restart");
+            state.PrisonCountdown=2;
+            for(var i=0;i<7;i++) Equal(false,state.AdvancePrisonDiscovery(Save),"shortened discovery waits eight eligible visits");
+            Equal(true,state.AdvancePrisonDiscovery(Save),"zero reaching visit discovers prison");
+            var item=GameCore.SingletonInstance.GameData.GetItem(ItemTypes.prison_pod);
+            Equal(false,item.Research.Locked,"discovery exposes existing research");
+            Equal(false,item.Research.Researched,"discovery does not grant research completion");
+            Equal(true,item.Locked,"discovery does not bypass paid manufacture");
+            Equal(false,state.AdvancePrisonDiscovery(Save),"prison bulletin cannot repeat");
+        }
+
+        private async Task RogueStoryIntegration()
+        {
+            InitializeUi();var ship=NewRogueCandidate();ship.EngineEngaged=false;
+            var core=GameCore.SingletonInstance;core.SetProcess(false);
+            var hyperlight=core.GameData.GetItem(ItemTypes.hyperlight);
+            hyperlight.Research.Researched=false;hyperlight.Research.ResearchPercentageComplete=17;
+            GameCore.Earth.ResearchStaff=null;
+            Save.BaseGameData.BulletinTexts[BulletinTypes.Hyperlight_Speed].BulletinText="Earlier discovery.";
+            Save.BaseGameData.BulletinTexts[BulletinTypes.Mutiny].BulletinText="Mutiny.";
+            Save.BaseGameData.BulletinTexts[BulletinTypes.Rogue_Ship].BulletinText="Prison discovered.";
+            Save.News.PendingBulletins.Add(BulletinTypes.Hyperlight_Speed);
+            core.ChangeScene(Scenes.SaveScreen,new());await InputFrames();
+            core._Process(0);
+            Equal(false,Save.RogueCrew.Occurred,"nonadvancing update cannot select rogue");
+            AdvanceTickDay();
+            Equal(true,Save.RogueCrew.Controls(ship),"normal simulation selects eligible partial research ship");
+            Equal(BulletinTypes.Hyperlight_Speed,Save.News.LastBulletin,"existing notice keeps priority");
+            Equal(true,Save.RogueCrew.MutinyPending,"competing notice preserves pending mutiny");
+            Equal(0,Save.RogueCrew.PrisonCountdown,"competing notice cannot start prison clock");
+            await FinishBulletin(ActiveScreen<Bulletins>());
+            core.GameData.ActiveSaveFile=SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            ship=Save.Ships.OfType<SCG>().Single();
+            core.ChangeScene(Scenes.SaveScreen,new());await InputFrames();AdvanceTickDay();
+            Equal(BulletinTypes.Mutiny,Save.News.LastBulletin,"saved pending mutiny publishes");
+            Equal(252,Save.RogueCrew.PrisonCountdown,"mutiny initializes prison delay once");
+            await FinishBulletin(ActiveScreen<Bulletins>());
+            await CaptureDisplayEvidence("rogue-mutiny-bulletin");
+            // Keep the free crew ashore so the story clock can be exercised without a second hijack.
+            Save.BaseGameData.Planets[ship.PlanetLocation].Station.Resources.Staff[0]=ship.Pilot;ship.Pilot=null;
+            Save.RogueCrew.PrisonCountdown=1;Save.RogueCrew.PrisonDivider=0;
+            core.ChangeScene(Scenes.SaveScreen,new());await InputFrames();
+            Save.News.PendingBulletins.Add(BulletinTypes.Hyperlight_Speed);AdvanceTickDay();
+            Equal(1,Save.RogueCrew.PrisonCountdown,"higher-priority bulletin postpones prison countdown");
+            Equal(0,Save.RogueCrew.PrisonDivider,"higher-priority bulletin does not consume divider visit");
+            await FinishBulletin(ActiveScreen<Bulletins>());
+            core.ChangeScene(Scenes.SaveScreen,new());await InputFrames();
+            for(var i=0;i<3;i++) AdvanceTickDay();
+            Equal(1,Save.RogueCrew.PrisonCountdown,"only every fourth low-priority visit decrements");
+            var before=Save.RogueCrew.PrisonDivider;core._Process(0);
+            Equal(before,Save.RogueCrew.PrisonDivider,"nonadvancing update cannot advance discovery");
+            AdvanceTickDay();
+            Equal(BulletinTypes.Rogue_Ship,Save.News.LastBulletin,"normal story phase publishes prison discovery");
+            Equal(false,core.GameData.GetItem(ItemTypes.prison_pod).Research.Locked,"normal story exposes prison research");
+            await FinishBulletin(ActiveScreen<Bulletins>());
+            await CaptureDisplayEvidence("rogue-prison-bulletin");
+            SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+        }
+
+        private async Task RoguePrisonPaidProgression()
+        {
+            InitializeUi();var ship=NewRogueCandidate();var core=GameCore.SingletonInstance;core.SetProcess(false);DisableFuelRefining();
+            Save.RogueCrew.TryStart(Save);Save.RogueCrew.PublishMutiny(Save);
+            Save.RogueCrew.PrisonCountdown=1;Save.RogueCrew.PrisonDivider=3;Save.RogueCrew.AdvancePrisonDiscovery(Save);
+            var item=core.GameData.GetItem(ItemTypes.prison_pod);
+            Save.CurrentPlanet=StellarBodies.earth;
+            GameCore.Earth.ResearchStaff=new Staff{Type=StaffType.Research,Count=200,Leader="Science"};GameCore.Earth.ResearchStaff.AddAction(9);
+            core.ChangeScene(Scenes.Earth_Research,new(){SceneVariables.Ground});await InputFrames();
+            var research=ActiveScreen<Research>();
+            research.Buttons.Single(b=>b.ObjectData?.ItemType==ItemTypes.prison_pod).EmitSignal(BaseButton.SignalName.Pressed);
+            for(uint day=1;day<=100&&!item.Research.Researched;day++) Research.UpdateResearch(day-1,day);
+            Equal(true,item.Research.Researched,"normal prison research completes");
+            Equal(false,item.Locked,"research enables prison manufacture");
+            await CaptureDisplayEvidence("rogue-prison-researched");
+            core.ChangeScene(Scenes.SaveScreen,new());await InputFrames();await DrainStoppedAudio();
+            Save.CurrentPlanet=ship.PlanetLocation;
+            var station=Save.BaseGameData.Planets[ship.PlanetLocation].Station;station.Factory.AOC=true;
+            var stores=station.Resources.Stores;stores[ItemTypes.prison_pod]=0;
+            foreach(var recipe in item.BuildRequirements) stores[recipe.ItemType]=recipe.ItemCount;
+            var production=OpenMtxProduction();
+            try
+            {
+                production.Buttons.Single(b=>b.ObjectData?.ItemType==ItemTypes.prison_pod).EmitSignal(BaseButton.SignalName.Pressed);
+                ProductionDays(20);
+            }
+            finally{production.Free();}
+            Equal(1,stores[ItemTypes.prison_pod],"normal production makes one prison pod");
+            foreach(var recipe in item.BuildRequirements) Equal(0,stores[recipe.ItemType],"prison recipe charged exactly once");
+            ship.ShipState=Ship_States.Docked;
+            station.Resources.Staff[0]=ship.Pilot;ship.Pilot=null;
+            ship.Modules[5]=new ShipModule{ModuleType=Module_Types.Tool};
+            core.ChangeScene(Scenes.ShipBay,new(){SceneVariables.Orbit,SceneVariables.Ship});await InputFrames();
+            var bay=ActiveScreen<ShipBay>();
+            Press(bay,"Buttons/ShipNav/Nav_Torso6");Press(bay,ShipParts+"Torso6/SpriteHolder/Buttons/ActivatePod");
+            PressEquipmentNamed(bay,item.ShortName);
+            Equal(ItemTypes.prison_pod,ship.Modules[5].ItemStored,"manufactured prison fits through actual equipment selector");
+            Equal(0,stores[ItemTypes.prison_pod],"fitting consumes exactly one prison");
+            await RightClick(bay.GetNode<Control>("EquipmentStock").GetGlobalRect().GetCenter());
+            Press(bay,ShipParts+"Torso6/SpriteHolder/Buttons/ActivatePod");Press(bay,"StaffList/Staff/Buttons/01");
+            await RightClick(bay.GetNode<Control>("StaffList").GetGlobalRect().GetCenter());
+            Equal(true,Save.RogueCrew.Contained(Save),"paid fitted prison captures rogue through actual roster controls");
+            var restored=SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            Equal(true,restored.RogueCrew.Contained(restored),"paid prison containment survives save");
+        }
+
+        private async Task RoguePrisonHelpBounds()
+        {
+            var bay=await OpenRoguePrison();
+            var help=bay.GetNode<Label>("StaffList/PrisonHelp");
+            Equal(true,help.GetCombinedMinimumSize().X<=208,"initial capture instructions fit the panel width");
+            await CaptureDisplayEvidence("rogue-prison-empty-controls");
+        }
+
     }
 }

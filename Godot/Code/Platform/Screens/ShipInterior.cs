@@ -214,6 +214,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private async Task HandleModulePress(int modulePressed)
 		{
+            if (RejectShipCommand()) return;
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
 			{
 				var sceneVariables = new List<SceneVariables>();
@@ -577,8 +578,16 @@ namespace Deuteros.Code.Platform.Screens
 			*/
 		}
 
+        private bool RejectShipCommand()
+        {
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            if (!IsInsideTree() || IsQueuedForDeletion()) return true;
+            return save.RogueCrew.RejectCommand(save, Ship);
+        }
+
 		private void RenameShip_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			var core = GameCore.SingletonInstance;
 			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked ||
 				core.GetNode<GlobalInput>("VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
@@ -595,6 +604,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			void ConfirmName()
 			{
+                if (RejectShipCommand()) return;
 				var name = nameEdit.Text.Trim();
 				if (name.Length == 0 || name.Length > 24 || name.Any(char.IsControl))
 				{
@@ -614,18 +624,21 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void Land_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			Ship.Land();
 			UpdateState();
 		}
 
 		private void TakeOff_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			Ship.TakeOff();
 			UpdateState();
 		}
 
 		private void Dock_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			if (Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
 			if (Ship.ShipType == Ship_Types.Shuttle || ((InterStellarShip)Ship).AttackedCount == 0)
@@ -645,12 +658,14 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void DisengageEngine_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			Ship.DisengageEngine();
 			UpdateState();
 		}
 
 		private void EngageEngine_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			if (Ship.EngageEngine())
 			{
 				CurrentPlanet = null;
@@ -660,10 +675,12 @@ namespace Deuteros.Code.Platform.Screens
             UpdateState();
 		}
 
-        private bool CanSetCourse => Ship is not SCG { Flight: not null };
+        private bool CanSetCourse => Ship is not SCG { Flight: not null }
+            && RogueCrew.CanCommand(Ship);
 
 		private void SetCourse_Pressed()
 		{
+            if (RejectShipCommand()) return;
             if (!CanSetCourse) return;
 			DestinationStarMap = GD.Load<PackedScene>("res://PreFabs/StarMap.tscn").Instantiate<StarMap>();
 			DestinationStarMap.ShowResources = false;
@@ -680,6 +697,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ACC_Pressed()
 		{
+            if (RejectShipCommand()) return;
 			ACCScreen = GD.Load<PackedScene>("res://PreFabs/ACC.tscn").Instantiate<ACC>();
 			ACCScreen.SetACC(Ship.ACC);
 			ACCScreen.CloseWindow = CloseACC;
@@ -912,7 +930,11 @@ namespace Deuteros.Code.Platform.Screens
 			}
 
             SetCourse.Disabled = !CanSetCourse;
-            DisengageEngine.Disabled = Ship is SCG { Flight: not null } flying && flying.Flight.Leg != InterstellarFlight.FlightLeg.Local;
+            var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
+            GetNode<Button>("TextLayout/RenameShip").Disabled = GetNode<Button>("TextLayout/CargoActions").Disabled = rogue;
+            OpenACC.Disabled = EngageEngine.Disabled = Dock.Disabled = TakeOff.Disabled = Land.Disabled = rogue;
+            foreach (var button in Modules) button.Disabled = rogue;
+            DisengageEngine.Disabled = rogue || Ship is SCG { Flight: not null } flying && flying.Flight.Leg != InterstellarFlight.FlightLeg.Local;
 			SetCourse.Visible = Ship.ShipType != Ship_Types.Shuttle;
 
 			if (sceneReady)
@@ -981,7 +1003,7 @@ namespace Deuteros.Code.Platform.Screens
 						DestinationStarMap.Visible = false;
 
 						// Closing a system or galaxy view cancels selection and preserves the course.
-						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.TryGetValue(DestinationStarMap.CurrentLocation, out var newDestination))
+						if (RogueCrew.CanCommand(Ship) && GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.TryGetValue(DestinationStarMap.CurrentLocation, out var newDestination))
 						{
 							if (!CanSetCourse || !Ship.CanTravelTo(newDestination.PlanetId))
 								courseRejected = true;

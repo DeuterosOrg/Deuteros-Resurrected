@@ -87,6 +87,8 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
 					Contents.Text = GameCore.SingletonInstance.GameData.GetItem(Module.ItemStored).ShortName
 						?? Module.ItemStored.ToScreenString(" ");
+                    if (Module.ItemStored == ItemTypes.prison_pod && Module.StaffStored != null)
+                        Contents.Text += "\n" + Module.StaffStored.GetLevelString();
 				}
 			}
 			else if (Module.ModuleType == Module_Types.Supply)

@@ -67,6 +67,7 @@ namespace Deuteros.Tests
             }
             Save.CurrentPlanet = StellarBodies.earth;
             Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation = StellarBodies.earth;
+            Save.Ships.Add(ship);
             return ship;
         }
 
@@ -193,7 +194,6 @@ namespace Deuteros.Tests
         {
             var ship = UnknownObjectShip();
             ship.Modules[0].HeldItem = new UnknownItem(UnknownItemTypes.AlienArtifact);
-            Save.Ships.Add(ship);
             var baseline = SaveStorage.Serialize(Save);
             for (var delivered = 0; delivered <= 9; delivered++)
             {

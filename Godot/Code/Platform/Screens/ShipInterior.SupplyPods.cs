@@ -11,6 +11,7 @@ namespace Deuteros.Code.Platform.Screens
 
         private void SupplyPods_Pressed()
         {
+            if (RejectShipCommand()) return;
             var core = GameCore.SingletonInstance;
             if (!IsInsideTree() || IsQueuedForDeletion() || moduleInteractionInProgress ||
                 GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked ||
@@ -42,7 +43,7 @@ namespace Deuteros.Code.Platform.Screens
                 row.AddChild(ditch);
                 ditch.Pressed += () =>
                 {
-                    if (ditch.Disabled || supplyPods != dialog || dialog.IsQueuedForDeletion() ||
+                    if (RejectShipCommand() || ditch.Disabled || supplyPods != dialog || dialog.IsQueuedForDeletion() ||
                         !OverlayManager.Instance.IsOpen || !IsInsideTree() || IsQueuedForDeletion() ||
                         !core.GameData.ActiveSaveFile.Ships.Contains(ship) || slot >= ship.Modules.Count ||
                         ship.Modules[slot] != module || module.ModuleType != Module_Types.Supply ||

@@ -20,6 +20,7 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
         public delegate void EngineInstalledDelegate();
         public event EngineInstalledDelegate EngineInstalled;
+        public Func<bool> MayInstall { get; set; }
 
         public override void _Ready()
         {
@@ -38,6 +39,7 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
         public void InstallEngine()
         {
+            if (MayInstall?.Invoke() == false) return;
             var planet = GameCore.SingletonInstance.GetCurrentPlanet();
             var stores = Ground ? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
             if ((!Installed || Damaged) && stores[EngineType] > 0)

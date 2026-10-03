@@ -69,7 +69,8 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			UpdateState();
 		}
 
-        private bool CanMine() => Ship is InterStellarShip ship
+        private bool CanMine() => RogueCrew.CanCommand(Ship) && Ship.Modules.Contains(ShipModule)
+            && Ship is InterStellarShip ship
             && ship.ShipState == Ship_States.UnDocked && ship.PlanetLocation == StellarBodies.asteroids
             && ship.Fuel > 0 && ship.AsteroidScanResults != null && ship.AsteroidScanResults.Class >= 6;
 

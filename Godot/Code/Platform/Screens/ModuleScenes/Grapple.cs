@@ -100,12 +100,13 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private bool CanOperate()
 		{
-			return Ship.ShipState == Ship_States.UnDocked && Ship.Pilot != null &&
+			return RogueCrew.CanCommand(Ship) && Ship.Modules.Contains(ShipModule) && Ship.ShipState == Ship_States.UnDocked && Ship.Pilot != null &&
 				Ship.Pilot.Count > 0 && Ship.Pilot.Type == StaffType.Marines && Ship.Pilot.GetLevel() > 1;
 		}
 
 		private void ReleaseButton_Pressed()
 		{
+            if (!RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule)) return;
 			if (ShipModule.HeldItem != null)
 			{
 				ShipModule.HeldItem = null;
@@ -125,6 +126,8 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public void UpdateState()
 		{
+            GrabButton.Disabled = !CanOperate();
+            ReleaseButton.Disabled = !RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule);
 			if (!CanOperate())
 			{
 				Disabled.Visible = true;

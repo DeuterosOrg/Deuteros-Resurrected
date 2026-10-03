@@ -377,6 +377,7 @@ namespace Deuteros.Tests
             stores[ItemTypes.ios_drone] = 3;
             stores[ItemTypes.star_drone] = 7;
             var ship = new SCG { PlanetLocation = StellarBodies.earth, DroneCount = 2 };
+            Save.Ships.Add(ship);
             var transfer = OpenUi<global::FleetTransfers>("res://PreFabs/ShipModuleWindows/FleetTransfers.tscn");
             try
             {

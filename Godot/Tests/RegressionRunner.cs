@@ -292,6 +292,30 @@ namespace Deuteros.Tests
             CheckUi("Interrupted rogue sabotage restores surviving crew including zero strength", RogueInterruptedSabotage);
             CheckUi("Rogue routing prefers mixed strong systems and stable station allocation", RogueRoutingPriority);
             CheckUi("Rogue MTX assignment enforces first eight Solar slots and stock boundary", RogueMtxAllocationBoundary);
+            await CheckAsync("Rogue cockpit recovery preserves identity and rejects non SCG reassignment", RogueCockpitRecovery);
+            await CheckAsync("Actual bay crew controls reject rogue loading into ordinary cryopods", RogueCryoRejected);
+            CheckUi("Fitted prison capture release and full roster preserve saved rogue identity", RoguePrisonModel);
+            CheckUi("Free rogue hijacks a docked SCG and swaps its displaced pilot", RogueRosterHijack);
+            await CheckAsync("Prison roster gesture retains on right click and releases on timeout", RoguePrisonGesture);
+            await CheckAsync("Prison capture callbacks cannot mutate exited or replaced worlds", RoguePrisonInterruptedUi);
+            await CheckAsync("Prison capture timeout preserves prisoner when roster becomes full", RoguePrisonFullRosterUi);
+            await CheckAsync("Occupied prison rejects equipment replacement pod removal and dismantling", RoguePrisonEquipmentSafety);
+            await CheckAsync("Empty prison equipment remains reachable and refunds once", RogueEmptyPrisonReturn);
+            await CheckAsync("Rogue bay commands dispatch escape without fitting refuelling or scrapping", RogueBayCommandRejection);
+            await CheckAsync("Rogue interior buttons and retained signals cannot command the ship", RogueInteriorCommandRejection);
+            await CheckAsync("Rename confirmation retained before mutiny cannot change rogue ship name", RogueRetainedRename);
+            CheckUi("Retained mining controls reject takeover and replacement world", () => RogueRetainedModules("mining"));
+            CheckUi("Retained grapple controls reject takeover and replacement world", () => RogueRetainedModules("grapple"));
+            CheckUi("Retained acc controls reject takeover and replacement world", () => RogueRetainedModules("acc"));
+            CheckUi("Retained fleet controls reject takeover and replacement world", () => RogueRetainedModules("fleet"));
+            CheckUi("Retained battle controls reject takeover and replacement world", RogueRetainedBattle);
+            CheckUi("Obsolete ACC model cannot debit replacement world stores", RogueObsoleteAcc);
+            await CheckAsync("Retained cargo and course dialogs preserve rogue and obsolete ships", RogueRetainedCargoCourse);
+            await CheckAsync("Retained bay fitting and grapple completion cannot mutate rogue or obsolete ships", RogueRetainedBayFitting);
+            CheckUi("Prison discovery follows saved fourth-visit countdown and unlocks research once", RoguePrisonDiscoveryClock);
+            await CheckAsync("Normal simulation and story phases preserve mutiny and prison bulletin priority", RogueStoryIntegration);
+            await CheckAsync("Prison research paid manufacture fitting and capture use normal controls", RoguePrisonPaidProgression);
+            await CheckAsync("Prison capture instructions fit the native panel width", RoguePrisonHelpBounds);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

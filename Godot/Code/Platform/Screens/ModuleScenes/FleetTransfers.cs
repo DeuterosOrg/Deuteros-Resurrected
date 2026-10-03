@@ -43,6 +43,7 @@ public partial class FleetTransfers : BaseSubScene
 
 	private void updatePoolLabels()
 	{
+        TransferButton1.Disabled = TransferButton2.Disabled = !RogueCrew.CanCommand(_player);
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
 
 		int drones = 0;
@@ -64,6 +65,7 @@ public partial class FleetTransfers : BaseSubScene
 	}
 	private void Transfer1_Pressed()
 	{
+        if (!RogueCrew.CanCommand(_player)) return;
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
 
 		Enums.ItemTypes droneType = Enums.ItemTypes.ios_drone;
@@ -86,6 +88,7 @@ public partial class FleetTransfers : BaseSubScene
 
 	private void Transfer2_Pressed()
 	{
+        if (!RogueCrew.CanCommand(_player)) return;
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
 		if (_player.DroneCount > 0)
 		{

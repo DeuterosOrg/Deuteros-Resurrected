@@ -821,15 +821,6 @@ offset_right = 122.0
 offset_bottom = -15.0
 flat = true
 
-[node name="StaffList" parent="." instance=ExtResource("16_87g0b")]
-visible = false
-offset_left = 160.0
-offset_top = 52.0
-offset_right = 240.0
-offset_bottom = 168.0
-ShowDividers = false
-ShowBackground = true
-
 [node name="Fuel" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
@@ -942,3 +933,32 @@ offset_top = 54.0
 offset_right = 170.0
 offset_bottom = 70.0
 text = "Sequence Complete."
+
+[node name="StaffList" parent="." instance=ExtResource("16_87g0b")]
+visible = false
+offset_left = 160.0
+offset_top = 52.0
+offset_right = 240.0
+offset_bottom = 168.0
+ShowDividers = false
+ShowBackground = true
+
+[node name="PrisonHelp" type="Label" parent="StaffList"]
+visible = false
+layout_mode = 0
+offset_left = -64.0
+offset_top = -22.0
+offset_right = 144.0
+offset_bottom = -2.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+
+[node name="PrisonEquipment" type="Button" parent="StaffList"]
+visible = false
+layout_mode = 0
+offset_top = 116.0
+offset_right = 80.0
+offset_bottom = 132.0
+theme_override_font_sizes/font_size = 8
+text = "Equipment"
