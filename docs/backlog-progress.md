@@ -144,3 +144,8 @@ A read-only Asana refresh still lists **48 open / 38 completed** tasks. The [Win
 The original-backed empty-tank departure exception fixes a ship remaining stuck after its asteroid approach exhausts fuel. Case 595 has a failing-before/passing-after reproduction; full **595/595 Mac**, **19 Python checks**, startup and export audit pass at `b2c435c`. See [validation](validation-results.md#ama-exhausted-tank-departure-595-case-checkpoint). Further tracing establishes Pilot/Captain gates for the original manual AMA/grapple windows, without claiming higher rank increases yield; scan/mining fuel cadence and zero-fuel entry remain separate research questions.
 
 The sound/animation inventory now includes the Windows listening reports and missing pod-fitting transition, with local sourcing tickets. Its parent tasks explicitly also request follow-up task creation; no Asana tasks were created, and inventory or audiovisual acceptance is not claimed complete. The older Windows listening build predates the existing training-door fix, so verify the current build before repeating that implementation. Totals remain **35/48 implementation evidence, 0/48 fully accepted**.
+
+
+### Normal salvage and quantity readout — 2026-10-03
+
+Normal Mac play now covers a naturally generated 250T palladium capture, held-object reload, return/docking, unload and delivered-stock reload. The route exposed a false breakup readout; `0a2f417` fixes it through the shared display and extends existing case 26. Full 595-case validation, 19 Python checks and audited cross-export pass. Original animated counters and current Windows acceptance remain open. This strengthens existing grapple/supply-pod evidence; totals stay **35/48 implementation evidence, 0/48 accepted**.

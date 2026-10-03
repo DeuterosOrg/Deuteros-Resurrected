@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest completed Mac-audited runtime checkpoint is **`b2c435c7c38923297af432db8dab94d7f6d93126`**, with **595/595 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh, docked-only TakeOff and empty-tank asteroid-departure corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest completed Mac-audited runtime checkpoint is **`0a2f417eb8821d704d71a8b7ec85aae1d6cf0ff0`**, with **595/595 regressions**, 19 Python checks and an audited cross-export. It includes the Service, orbital staff-hover, cargo fuel-stock refresh, docked-only TakeOff and empty-tank asteroid-departure corrections. It also includes the transmitter ending and overview capacity follow-ups at the end of this brief. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Rogue crew and prison acceptance
@@ -473,3 +473,8 @@ For `20e74aa` or later, load/unload MeH and HeD cargo while the selector stays o
 ## AMA empty-tank departure follow-up
 
 Candidate `b2c435c7c38923297af432db8dab94d7f6d93126` adds case 595. In a separate staged save, start an asteroid approach with one tank unit and verify the completed approach reaches zero. Both manual Take Off and automatic departure when no pod accepts the ore should leave the asteroid while preserving cargo and zero fuel. Ordinary station departure with an empty tank remains rejected; subsequent stranding rules still apply. The fix uses the original manual mining-state exception and shared TakeOff guard. Focused Mac headless/native checks pass; use the completed aggregate recorded in validation results before claiming broader coverage. Record actual Windows clicks and matching-export behavior separately.
+
+
+## Grapple breakup readout follow-up
+
+Candidate `0a2f417` retains 595 cases and extends existing case 26. Verify both grapple pods unload consecutively without reopening the bay; the panel must show actual mass and projected capped stock, rather than `100 … 50000`. Staged examples are 250T iron with 12 already stored (262 result), then 150T carbon with 49,900 stored (50,000 cap). Confirm timed input release, empty grapple and saved final stocks in source and matching export. This is a static readout correction; original animated decrement/increment remains tracked as A5 in the media inventory. The Mac full aggregate and normal palladium recovery/reload pass. Windows execution is pending; preserve the other agent's running game and collect its existing patches first.

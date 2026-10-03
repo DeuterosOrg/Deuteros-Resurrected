@@ -120,3 +120,13 @@ These reports extend the inventory; they do not establish a failure on the curre
 | **A4 — Pod-fitting transition** | Trace the original supply/tool/cryo fitting animation and interruption rules, identify supplied frames, then implement only the confirmed sequence. | The Windows agent traced the shared fitting handler: successful fitting changes the sprite immediately. Craig reported a missing loading animation. Original cadence and intended remake behavior remain unverified; unavailable-stock feedback is a separate fix. |
 
 Local sourcing/implementation tickets S1–S4 and A1–A4 are reviewable here. Their requested Asana follow-up tasks have not been created by the Mac agent; the parent inventory tasks remain open. Neither task requires falsely claiming complete audiovisual parity, and these lists do not imply that every uncovered screen needs new audio or animation.
+
+### A5 — Grapple breakup counters
+
+Normal recovery of a 250T palladium asteroid exposed fixed `100 … 50000` text while the station correctly received 250 units. The shared static summary correction uses actual mass and capped resulting stock. The [original handler](original-asteroid-acc-evidence.md#breakup-quantities-and-animation-follow-up) instead redraws remaining mass and growing stored quantity one unit at a time before completion. Reproduce that confirmed sequence only after establishing its display cadence and interruption behavior; preserve single-credit unloading and the store cap. No new Asana task or animation-fidelity acceptance is claimed.
+
+### A4 source follow-up — 2026-10-03
+
+Direct Disk 1 decoding confirms fitting entry points `$327F8/$32802/$3280C` for supply/tool/cryo kind words `$4000/$8000/$C000`, joining at `$32814`. The shared stock check at `$32852–$3287A` routes zero availability to text `$B5` with the selected item name: a Store Request followed by “These Are Out Of Stock Here.” This independently supports the Windows agent's missing-stock feedback correction; its patch has not yet been collected or integrated here.
+
+Successful fitting writes the module and debits stock at `$328E2–$328F4`, then calls `$2E336`. That routine selects pod artwork and performs a redraw loop with an offset of 118, 116, …, 0 (60 iterations), calling `$2E1AE` and `$2E168` each time. Removal calls the counterpart at `$2E270`. Thus an original fitting/removal transition is confirmed; its exact visible direction, cadence and interruption behavior still need verification before implementation. Raw traces are retained under ignored `artifacts/research/pod-fitting/`; disk identity/address mapping match the [ACC evidence](original-asteroid-acc-evidence.md#evidence-identity-and-address-mapping).
