@@ -1102,6 +1102,7 @@ namespace Deuteros.Code.Platform.Screens
 
 					if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 						!((InterStellarShip)ship).MethanoidOwned &&
+                        !GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(ship) &&
 						ship.ShipState == Ship_States.UnDocked &&
 						(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[ship.PlanetLocation].ActiveMethanoid ||
 						GameCore.SingletonInstance.GameData.PlanetUnderAttack(ship.PlanetLocation))
@@ -1195,6 +1196,7 @@ namespace Deuteros.Code.Platform.Screens
                             SdmSystem.Docked(ship);
 							ship.ACC?.Update(Ship_States.Docking);
 						}
+                        else GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.DockingBlocked(GameCore.SingletonInstance.GameData.ActiveSaveFile, ship);
 					}
 				}
 				else if (ship.ShipState == Ship_States.Docked)

@@ -11,14 +11,14 @@ namespace Deuteros.Code.Objects
         public static bool CanAccess(SaveFile save, IPlanet planet) => planet != null
             && save.BaseGameData.Planets.TryGetValue(planet.PlanetId, out var current) && ReferenceEquals(current, planet)
             && planet.Station.Built
-            && (planet.Station.SdmInstalled || planet.ActiveMethanoid)
+            && (planet.Station.SdmInstalled || planet.ActiveMethanoid || planet.Station.SdmCountdown > 0)
             && (!planet.ActiveMethanoid || save.Ships.Any(s => s is InterStellarShip { MethanoidOwned: false }
                 && s.PlanetLocation == planet.PlanetId && s.ShipState == Ship_States.Docked));
 
         public static void Docked(IShip ship)
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (!save.AtWar || ship is not InterStellarShip { MethanoidOwned: false }) return;
+            if (!save.AtWar || ship is not InterStellarShip { MethanoidOwned: false } || save.RogueCrew.Controls(ship)) return;
             var planet = save.BaseGameData.Planets[ship.PlanetLocation];
             if (!planet.ActiveMethanoid || !planet.Station.Built) return;
             planet.Station.SdmInstalled = true;
@@ -92,6 +92,7 @@ namespace Deuteros.Code.Objects
         {
             planet.Station.SdmCountdown = 0;
             if (!planet.Station.Built) return;
+            save.RogueCrew.EscapeStation(save, planet);
             var lost = save.Ships.Where(ship => ship.PlanetLocation == planet.PlanetId && ship is not EnemyFleet
                 && (ship is Shuttle shuttle
                     ? planet.PlanetId != StellarBodies.earth || (!shuttle.OnGround

@@ -50,10 +50,10 @@ Equal(11, state.Stage, "initial wait stage");
 
 **Interfaces:** add `void Advance(SaveFile save, Func<int> random)`, `bool DockingBlocked(SaveFile save, IShip ship)`, `void EscapeStation(SaveFile save, IPlanet planet)`, `bool RejectCommand(SaveFile save, IShip ship)`. Stage handling is a switch over original1–20. Resolve the currently controlled SCG from Crew identity; never store a raw pointer or set MethanoidOwned.
 
-- [ ] Add deterministic failing model cases for all stages and transitions described in the spec. Routes consume actual `Ship.EngageEngine`, shared ship updates and saved Flight, then reach docking/refit and a human raid. Verify one transition per controller call, failed travel/absent targets waiting safely, one raid per intended stage and no ACC delivery on rogue arrival.
-- [ ] Implement route choice by original star/stable station allocation order, composed cross-star/body travel, hostile refit, six-resource cargo loading and HeD refueling. Test a station with600Titanium/200Aluminium/17HeD and mixed supply/tool mounts, checking exact before/after stock and overwritten supply cargo. Refit preserves damaged engine and rejects stored nonselected crew loss.
-- [ ] Implement original MTX assignment: source MTX required, first eight Solar station slots, human owner/Aluminium>=200, candidate MTX not required. Set existing Target/TargetType and send/balance mask; test assignment separately from the existing transfer eligibility guard.
-- [ ] Reproduce occupied docking and implement its shared transition to controller16/undocked. Deterministic sabotage test:
+- [x] Add deterministic failing model cases for all stages and transitions described in the spec. Routes consume actual `Ship.EngageEngine`, shared ship updates and saved Flight, then reach docking/refit and a human raid. Verify one transition per controller call, failed travel/absent targets waiting safely, one raid per intended stage and no ACC delivery on rogue arrival.
+- [x] Implement route choice by original star/stable station allocation order, composed cross-star/body travel, hostile refit, six-resource cargo loading and HeD refueling. Test a station with600Titanium/200Aluminium/17HeD and mixed supply/tool mounts, checking exact before/after stock and overwritten supply cargo. Refit preserves damaged engine and rejects stored nonselected crew loss.
+- [x] Implement original MTX assignment: source MTX required, first eight Solar station slots, human owner/Aluminium>=200, candidate MTX not required. Set existing Target/TargetType and send/balance mask; test assignment separately from the existing transfer eligibility guard.
+- [x] Reproduce occupied docking and implement its shared transition to controller16/undocked. Deterministic sabotage test:
 ```csharp
 state.Advance(Save, () => 4); // stage18 advances and hits once
 Equal(19, state.Stage, "roll is consumed");
@@ -61,8 +61,8 @@ Equal(150, planet.Station.SdmCountdown, "pirate SDM");
 state = SaveStorage.Deserialize(SaveStorage.Serialize(Save)).RogueCrew;
 ```
 Also test miss0, saved stage17/18/19, original count restoration, zero crew and repeated calls. Invoke actual docking update rather than only assigning stage16.
-- [ ] Add rogue exemptions to shared danger/damage and enemy SDM arming; implement SDM escape before casualty enumeration. Keep ordinary casualties/attack behavior green. Clear selected identity through all existing crew loss routes, including occupied prison crew; never clear Occurred.
-- [ ] Run focused new stage/raid/loss cases and existing SDM, crew-loss, DFCC, interstellar/ACC cases; commit verified controller/lifecycle code without enabling global selection yet.
+- [x] Add rogue exemptions to shared danger/damage and enemy SDM arming; implement SDM escape before casualty enumeration. Keep ordinary casualties/attack behavior green. Clear selected identity through all existing crew loss routes, including occupied prison crew; never clear Occurred.
+- [x] Run focused new stage/raid/loss cases and existing SDM, crew-loss, DFCC, interstellar/ACC cases; commit verified controller/lifecycle code without enabling global selection yet.
 
 ## Task 3: Crew recovery, prison controls and narrative integration
 

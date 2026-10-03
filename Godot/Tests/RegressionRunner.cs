@@ -276,6 +276,22 @@ namespace Deuteros.Tests
             CheckUi("Rogue save identity rejects malformed and duplicated crew state", RogueSaveValidation);
             CheckUi("Rogue crew identity follows roster prison and loss without a second mutiny", RogueCrewLocations);
             CheckUi("Rogue selection follows allocated slots and disconnects active ACC", RogueStableSelection);
+            CheckUi("Rogue controller waits and advances once at each original wait stage", RogueStageWaits);
+            CheckUi("Rogue completes real local travel hostile refit and human raid", RogueLocalRaidJourney);
+            CheckUi("Rogue raid overwrites supply cargo preserves tools and refuels exactly", RogueMixedRaid);
+            CheckUi("Rogue MTX redirection preserves original source and allocation gates", RogueMtxRedirect);
+            CheckUi("Occupied rogue docking persists single sabotage roll and crew restoration", RogueOccupiedSabotage);
+            CheckUi("Station self destruct frees rogue before ordinary casualty enumeration", RogueSdmEscape);
+            CheckUi("Rogue ownership bypasses hostile orbit damage and danger accumulation", RogueHostileProtection);
+            CheckUi("Rogue composed cross star relocation saves and consumes real fuel", RogueCrossStarRoute);
+            CheckUi("Shared ship loss clears rogue pilot and prison identities exactly once", RogueCrewLossPaths);
+            CheckUi("Every ordinary ACC mutation rejects rogue owned ships", RogueAccIsolation);
+            CheckUi("Rogue controller rejects travelling raids and obsolete world commands", RogueBusySafety);
+            CheckUi("Hostile rogue refit never discards a stored crew", RogueRefitProtectsCrew);
+            CheckUi("Rogue emergency launch bypasses manual fuel gate without creating fuel", RogueZeroFuelEscape);
+            CheckUi("Interrupted rogue sabotage restores surviving crew including zero strength", RogueInterruptedSabotage);
+            CheckUi("Rogue routing prefers mixed strong systems and stable station allocation", RogueRoutingPriority);
+            CheckUi("Rogue MTX assignment enforces first eight Solar slots and stock boundary", RogueMtxAllocationBoundary);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

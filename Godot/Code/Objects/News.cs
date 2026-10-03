@@ -27,13 +27,17 @@ namespace Deuteros.Code.Objects
         public void AddCrewLoss(IEnumerable<Staff> teams)
         {
             foreach (var team in teams.Where(t => t != null).Distinct())
+            {
                 AddNews(team.GetLevelString() + " " + team.Leader + " Killed.");
+                GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.CrewLost(team);
+            }
         }
 
         public void AddShipLoss(Interfaces.IShip ship, string cause = "Destroyed.")
         {
             if (ship is EnemyFleet) return;
-            AddCrewLoss((ship.Modules?.Where(m => m.ModuleType == Enums.Module_Types.Cryo)
+            AddCrewLoss((ship.Modules?.Where(m => m.ModuleType == Enums.Module_Types.Cryo
+                || (m.ModuleType == Enums.Module_Types.Tool && m.ItemStored == ItemTypes.prison_pod))
                 .Select(m => m.StaffStored) ?? Enumerable.Empty<Staff>()).Prepend(ship.Pilot));
             AddNews(ship.Name + " " + cause);
         }

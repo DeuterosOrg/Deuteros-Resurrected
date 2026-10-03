@@ -123,3 +123,9 @@ Resolver `$310EC–$31164` resolves the current body's station and its cached ba
 Successful docking commits state 5. At an enemy station, `$3140E` returns for the rogue flag before the ordinary wartime SDM countdown of 16 is written. Hostile-orbit danger likewise branches around its attack path at `$3120C`. The remake currently waits indefinitely for occupied docking and has no rogue exemption; integration must cover these shared boundaries together.
 
 Aligned ranges and facts: `artifacts/research/news/pirate-occupied-docking.txt`, SHA-256 `d1b728cbb34d787a0273bea583872e9a138435dc18a2ca058a74647ebb4dd424`. This is instruction evidence, not an observed original playthrough.
+
+## Internal rogue launch fuel boundary
+
+Aligned `$30B08–$30B48`, `$30B48–$30C82` and `$30E2C–$30EA8` distinguish the manual launch wrapper from the internal operation used by rogue raids and SDM escape. Manual `$30B2E` tests fuel at hull `+6`; internal `$30B48` bypasses that wrapper. It still calls `$30E2C`, whose engine-byte test rejects a missing engine. With an engine present, the internal orbital launch clears the berth and schedules launch even at zero fuel. The remake therefore reuses launch with an internal fuel-check override; ordinary callers retain their existing fuel requirement. This does not manufacture fuel or allow a missing engine to launch.
+
+Trace `artifacts/research/news/pirate-launch-helper.txt`, SHA-256 `bfc324677163b19d13f75b58f08e870b178538c0d3fb7deb43a66e9f141884eb`; decoded facts alongside it. Static source evidence, not original-runtime acceptance.

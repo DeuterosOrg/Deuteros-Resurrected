@@ -46,6 +46,7 @@ namespace Deuteros.Code.Objects
 
 		public bool Refuel()
 		{
+            if (StopRogue()) return false;
 			if (Ship.Fuel >= RefuelLimit)
             {
                 Refuelling = false;
@@ -82,6 +83,7 @@ namespace Deuteros.Code.Objects
 
 		public void LoadSupply(bool unloadOnly = false)
 		{
+            if (StopRogue()) return;
 			if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
 
@@ -150,6 +152,7 @@ namespace Deuteros.Code.Objects
 
 		public void Update(Ship_States oldState)
 		{
+            if (StopRogue()) return;
 			if (!Active && !CycleMode) return;
 			if (StopInvalidRoute()) return;
 
@@ -240,6 +243,7 @@ namespace Deuteros.Code.Objects
 
 		public void Activate(bool completeCycle = false)
 		{
+            if (StopRogue()) return;
 			if (StopInvalidRoute() || !Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply)) return;
 			var wasRunning = Active || CycleMode;
 			Active = !completeCycle;
@@ -256,6 +260,13 @@ namespace Deuteros.Code.Objects
 				Ship.TakeOff();
 			}
 		}
+
+        private bool StopRogue()
+        {
+            if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship)) return false;
+            Active = CycleMode = Refuelling = false;
+            return true;
+        }
 
 		private bool StopInvalidRoute()
 		{

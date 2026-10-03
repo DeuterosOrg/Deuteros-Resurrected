@@ -51,9 +51,12 @@ namespace Deuteros.Code.Objects
             }
         }
 
-        public void TakeOff()
+        public void TakeOff() => TakeOff(requireFuel: true);
+
+        internal void TakeOff(bool requireFuel)
         {
-            if (Engine && Fuel > 0 && ShipState != Ship_States.CrewRepairing)
+            // Original internal $30B48 skips the manual wrapper's fuel check, but still requires an engine.
+            if (Engine && (!requireFuel || Fuel > 0) && ShipState != Ship_States.CrewRepairing)
             {
                 if (Pilot != null) Pilot.AddAction();
 
@@ -116,7 +119,7 @@ namespace Deuteros.Code.Objects
                 // A damaged drive remains usable, so keep it distinct from absence.
                 var data = GameCore.SingletonInstance.GameData;
                 if (!EngineDamaged && this is InterStellarShip stellar && !stellar.MethanoidOwned
-                    && !stellar.DFCC && data.ActiveSaveFile.AtWar
+                    && !stellar.DFCC && !data.ActiveSaveFile.RogueCrew.Controls(this) && data.ActiveSaveFile.AtWar
                     && (planets[PlanetLocation].ActiveMethanoid || data.PlanetUnderAttack(PlanetLocation)))
                     EngineDamaged = engineDamageRoll();
 
