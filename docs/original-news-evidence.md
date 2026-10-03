@@ -2,6 +2,12 @@
 
 Follow-up for **1215685674676231 — News system and screen**, 2026-10-02. This separates original event evidence from the baseline triage's suggested training/research/production examples. The task has no description, comments or subtasks in the retrieved snapshot.
 
+## Current rogue-controller implementation — 2026-10-03
+
+The rogue-crew branch now implements the previously missing controller described in the historical research notes below: qualifying Warlord takeover, BOUNTY identity, hostile refit, routing, raids/MTX redirection, occupied-dock sabotage, cause-specific self-destruct News, recovery and prison containment. Normal simulation dispatches the saved controller; Mutiny and prison discovery follow existing higher-priority notices. These implementation findings supersede earlier statements here that the controller is absent.
+
+The implementation reuses the remake's composed star/body travel, stable expanded ship/station allocations and existing roster/module controls. Empty prison pods can be removed safely; occupied ones cannot discard their crew. Sabotage rejoins surviving crew and abandons destroyed targets. Those safety rules, the half-second capture gesture and composed routing are explicit adaptations, not proof of original frame-for-frame behavior. Source disassembly, automated scene checks and staged Mac desktop evidence do not establish an unstaged campaign or Windows acceptance. The high-reference original roster behavior and emulator comparisons remain open. See [validation results](validation-results.md) and the [design](superpowers/specs/2026-10-03-rogue-crew-design.md).
+
 ## Original dispatch
 
 Use the disk identity and address mapping in [the ACC trace](original-asteroid-acc-evidence.md). `$393A0` appends the eight-byte scratch record at `$39396` to a twelve-record history by shifting the preceding eleven records. It stamps the date from `$1378E`. The News screen loops twelve times at `$396E4–$39724`, dispatching by the record's first word through `$3941C`.

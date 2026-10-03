@@ -13,8 +13,21 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`171ed86`**, with **523/523 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`941eca947db76c714a5cabe9829869851b324d78`**, with **572/572 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
+
+## Rogue crew and prison acceptance
+
+Candidate **`941eca947db76c714a5cabe9829869851b324d78`** passes **572/572 Mac regressions** and audited cross-export; it adds cases **525–572**. Use the exact completed checkpoint in [validation results](validation-results.md), validate/export that revision in a separate checkout, and preserve the existing `8cdd458` desktop work. No new Windows execution is claimed here. Report automated/native tests separately from physical staged tests and ordinary campaign progression.
+
+- Trigger takeover through normal time advancement: partial Hyperlight research, fewer than five hostile systems, a mixed human/hostile system, undocked fully fuelled Warlord SCG, no occupied cryopod or pulse blaster. Confirm one BOUNTY takeover and one Mutiny notice, with save/reload before delivery. Ineligible ships must remain yours.
+- Follow actual travel to hostile refit and a human station. Check six cargo mounts, fuel, raids and eligible MTX redirection without duplicated stock. Docked commands provoke departure; retained fuel, equipment, cargo, navigation, ACC, grapple, mining and battle controls must not command the rogue or debit a replacement world.
+- Occupy the destination bay to provoke sabotage. Check the single roll, self-destruct warning, defusing and escape without granting permanent SDM hardware. Apply attrition while the team is divided, then save/reload and recover it: casualties must stay lost. Destroy the target before/during sabotage: the surviving crew must rejoin and resume routing.
+- Recover the pilot through the bay roster, and check a free Pirate can hijack a docked SCG while preserving its displaced pilot. Complete prison research, pay for manufacture, fit the pod, and capture through the roster. Right-click within half a second retains the prisoner; waiting releases only into available space. Check the visible Equipment button and readable instructions.
+- Save/reload contained, free and piloting crews; test full rosters, scene exit, ship loss and occupied-pod removal. Require exactly one crew identity with no loss or duplication. Prisoners remain excluded from normal attrition.
+- Check competing notices defer Mutiny/prison discovery; the saved prison countdown advances once per fourth eligible low-priority visit and unlocks research once. Record original-runtime timing/gesture comparisons separately.
+
+Retain exact revision, logs, screenshots, steps and save provenance. Staging research/stocks is useful for targeted testing but must be declared and does not establish normal campaign acceptance.
 
 ## Interstellar travel and Warlord acceptance
 

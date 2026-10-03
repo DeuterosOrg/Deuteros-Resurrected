@@ -60,3 +60,11 @@ Missing or null `Flight` on an already travelling legacy SCG retains its old cou
 `Staff.Warlord` is an additive milestone separate from private `ActionsTaken`. Missing legacy values default to false; explicit null and milestones on non-marine/underqualified staff are invalid. Ordinary actions never infer Warlord. All crew locations, including factory/research assignments and cryopods, are checked. Promotion/news occurs on eligible Hyperlight arrival, not during load.
 
 Save-slot dates remain the global Sol calendar; a selected remote star or SCG can display its own later/private date. Older builds reject the added fields. Preserve backups and record save provenance. Cases 494–513 cover phase-by-phase and blocked-pending reload, legacy fallback, malformed state, crew transfers and rank-news uniqueness.
+
+## Rogue crew and prison containment
+
+Version 1 adds `SaveFile.RogueCrew` and `Staff.Pirate`. Missing legacy values initialize an inactive controller and ordinary staff; loading does not invent a mutiny. The controller saves its one-time occurrence, exact selected crew reference, route stage, pending Mutiny notice, prison discovery countdown/divider and temporary sabotage strength. Losing the selected crew clears its reference without allowing another takeover.
+
+A selected Pirate must be an eligible Warlord and occur in exactly one supported place: an SCG cockpit, an orbital roster, or a fitted SCG prison pod. Detached, duplicate or mismatched identities and invalid stage/countdown combinations are rejected before activation. Containment uses the existing module `StaffStored` reference, preserving the same team across transfers and reloads. Sabotage restoration rejoins withheld members without resurrecting casualties suffered by the active team.
+
+The half-second capture interaction is transient: leaving the scene keeps an already captured prisoner; stale callbacks cannot release it into another world. A full roster also retains the prisoner. Saves preserve containment, not an outstanding UI timer. Cases 525–572 cover legacy defaults, identity validation, loss, recovery, containment, saved story timing and interruption boundaries. Older builds reject these additive fields; use disposable copies for acceptance and retain pre-upgrade backups.
