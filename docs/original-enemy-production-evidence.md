@@ -27,4 +27,4 @@ The scheduler now stores `EnemyBuildDay` as an unsigned centiday deadline and ad
 
 Initial deadline zero is retained. The on-disk interval 500 alone does **not** prove a five-day startup or post-war delay: stored last-Sol-clock `$1C26C` is zero, while `$385C8` copies the current Sol clock there inside an apparent save/load path. Initialization/load semantics need further tracing before inventing a delay. The raw follow-up is `artifacts/research/enemy-production/startup-clock-followup.txt`.
 
-The remake still uses one displayed clock rather than independent Sol/star/SCG clocks. Original-runtime cadence, initialization behavior, complete enemy fleets and Windows execution remain pending. No additional Asana task is declared complete.
+The scheduler uses the Sol centiday clock. The later interstellar integration implements per-star display offsets and private SCG travel offsets separately; these should not shift enemy production deadlines with the selected screen. Original-runtime cadence, initialization behavior, complete enemy fleets and Windows desktop acceptance remain pending. No additional Asana task is declared complete.

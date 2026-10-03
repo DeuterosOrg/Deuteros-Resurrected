@@ -1,6 +1,6 @@
 # Original simulation order
 
-Asana **1215685674676225**, checked 2026-10-02. This establishes static call order and identifies remake differences. It does not claim an instrumented original-game run or completion of the task's simultaneous-event acceptance.
+Asana **1215685674676225**, requirements refreshed read-only 2026-10-03. The source-investigation deliverable is locally accepted below. This establishes static call order and remake differences; it does not claim an instrumented original-game run or complete gameplay parity.
 
 ## Reproduce
 
@@ -62,7 +62,7 @@ Differences requiring targeted work:
 
 This is evidence for the integration work, not a reason to reorder isolated handlers while retaining incompatible timing. The subsequent fractional-clock integration consumes one update per centiday or manual whole-day increment; independent interstellar clocks remain pending.
 
-## Acceptance still required
+## Remaining gameplay comparison
 
 Instrument one original update with training graduation, extraction, production, research completion and ship arrival due together. Record stores, crew/rank and pending news before/after each mapped call. Repeat an ACC arrival with insufficient fuel before refining, simultaneous discoveries, and an armed SDM on an arrival update. Compare ordinary and accelerated time, including early-return paths. Add deterministic remake scenarios for those outcomes and then verify them in source and exported Windows builds. No new task is counted complete by this research alone.
 
@@ -84,7 +84,7 @@ This correction preserves the remake's current producer order. It does not claim
 
 ## Named subsystem coverage — 2026-10-03
 
-A fresh read-only task lookup confirms seven explicitly named areas: current screen, AMA, ACC, ships, resource extraction, MTX and menus. It asks for source investigation; the broader runtime comparisons above remain verification work, and unresolved source mappings below still prevent accepting this research task.
+A fresh read-only task lookup confirms seven explicitly named areas: current screen, AMA, ACC, ships, resource extraction, MTX and menus. The following mappings, active-overlay discovery and automatic-dispatch follow-up answer that source-investigation request. Broader runtime comparisons remain verification work.
 
 | Requested area | Established order and remaining limit |
 | --- | --- |
@@ -120,4 +120,20 @@ Reproduce with `artifacts/research/event-order/trace-mtx-overlay.py` using the t
 
 Cases 596–597 exercise the actual master update. With the previous registration order, an AOC factory remains idle even after MTX delivers eight stored plus two newly extracted iron, and a just-completed derrick is sent immediately. Both fail before moving the existing MTX registration directly after active-world extraction and before production. Afterward the ten iron are charged once and production advances in that update; a newly completed derrick stays at its source until the following MTX phase. No transfer algorithm or timing unit changes.
 
-Both focused cases and existing 42–44/451–452 pass. Evidence is `artifacts/validation/evidence/mtx-order/{red,green}/`; the first material fixture incorrectly assumed raw iron had research data and is retained separately under `setup/`, not counted as a reproduction. Full aggregate and Windows execution are pending. This addresses the traced transfer boundary, not independent star clocks, original discovery priority or original-runtime comparison.
+Both focused cases and existing 42–44/451–452 pass. Evidence is `artifacts/validation/evidence/mtx-order/{red,green}/`; the first material fixture incorrectly assumed raw iron had research data and is retained separately under `setup/`, not counted as a reproduction. The fresh full aggregate at `551f31a` passes 597/597 with audited startup/cross-export; the initial import-shutdown failure is preserved in [validation results](validation-results.md#mtx-ordering-597-case-checkpoint). Windows execution remains pending. This addresses the traced transfer boundary, not independent star clocks, original discovery priority or original-runtime comparison.
+
+
+## Automatic ship and station-screen dispatch
+
+The action table at `$237D8` is reached through `$2383A` after a ship countdown reaches zero. The master ship loop calls it for shuttles at `$238D0`, IOS hulls at `$23980`, and the following 16-record, `$22`-stride SCG loop at `$23AE6`. Index 0 enters ground arrival `$31164`; index 5 enters orbital arrival `$3138C`. Their mode checks at `$311BC` and `$313FE` reach `$31486`, which unloads and then either disengages or refuels/loads/departs according to the saved ACC mode. This traces automatic ACC arrival handling directly back to the master ship phase, independently of its clickable screen controls.
+
+After ships, refining and enemy updates, `$21140` compares the pending station pointer `$21130` with selected station `$19D1E`. For current screen selectors `[2, 3, 4, 6, 8, 9]`, a match redirects selector `$22D34` to 18 (station-information callback `$211FC`), stops accelerated time through `$202C4`, calls shared rendering/audio helpers and clears the pending pointer. Other selectors also clear the pointer without that redirect. This is a conditional station-screen invalidation path, not a universal menu refresh phase. The final selected-screen callback still runs later at `$23E3E`.
+
+Exact aligned trace: `artifacts/research/event-order/ship-acc-and-menu-dispatch.txt`, SHA-256 `05f1b93447835e03a9a78847f567e977fa8a9422839cb8b95e62e57490b9c503`; the adjacent JSON records all 24 action targets and six redirect selectors. Disk hash and main-image mapping are unchanged. No original-runtime observation is claimed.
+
+
+## Research task acceptance
+
+The refreshed task asks to extract update ordering from source and names the seven areas in the coverage table; it has no additional comments or subtasks. All seven now have address-level findings: the master establishes training/extraction/production/research/attrition/ship/refining order; the active overlay resolves MTX; ship-state and arrival dispatch locate AMA and ACC; selected-screen and station-invalidation paths locate the display/menu boundaries. The original has gates, nested calls and early returns, so the findings explicitly avoid inventing a universal linear menu pass or treating all callbacks as passive.
+
+This satisfies the local research completion rule: traceable findings with an explicit account of unknowns. Original-runtime timing, all screen-helper side effects, deferred discovery-priority fidelity, and Windows/normal-campaign acceptance of gameplay changes remain open in their respective work. The MTX implementation is an additional outcome of the research and has its own validation record. Accepting this source deliverable does not certify those remaining behaviors or change Asana status.

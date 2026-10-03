@@ -1,6 +1,6 @@
 # Original normal-speed clock
 
-Partial evidence for Asana **1215716464570923**, the request for 0.01 day of natural advancement approximately every 300 seconds. Source checked against the original Disk 1 image; saved fractional-clock implementation added 2026-10-03. Original-runtime timing and independent interstellar clocks remain unverified.
+Partial evidence for Asana **1215716464570923**, the request for 0.01 day of natural advancement approximately every 300 seconds. Source checked against the original Disk 1 image; saved fractional-clock implementation added 2026-10-03. Original-runtime timing remains unverified; the later interstellar integration implements star dates and private SCG travel clocks.
 
 ## Source and arithmetic
 
@@ -24,7 +24,7 @@ The saved `GameClock` holds displayed centidays, partial normal elapsed time and
 
 Cases **475–493** cover timing, mixed modes, stalls, pending save/reload, legacy migration, invalid input, calendar gates, AMA phases and live ETA controls. Native Mac checks include date/News/save/ETA rendering. A physical new-game check at `862e421` queued a research trainee without touching time controls: the observed clock changed from `.00` to `.01` and the training door closed. The screenshots bracket the transition; they do not measure its exact boundary or compare it with an emulator.
 
-Independent star/private-SCG clocks remain open. Compare startup, uninterrupted and held intervals, pauses, stalls and reload with the original runtime before claiming exact timing. See [validation results](validation-results.md#saved-fractional-clock-and-ama-phases-493-case-checkpoint) and the [Windows brief](windows-agent-brief.md#fractional-clock-and-ama-phase-follow-up).
+The later `e1754eb` integration derives star dates from Sol plus the original nine offsets and saves each travelling SCG's private offset, including acceleration and Hyperlight synchronization. The menu selects the current station's star date or the selected SCG's private date. This matches the original producer adding the same ordinary increment to all nine star and sixteen SCG clocks; duplicating twenty-five ticking counters is unnecessary. Existing cases 496–513 cover the relevant date, travel, save and UI boundaries; see [interstellar evidence](original-interstellar-travel-evidence.md#integrated-travel-and-compatibility-boundary). Compare startup, uninterrupted and held intervals, pauses, stalls and reload with the original runtime before claiming exact timing. See [validation results](validation-results.md#saved-fractional-clock-and-ama-phases-493-case-checkpoint) and the [Windows brief](windows-agent-brief.md#fractional-clock-and-ama-phase-follow-up).
 
 ## Initialization follow-up
 
