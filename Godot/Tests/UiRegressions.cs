@@ -174,7 +174,8 @@ namespace Deuteros.Tests
         {
             var ship = NavigationShip();
             var stores = GameCore.Earth.Station.Resources.Stores;
-            stores[ItemTypes.iron] = stores[ItemTypes.carbon] = 0;
+            stores[ItemTypes.iron] = 12;
+            stores[ItemTypes.carbon] = 49900;
             for (int i = 0; i < 2; i++)
             {
                 ship.Modules[i].ModuleType = Module_Types.Tool;
@@ -183,7 +184,7 @@ namespace Deuteros.Tests
                 ship.Modules[i].HeldItem = new Asteroid
                 {
                     GrappleItemType = GrappleItemTypes.Asteroid,
-                    Type = i == 0 ? ItemTypes.iron : ItemTypes.carbon, Mass = i == 0 ? 100 : 150
+                    Type = i == 0 ? ItemTypes.iron : ItemTypes.carbon, Mass = i == 0 ? 250 : 150
                 };
             }
             var bay = OpenEquippedBay(ship);
@@ -196,13 +197,15 @@ namespace Deuteros.Tests
                     Press(bay, "Buttons/ShipNav/Nav_Torso" + (i + 1));
                     Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso" + (i + 1) + "/SpriteHolder/Buttons/ActivatePod");
                     Equal(true, window.IsVisibleInTree(), "unload window visible for pod " + (i + 1));
+                    Equal(i == 0 ? "250 Iron 262" : "150 Carbon 50000", window.GetNode<Label>("Quantites").Text,
+                        "breakup shows held mass and resulting capped stock");
                     Equal(true, blocker.Blocked, "unload locks input");
                     await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
                     Equal<GrappleItem>(null, ship.Modules[i].HeldItem, "pod unloaded");
                     Equal(false, blocker.Blocked, "unload releases input");
                 }
-                Equal(100, stores[ItemTypes.iron], "first pod stock credited once");
-                Equal(150, stores[ItemTypes.carbon], "second pod stock credited once");
+                Equal(262, stores[ItemTypes.iron], "first pod stock credited once");
+                Equal(50000, stores[ItemTypes.carbon], "second pod stock capped");
             }
             finally
             {

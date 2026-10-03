@@ -1150,9 +1150,9 @@ namespace Deuteros.Code.Platform.Screens
 					GrappleWindow.Visible = true;
 					if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
 					{
-						var asteroidtype = ((Asteroid)currentModule.HeldItem).Type;
+						var asteroid = (Asteroid)currentModule.HeldItem;
                         GrappleWindowTitle.Text = "Asteroid Break-Up\r\nSequence.";
-                        GrappleWindowQuantities.Text = "100 "+asteroidtype.ToScreenString()+" 50000";
+                        GrappleWindowQuantities.Text = $"{asteroid.Mass} {asteroid.Type.ToScreenString()} {Math.Min(50000, ResourceList.Stores[asteroid.Type] + asteroid.Mass)}";
                         GrappleWindowComplete.Text = "Sequence Complete.";
 
                     }
