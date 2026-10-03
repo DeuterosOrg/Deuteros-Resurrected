@@ -38,8 +38,6 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public override void _Ready()
 		{
-			GetNode<Node2D>("Window").GetNode<Label>("Background/Number").Text = "1";
-
 			Enabled = GetNode<Control>("Enabled");
 			Disabled = GetNode<Control>("Disabled");
 
@@ -66,6 +64,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 		{
 			Ship = ship;
 			ShipModule = shipModule;
+			GetNode<Label>("Window/Background/Number").Text = (ship.Modules.IndexOf(shipModule) + 1).ToString();
 			
 			UpdateState();
 		}

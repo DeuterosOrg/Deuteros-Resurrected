@@ -373,19 +373,22 @@ namespace Deuteros.Tests
                     CurrentSource = ItemTypes.iron, CurrentDestination = ItemTypes.iron
                 };
                 if (panel == "grapple" || panel == "ama") ship.ShipState = Ship_States.UnDocked;
-                ship.Modules[0].ModuleType = Module_Types.Tool;
-                ship.Modules[0].ItemStored = panel == "ama" ? ItemTypes.a__m__a : ItemTypes.grapple;
-                ship.Modules[0].ItemCount = 1;
+                var mount = panel == "grapple" ? 1 : panel == "ama" ? 2 : 0;
+                ship.Modules[mount].ModuleType = Module_Types.Tool;
+                ship.Modules[mount].ItemStored = panel == "ama" ? ItemTypes.a__m__a : ItemTypes.grapple;
+                ship.Modules[mount].ItemCount = 1;
                 GameCore.SingletonInstance.ShipSelected = ship.ShipID;
                 GameCore.SingletonInstance.ChangeScene(Scenes.ShipInterior, new List<SceneVariables>());
                 await InputFrames();
                 var interior = ActiveScreen<ShipInterior>();
                 if (panel == "course") Press(interior, "SetCourse");
                 else if (panel == "acc") Press(interior, "OpenACC");
-                else Press(interior, "Modules/00");
+                else Press(interior, "Modules/" + mount.ToString("00"));
                 var holder = interior.GetNode<Control>(panel == "course" ? "StarMap" : panel == "acc" ? "ACCScreen" : panel == "grapple" ? "GrappleHolder" : "AMAHolder");
                 Equal(true, holder.GetChildCount() > 0, "modal opened " + panel);
                 var modal = holder.GetChild(0);
+                if (panel == "grapple" || panel == "ama")
+                    Equal(panel == "grapple" ? "2" : "3", modal.GetNode<Label>("Window/Background/Number").Text, "selected mount number " + panel);
                 await RightClick(holder.GetGlobalRect().GetCenter());
                 Equal(Scenes.ShipInterior, GameCore.SingletonInstance.currentScene, "first click closes only " + panel);
                 Equal(0, holder.GetChildCount(), "modal removed " + panel);
