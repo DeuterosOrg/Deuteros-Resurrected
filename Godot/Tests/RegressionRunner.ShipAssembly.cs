@@ -166,12 +166,18 @@ namespace Deuteros.Tests
 
         private async Task ScgModuleMounts()
         {
+            GameCore.SingletonInstance.GameData.GetItem(ItemTypes.g_chassis).Locked = false;
             var bay = await EmptyAssemblyBay(Ship_Types.SCG);
             var stores = bay.ResourceList.Stores;
             stores[ItemTypes.g_chassis] = 1;
             stores[ItemTypes.supply_pod] = 6;
             GameCore.SingletonInstance.GameData.GetItem(ItemTypes.supply_pod).Locked = false;
-            Press(bay, "Buttons/Nav_Create_SCG");
+            var point = bay.GetNode<Control>("Buttons/Nav_Create_SCG").GetGlobalRect().GetCenter();
+            GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+            foreach (var pressed in new[] { true, false })
+                GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+            await InputFrames();
+            Equal(1, Save.Ships.Count, "SCG builds from the button centre through pointer input");
             Equal(true, bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso6").Visible, "sixth mount navigation");
             Equal(true, bay.GetNode<Control>(ShipParts + "Torso6").Visible, "sixth mount artwork");
             for (var mount = 1; mount <= 6; mount++)
