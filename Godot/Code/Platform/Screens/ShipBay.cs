@@ -151,16 +151,11 @@ namespace Deuteros.Code.Platform.Screens
 
 			EngineInstance.EngineInstalled += EngineInstance_EngineInstalled;
 
-			TorsoInstances[0].ModuleChanged += ShipBay_ModuleChanged;
-			TorsoInstances[0].ModuleOpened += ShipBay_ModuleOpened;
-			TorsoInstances[1].ModuleChanged += ShipBay_ModuleChanged;
-			TorsoInstances[1].ModuleOpened += ShipBay_ModuleOpened;
-			TorsoInstances[2].ModuleChanged += ShipBay_ModuleChanged;
-			TorsoInstances[2].ModuleOpened += ShipBay_ModuleOpened;
-			TorsoInstances[3].ModuleChanged += ShipBay_ModuleChanged;
-			TorsoInstances[3].ModuleOpened += ShipBay_ModuleOpened;
-			TorsoInstances[4].ModuleChanged += ShipBay_ModuleChanged;
-			TorsoInstances[4].ModuleOpened += ShipBay_ModuleOpened;
+			foreach (var torso in TorsoInstances)
+			{
+				torso.ModuleChanged += ShipBay_ModuleChanged;
+				torso.ModuleOpened += ShipBay_ModuleOpened;
+			}
 
 			foreach (var mineral in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.ItemCategory == ItemCategory.resource))
 				GetNode<Button>("CargoService/Buttons/" + mineral.ItemType.ToScreenString()).Pressed += () => SelectMineral(mineral.ItemType);
@@ -552,7 +547,7 @@ namespace Deuteros.Code.Platform.Screens
 				newSCG.StartTravelDay = 0;
 				newSCG.StarLocation = CurrentPlanet.ParentStar;
 				newSCG.Modules = new List<ShipModule>();
-				newSCG.Modules.AddRange(Enumerable.Range(0, 5).Select(_ => new ShipModule()));
+				newSCG.Modules.AddRange(Enumerable.Range(0, 6).Select(_ => new ShipModule()));
 				newSCG.ShipState = Ship_States.Docked;
 				newSCG.Fuel = 0;
 				newSCG.Engine = false;
@@ -880,41 +875,14 @@ namespace Deuteros.Code.Platform.Screens
 				}
 				else if (Ship.ShipType == Enums.Ship_Types.SCG)
 				{
-					Nav_Torsos[0].Visible = true;
-					Nav_Torsos[1].Visible = true;
-					Nav_Torsos[2].Visible = true;
-					Nav_Torsos[3].Visible = true;
-					Nav_Torsos[4].Visible = true;
-					TorsoInstances[0].Visible = true;
-					TorsoInstances[1].Visible = true;
-					TorsoInstances[2].Visible = true;
-					TorsoInstances[3].Visible = true;
-					TorsoInstances[4].Visible = true;
-					TorsoInstances[0].SpriteHolder.Visible = true;
-					TorsoInstances[1].SpriteHolder.Visible = true;
-					TorsoInstances[2].SpriteHolder.Visible = true;
-					TorsoInstances[3].SpriteHolder.Visible = true;
-					TorsoInstances[4].SpriteHolder.Visible = true;
-
-					TorsoInstances[0].ChangeModule(Ship.Modules[0]);
-					TorsoInstances[0].TorsoSection = 0;
-					TorsoInstances[0].UpdateState();
-
-					TorsoInstances[1].ChangeModule(Ship.Modules[1]);
-					TorsoInstances[1].TorsoSection = 1;
-					TorsoInstances[1].UpdateState();
-
-					TorsoInstances[2].ChangeModule(Ship.Modules[2]);
-					TorsoInstances[2].TorsoSection = 2;
-					TorsoInstances[2].UpdateState();
-
-					TorsoInstances[3].ChangeModule(Ship.Modules[3]);
-					TorsoInstances[3].TorsoSection = 3;
-					TorsoInstances[3].UpdateState();
-
-					TorsoInstances[4].ChangeModule(Ship.Modules[4]);
-					TorsoInstances[4].TorsoSection = 4;
-					TorsoInstances[4].UpdateState();
+					for (var index = 0; index < Math.Min(TorsoInstances.Count, Ship.Modules.Count); index++)
+					{
+						Nav_Torsos[index].Visible = true;
+						TorsoInstances[index].Visible = true;
+						TorsoInstances[index].SpriteHolder.Visible = true;
+						TorsoInstances[index].TorsoSection = index;
+						TorsoInstances[index].ChangeModule(Ship.Modules[index]);
+					}
 				}
 			}
 		}

@@ -260,6 +260,7 @@ namespace Deuteros.Tests
             CheckUi("SCG ACC completes only at final body arrival without duplicate delivery", InterstellarAccFinish);
             CheckUi("SCG ACC roundtrip saves correct legs cargo and finishing mode", InterstellarAccRoundTrip);
             CheckUi("Fuelled SCG flight clears old fall debt before later exhaustion", InterstellarRescuedFallCounter);
+            await CheckAsync("Legacy SCG saves preserve cargo and gain a functional sixth mount", ScgLegacySixthMount);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

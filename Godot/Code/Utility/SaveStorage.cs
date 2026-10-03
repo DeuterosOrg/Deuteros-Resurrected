@@ -153,6 +153,9 @@ namespace Deuteros.Code.Utility
             }
             Validate(document.Game);
             var save = document.Game;
+            // Older SCGs omitted the original sixth mount. Retain every existing pod and its contents.
+            foreach (var ship in save.Ships.OfType<SCG>())
+                while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
             ArtifactRecovery.RestoreLegacy(save);
             InterStellarShip.EnsureAutomationSlots(save);
             // Every legacy system was assigned at startup; a missing location means it was collected.

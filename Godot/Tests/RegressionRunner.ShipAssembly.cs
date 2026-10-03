@@ -5,6 +5,7 @@ using Deuteros.Code;
 using Deuteros.Code.Objects;
 using Deuteros.Code.Platform.Screens;
 using Godot;
+using Deuteros.Code.Utility;
 using static Deuteros.Code.Enums;
 
 namespace Deuteros.Tests
@@ -28,7 +29,7 @@ namespace Deuteros.Tests
                 var type = hull;
                 await CheckAsync($"Repeated {type} assembly cannot create a second docked ship", () => AssemblyOccupiedBay(type));
             }
-            await CheckAsync("SCG bay exposes exactly five functional module mounts", ScgModuleMounts);
+            await CheckAsync("SCG bay exposes exactly six functional module mounts", ScgModuleMounts);
         }
 
         private async Task<ShipBay> EmptyAssemblyBay(Ship_Types type, bool orbitalShuttle = false)
@@ -93,7 +94,7 @@ namespace Deuteros.Tests
             Equal(1, Save.Ships.Count, "one hull built");
             Equal(1, stores[chassis], "exactly one chassis fitted");
             Equal(1, stores[ItemTypes.a__c__c], "exactly one ACC fitted");
-            Equal(type == Ship_Types.Shuttle ? 1 : type == Ship_Types.IOS ? 3 : 5, Save.Ships.Single().Modules.Count, "correct usable mounts");
+            Equal(type == Ship_Types.Shuttle ? 1 : type == Ship_Types.IOS ? 3 : 6, Save.Ships.Single().Modules.Count, "correct usable mounts");
             // An already-dispatched callback must not create a second hull in this berth.
             Press(bay, "Buttons/Nav_Create_" + type);
             Equal(1, Save.Ships.Count, "repeated assembly cannot occupy bay twice");
@@ -168,21 +169,80 @@ namespace Deuteros.Tests
             var bay = await EmptyAssemblyBay(Ship_Types.SCG);
             var stores = bay.ResourceList.Stores;
             stores[ItemTypes.g_chassis] = 1;
-            stores[ItemTypes.supply_pod] = 5;
+            stores[ItemTypes.supply_pod] = 6;
             GameCore.SingletonInstance.GameData.GetItem(ItemTypes.supply_pod).Locked = false;
             Press(bay, "Buttons/Nav_Create_SCG");
-            Equal(false, bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso6").Visible, "no navigation to a nonexistent sixth mount");
-            Equal(false, bay.GetNode<Control>(ShipParts + "Torso6").Visible, "no phantom module artwork");
-            for (var mount = 1; mount <= 5; mount++)
+            Equal(true, bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso6").Visible, "sixth mount navigation");
+            Equal(true, bay.GetNode<Control>(ShipParts + "Torso6").Visible, "sixth mount artwork");
+            for (var mount = 1; mount <= 6; mount++)
             {
                 Equal(true, bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso" + mount).Visible, "real mount can be selected");
                 Press(bay, "Buttons/ShipNav/Nav_Torso" + mount);
                 Press(bay, ShipParts + "Torso" + mount + "/SpriteHolder/Buttons/AddSupplyPod");
                 Equal(Module_Types.Supply, Save.Ships.Single().Modules[mount - 1].ModuleType, "pod fitted to selected mount");
             }
-            Equal(0, stores[ItemTypes.supply_pod], "five pods fitted exactly once");
+            Equal(0, stores[ItemTypes.supply_pod], "six pods fitted exactly once");
+            stores[ItemTypes.iron] = 300;
+            Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/ActivatePod");
+            Equal(true, bay.GetNode<Control>("CargoService").Visible, "sixth pod service opens");
+            Press(bay, "CargoService/Buttons/" + ItemTypes.iron.ToScreenString());
+            Equal(250, Save.Ships.Single().Modules[5].ItemCount, "sixth pod receives cargo");
+            Equal(50, stores[ItemTypes.iron], "cargo leaves stores exactly once");
+            Press(bay, "CargoService/Buttons/" + ItemTypes.iron.ToScreenString());
+            Equal(300, stores[ItemTypes.iron], "sixth pod unload conserves stock");
+            await RightClick(bay.GetNode<Control>("CargoService").GetGlobalRect().GetCenter());
+            Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/AddSupplyPod");
+            Equal(Module_Types.None, Save.Ships.Single().Modules[5].ModuleType, "sixth pod removed");
+            Equal(1, stores[ItemTypes.supply_pod], "sixth pod returned once");
+            await ToSignal(GetTree().CreateTimer(1.1), SceneTreeTimer.SignalName.Timeout);
+            await CaptureDisplayEvidence("scg-six-module-mounts");
+            Press(bay, "Buttons/ShipNav/Nav_Engine");
+            await ToSignal(GetTree().CreateTimer(1.1), SceneTreeTimer.SignalName.Timeout);
+            var viewport = bay.GetNode<ScrollContainer>("ShipContainer/ScrollContainer2").GetGlobalRect();
+            var engine = bay.GetNode<Control>(ShipParts + "Engine").GetGlobalRect();
+            Equal(true, viewport.HasPoint(engine.GetCenter()), "engine remains reachable beyond sixth pod");
+            await CaptureDisplayEvidence("scg-six-module-engine");
+        }
+
+        private async Task ScgLegacySixthMount()
+        {
+            var bay = await EmptyAssemblyBay(Ship_Types.SCG);
+            bay.ResourceList.Stores[ItemTypes.g_chassis] = 1;
+            Press(bay, "Buttons/Nav_Create_SCG");
+            var ship = Save.Ships.Single();
+            ship.Modules = Enumerable.Range(0, 5).Select(_ => new ShipModule()).ToList();
+            ship.Modules[0].ModuleType = Module_Types.Tool;
+            ship.Modules[0].ItemStored = ItemTypes.grapple;
+            ship.Modules[0].HeldItem = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            ship.Modules[1].ModuleType = Module_Types.Cryo;
+            ship.Modules[1].StaffStored = new Staff { Leader = "Legacy crew", Type = StaffType.Marines, Count = 10 };
+            ship.Modules[4].ModuleType = Module_Types.Supply;
+            ship.Modules[4].ItemStored = ItemTypes.iron;
+            ship.Modules[4].ItemCount = 123;
+            var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            for (var reload = 0; reload < 2; reload++)
+            {
+                var loaded = restored.Ships.Single();
+                Equal(6, loaded.Modules.Count, "legacy SCG gains one empty mount");
+                Equal(123, loaded.Modules[4].ItemCount, "fifth pod cargo retained");
+                Equal(ItemTypes.iron, loaded.Modules[4].ItemStored, "fifth pod material retained");
+                Equal("Legacy crew", loaded.Modules[1].StaffStored.Leader, "frozen crew retained");
+                Equal(10, loaded.Modules[1].StaffStored.Count, "frozen team retained");
+                Equal(true, loaded.Modules[0].HeldItem is UnknownItem, "grapple contents retained");
+                Equal(Module_Types.None, loaded.Modules[5].ModuleType, "new mounting has no free pod");
+                Equal(0, loaded.Modules[5].ItemCount, "new mounting has no free cargo");
+                restored = SaveStorage.Deserialize(SaveStorage.Serialize(restored));
+            }
+            GameCore.SingletonInstance.LoadSavedGame(restored);
+            GameCore.SingletonInstance.ChangeScene(Scenes.ShipBay, new List<SceneVariables> { SceneVariables.Orbit, SceneVariables.Ship });
             await InputFrames();
-            await CaptureDisplayEvidence("scg-five-module-mounts");
+            bay = ActiveScreen<ShipBay>();
+            bay.ResourceList.Stores[ItemTypes.supply_pod] = 1;
+            GameCore.SingletonInstance.GameData.GetItem(ItemTypes.supply_pod).Locked = false;
+            Press(bay, "Buttons/ShipNav/Nav_Torso6");
+            Press(bay, ShipParts + "Torso6/SpriteHolder/Buttons/AddSupplyPod");
+            Equal(Module_Types.Supply, Save.Ships.Single().Modules[5].ModuleType, "migrated sixth mount can fit a pod");
+            Equal(0, bay.ResourceList.Stores[ItemTypes.supply_pod], "migrated mount consumes actual stock");
         }
 
         private async Task AssemblyReturnCapacity()
