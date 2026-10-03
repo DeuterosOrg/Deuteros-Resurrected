@@ -722,7 +722,6 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.EngageEngine())
 			{
 				CurrentPlanet = null;
-                ((InterStellarShip)Ship).ItemScanResults = null;
             }
 
             UpdateState();

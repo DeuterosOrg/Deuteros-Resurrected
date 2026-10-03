@@ -105,6 +105,7 @@ namespace Deuteros.Code.Objects
             {
                 drifting.Flight.Remaining = InterstellarFlight.LocalDistance(DestinationPlanetLocation) * (EngineDamaged ? 2 : 1);
                 EngineEngaged = true;
+                drifting.ItemScanResults = null;
                 return true;
             }
             if (ShipState == Ship_States.UnDocked && Engine && Fuel > 0 && DestinationPlanetLocation != PlanetLocation
@@ -129,7 +130,8 @@ namespace Deuteros.Code.Objects
                 EngineEngaged = true;
                 ShipState = Ship_States.InTransit;
                 StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-                
+                if (this is InterStellarShip scanningShip) scanningShip.ItemScanResults = null;
+
                 return true;
             }
             else

@@ -157,6 +157,10 @@ namespace Deuteros.Tests
             ship.ItemScanResults = new Asteroid { Type = ItemTypes.titanium, Class = 6, Mass = 10000, MassName = "Large" };
             ship.ACC.Update(Ship_States.UnDocked);
             Equal(Ship_States.UnDocked, ship.ShipState, "finish mode cannot start an automatic mining approach");
+            ship.Fuel = 0;
+            Equal(false, ship.EngageEngine(), "empty tank rejects travel away from the scan");
+            Equal(10000, ship.AsteroidScanResults.Mass, "rejected departure preserves local scan");
+            ship.Fuel = 100;
 
             // Finishing a mining departure must still complete the return leg.
             Save.CurrentDay = 100;
@@ -168,6 +172,7 @@ namespace Deuteros.Tests
             ship.ACC.CycleMode = false;
             ship.ACC.Active = true;
             ship.TakeOff();
+            Equal(10000, ship.AsteroidScanResults.Mass, "leaving the mining surface preserves the local scan");
             AccCyclePress(ship, "Cycle");
             GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
             ship = (IOS)Save.Ships.Single();
@@ -177,6 +182,7 @@ namespace Deuteros.Tests
                 ShipInterior.UpdateShips(before, Save.CurrentDay);
             }
             Equal(Ship_States.InTransit, ship.ShipState, "finishing after asteroid launch starts the return journey");
+            Equal(true, ship.ItemScanResults == null, "automatic departure discards the asteroid scan before travel");
             Equal(250, ship.Modules[1].ItemCount, "departure preserves mined cargo");
             for (var i = 0; i < 12; i++)
             {

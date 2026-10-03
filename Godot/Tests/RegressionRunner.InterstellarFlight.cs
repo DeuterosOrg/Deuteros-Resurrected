@@ -208,7 +208,10 @@ namespace Deuteros.Tests
 
         private void InterstellarDisengagement()
         {
-            var ship = NewInterstellarRoute(); ship.EngageEngine();
+            var ship = NewInterstellarRoute();
+            ship.ItemScanResults = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            ship.EngageEngine();
+            Equal(true, ship.ItemScanResults == null, "SCG departure discards the previous orbit scan");
             ship.DisengageEngine();
             Equal(true, ship.EngineEngaged, "original disengagement rejects accelerated interstellar state");
             for (var update = 0; update < 11; update++) AdvanceInterstellar();
@@ -220,7 +223,10 @@ namespace Deuteros.Tests
             AdvanceInterstellar();
             Equal(3, ship.Flight.Remaining, "drift still consumes a travel update");
             Equal(140, ship.Fuel, "ordinary drift retains original per-update fuel cost");
+            // A save from before scan invalidation may still carry a departure scan.
+            ship.ItemScanResults = new UnknownItem(UnknownItemTypes.AlienArtifact);
             Equal(true, ship.EngageEngine(), "drifting local leg may re-engage");
+            Equal(true, ship.ItemScanResults == null, "resuming travel discards a retained legacy scan");
             Equal(4, ship.Flight.Remaining, "original re-engagement recalculates the current star-to-body route");
             Equal(true, ship.EngineEngaged, "resume sets engine flag");
             Equal(430000L, ship.Flight.ClockOffset, "resume never resets to origin star clock");
