@@ -1366,7 +1366,7 @@ namespace Deuteros.Code.Platform.Screens
 				ResourceList.Stores[itemType] = Math.Max(0, ResourceList.Stores[itemType] - 250);
 			}
 
-			TorsoInstances[ScreenState - 1].UpdateState();
+			UpdateState();
 
 			UpdateCargoService();
 		}

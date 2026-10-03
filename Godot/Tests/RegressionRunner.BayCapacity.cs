@@ -17,6 +17,7 @@ namespace Deuteros.Tests
             var bay = await EmptyAssemblyBay(hull);
             var stores = bay.ResourceList.Stores;
             stores[AssemblyChassis(hull)] = 1;
+            stores[ItemTypes.meh_fuel] = stores[ItemTypes.hed_fuel] = 600;
             Press(bay, "Buttons/Nav_Create_" + hull);
             var index = hull == Ship_Types.SCG ? 5 : 0;
             var pod = bay.Ship.Modules[index];
@@ -51,6 +52,18 @@ namespace Deuteros.Tests
             Press(bay, "CargoService/Buttons/" + ItemTypes.titanium.ToScreenString());
             Equal(300, stores[ItemTypes.titanium], "normal unload conserves stock");
             Equal(0, pod.ItemCount, "normal unload empties pod");
+            var fuelButton = "CargoService/Buttons/" + bay.Ship.FuelType.ToScreenString();
+            foreach (var replacement in new[] { bay.Ship.FuelType, ItemTypes.titanium })
+            {
+                Press(bay, fuelButton);
+                Equal(350, stores[bay.Ship.FuelType], "fuel cargo leaves local stores");
+                Equal("350", bay.GetNode<Label>("Fuel/InStock").Text, "loading fuel immediately refreshes bay stock");
+                Equal(true, bay.GetNode<Control>("CargoService").Visible, "refresh preserves cargo service");
+                Press(bay, "CargoService/Buttons/" + replacement.ToScreenString());
+                Equal(600, stores[bay.Ship.FuelType], "unload or replacement returns fuel cargo");
+                Equal("600", bay.GetNode<Label>("Fuel/InStock").Text, "returning fuel immediately refreshes bay stock");
+                Equal(0, bay.Ship.Fuel, "cargo transfer does not fill the ship tank");
+            }
             Cursor.Unlock();
         }
 
