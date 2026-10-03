@@ -2,6 +2,18 @@
 
 Task **1215685674676259**, traced 2026-10-02. Planet-group palette selection is now established from Disk 1 instructions and tables. The original bitmap decoder and supplied PNG masks now establish the changing pixel indices. The orbital-view fix is implemented; matched emulator captures and Windows desktop acceptance remain pending.
 
+## Research task acceptance
+
+The task description was refreshed read-only on 2026-10-03: investigate how the orbiting planet/moon determines colours in the view, with the attached blue example. There are no comments or subtasks adding requirements. The attachment was downloaded again and its SHA-256 still matches the supplied `Ship_View_Station.png` hash below. Recorded raw-trace, mapping, decoder and mask-comparison hashes were also rechecked.
+
+| Requested explanation | Established evidence |
+| --- | --- |
+| Which body determines the colours? | `$352B0` decodes all 160 body IDs into 44 parent groups; `$35560` uses system and parent group, so moons inherit their parent's palette. |
+| How are colours applied? | `$41170` copies three RGB4 words into indices 5–7. Decoded bitmap masks identify the affected pixels; it is not a whole-screen tint. |
+| How does the blue station example relate? | The task attachment is the supplied orbital station view. Earth's group uses row 8 (`0048 008A 0AFF`); station presence chooses the image independently of the parent palette. Station-interior and star-view entry points have separately documented lookups. |
+
+This accepts the **research deliverable locally**, with no Asana status change. The implementation's native Windows visual acceptance, original-emulator comparison and separate star-map PNG discrepancies remain open. They do not change the source answer above and are not claimed complete.
+
 ## Reproduce the lookup
 
 Use Disk 1 SHA-256 `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`; disk offset is `0x6E000 + RAM - 0x13000`. Read words big-endian. Confirm instruction boundaries before disassembly.
