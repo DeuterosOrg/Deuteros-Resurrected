@@ -1166,19 +1166,23 @@ namespace Deuteros.Code.Platform.Screens
             var currentModule = Ship.Modules[ScreenState - 1];
             if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount)) return;
 
-			// Empty the old tank before DFCC changes its stock value. Reject the
-            // entire fitting if its fuel cannot be returned without loss.
-            if (itemType == ItemTypes.d__f__c__c && Ship is InterStellarShip { DFCC: false }
-                && Ship.Modules[ScreenState - 1].ItemStored != itemType)
+            var fittingDfcc = itemType == ItemTypes.d__f__c__c && currentModule.ItemStored != itemType;
+            var removingLastDfcc = currentModule.ItemStored == ItemTypes.d__f__c__c
+                && !Ship.Modules.Any(module => module != currentModule && module.ModuleType == Module_Types.Tool
+                    && module.ItemStored == ItemTypes.d__f__c__c && module.ItemCount > 0);
+            if (Ship is InterStellarShip stellar && ((fittingDfcc && !stellar.DFCC) || removingLastDfcc))
             {
+                // Validate every return before changing the tank's stock value or hull controls.
                 var returningFuel = Ship.Fuel * Ship.FuelUnitCost;
-                if (returningFuel > 50000 - ResourceList.Stores[Ship.FuelType])
-                {
-                    GameCore.ShowError(this, "Not Enough Fuel Storage\nTo Fit D.F.C.C.");
-                    return;
-                }
+                var droneType = Ship.ShipType == Ship_Types.SCG ? ItemTypes.star_drone : ItemTypes.ios_drone;
+                var returningDrones = removingLastDfcc ? stellar.DroneCount : 0;
+                if (!CanReturnToStores(Ship.FuelType, returningFuel)
+                    || !CanReturnToStores(droneType, returningDrones)) return;
                 ResourceList.Stores[Ship.FuelType] += returningFuel;
+                ResourceList.Stores[droneType] += returningDrones;
                 Ship.Fuel = 0;
+                stellar.DroneCount -= returningDrones;
+                stellar.DFCC = fittingDfcc;
             }
 
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
@@ -1202,13 +1206,6 @@ namespace Deuteros.Code.Platform.Screens
 			else if (Ship.Modules[ScreenState - 1].ItemStored != itemType && ResourceList.Stores[itemType] > 0)
 			{
 				Ship.Modules[ScreenState - 1].ItemStored = itemType;
-
-				if (Ship.ShipType!=Ship_Types.Shuttle && itemType == ItemTypes.d__f__c__c)
-				{
-					//todo show dfcc assembly animation
-
-					((InterStellarShip)Ship).DFCC = true;
-				}
 
 				// Original $32FD4 stacks only Derricks; all other equipment occupies one slot.
 				if (itemType != ItemTypes.derrick)

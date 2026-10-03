@@ -265,6 +265,10 @@ namespace Deuteros.Tests
                 await CheckAsync($"{hull} manual cargo service preserves capacity and blocked transfers", () => BayCargoCapacity(hull));
             await CheckAsync("Equipment replacement checks all returns before changing fuel or fittings", BayEquipmentCapacity);
             await CheckAsync("Empty pod removal and replacement respect spare stock capacity", BayPodCapacity);
+            foreach (var hull in new[] { Ship_Types.IOS, Ship_Types.SCG })
+                await CheckAsync($"{hull} DFCC removal returns converted fuel and drones and restores ordinary controls", () => DfccRemoval(hull));
+            await CheckAsync("DFCC removal rejects every insufficient return capacity before mutation", DfccRemovalCapacity);
+            await CheckAsync("Remaining controllers and legacy converted hulls retain DFCC state", DfccRemainingControllers);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
