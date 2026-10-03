@@ -364,8 +364,8 @@ namespace Deuteros.Code
 			}
 			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true) ShowBulletin(BulletinTypes.Hyperlight_Speed);
 			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
-            else if (save.RogueCrew.PublishMutiny(save)) ShowBulletin(BulletinTypes.Mutiny);
-            else if (save.RogueCrew.AdvancePrisonDiscovery(save)) ShowBulletin(BulletinTypes.Rogue_Ship);
+			else if (save.RogueCrew.PublishMutiny(save)) ShowBulletin(BulletinTypes.Mutiny);
+			else if (save.RogueCrew.AdvancePrisonDiscovery(save)) ShowBulletin(BulletinTypes.Rogue_Ship);
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
