@@ -2,9 +2,9 @@
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest complete Mac aggregate (2026-10-03 BST): **514/514** at `771ceea74a4370eaf35e1210ec88b28bf1e970c5`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
+Latest complete Mac aggregate (2026-10-03 BST): **523/523** at `171ed86d72a568a8dcdb54f79f195d695ff1f6f4`, with nine Python tests, strict import, startup and audited Windows cross-export. The Windows runner passed 421 cases at `f5a9cbb`; its package/individual-log collection is pending SSH authentication. The last fully audited Windows package remains `a54e899` (409 cases).
 
-The latest additions restore all six original SCG mounts through fitting, migration, interior display and cargo controls, following saved interstellar travel, private/star clocks and Hyperlight-specific Warlord promotion, building on the earlier transmission, simulation and UI fixes. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals are **35/48 with implementation evidence, 0/48 fully accepted**.
+The latest additions prevent manual store overflow and clear DFCC mode when its last fitted controller is removed. They also restore all six original SCG mounts through fitting, migration, interior display and cargo controls, following saved interstellar travel, private/star clocks and Hyperlight-specific Warlord promotion, building on the earlier transmission, simulation and UI fixes. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals are **35/48 with implementation evidence, 0/48 fully accepted**.
 
 ## Reproduced gameplay fixes
 
@@ -797,4 +797,14 @@ At `70cabb8`, manual cargo, equipment and empty-pod returns now reject transfers
 
 Cases **515–519** first reproduced overflowing stores on all three hulls, equipment replacement and spare-pod returns. All five pass headless and native Mac; 15 related cases (253/256/259/260/263/296/297/300/301/417–421/514), strict import and source startup also pass. Build has the 14 existing warnings and zero errors. Native screenshots exposed an oversized warning; the added panel-containment assertion reproduced that failure, and the final shorter wording passes headless and native case 517 with an inspected screenshot.
 
-Evidence: ignored `artifacts/validation/evidence/bay-stock-capacity/`. The full 514-case checkpoint above remains the latest aggregate: **no full 519-case or Windows run is claimed**. This is an additional review fix supporting existing Stores/supply-pod work; totals remain **35/48 implementation evidence, 0/48 fully accepted**.
+Evidence: ignored `artifacts/validation/evidence/bay-stock-capacity/`. These cases are now included in the fresh 523-case aggregate below; Windows execution remains pending. This is an additional review fix supporting existing Stores/supply-pod work; totals remain **35/48 implementation evidence, 0/48 fully accepted**.
+
+## DFCC removal and 523-case checkpoint
+
+At `171ed86d72a568a8dcdb54f79f195d695ff1f6f4`, removing or replacing the last fitted DFCC clears the conversion flag, refunds fuel at its current 10:1 rate and returns the correct IOS/SCG drones before changing equipment. All required returns must fit stores; otherwise nothing changes. Another fitted controller keeps conversion active. Unrelated equipment edits preserve older converted hulls without a controller module.
+
+Cases **520–523** cover both hulls, removal/replacement, ordinary fuel cost afterwards, repeated conversion, save/reload, each full-store boundary, exact capacity, a controller in the sixth mount and legacy compatibility. Cases 520–522 reproduced retained DFCC state or non-atomic capacity handling before the fix; 523 adds compatibility coverage. All four pass headlessly and natively. This corrects the remake's existing equipment selector; it does **not** implement the original conversion routine's complete mount/ACC stripping behavior.
+
+Fresh full Mac validation passes **523/523**, nine Python tests, strict import, source startup and Windows cross-export. Every individual case log was checked against discovery and freshness. The build has zero errors and the existing warning set. Package audit: **1,224 entries, 64 illustration imports, zero test resources**, **149,378,640 bytes**, SHA-256 `64222b50865970ddb5ff6d8df3cadf78014bb8d5804a9515b7a694667db458d5`. Evidence: ignored `artifacts/validation/evidence/dfcc-removal/full-run-171ed86/`.
+
+Physical Mac controls loaded a disposable SCG fixture, removed its DFCC, refitted/removed it again, saved and reloaded. Persisted results: no DFCC mode, zero onboard drones/fuel, three controllers, twenty star drones and 120 HeD in stores; the other five mounts were unchanged. Native window closing exited zero with a strict-clean log. Screenshots, saves and provenance are in the adjacent `desktop/` directory. Generated files were archived and removed, restoring the original save inventory exactly. This is staged desktop evidence, not normal campaign or Windows acceptance. Totals remain **35/48 implementation evidence, 0/48 fully accepted**.

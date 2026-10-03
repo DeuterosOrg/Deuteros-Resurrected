@@ -99,4 +99,8 @@ The original six-slot layout now works through hull creation, bay fitting/servic
 
 ## Manual bay capacity follow-up
 
-Shared manual-transfer checks now prevent cargo, equipment and removed pods from overflowing stores, including atomic rejection before DFCC fuel conversion. Five new cases (515–519), 15 related checks and targeted native Mac checks pass at `70cabb8`; the warning's layout regression is also corrected. No new Asana row is counted: **35/48 implementation evidence, 0/48 accepted**. Full 519-case and Windows runs remain pending; see [validation](validation-results.md#manual-bay-stock-capacity-follow-up).
+Shared manual-transfer checks now prevent cargo, equipment and removed pods from overflowing stores, including atomic rejection before DFCC fuel conversion. Five new cases (515–519), 15 related checks and targeted native Mac checks pass at `70cabb8`; the warning's layout regression is also corrected. No new Asana row is counted: **35/48 implementation evidence, 0/48 accepted**. The later full 523-case Mac run includes these checks; Windows remains pending; see [validation](validation-results.md#manual-bay-stock-capacity-follow-up).
+
+## DFCC removal follow-up
+
+Removing the last fitted controller now clears DFCC mode and returns fuel/drones atomically; repeated fitting cannot duplicate stores. Cases 520–523 include IOS/SCG, capacity, save/reload and legacy compatibility. Full **523/523 Mac** validation and audited cross-export pass at `171ed86`; physical SCG removal/refitting/save/reload also passes with unchanged other cargo and restored user saves. This supports existing DFCC work without claiming complete original conversion semantics. Counts remain **35/48 implementation evidence, 0/48 accepted**. See [validation](validation-results.md#dfcc-removal-and-523-case-checkpoint) and [Windows checks](windows-agent-brief.md#dfcc-removal-follow-up).

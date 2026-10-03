@@ -13,7 +13,7 @@ Previous Windows-run candidate **`f5a9cbb994b2f904426c0744856405328f243a16`** ad
 
 Do not push, open/merge a PR or change/comment on Asana without Craig's instruction. Complete Windows acceptance before recommending a team PR. Ignored Mac artifacts do not travel with Git. A brief or push does not start an agent: Craig must launch the Windows session and relay its results until direct coordination is available.
 
-The latest Mac-audited runtime checkpoint is **`771ceea`**, with **514/514 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
+The latest Mac-audited runtime checkpoint is **`171ed86`**, with **523/523 regressions** and an audited cross-export. It includes the earlier transmission, News, battle and later simulation/training follow-ups below. The prepared but unuploaded `625cae9` bundle is older and excludes these later fixes. No Windows execution of the latest candidate is claimed.
 
 
 ## Interstellar travel and Warlord acceptance
@@ -398,4 +398,10 @@ Load an older five-mount SCG save containing fifth-pod cargo, a frozen team and 
 
 ## Manual bay capacity follow-up
 
-Candidate `70cabb8` adds cases 515–519 after the latest full Mac aggregate. In shuttle, IOS and SCG bays, try returning 250 cargo units to a store holding 49,751; both unloading and swapping resources must leave cargo and both stocks unchanged. At 49,750, the return must succeed. Repeat with stacked equipment and a full spare-pod store, including replacement and the sixth SCG mount. A rejected DFCC fitting must not refund fuel or change hull mode. Confirm the warning fits its panel, dismiss it, and retry after making room. Five new Mac headless/native cases and 15 related checks pass; full 519-case and Windows validation are pending.
+Candidate `70cabb8` adds cases 515–519, now included in the full 523-case Mac aggregate at `171ed86`. In shuttle, IOS and SCG bays, try returning 250 cargo units to a store holding 49,751; both unloading and swapping resources must leave cargo and both stocks unchanged. At 49,750, the return must succeed. Repeat with stacked equipment and a full spare-pod store, including replacement and the sixth SCG mount. A rejected DFCC fitting must not refund fuel or change hull mode. Confirm the warning fits its panel, dismiss it, and retry after making room. Five new Mac headless/native cases and 15 related checks pass; the later 523-case aggregate passes. Windows validation remains pending.
+
+## DFCC removal follow-up
+
+Candidate `171ed86` adds cases 520–523. On IOS and SCG, fit a DFCC, load fuel and drones, then remove it or replace it with equipment. Removing the last controller must return its drones and refund fuel at 10:1, clear DFCC mode and empty the tank. Subsequent ordinary fueling uses 1:1. Repeat fitting/removal and save/reload: no resource duplication. With insufficient controller, fuel or drone store space, the entire action must be rejected; exact capacity succeeds. Another fitted DFCC, including in SCG mount six, preserves the conversion and fleet. Unrelated edits on legacy converted hulls without a fitted controller must remain compatible.
+
+Full 523-case Mac validation and cross-export, four focused native cases and a physical SCG remove/refit/remove/save/reload check pass. Run these on Windows once this revision is supplied; the old `8cdd458` desktop handoff remains separate. This fixes selector consistency, not full original conversion behavior or campaign acceptance.
