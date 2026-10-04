@@ -8,14 +8,11 @@ namespace Deuteros.Code.Platform.Base
 {
     public partial class BaseSubScene : Node2D
     {
-        public static Font DefaultFont { get; set; }
         public List<Enums.SceneVariables> SceneVariables { get; set; }
 
         // Called when the node enters the scene tree for the first time.
         public override void _Ready()
         {
-            DefaultFont = Deuteros.Code.GameCore.DefaultFont;
-
             Deuteros.Code.GameCore.SingletonInstance.DayPassed += DayTick;
             Deuteros.Code.GameCore.SingletonInstance.PlanetChanged += PlanetChange;
             Deuteros.Code.GameCore.SingletonInstance.ProductionFinished += ProductionFinished;

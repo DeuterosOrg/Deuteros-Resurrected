@@ -19,7 +19,7 @@ public partial class SettingsScreen : Control
     public Button AudioTab { get; private set; }
     public Button ControlsTab { get; private set; }
     public Button GameplayTab { get; private set; }
-    public Button AccessTab { get; private set; }
+    public Button ModernTab { get; private set; }
     public Button DebugTab { get; private set; }
     public ScrollContainer SettingsScroll { get; private set; }
 
@@ -63,13 +63,9 @@ public partial class SettingsScreen : Control
     public ToggleSettingRow TooltipsRow { get; private set; }
     public ToggleSettingRow ConfirmLaunchRow { get; private set; }
 
-    // Access
-    public VBoxContainer AccessList { get; private set; }
-    public CycleSettingRow TextSizeRow { get; private set; }
-    public CycleSettingRow ColourPaletteRow { get; private set; }
-    public ToggleSettingRow ReduceFlickerRow { get; private set; }
-    public SliderSettingRow ScreenShakeRow { get; private set; }
-    public ToggleSettingRow HoldToConfirmRow { get; private set; }
+    // Modern
+    public VBoxContainer ModernList { get; private set; }
+    public ToggleSettingRow BulletinSkipRow { get; private set; }
     public VBoxContainer DebugList { get; private set; }
 
     // Readout & footer
@@ -109,7 +105,7 @@ public partial class SettingsScreen : Control
         AudioTab = GetNode<Button>("%AudioTab");
         ControlsTab = GetNode<Button>("%ControlsTab");
         GameplayTab = GetNode<Button>("%GameplayTab");
-        AccessTab = GetNode<Button>("%AccessTab");
+        ModernTab = GetNode<Button>("%ModernTab");
         DebugTab = GetNode<Button>("%DebugTab");
         SettingsScroll = GetNode<ScrollContainer>("%SettingsScroll");
 
@@ -153,13 +149,9 @@ public partial class SettingsScreen : Control
         TooltipsRow = GetNode<ToggleSettingRow>("%TooltipsRow");
         ConfirmLaunchRow = GetNode<ToggleSettingRow>("%ConfirmLaunchRow");
 
-        // Access
-        AccessList = GetNode<VBoxContainer>("%AccessList");
-        TextSizeRow = GetNode<CycleSettingRow>("%TextSizeRow");
-        ColourPaletteRow = GetNode<CycleSettingRow>("%ColourPaletteRow");
-        ReduceFlickerRow = GetNode<ToggleSettingRow>("%ReduceFlickerRow");
-        ScreenShakeRow = GetNode<SliderSettingRow>("%ScreenShakeRow");
-        HoldToConfirmRow = GetNode<ToggleSettingRow>("%HoldToConfirmRow");
+        // Modern
+        ModernList = GetNode<VBoxContainer>("%ModernList");
+        BulletinSkipRow = GetNode<ToggleSettingRow>("%BulletinSkipRow");
         DebugList = GetNode<VBoxContainer>("%DebugList");
 
         // Readout & footer
@@ -210,7 +202,7 @@ public partial class SettingsScreen : Control
         _categories[AudioTab] = (AudioList, "Sound & Music");
         _categories[ControlsTab] = (ControlsList, "Controls & Keys");
         _categories[GameplayTab] = (GameplayList, "Gameplay");
-        _categories[AccessTab] = (AccessList, "Accessibility");
+        _categories[ModernTab] = (ModernList, "Modernisations");
         _categories[DebugTab] = (DebugList, "Debug Tools");
 
         DebugTab.Visible = OS.IsDebugBuild();

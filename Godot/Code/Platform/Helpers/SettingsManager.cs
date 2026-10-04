@@ -19,7 +19,7 @@ namespace Deuteros.Code.Platform.Helpers
 
         private readonly List<string> _windowModeOptions = new List<string>();
         private readonly List<string> _frameLimitOptions = new List<string>();
-        private readonly List<string> _keybindActions = new List<string>();
+        private readonly Dictionary<string, Key> _defaultKeys = new Dictionary<string, Key>();
         private readonly List<Vector2I> _resolutionSizes = new List<Vector2I>();
         private readonly Dictionary<string, string> _volumeBuses = new Dictionary<string, string>();
         private readonly Dictionary<string, Variant> _defaults = new Dictionary<string, Variant>();
@@ -43,6 +43,15 @@ namespace Deuteros.Code.Platform.Helpers
             ResolutionOptions = BuildResolutionOptions();
             BuildDefaults();
             ApplyAll();
+        }
+
+        public override void _ExitTree()
+        {
+            foreach (var action in _defaultKeys.Keys)
+            {
+                if (InputMap.HasAction(action))
+                    InputMap.ActionEraseEvents(action);
+            }
         }
 
         public override void _Notification(int what)
@@ -154,13 +163,12 @@ namespace Deuteros.Code.Platform.Helpers
 
         public void ApplyKeybinds()
         {
-            foreach (var action in _keybindActions)
+            foreach (var action in _defaultKeys.Keys)
             {
                 if (!InputMap.HasAction(action))
                     continue;
 
-                foreach (var keyEvent in InputMap.ActionGetEvents(action).OfType<InputEventKey>().ToList())
-                    InputMap.ActionEraseEvent(action, keyEvent);
+                InputMap.ActionEraseEvents(action);
 
                 var key = (Key)GetSetting(KeybindSection + "/" + action).AsInt64();
 
@@ -191,13 +199,13 @@ namespace Deuteros.Code.Platform.Helpers
             _frameLimitOptions.Add("144");
             _frameLimitOptions.Add(UnlimitedFrameLimit);
 
-            _keybindActions.Add("pause");
-            _keybindActions.Add("speed_up");
-            _keybindActions.Add("slow_down");
-            _keybindActions.Add("next_location");
-            _keybindActions.Add("research");
-            _keybindActions.Add("production");
-            _keybindActions.Add("quick_save");
+            _defaultKeys["pause"] = Key.P;
+            _defaultKeys["speed_up"] = Key.Equal;
+            _defaultKeys["slow_down"] = Key.Minus;
+            _defaultKeys["next_location"] = Key.Tab;
+            _defaultKeys["research"] = Key.R;
+            _defaultKeys["production"] = Key.F;
+            _defaultKeys["quick_save"] = Key.F5;
 
             _resolutionSizes.Add(new Vector2I(1280, 720));
             _resolutionSizes.Add(new Vector2I(1280, 800));
@@ -232,8 +240,8 @@ namespace Deuteros.Code.Platform.Helpers
 
             _defaults["audio/mute_unfocused"] = false;
 
-            foreach (var action in _keybindActions)
-                _defaults[KeybindSection + "/" + action] = (long)GetActionKey(action);
+            foreach (var defaultKey in _defaultKeys)
+                _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
         }
 
         private void SetFocusMuted(bool unfocused)
@@ -254,14 +262,6 @@ namespace Deuteros.Code.Platform.Helpers
 
             if (volume > 0)
                 AudioServer.SetBusVolumeDb(bus, Mathf.LinearToDb(Math.Min(volume, VolumeSteps) / (float)VolumeSteps));
-        }
-
-        private static Key GetActionKey(string action)
-        {
-            if (!InputMap.HasAction(action))
-                return Key.None;
-
-            return InputMap.ActionGetEvents(action).OfType<InputEventKey>().Select(keyEvent => keyEvent.Keycode != Key.None ? keyEvent.Keycode : keyEvent.PhysicalKeycode).FirstOrDefault();
         }
 
         private string[] BuildResolutionOptions()

@@ -136,14 +136,14 @@ button_group = SubResource("CategoryGroup")
 text = "Gameplay"
 alignment = 0
 
-[node name="AccessTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+[node name="ModernTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_type_variation = &"CategoryButton"
 toggle_mode = true
 button_group = SubResource("CategoryGroup")
-text = "Access"
+text = "Modern"
 alignment = 0
 
 [node name="DebugTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
@@ -409,42 +409,19 @@ layout_mode = 2
 LabelText = "Confirm Launch"
 SettingKey = "gameplay/confirm_launch"
 
-[node name="AccessList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+[node name="ModernList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
 visible = false
 layout_mode = 2
 size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
-[node name="TextSizeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("cycle")]
+[node name="BulletinSkipRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ModernList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
-LabelText = "Text Size"
-SettingKey = "accessibility/text_size"
-
-[node name="ColourPaletteRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("cycle")]
-unique_name_in_owner = true
-layout_mode = 2
-LabelText = "Colour Palette"
-SettingKey = "accessibility/colour_palette"
-
-[node name="ReduceFlickerRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
-unique_name_in_owner = true
-layout_mode = 2
-LabelText = "Reduce Flicker"
-SettingKey = "accessibility/reduce_flicker"
-
-[node name="ScreenShakeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("slider")]
-unique_name_in_owner = true
-layout_mode = 2
-LabelText = "Screen Shake"
-SettingKey = "accessibility/screen_shake"
-
-[node name="HoldToConfirmRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
-unique_name_in_owner = true
-layout_mode = 2
-LabelText = "Hold To Confirm"
-SettingKey = "accessibility/hold_to_confirm"
+LabelText = "Bulletin Skip"
+SettingKey = "modern/bulletin_skip"
+Description = "Skips to the end of any bulletin with a click"
 
 [node name="DebugList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true

@@ -3,6 +3,7 @@ using Deuteros.Code.Objects;
 using Deuteros.Code.Objects.Bulletins;
 using Deuteros.Code.Objects.Interfaces;
 using Deuteros.Code.Platform.Base;
+using Deuteros.Code.Platform.Helpers;
 using Deuteros.Code.Platform.Screens;
 using Godot;
 using Newtonsoft.Json;
@@ -22,6 +23,9 @@ public partial class Bulletins : BaseSubScene
 	AudioStreamPlayer TypeSound { get; set; }
 	public int LetterDelayMs { get; set; }
 
+	private bool _typing;
+	private bool _skipRequested;
+
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
 	{
@@ -38,13 +42,33 @@ public partial class Bulletins : BaseSubScene
 	{
 	}
 
+	public override void _Input(InputEvent @event)
+	{
+		if (!_typing || @event is not InputEventMouseButton mouseEvent || !mouseEvent.Pressed || mouseEvent.ButtonIndex != MouseButton.Left)
+			return;
+
+		if (!SettingsManager.Instance.GetSetting("modern/bulletin_skip", false).AsBool())
+			return;
+
+		_skipRequested = true;
+		GetViewport().SetInputAsHandled();
+	}
+
 	private async Task TypeText(RichTextLabel label, string fullText)
 	{
 		GameCore.LockScreen();
 		label.Text = "";
+		_typing = true;
+		_skipRequested = false;
 
 		for (int i = 0; i < fullText.Length; i++)
 		{
+			if (_skipRequested)
+			{
+				label.Text = fullText;
+				break;
+			}
+
 			//Instantly print and skip color tags
 			if (fullText[i] == '[' && (fullText.Substring(i, 6) == "[color" || fullText.Substring(i, 7) == "[/color"))
 			{
@@ -66,6 +90,7 @@ public partial class Bulletins : BaseSubScene
 
 			await WaitMs(LetterDelayMs);
 		}
+		_typing = false;
 		GameCore.UnLockScreen();
 	}
 
