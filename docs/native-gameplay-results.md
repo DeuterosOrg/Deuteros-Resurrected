@@ -384,3 +384,18 @@ AOC repeat mode manufactures one IOS drive and starts a second paid drive. Selec
 Final day 12342 remains peaceful, with two spare drives and AOC installed. UI reload preserves exact Earth, ships and News. `artifacts/aoc-prewar-campaign/audit.py` passes; native session 51315 exits zero with strict logs passing, and original saves are restored exactly. Continuation SHA-256: `3fbb36a77abb6d1afee8d6446002e4636e44982fcf171794e417d2edc249c12c`.
 
 Next, use this checkpoint for the war encounter, prompt defence research and automated drone manufacture. Successful defence/capture and matching Windows export acceptance remain open; this result does not change accepted-task totals.
+
+
+## Automated fleet manufacture and successful Moon defence — 2026-10-04
+
+Normal progression from the unmodified day-12342 AOC checkpoint reaches war at day 12343. The first attempt omitted the engine command after launch and lost WAYFARER in hostile orbit while Research was open. That failed save is retained; source tracing confirms launch returns to orbit and requires a separate travel command. A separate replay loads the byte-identical start through test slot 3, then commands departure before advancing research.
+
+The replay survives a naturally damaged-engine escape. Drone research completes first; AOC manufacture runs alongside DFCC and recovered Fusion Laser research. WAYFARER returns to Earth, unloads the prototype and 500 copper, consumes one previously manufactured replacement drive and fits the paid DFCC. Conversion returns 222 MeH; 250 fleet fuel units cost 2,500 MeH. Two naturally scheduled transmissions interrupt progression and are acknowledged normally.
+
+AOC completes **58 drones and one DFCC** with exact recipe debits and an empty final queue. All 58 drones transfer to WAYFARER, which reaches Moon orbit at day 12658 with 247 fuel and five crew. At day 12714, the enemy arrives with 46 drones; fast time stops with five response updates remaining.
+
+**Successful defence:** ordinary combat makes the enemy flee with 23 drones. WAYFARER retains 46 drones and all five crew; the Moon stays friendly. The attack clears and its threshold doubles from 40 to 80. Save/reload preserves exact ships, News and all planets, including a single Moon attack report and no player casualty report.
+
+Evidence: `artifacts/aoc-fleet-campaign/`, including both attempts, before/after battle saves, screenshots and runnable `audit.py`. Native session 20844 exits zero, strict logs pass and original saves are restored exactly. Continuation SHA-256: `2b78ca5299163f2fd598f6ec33c0834a13b0315a4c317c4d7a655e0c6df25a99`. Runtime remains `01c81f9`.
+
+This verifies normal defensive victory, not station capture. Hostile Sol stations now hold 92 defenders each, while the player has 46; capture preparation and original docking/combat gates need review before the next expedition. Windows matching-export acceptance remains open. Task totals do not change.

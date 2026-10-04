@@ -203,3 +203,8 @@ A further ACC defect is reproduced and corrected: switching from Off to Engage o
 ### Normal prewar factory automation — 2026-10-04
 
 Normal Mac AOC research/installation returns all 147 workers and charges the exact recipe once. Repeated IOS-drive manufacture, stopping a paid job, mid-build reload and final stock/crew reload audits pass; two drives are produced without duplicate charges. Native exit is zero, strict logs pass and original saves are restored. See [campaign evidence](native-gameplay-results.md#prewar-aoc-installation-and-paid-repeat-production--2026-10-04). Successful defence/capture and current Windows export acceptance remain open. Counts remain **35/48 implementation evidence; four locally accepted research/internal requirements**, with the seven overlapping Windows task scenarios retained.
+
+
+### Normal successful Moon defence — 2026-10-04
+
+Normal AOC production completes 58 drones and one DFCC with exact stock debits. Paid engine replacement, conversion/refuelling and transfer lead to an actual 58-versus-46 defence: the enemy flees with 23, the player retains 46 drones/five crew, the Moon remains friendly and the attack threshold doubles once. Exact all-planet/ship/News reload passes, native exit is zero and original saves are restored. The earlier missed-departure loss is preserved separately. See [campaign evidence](native-gameplay-results.md#automated-fleet-manufacture-and-successful-moon-defence--2026-10-04). Station capture and Windows export acceptance remain pending; counts stay **35/48 implementation evidence; four locally accepted requirements**.
