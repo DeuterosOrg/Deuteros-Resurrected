@@ -364,6 +364,7 @@ namespace Deuteros.Tests
             CheckUi("Asteroid fuel saves validate countdowns migrate old approaches and preserve empty arrivals", AsteroidFuelSavesAndArrival);
             CheckUi("ACC commands preserve asteroid scans approaches mining and departures across reload", AccAsteroidActivation);
             CheckUi("Paid manual production resumes without a second recipe after switching and reloading", ResumePaidProduction);
+            CheckUi("Removing production staff preserves paid jobs and progress through reload", () => ResumePaidProduction(true));
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

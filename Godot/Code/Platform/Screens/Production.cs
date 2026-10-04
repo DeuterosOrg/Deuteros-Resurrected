@@ -96,11 +96,15 @@ namespace Deuteros.Code.Platform.Screens
 				((Resource)(Ground ? CurrentPlanet.PlanetResources : CurrentPlanet.Station.Resources)).AddStaff(CurrentFactory.Builder);
 				CurrentFactory.Builder = null;
 
-				foreach (var item in CurrentFactory.ProductionQueue.Where(T => T.Active))
-					AddResourceByItem(CurrentPlanet, item.Product, Ground);
+				// Removing a team pauses paid work; its completed stages and materials remain reserved.
+				var currentItem = CurrentFactory.CurrentProductionItem();
+				if (currentItem != null)
+				{
+					currentItem.Production_Value = currentItem.Product.Research.ResearchValue;
+					currentItem.Active = false;
+				}
 
-				CurrentFactory.ClearQueue();
-
+				SelectedButton = null;
 				RefreshButtons();
 
 				DrawData();

@@ -13,7 +13,9 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
-        private void ResumePaidProduction()
+        private void ResumePaidProduction() => ResumePaidProduction(false);
+
+        private void ResumePaidProduction(bool removeTeam)
         {
             GameCore.SingletonInstance.SetProcess(false);
             foreach (var ground in new[] { true, false })
@@ -47,11 +49,46 @@ namespace Deuteros.Tests
                     Select(screen, ItemTypes.supply_pod);
                     Equal(2, factory.ProductionQueue.Count, "both jobs reserved and paid through real controls");
                     Equal(true, stores.Items.Values.All(n => n == 0), "exact two recipes were charged once");
+                    if (removeTeam)
+                    {
+                        var resources = ground ? (Deuteros.Code.Platform.Resource)GameCore.Earth.PlanetResources : GameCore.Earth.Station.Resources;
+                        var builder = factory.Builder;
+                        for (var tick = 0; tick < 100 && factory.CurrentProductionItem().Production_Complete == 1; tick++)
+                            Production.UpdateProduction((uint)tick, (uint)tick + 1);
+                        Equal(2, factory.CurrentProductionItem().Production_Complete, "paid active job has real accumulated progress");
+                        for (var slot = 0; slot < resources.Staff.Length; slot++)
+                            resources.Staff[slot] = new Staff { Leader = "Occupied", Type = StaffType.Production, Count = 1 };
+                        screen.GetNode<TextureButton>("RemoveStaff").EmitSignal(BaseButton.SignalName.Pressed);
+                        Equal(builder, factory.Builder, "full staff store prevents removal");
+                        Equal(2, factory.ProductionQueue.Count, "blocked removal preserves both jobs");
+                        resources.Staff[0] = null;
+                        var oldSelection = screen.SelectedButton;
+                        screen.GetNode<TextureButton>("RemoveStaff").EmitSignal(BaseButton.SignalName.Pressed);
+                        Equal<Staff>(null, factory.Builder, "removed team leaves factory");
+                        Equal(builder, resources.Staff[0], "same team returns to local staff store");
+                        Equal(2, factory.ProductionQueue.Count, "removing team preserves both paid jobs");
+                        Equal<ProductionItem>(null, factory.CurrentProductionItem(), "removing team pauses active work");
+                        Equal(true, stores.Items.Values.All(n => n == 0), "paid materials remain reserved");
+                        Production.UpdateProduction(100, 101);
+                        Equal(2, factory.ProductionQueue.Single(j => j.Product.ItemType == ItemTypes.supply_pod).Production_Complete,
+                            "team removal preserves completed production stages");
+                        oldSelection.Free(); // Complete the removal already queued by rebuilding the buttons.
+                        Select(screen, ItemTypes.derrick);
+                        Equal<ProductionItem>(null, factory.CurrentProductionItem(), "new controls remain usable without resuming unstaffed work");
+                    }
                 }
                 finally { screen.Free(); }
                 GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
                 factory = ground ? GameCore.Earth.Factory : GameCore.Earth.Station.Factory;
                 stores = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
+                if (removeTeam)
+                {
+                    var resources = ground ? (Deuteros.Code.Platform.Resource)GameCore.Earth.PlanetResources : GameCore.Earth.Station.Resources;
+                    Equal(2, factory.ProductionQueue.Single(j => j.Product.ItemType == ItemTypes.supply_pod).Production_Complete,
+                        "paused progress survives reload");
+                    factory.Builder = resources.Staff[0];
+                    resources.Staff[0] = null;
+                }
                 screen = OpenMtxProduction(ground);
                 try
                 {

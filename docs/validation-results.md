@@ -1095,3 +1095,14 @@ New case **618** reproduces the failure through Production controls before the c
 Original disk-1 trace independently supports this correction: `$24F72–$24FA0` reads the saved per-product progress nibble and bypasses `$25034` recipe payment when nonzero. `$25074–$250C4` returns a removed team to a free staff slot and calls the shared pause routine, preserving product progress rather than cancelling paid work. The AOC scheduler uses the same saved-progress distinction at `$23584–$235CE`. These are source findings, not original-runtime acceptance. Reproduce with `uv run --offline --with capstone==5.0.7 python artifacts/validation/evidence/paid-production-resume/verify-original.py` against the locally preserved disk.
 
 Evidence and runnable audit: `artifacts/validation/evidence/paid-production-resume/`. This is an additional review correction, not another completed Asana task or Windows result. Separate accounting paths still need follow-up: removing a manual team clears paused paid jobs while refunding only the active one, and AOC conversion retains manual queue entries before the automated scheduler charges for activation. Those are source-review findings, not reproduced or fixed by case618.
+
+
+## Removing a production team preserves paid work — 2026-10-04
+
+Removing a manual production team cleared every queued job but refunded only the active recipe, losing the materials and completed stages of paused jobs. The original staff-removal routine `$25074–$250C4` instead returns the team to a free local slot and pauses work through `$24E16`. The shared removal handler now preserves the paid queue, pauses its active job at the existing stage boundary, and leaves materials reserved for resumption.
+
+The same action rebuilt product controls while retaining a deleted selected-button reference. Clicking another product after deletion raised `ObjectDisposedException` in `ProductionButton.Redraw`. Removal now clears that selection before rebuilding. The strict log check caught this error even though the earlier test's success marker was printed.
+
+New case **619** reuses the paid-production scenario: ground/orbit, full staff quarters rejecting removal, actual progress before removal, unchanged reserved materials, working replacement controls, save/load, team reassignment, and exactly one completion per paid order. The material-loss and disposed-button failures are preserved separately. **75 related cases**, native-window case619, and strict log audit pass; build reports 14 existing warnings and zero errors.
+
+Evidence: `artifacts/worktrees/production-queue/artifacts/validation/evidence/team-removal/`, including `audit.py`. This is staged control-level verification, not normal campaign or Windows acceptance. AOC conversion's separate paid-queue accounting remains under review; no new Asana task is counted accepted.
