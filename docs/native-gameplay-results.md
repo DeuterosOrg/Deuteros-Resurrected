@@ -226,3 +226,13 @@ Redman's staffed orbital factory produces one DFCC. Dedicated before/after saves
 Save/reload retains the DFCC, fuel, crew and stock in both cockpit and Service views. Evidence: `artifacts/defence-production-campaign/`, with four saves, screenshots and runnable research, freight, recipe and fuel-conservation checks. Native session 63976 closes with exit zero; strict log and saved-state audits pass, and original saves are restored exactly. Continuation `fitted-slot-4.json` has SHA-256 `cefcc0c051b539dce19a836ccbfe38bf7db62d88547670781bab1e0c6f23c6a8`.
 
 No battle drone was manufactured and no combat occurred. The [earlier Windows DFCC checks](windows-validation-results.md#desktop-agent-reports-retrieved-2026-10-03) remain credited separately; SCG/HeD, ACC, legacy-save and matching-export acceptance remain open.
+
+## Normal drone production and fleet transfer
+
+Continuing the unmodified DFCC save at `3ebeca0`, WAYFARER flies Moon–Earth–Moon and delivers 179 iron and 250 palladium. The roundtrip consumes eight gauge units, leaving 15, with seven crew retained. The Moon shuttle receives ten MeH and brings 250 mined aluminium to orbit, ending with eight fuel units and its original 40 crew.
+
+Redman's factory manufactures one IOS drone. Dedicated saves prove a single charge of 120 each iron/titanium/aluminium, 15 carbon, 55 copper and 30 each platinum/palladium. A subsequent Fusion Laser costs five copper and ten each platinum/palladium. Both finished items appear in orbital stock.
+
+Undocking WAYFARER and selecting its DFCC opens Fleet Transfers. Loading changes orbital drones 1→0, fleet drones 0→1 and fleet power 0→7. Another load from the empty pool leaves all three unchanged. Returning the drone reverses the transfer; reloading it restores the original totals. The overview displays one drone. Docking, saving, reloading and undocking preserve the drone; reopening Fleet Transfers still shows zero orbital drones, one fleet drone and power seven.
+
+Evidence: `artifacts/drone-production-campaign/`, including six saves, screenshots and runnable freight, recipe, fleet and fuel checks. Native session 25625 closes with exit zero; strict log and saved-state audits pass, and original saves are restored exactly. Continuation `reloaded-slot-4.json` has SHA-256 `c89bb9d6a59772b264649caa3fb48881e34102a6f89c693fca59f255b0ec8371`; WAYFARER is in Moon orbit with 12 fuel units. No combat/capture or battle-power effect from manufactured Fusion Laser stock is claimed. Windows and original-runtime acceptance remain separate.

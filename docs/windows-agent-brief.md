@@ -564,3 +564,7 @@ Mac normal play at `3ebeca0` now covers Earth–Jupiter first contact with a pai
 ## Normal DFCC supply-chain milestone
 
 At runtime `3ebeca0`, normal Mac play now researches DFCC/IOS drones, delivers Earth platinum/copper and mined Moon titanium, manufactures one DFCC with the exact recipe charge, fits it and verifies ten-to-one fuel load/refund plus reload. Strict native and saved-state audits pass; original saves are restored. See [evidence and checkpoint](native-gameplay-results.md#normal-dfcc-manufacture-fitting-and-fuel). This supplements your existing IOS fuel checks. No drone manufacture or combat is claimed; continue with the remaining SCG/HeD, ACC, legacy-save and export scenarios rather than repeating accepted work.
+
+## Normal drone and fleet milestone
+
+A continuation at `3ebeca0` delivers Earth iron/palladium and mined Moon aluminium, manufactures one IOS drone and one Fusion Laser with exact recipe charges, transfers the drone both ways, rejects another load from an empty pool, displays the overview count and preserves the fleet through reload. Strict native log and saved-state audit pass; original saves are restored. See [evidence](native-gameplay-results.md#normal-drone-production-and-fleet-transfer). This provides a normal progression checkpoint for the drone-count task; no combat/capture or Fusion Laser battle-power effect is claimed.
