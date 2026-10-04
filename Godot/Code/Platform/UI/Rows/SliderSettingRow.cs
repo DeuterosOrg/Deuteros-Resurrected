@@ -3,22 +3,10 @@ using Godot;
 namespace Deuteros.Code.UI.Rows;
 
 [Tool]
-public partial class SliderSettingRow : HBoxContainer
+public partial class SliderSettingRow : SettingRow
 {
-    private string _labelText = "Setting";
     private int _value;
     private int _maxValue = 10;
-
-    [Export]
-    public string LabelText
-    {
-        get => _labelText;
-        set
-        {
-            _labelText = value;
-            if (IsNodeReady()) ApplyLabelText();
-        }
-    }
 
     [Export]
     public int Value
@@ -44,34 +32,58 @@ public partial class SliderSettingRow : HBoxContainer
         }
     }
 
-    public Button LabelButton { get; private set; }
     public Button DecButton { get; private set; }
     public HSlider ValueSlider { get; private set; }
     public Button IncButton { get; private set; }
 
+    public override Variant SettingValue
+    {
+        get => _value;
+        set => Value = value.AsInt32();
+    }
+
+    public override string FormatValue(Variant value)
+    {
+        return value.AsInt32().ToString();
+    }
+
+    public override bool StepValue(int direction)
+    {
+        ValueSlider.Value += ValueSlider.Step * direction;
+        return true;
+    }
+
     public override void _Ready()
     {
-        LabelButton = GetNode<Button>("%LabelButton");
+        base._Ready();
+
         DecButton = GetNode<Button>("%DecButton");
         ValueSlider = GetNode<HSlider>("%ValueSlider");
         IncButton = GetNode<Button>("%IncButton");
 
-        ApplyLabelText();
         ApplyMaxValue();
         ApplyValue();
 
         if (Engine.IsEditorHint()) return;
         ValueSlider.ValueChanged += OnValueSliderValueChanged;
+        DecButton.Pressed += OnDecButtonPressed;
+        IncButton.Pressed += OnIncButtonPressed;
     }
 
     private void OnValueSliderValueChanged(double value)
     {
         _value = Mathf.RoundToInt(value);
+        NotifyValueChanged();
     }
 
-    private void ApplyLabelText()
+    private void OnDecButtonPressed()
     {
-        LabelButton.Text = _labelText;
+        ValueSlider.Value -= ValueSlider.Step;
+    }
+
+    private void OnIncButtonPressed()
+    {
+        ValueSlider.Value += ValueSlider.Step;
     }
 
     private void ApplyMaxValue()

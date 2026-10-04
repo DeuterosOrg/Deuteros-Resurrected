@@ -19,6 +19,8 @@ namespace Deuteros.Code.Objects
 
 		public void Load()
 		{
+			_config.Clear();
+
 			if (FileAccess.FileExists(ConfigPath))
 				_config.Load(ConfigPath);
 		}
@@ -28,10 +30,12 @@ namespace Deuteros.Code.Objects
 			_config.Save(ConfigPath);
 		}
 
-		public void SetValue(string section, string key, Variant value)
+		public void SetValue(string section, string key, Variant value, bool save = true)
 		{
 			_config.SetValue(section, key, value);
-			Save();
+
+			if (save)
+				Save();
 		}
 
 		public Variant GetValue(string section, string key, Variant @default = default)

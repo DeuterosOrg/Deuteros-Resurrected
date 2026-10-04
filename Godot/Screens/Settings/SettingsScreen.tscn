@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://dh085a43uyows"]
+[gd_scene load_steps=10 format=3 uid="uid://dh085a43uyows"]
 
 [ext_resource type="Texture2D" uid="uid://c3tf6fmf0k8f1" path="res://Sprites/UI/Settings/close.png" id="close"]
 [ext_resource type="PackedScene" path="res://Screens/Settings/Rows/CycleSettingRow.tscn" id="cycle"]
@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" path="res://Screens/Settings/Rows/SliderSettingRow.tscn" id="slider"]
 [ext_resource type="Theme" uid="uid://dnrdiqvleuxl8" path="res://Themes/Settings.tres" id="theme"]
 [ext_resource type="PackedScene" uid="uid://cfnf3wvjahts4" path="res://Screens/Settings/Rows/ToggleSettingRow.tscn" id="toggle"]
+[ext_resource type="PackedScene" path="res://Screens/Settings/Rows/ActionSettingRow.tscn" id="action"]
 
 [sub_resource type="ButtonGroup" id="CategoryGroup"]
 
@@ -17,6 +18,8 @@ layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme = ExtResource("theme")
 script = ExtResource("script")
 
@@ -143,15 +146,14 @@ button_group = SubResource("CategoryGroup")
 text = "Access"
 alignment = 0
 
-[node name="Debug" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+[node name="DebugTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(0, 56)
 layout_mode = 2
 theme_type_variation = &"CategoryButton"
 toggle_mode = true
 button_group = SubResource("CategoryGroup")
-text = "Debug
-"
+text = "Debug"
 alignment = 0
 
 [node name="MainColumn" type="VBoxContainer" parent="Margin/Layout/Body"]
@@ -189,6 +191,7 @@ text = "Value"
 unique_name_in_owner = true
 layout_mode = 2
 size_flags_vertical = 3
+follow_focus = true
 horizontal_scroll_mode = 0
 vertical_scroll_mode = 2
 
@@ -207,36 +210,43 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Resolution"
+SettingKey = "display/resolution"
 
 [node name="WindowModeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Window Mode"
+SettingKey = "display/window_mode"
 
 [node name="PixelScalingRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Pixel Scaling"
+SettingKey = "display/pixel_scaling"
 
 [node name="ScanlinesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Scanlines"
+SettingKey = "display/scanlines"
 
 [node name="InterfaceScaleRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Interface Scale"
+SettingKey = "display/interface_scale"
 
 [node name="VSyncRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "VSync"
+SettingKey = "display/vsync"
 
 [node name="FrameLimitRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Frame Limit"
+SettingKey = "display/frame_limit"
 
 [node name="AudioList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -249,31 +259,37 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Master Volume"
+SettingKey = "audio/master_volume"
 
 [node name="MusicVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Music Volume"
+SettingKey = "audio/music_volume"
 
 [node name="EffectsVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Effects Volume"
+SettingKey = "audio/effects_volume"
 
 [node name="InterfaceVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Interface Volume"
+SettingKey = "audio/interface_volume"
 
 [node name="ClassicAudioRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Classic Audio"
+SettingKey = "audio/classic_audio"
 
 [node name="MuteUnfocusedRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Mute Unfocused"
+SettingKey = "audio/mute_unfocused"
 
 [node name="ControlsList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -285,47 +301,70 @@ theme_override_constants/separation = 8
 [node name="PauseKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"pause"
+KeyText = "P"
 LabelText = "Pause"
+SettingKey = "keybinds/pause"
 
 [node name="SpeedUpKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"speed_up"
+KeyText = "Equal"
 LabelText = "Speed Up"
+SettingKey = "keybinds/speed_up"
 
 [node name="SlowDownKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"slow_down"
+KeyText = "Minus"
 LabelText = "Slow Down"
+SettingKey = "keybinds/slow_down"
 
 [node name="NextLocationKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"next_location"
+KeyText = "Tab"
 LabelText = "Next Location"
+SettingKey = "keybinds/next_location"
 
 [node name="ResearchKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"research"
+KeyText = "R"
 LabelText = "Research"
+SettingKey = "keybinds/research"
 
 [node name="ProductionKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"production"
+KeyText = "F"
 LabelText = "Production"
+SettingKey = "keybinds/production"
 
 [node name="QuickSaveKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
 unique_name_in_owner = true
 layout_mode = 2
+Action = &"quick_save"
+KeyText = "F5"
 LabelText = "Quick Save"
+SettingKey = "keybinds/quick_save"
 
 [node name="EdgeScrollRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Edge Scroll"
+SettingKey = "controls/edge_scroll"
 
 [node name="PointerSpeedRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Pointer Speed"
+SettingKey = "controls/pointer_speed"
 
 [node name="GameplayList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -338,31 +377,37 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Game Speed"
+SettingKey = "gameplay/game_speed"
 
 [node name="AutoPauseRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Auto Pause"
+SettingKey = "gameplay/auto_pause"
 
 [node name="EventAlertsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Event Alerts"
+SettingKey = "gameplay/event_alerts"
 
 [node name="AutosaveRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Autosave"
+SettingKey = "gameplay/autosave"
 
 [node name="TooltipsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Tooltips"
+SettingKey = "gameplay/tooltips"
 
 [node name="ConfirmLaunchRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Confirm Launch"
+SettingKey = "gameplay/confirm_launch"
 
 [node name="AccessList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -375,26 +420,31 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Text Size"
+SettingKey = "accessibility/text_size"
 
 [node name="ColourPaletteRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Colour Palette"
+SettingKey = "accessibility/colour_palette"
 
 [node name="ReduceFlickerRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Reduce Flicker"
+SettingKey = "accessibility/reduce_flicker"
 
 [node name="ScreenShakeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Screen Shake"
+SettingKey = "accessibility/screen_shake"
 
 [node name="HoldToConfirmRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Hold To Confirm"
+SettingKey = "accessibility/hold_to_confirm"
 
 [node name="DebugList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -404,19 +454,46 @@ size_flags_horizontal = 3
 theme_override_constants/separation = 8
 
 [node name="InfiniteResourcesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
 layout_mode = 2
+LabelText = "Infinite Resources"
+Description = "Turns GameCore.InfiniteResources on or off. Not saved; resets when the game restarts."
 
-[node name="TextSizeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("cycle")]
+[node name="SkipToShuttlesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
 layout_mode = 2
+LabelText = "Skip To Shuttles"
+Description = "Researches the shuttle chassis, drive, fuel, frames and pods, adds Earth research, production and marine staff plus stores, and creates an Earth shuttle if there isn't one."
 
-[node name="ColourPaletteRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("cycle")]
+[node name="EarthStationTo7Row" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
 layout_mode = 2
+LabelText = "Earth Station to 7"
+Description = "Builds Earth's station to 7 parts, researching the ACC and stocking a supply pod and ACC if needed. Also runs Skip To Shuttles if shuttles aren't unlocked."
 
-[node name="ScreenShakeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("slider")]
+[node name="EarthOrbitProductionRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
 layout_mode = 2
+LabelText = "Prod. in Earth Orbit"
+Description = "Completes Earth's station with an AOC factory and unlocks space stations. Runs Earth Station to 7 first if the station has fewer than 7 parts."
 
-[node name="HoldToConfirmRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("toggle")]
+[node name="IOSModulesReadyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
 layout_mode = 2
+LabelText = "IOS Modules Ready"
+Description = "Unlocks IOS attachments and researches the AMA, AOC, Bandaid, Grapple and R-Frame. Completes Earth's station first if it isn't built."
+
+[node name="ActivateMTXRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Activate MTX"
+Description = "Triggers the mass transceiver discovery and installs an MTX on Earth's station."
+
+[node name="BuildTitanStationRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Build Titan Station"
+Description = "Builds a complete Titan station with 8 derricks, an AOC factory and an MTX."
 
 [node name="ReadoutStrip" type="HBoxContainer" parent="Margin/Layout/Body/MainColumn"]
 layout_mode = 2
@@ -563,4 +640,75 @@ layout_mode = 2
 size_flags_vertical = 4
 theme_type_variation = &"ApplyButton"
 disabled = true
+text = "Apply"
+
+[node name="ConfirmOverlay" type="Control" parent="."]
+unique_name_in_owner = true
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConfirmDim" type="ColorRect" parent="ConfirmOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.6)
+
+[node name="ConfirmCenter" type="CenterContainer" parent="ConfirmOverlay"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ConfirmPanel" type="PanelContainer" parent="ConfirmOverlay/ConfirmCenter"]
+custom_minimum_size = Vector2(560, 0)
+layout_mode = 2
+theme_type_variation = &"FramePanel"
+
+[node name="ConfirmVBox" type="VBoxContainer" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="ConfirmTitle" type="Label" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Unsaved Changes"
+
+[node name="ConfirmMessage" type="Label" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox"]
+layout_mode = 2
+theme_type_variation = &"DescLabel"
+text = "Apply your changes before closing, or discard them?"
+autowrap_mode = 3
+
+[node name="ConfirmButtons" type="HBoxContainer" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox"]
+layout_mode = 2
+theme_override_constants/separation = 14
+alignment = 2
+
+[node name="ConfirmKeepButton" type="Button" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox/ConfirmButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+text = "Keep Editing"
+
+[node name="ConfirmDiscardButton" type="Button" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox/ConfirmButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+text = "Discard"
+
+[node name="ConfirmApplyButton" type="Button" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox/ConfirmButtons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_type_variation = &"ApplyButton"
 text = "Apply"

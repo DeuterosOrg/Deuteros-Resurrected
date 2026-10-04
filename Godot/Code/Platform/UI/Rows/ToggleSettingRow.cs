@@ -3,21 +3,9 @@ using Godot;
 namespace Deuteros.Code.UI.Rows;
 
 [Tool]
-public partial class ToggleSettingRow : HBoxContainer
+public partial class ToggleSettingRow : SettingRow
 {
-    private string _labelText = "Setting";
     private bool _value;
-
-    [Export]
-    public string LabelText
-    {
-        get => _labelText;
-        set
-        {
-            _labelText = value;
-            if (IsNodeReady()) ApplyLabelText();
-        }
-    }
 
     [Export]
     public bool Value
@@ -30,17 +18,36 @@ public partial class ToggleSettingRow : HBoxContainer
         }
     }
 
-    public Button LabelButton { get; private set; }
     public Button OffButton { get; private set; }
     public Button OnButton { get; private set; }
 
+    public override Variant SettingValue
+    {
+        get => _value;
+        set => Value = value.AsBool();
+    }
+
+    public override string FormatValue(Variant value)
+    {
+        return value.AsBool() ? OnButton.Text : OffButton.Text;
+    }
+
+    public override bool StepValue(int direction)
+    {
+        var value = direction > 0;
+        if (value == _value) return true;
+        Value = value;
+        NotifyValueChanged();
+        return true;
+    }
+
     public override void _Ready()
     {
-        LabelButton = GetNode<Button>("%LabelButton");
+        base._Ready();
+
         OffButton = GetNode<Button>("%OffButton");
         OnButton = GetNode<Button>("%OnButton");
 
-        ApplyLabelText();
         ApplyValue();
 
         if (Engine.IsEditorHint()) return;
@@ -50,17 +57,16 @@ public partial class ToggleSettingRow : HBoxContainer
 
     private void OnOffButtonToggled(bool toggledOn)
     {
-        if (toggledOn) _value = false;
+        if (!toggledOn) return;
+        _value = false;
+        NotifyValueChanged();
     }
 
     private void OnOnButtonToggled(bool toggledOn)
     {
-        if (toggledOn) _value = true;
-    }
-
-    private void ApplyLabelText()
-    {
-        LabelButton.Text = _labelText;
+        if (!toggledOn) return;
+        _value = true;
+        NotifyValueChanged();
     }
 
     private void ApplyValue()

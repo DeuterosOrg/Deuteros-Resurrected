@@ -197,7 +197,6 @@ namespace Deuteros.Code
 		#endregion
 
 		private static GameCore _instance;
-		private static readonly Vector2I MinWindowSize = new Vector2I(1280, 720);
 		private Node _currentScreen;
 		private MainMenu _menuScreen;
 		private Unlocker _unlocker;
@@ -229,7 +228,7 @@ namespace Deuteros.Code
 
 		public Guid ShipSelected { get; set; }
 
-		public GameConfig Config { get; set; }
+		public GameConfig Config => SettingsManager.Instance.Config;
 
 		//Data stored in the GameCore is temporary
 		public delegate void DayPassedDelegate(uint previousDay, uint currentDay);
@@ -262,15 +261,6 @@ namespace Deuteros.Code
 			DefaultFont = fontLoadLabel.GetThemeFont("");
 			fontLoadLabel.QueueFree();
 			HoverText = "";
-
-			Config = new GameConfig();
-
-			// Load with default fallback
-			var width = Math.Max((int)Config.GetValue("display", "window_width", MinWindowSize.X), MinWindowSize.X);
-			var height = Math.Max((int)Config.GetValue("display", "window_height", MinWindowSize.Y), MinWindowSize.Y);
-
-			DisplayServer.WindowSetMinSize(MinWindowSize);
-			DisplayServer.WindowSetSize(new Vector2I(width, height));
 		}
 
 		// Called when the node enters the scene tree for the first time.

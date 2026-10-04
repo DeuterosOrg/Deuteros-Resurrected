@@ -3,22 +3,10 @@ using Godot;
 namespace Deuteros.Code.UI.Rows;
 
 [Tool]
-public partial class CycleSettingRow : HBoxContainer
+public partial class CycleSettingRow : SettingRow
 {
-    private string _labelText = "Setting";
     private string[] _options = { "Value" };
     private int _selectedIndex;
-
-    [Export]
-    public string LabelText
-    {
-        get => _labelText;
-        set
-        {
-            _labelText = value;
-            if (IsNodeReady()) ApplyLabelText();
-        }
-    }
 
     [Export]
     public string[] Options
@@ -42,19 +30,38 @@ public partial class CycleSettingRow : HBoxContainer
         }
     }
 
-    public Button LabelButton { get; private set; }
     public Button PrevButton { get; private set; }
     public Label ValueLabel { get; private set; }
     public Button NextButton { get; private set; }
 
+    public override Variant SettingValue
+    {
+        get => SelectedOption;
+        set => SelectedIndex = System.Array.IndexOf(_options, value.AsString());
+    }
+
+    private string SelectedOption => _selectedIndex >= 0 && _selectedIndex < _options.Length ? _options[_selectedIndex] : "";
+
+    public override string FormatValue(Variant value)
+    {
+        return value.AsString();
+    }
+
+    public override bool StepValue(int direction)
+    {
+        if (_options.Length == 0) return false;
+        StepSelection(direction);
+        return true;
+    }
+
     public override void _Ready()
     {
-        LabelButton = GetNode<Button>("%LabelButton");
+        base._Ready();
+
         PrevButton = GetNode<Button>("%PrevButton");
         ValueLabel = GetNode<Label>("%ValueLabel");
         NextButton = GetNode<Button>("%NextButton");
 
-        ApplyLabelText();
         ApplyValue();
 
         if (Engine.IsEditorHint()) return;
@@ -76,15 +83,11 @@ public partial class CycleSettingRow : HBoxContainer
     {
         if (_options.Length == 0) return;
         SelectedIndex = ((_selectedIndex + step) % _options.Length + _options.Length) % _options.Length;
-    }
-
-    private void ApplyLabelText()
-    {
-        LabelButton.Text = _labelText;
+        NotifyValueChanged();
     }
 
     private void ApplyValue()
     {
-        ValueLabel.Text = _selectedIndex >= 0 && _selectedIndex < _options.Length ? _options[_selectedIndex] : "";
+        ValueLabel.Text = SelectedOption;
     }
 }
