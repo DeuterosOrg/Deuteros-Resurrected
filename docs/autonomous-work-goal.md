@@ -8,8 +8,8 @@ Use the [backlog ledger](backlog-progress.md) as the task-by-task record. Verify
 
 ## Independent Work Priorities
 
-1. Reproduce the suspected AOC completion failure when all four staff slots are occupied. Trace the original behavior, check callers, and fix the transaction without losing staff, materials or progress.
-2. Continue protected-save normal campaign testing: fleet preparation, combat, captures, SCG discovery, interstellar travel and later progression. Keep ordinary campaign evidence separate from staged regression fixtures.
+1. Continue from the verified day9499 fleet-materials checkpoint: promote the orbital production team through paid work, collect Moon gold, build defence equipment and exercise combat/capture. AOC capacity and paid-queue defects are fixed and included in the audited621 checkpoint.
+2. Continue protected-save normal campaign testing through SCG discovery, interstellar travel and later progression. Keep ordinary campaign evidence separate from staged regression fixtures.
 3. Resolve remaining original-game fidelity gaps, including staff attrition, News events, construction artwork and timing. Keep audio work deferred behind gameplay priorities.
 4. Run the complete current regression suite, tooling checks, startup and export audit at meaningful integration checkpoints. Verify relevant pointer interactions and save/reload behavior.
 5. Reconcile Windows results and patches, consolidate the contribution branch, and keep the [team update](team-update.md) ready to share.
@@ -19,7 +19,7 @@ Use the [backlog ledger](backlog-progress.md) as the task-by-task record. Verify
 - Continue authorized investigation, minimal fixes, tests, documentation and local commits without routine confirmation. When one task is blocked, advance another independent task.
 - Reuse existing implementations and tests. Reproduce failures before changing behavior; retain failing and passing evidence.
 - Coordinate directly with the Windows agent using the established mesh thread and SSH Downloads handoff. Credit existing tests at their actual revisions and request only missing coverage.
-- Preserve Windows-owned SCG, Service, popup, bay, storm-door and Stocktaker changes until reconciled. Do not recreate them independently or overwrite dirty work.
+- Windows v5 is reconciled at `01c81f9` and its matching export delivered. Collect the missing matching-export acceptance; preserve the agent's live game and profile, and do not repeat completed tests.
 - Protect original saves, retain reproducible checkpoints, restore originals exactly, and close only owned processes. Do not change permissions or bypass rejected actions.
 - Keep work on `codex/build-tests-and-gameplay-fixes`, using isolated local branches when useful. Do not merge into `main`. Prepare reviewable changes before requesting any still-required approval for pushing, PR creation or external status updates.
 - Preserve the existing root `AGENTS.md`. Do not write memory files or send team announcements without authorization.
