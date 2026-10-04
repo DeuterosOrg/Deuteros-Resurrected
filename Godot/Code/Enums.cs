@@ -460,6 +460,11 @@ namespace Deuteros.Code
             Meteor_Strike,
             Sonic_Weapon,
             Eureka,
+            AlienMessage1,
+            AlienMessage2,
+            AlienMessage3,
+            AlienSegmentMessage,
+            AlienAllSegmentsMessage,
 			None
 		}
 

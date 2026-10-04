@@ -61,6 +61,8 @@ namespace Deuteros.Code
             newGameSave.AtWar = false;
             newGameSave.WarDeclaredDay = 0;
 			newGameSave.EnemyBuildDay = 0;
+            newGameSave.NextAlienMessageDay = 0;
+            newGameSave.AlienTransmissionsReceived = 0;
             newGameSave.GameConfig.ShuttleRefuelThreshold = 50;
 			newGameSave.GameConfig.IOSRefuelThreshold = 200;
 			newGameSave.NextPersonIndex = Random.Shared.Next(StaticGameData.PersonNames.Count() + 1);
@@ -352,7 +354,7 @@ namespace Deuteros.Code
 								"be controlled via a computer\r\n" +
 								"fitted to a standard IOS.\r\n" +
 								"However, this computer will\r\n" +
-								"occupy all the ship's cargo\rn" +
+								"occupy all the ship's cargo\r\n" +
 								"space..!"));
 
 							StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.Self_Destruct,
@@ -587,9 +589,98 @@ namespace Deuteros.Code
 								" \r\n" +
 								"I'm So Clever !"));
 
-							#endregion
+                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage1,
+								"greetings human.\r\n" +
+								"\r\n" +
+								"we are monitoring all of your\r\n" +
+								"transmissions in an attempt to\r\n" +
+								"understand your language\r\n" +
+								"\r\n" +
+								"this message shall be repeated\r\n" +
+								"until we are able to communicate\r\n" +
+								"fluently\r\n" +
+								"\r\n" +
+								"there is a subject of great\r\n" +
+								"importantance we must discuss\r\n" +
+								"with you"));
 
-				StaticGameData.Planets = new Dictionary<Enums.StellarBodies, Objects.Interfaces.IPlanet>();
+                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage2,
+								"greetings once again, human.\r\n" +
+								"allow us to us to introduce ourselves.\r\n" +
+								"we are a peaceful race, similar\r\n" +
+								"to yourselves from a  galaxy\r\n" +
+								"some 700000 parsecs distant..\r\n" +
+								"\r\n" +
+								"we have already made contact\r\n" +
+								"with a race in your galaxy and\r\n" +
+								"observe that you are both at\r\n" +
+								"war. this is to be expected.\r\n" +
+								"we too have found them to be\r\n" +
+								"dishonourable. this time  we\r\n" +
+								"must be certain before placing\r\n" +
+								"our TRUST in YOU.\r\n" +
+								"\r\n" +
+								"CONTACT will follow when\r\n" +
+								"observations are complete.\r\n"));
+
+                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage3,
+								"GREETINGS, FRIEND.\r\n" +
+								"\r\n" +
+								"we BELIEVE we CAN TRUST YOU AND\r\n" +
+								"REQUEST your ASSISTANCE IN A\r\n" +
+								"project TO OUR MUTUAL BENEFIT.\r\n" +
+								"\r\n" +
+								"MANY land AGO, WE transmuted A\r\n" +
+								"gift TO the METHANOIDS. A GIFT\r\n" +
+								"OF great POWER AND imPORTANce.\r\n" +
+								"\r\n" +
+								"SADLY, THEY DISASSEMBLEd  it IN\r\n" +
+								"AN ATTEMPT to understand THE\r\n" +
+								"TECHnologY, A GRAVE MISTaKE.\r\n" +
+								"OUR SCANNERS tell US THAT THE\r\n" +
+								"segments ARE SCATTERED amomg 8\r\n" +
+								"STARS in your GALAXY. we shall\r\n" +
+								"INFORM you of their exact\r\n" +
+								"LOCATION as we DETEct them.\r\n"));
+
+                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienSegmentMessage,
+								"GREETINGS, FRIEND.\r\n" +
+								"\r\n" +
+								"we have confirmation from our\r\n" +
+								"scanners that one segment of\r\n" +
+								"our apparatus is\r\n" +
+								"lying in orbit around\r\n" +
+								"{0}\r\n" +
+								"\r\n" +
+								"please attempt to recover the\r\n" +
+								"segment and return it to any.\r\n" +
+								"of your factories.\r\n" +
+								"\r\n" +
+								"good luck.\r\n"));
+
+                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienAllSegmentsMessage,
+								"OUR COMPLIMENTS, FRIEND.\r\n" +
+								"\r\n" +
+								"YOU NOW HAVE  ALL SEGMENTS OF\r\n" +
+								"OUR TRANSMITTER.\r\n" +
+								"IF YOU WISH TO USE IT PLEASE\r\n" +
+								"FOLLOW THESE INSTRUCTIONS.\r\n" +
+								"\r\n" +
+								"1: CONSTRUCT THE TRANSMITTER\r\n" +
+								   "IN ANY OF YOUR FACTORIES\r\n" +
+								" \r\n" +
+								"2: FIT THIS TO ANY STARSHIP\r\n" +
+								   "IN YOUR FLEET\r\n" +
+								"\r\n" +
+								"3: ACTIVATE THE POD HOLDING\r\n" +
+								   "THE TRANSMITTER.\r\n" +
+								"   \r\n" +
+								"WE WILL DO THE REST.\r\n" +
+								"\r\n" +
+								"SEE YOU SOON,  HUMAN !.\r\n"));
+                    #endregion
+
+                    StaticGameData.Planets = new Dictionary<Enums.StellarBodies, Objects.Interfaces.IPlanet>();
 				StaticGameData.Stars = new Dictionary<StellarBodies, Star>();
 				StaticGameData.ResourceLevels_Survey_Multiplier = new Dictionary<Enums.ItemTypes, int>();
 				StaticGameData.ResourceRate_Per_Derrick = new Dictionary<Enums.ItemTypes, int>();

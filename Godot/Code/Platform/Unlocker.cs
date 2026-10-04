@@ -55,7 +55,7 @@ namespace Deuteros.Code.Platform
 		private void SingletonInstance_DayPassed(uint previousDay, uint currentDay)
 		{
 			if (
-				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 17 &&
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 16 &&
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 				currentDay == GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay + 1 &&
 				!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.D_F_C_C))
