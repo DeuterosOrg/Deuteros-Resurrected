@@ -36,7 +36,7 @@ namespace Deuteros.Tests
             var factory = completedOutput ? source.Factory : destination.Factory;
             factory.AOC = true;
             factory.Ground = false;
-            var order = new ProductionItem(Product());
+            var order = new ProductionItem(Product()) { AOCOneTime = true };
             if (completedOutput)
             {
                 order.Active = true;

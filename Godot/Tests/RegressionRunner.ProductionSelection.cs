@@ -113,6 +113,93 @@ namespace Deuteros.Tests
             }
         }
 
+        private void AocPaidManualQueue()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            foreach (var spareRecipes in new[] { 0, 2 })
+            {
+                PrepareRecipeStocks();
+                GameCore.Earth.GroundSelected = false;
+                var factory = GameCore.Earth.Station.Factory;
+                factory.AOC = false;
+                factory.ProductionQueue.Clear();
+                factory.Builder = new Staff { Leader = "Expert", Type = StaffType.Production, Count = 250 };
+                factory.Builder.AddAction(12);
+                var stores = GameCore.Earth.Station.Resources.Stores;
+                stores.Items.Clear();
+                System.Array.Clear(GameCore.Earth.Station.Resources.Staff);
+                var product = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.derrick);
+                var aoc = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.a__o__c);
+                foreach (var item in new[] { product, aoc })
+                {
+                    item.Locked = item.Research.Locked = false;
+                    item.Research.Researched = true;
+                    foreach (var cost in item.BuildRequirements) stores[cost.ItemType] += cost.ItemCount;
+                }
+                void Select(Production panel) => panel.Buttons.Single(b => b.ObjectData?.ItemType == product.ItemType)
+                    .EmitSignal(BaseButton.SignalName.Pressed);
+                var screen = OpenMtxProduction(false);
+                try
+                {
+                    Select(screen);
+                    if (spareRecipes > 0)
+                        for (var day = 0; day < 100 && factory.CurrentProductionItem().Production_Complete == 1; day++)
+                            Production.UpdateProduction((uint)day, (uint)day + 1);
+                    var paidStage = factory.CurrentProductionItem().Production_Complete;
+                    Equal(spareRecipes > 0 ? 2 : 1, paidStage, "manual job covers initial and accumulated progress");
+                    screen.Buttons.Single(b => b.ObjectData?.ItemType == aoc.ItemType).EmitSignal(BaseButton.SignalName.Pressed);
+                    for (var day = 0; day < 100 && !factory.AOC; day++) Production.UpdateProduction((uint)day, (uint)day + 1);
+                    Equal(true, factory.AOC, "paid AOC completes normally");
+                    Equal(1, factory.ProductionQueue.Count, "manual paid job remains after conversion");
+                }
+                finally { screen.Free(); }
+                foreach (var cost in product.BuildRequirements) stores[cost.ItemType] += spareRecipes * cost.ItemCount;
+                ProductionDays(2);
+                Equal<ProductionItem>(null, factory.CurrentProductionItem(), "conversion does not silently select paused manual work");
+                // Old saves have no payment marker. Preserve the identifiable manual reservation.
+                var json = Newtonsoft.Json.Linq.JObject.Parse(SaveStorage.Serialize(Save));
+                foreach (var field in json.Descendants().OfType<Newtonsoft.Json.Linq.JProperty>()
+                    .Where(p => p.Name == "MaterialsPaid").ToList()) field.Remove();
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(json.ToString());
+                factory = GameCore.Earth.Station.Factory;
+                stores = GameCore.Earth.Station.Resources.Stores;
+                Equal(spareRecipes > 0 ? 2 : 1, factory.ProductionQueue.Single().Production_Complete, "legacy reload preserves paid stages");
+                screen = OpenMtxProduction(false);
+                try
+                {
+                    Select(screen);
+                    Equal(true, factory.ProductionQueue.Single().AOCOneTime, "paused manual job can be selected once");
+                    Select(screen);
+                    Select(screen);
+                    Equal(1, factory.ProductionQueue.Count, "deselecting paid pending work retains its materials and progress");
+                    ProductionDays(2);
+                    Equal<ProductionItem>(null, factory.CurrentProductionItem(), "deselected paid job remains paused");
+                    Select(screen);
+                }
+                finally { screen.Free(); }
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                factory = GameCore.Earth.Station.Factory;
+                stores = GameCore.Earth.Station.Resources.Stores;
+                ProductionDays(20);
+                Equal(1, stores[product.ItemType], "selected paid work completes exactly once");
+                Equal(0, factory.ProductionQueue.Count, "one-time work leaves the queue");
+                foreach (var cost in product.BuildRequirements)
+                    Equal(spareRecipes * cost.ItemCount, stores[cost.ItemType], "reserved recipe is never charged again");
+                screen = OpenMtxProduction(false);
+                try { Select(screen); Select(screen); }
+                finally { screen.Free(); }
+                // Legacy unstarted AOC repeat selections must still pay, unlike manual reservations.
+                json = Newtonsoft.Json.Linq.JObject.Parse(SaveStorage.Serialize(Save));
+                foreach (var field in json.Descendants().OfType<Newtonsoft.Json.Linq.JProperty>()
+                    .Where(p => p.Name == "MaterialsPaid").ToList()) field.Remove();
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(json.ToString());
+                stores = GameCore.Earth.Station.Resources.Stores;
+                ProductionDays(40);
+                Equal(1 + spareRecipes, stores[product.ItemType], "fresh repeated output consumes each new recipe");
+                foreach (var cost in product.BuildRequirements) Equal(0, stores[cost.ItemType], "repeat consumes available recipes exactly");
+            }
+        }
+
         public void RunProductionSelectionRegressions()
         {
             CheckUi("Ground production selection opens matching stores recipe without changing orbit", () => ProductionSelectionToStores(true, false));

@@ -365,6 +365,7 @@ namespace Deuteros.Tests
             CheckUi("ACC commands preserve asteroid scans approaches mining and departures across reload", AccAsteroidActivation);
             CheckUi("Paid manual production resumes without a second recipe after switching and reloading", ResumePaidProduction);
             CheckUi("Removing production staff preserves paid jobs and progress through reload", () => ResumePaidProduction(true));
+            CheckUi("AOC conversion retains paid paused jobs through selection cancellation and legacy reload", AocPaidManualQueue);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -15,6 +15,13 @@ namespace Deuteros.Code.Objects
         public bool AOCRepeat { get; set; }
         public bool AOCOneTime { get; set; }
         public bool Active { get; set; }
+        private bool? materialsPaid;
+        // Older saves distinguish manual reservations from unstarted AOC selections by flags.
+        public bool MaterialsPaid
+        {
+            get => materialsPaid ?? (Active || Production_Complete > 1 || (!AOCOneTime && !AOCRepeat));
+            set => materialsPaid = value;
+        }
 
         public ProductionItem(Item product) 
         {

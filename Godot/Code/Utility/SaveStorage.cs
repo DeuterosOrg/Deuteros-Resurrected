@@ -64,8 +64,11 @@ namespace Deuteros.Code.Utility
                 }
                 foreach (var property in properties)
                 {
+                    // Infer existing paid progress when loading saves from before this marker.
+                    if (type == typeof(ProductionItem) && property.PropertyName == nameof(ProductionItem.MaterialsPaid))
+                        property.Required = Required.DisallowNull;
                     // Version-1 saves written before engine damage have no flag; default healthy.
-                    if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
+                    else if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
                         property.Required = Required.DisallowNull;
                     else if (typeof(InterStellarShip).IsAssignableFrom(type) && (property.PropertyName == nameof(InterStellarShip.AutomationSlot)
                         || property.PropertyName == nameof(InterStellarShip.AsteroidActionTicks)))

@@ -209,6 +209,8 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						var addedItem = (Item)SelectedButton.ObjectData;
 						var production = CurrentFactory.ProductionQueue.SingleOrDefault(T => T.Product.ItemType == addedItem.ItemType);
+						// Resolve old manual reservations before changing their AOC selection flags.
+						if (production != null) production.MaterialsPaid = production.MaterialsPaid;
 
 						if (production == null)
 						{
@@ -226,7 +228,7 @@ namespace Deuteros.Code.Platform.Screens
 						}
 						else if (production.AOCRepeat)
 						{
-							if (production.Active)
+							if (production.Active || production.MaterialsPaid)
 							{
 								production.AOCRepeat = false;
 								production.AOCOneTime = false;
@@ -236,6 +238,8 @@ namespace Deuteros.Code.Platform.Screens
 								CurrentFactory.ProductionQueue.Remove(production);
 							}
 						}
+						else
+							production.AOCOneTime = true;
 						SelectedButton = null;
 					}
 				}
@@ -393,11 +397,12 @@ namespace Deuteros.Code.Platform.Screens
 
 						if (currentFactory.CurrentProductionItem() == null && currentFactory.AOC)
 						{
-							var productionItem = currentFactory.ProductionQueue.FirstOrDefault(T => CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)); ;
+							var productionItem = currentFactory.ProductionQueue.FirstOrDefault(T => (T.AOCOneTime || T.AOCRepeat) && (T.MaterialsPaid || CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)));
 
 							if (productionItem != null)
 							{
-								RemoveResourceByItem(currentPlanet, productionItem.Product, currentFactory.Ground);
+								if (!productionItem.MaterialsPaid) RemoveResourceByItem(currentPlanet, productionItem.Product, currentFactory.Ground);
+								productionItem.MaterialsPaid = true;
 								productionItem.Active = true;
 							}
 						}
@@ -462,7 +467,9 @@ namespace Deuteros.Code.Platform.Screens
 								{
 									var currItem = currentFactory.CurrentProductionItem();
 									currItem.Active = false;
-									var nextItem = currentFactory.ProductionQueue.FirstOrDefault(T => T != currItem && CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground));
+									currItem.MaterialsPaid = false;
+									var nextItem = currentFactory.ProductionQueue.FirstOrDefault(T => T != currItem && (T.AOCOneTime || T.AOCRepeat)
+										&& (T.MaterialsPaid || CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)));
 									if (nextItem == null && CheckResourceAvailable(currentPlanet, currItem.Product, currentFactory.Ground))
 										nextItem = currItem;
 									currItem.Production_Complete = 1;
@@ -470,7 +477,8 @@ namespace Deuteros.Code.Platform.Screens
 
 									if (nextItem != null)
 									{
-										RemoveResourceByItem(currentPlanet, nextItem.Product, currentFactory.Ground);
+										if (!nextItem.MaterialsPaid) RemoveResourceByItem(currentPlanet, nextItem.Product, currentFactory.Ground);
+										nextItem.MaterialsPaid = true;
 										nextItem.Active = true;
 									}
 								}
