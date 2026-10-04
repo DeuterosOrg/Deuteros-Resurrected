@@ -1,38 +1,44 @@
-[gd_scene load_steps=2 format=3 uid="uid://cc8ia5etw8m3c"]
+[gd_scene load_steps=3 format=3 uid="uid://cc8ia5etw8m3c"]
 
 [ext_resource type="Script" path="res://Code/Platform/Base/Error.cs" id="1_awx7g"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_error"]
+bg_color = Color(0.466667, 0.533333, 0.333333, 1)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0, 0, 1)
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_awx7g")
 
 [node name="ErrorButton" type="Button" parent="."]
-offset_right = 325.0
+offset_right = 320.0
 offset_bottom = 200.0
 
-[node name="OuterColorRect" type="ColorRect" parent="ErrorButton"]
-layout_mode = 0
-offset_left = 110.0
-offset_top = 74.0
-offset_right = 238.0
-offset_bottom = 131.0
+[node name="OuterColorRect" type="PanelContainer" parent="ErrorButton"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+grow_horizontal = 2
+grow_vertical = 2
 mouse_filter = 1
-color = Color(1, 0, 0, 1)
+theme_override_styles/panel = SubResource("StyleBoxFlat_error")
 
-[node name="InnerColorRect" type="ColorRect" parent="ErrorButton/OuterColorRect"]
-layout_mode = 0
-offset_left = 2.0
-offset_top = 2.0
-offset_right = 126.0
-offset_bottom = 55.0
+[node name="InnerColorRect" type="MarginContainer" parent="ErrorButton/OuterColorRect"]
+layout_mode = 2
 mouse_filter = 1
-color = Color(0.466667, 0.533333, 0.333333, 1)
+theme_override_constants/margin_left = 7
+theme_override_constants/margin_top = 3
+theme_override_constants/margin_right = 7
+theme_override_constants/margin_bottom = 3
 
 [node name="ErrorLabel" type="Label" parent="ErrorButton/OuterColorRect/InnerColorRect"]
-layout_mode = 0
-offset_left = 7.0
-offset_top = 3.0
-offset_right = 113.0
-offset_bottom = 40.0
+layout_mode = 2
 mouse_filter = 1
 text = "error
 "

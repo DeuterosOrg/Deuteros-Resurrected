@@ -1086,12 +1086,13 @@ namespace Deuteros.Code.Platform.Screens
 				return false;
 			else if (currentModule.ModuleType == Enums.Module_Types.Cryo && (currentModule.StaffStored != null || moduleType == Module_Types.Cryo))
 				return false;
-			else if (moduleType == Module_Types.Supply && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.supply_pod).Locked || currentStore[Enums.ItemTypes.supply_pod] == 0))
+			else if ((moduleType == Module_Types.Supply && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.supply_pod).Locked || currentStore[Enums.ItemTypes.supply_pod] == 0))
+				|| (moduleType == Module_Types.Tool && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.tool_pod).Locked || currentStore[Enums.ItemTypes.tool_pod] == 0))
+				|| (moduleType == Module_Types.Cryo && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.cryo_pod).Locked || currentStore[Enums.ItemTypes.cryo_pod] == 0)))
+			{
+				GameCore.ShowError(this, "Pod Not Available");
 				return false;
-			else if (moduleType == Module_Types.Tool && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.tool_pod).Locked || currentStore[Enums.ItemTypes.tool_pod] == 0))
-				return false;
-			else if (moduleType == Module_Types.Cryo && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.cryo_pod).Locked || currentStore[Enums.ItemTypes.cryo_pod] == 0))
-				return false;
+			}
 
             var returnedPod = oldType switch
             {

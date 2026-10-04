@@ -48,6 +48,53 @@ namespace Deuteros.Tests
             Equal(interior.Ship.PlanetLocation, Save.CurrentPlanet, "active planet follows ship");
         }
 
+        private async Task InteriorOrbitViews()
+        {
+            foreach (var hull in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var interior = await OpenInterior(hull, true);
+                var ship = interior.Ship;
+                var large = interior.GetNode<TextureRect>("Location/BigLocation");
+                var small = interior.GetNode<TextureButton>("Location/SmallLocation");
+                Press(interior, "Location/SmallLocation");
+                Press(interior, "TakeOff");
+                Equal(Ship_States.Launching, ship.ShipState, "orbital departure begins");
+                var dockedPreview = small.TextureNormal;
+                AdvanceTickDay();
+                Equal(Ship_States.UnDocked, ship.ShipState, "departure reaches orbit");
+                Equal(true, small.TextureNormal != null && small.TextureNormal != dockedPreview, "mini-screen updates while expanded view is open");
+                Equal(true, large.Texture != null, "expanded orbital view has planet artwork");
+                Equal(GD.Load<Texture2D>("res://Sprites/Scenes/Ship_View_Station.png").GetSize(), large.Texture.GetSize(), "expanded view preserves the researched station artwork");
+                var day = Save.CurrentDay;
+                var fuel = ship.Fuel;
+                Press(interior, "Location/SmallLocation");
+                Press(interior, "Location/SmallLocation");
+                Equal(day, Save.CurrentDay, "view toggles preserve day");
+                Equal(fuel, ship.Fuel, "view toggles preserve fuel");
+                Press(interior, "Dock");
+                AdvanceTickDay();
+                Equal(Ship_States.Docked, ship.ShipState, "return to station completes");
+                Equal(true, large.Texture.ResourcePath.EndsWith("BigLocation_Docked.png"), "large screen clears planet when docked");
+                Equal(true, small.TextureNormal.ResourcePath.EndsWith("SmallLocation_Docked.png"), "mini-screen clears planet when docked");
+            }
+        }
+
+        private async Task InteriorStormDoorArtwork()
+        {
+            var interior = await OpenInterior(Ship_Types.Shuttle);
+            interior.Ship.ShipState = Ship_States.Launching;
+            Press(interior, "Location/SmallLocation");
+            var large = interior.GetNode<TextureRect>("Location/BigLocation");
+            Equal(true, large.Visible, "expanded location shown");
+            Equal(new Vector2(192, 112), large.Texture.GetSize(), "full-size door artwork, not enlarged thumbnail");
+            Equal(true, large.Texture.ResourcePath.EndsWith("BigLocation_StormDoors.png"), "correct large asset");
+            Press(interior, "Location/SmallLocation");
+            var small = interior.GetNode<TextureButton>("Location/SmallLocation");
+            Equal(new Vector2(60, 30), small.TextureNormal.GetSize(), "small preview remains native size");
+            Equal(false, large.Visible, "text view restored");
+            await InputFrames();
+        }
+
         private async Task InteriorServiceNavigation()
         {
             foreach (var entry in new[] { (Ship_Types.Shuttle, false), (Ship_Types.Shuttle, true),

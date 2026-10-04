@@ -36,21 +36,34 @@ namespace Deuteros.Tests
         private async Task TimeToggleAnimation(Scenes scene)
         {
             var menu = TimeMenu(scene);
+            var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
+            var main = GameCore.SingletonInstance.GetNode<Node>("MainScene");
+            var parent = main.GetParent();
+            if (scene == Scenes.Store)
+                GameCore.SingletonInstance.ChangeScene(scene, new List<SceneVariables> { SceneVariables.Orbit });
+            AddChild(viewport);
+            main.Reparent(viewport);
             try
             {
-                menu.TimeButton.EmitSignal(BaseButton.SignalName.Pressed);
+                await InputFrames();
+                ClickMenu(viewport, menu.TimeButton);
                 await InputFrames();
                 Equal(true, Save.TimeSkip, "real toggle starts advancement");
                 Equal("animated", menu.TimeAnimation.Animation.ToString(), "time device independent of selected screen");
                 var selected = scene == Scenes.Earth_Ground ? menu.EarthAnimation : scene == Scenes.Overview ? menu.MasterControlAnimation
                     : scene == Scenes.News ? menu.NewsAnimation : scene == Scenes.SaveScreen ? menu.SaveAnimation : menu.StockAnimation;
                 Equal("animated", selected.Animation.ToString(), "selected-screen indicator remains active");
-                menu.TimeButton.EmitSignal(BaseButton.SignalName.Pressed);
+                ClickMenu(viewport, menu.TimeButton);
                 await InputFrames();
                 Equal(false, Save.TimeSkip, "real toggle stops advancement");
                 Equal("static", menu.TimeAnimation.Animation.ToString(), "stopped clock uses static frame");
             }
-            finally { Save.TimeSkip = Save.TimeSkipDay = false; }
+            finally
+            {
+                Save.TimeSkip = Save.TimeSkipDay = false;
+                main.Reparent(parent);
+                viewport.Free();
+            }
         }
 
         private async Task TimeHoldAnimation()

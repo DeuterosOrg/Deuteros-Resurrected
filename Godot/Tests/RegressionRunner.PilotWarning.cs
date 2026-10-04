@@ -170,6 +170,35 @@ namespace Deuteros.Tests
             }
         }
 
+        private async Task DeploymentCompletionText()
+        {
+            var window = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn").Instantiate<TextWindow>();
+            AddChild(window);
+            try
+            {
+                Equal("[color=#008800]Factory Is Now Operational.[/color]\r\n",
+                    new Line("Factory Is Now Operational.", new Color("#008800"), false).GetText(new List<string>()),
+                    "completion uses visible RGB bytes and HTML colour syntax");
+                foreach (var kind in new[] { ModuleFrameText.Station_Deploy_Complete, ModuleFrameText.RFrame_Deploy_Complete })
+                {
+                    var source = Save.BaseGameData.ModuleFrameTexts[kind];
+                    var message = new TextFrame(kind);
+                    foreach (var line in source.Lines)
+                        message.Lines.Add(new Line(line.Text, line.TextColor, line.Pause, line.DelayEachWord, 0));
+                    await window.PlayText(message, new List<string> { kind == ModuleFrameText.Station_Deploy_Complete ? "8" : "2" }, 1, 0, 0);
+                    await InputFrames();
+                    Equal(true, window.Text.GetParsedText().Contains("Is Now Operational."), "completion survives typing and BBCode parsing");
+                    Equal(true, window.Text.GetContentHeight() <= window.Text.Size.Y, "complete deployment text fits without scrolling");
+                }
+                Equal("[color=#00ccff]Alien[/color]\r\n", new Line("Alien", new Color("#00ccff"), false).GetText(new List<string>()), "shared formatter preserves alien text colour");
+            }
+            finally
+            {
+                window.QueueFree();
+                await InputFrames();
+            }
+        }
+
         private async Task IneligibleDeploymentWarning()
         {
             foreach (var scenario in new[] { "ground", "transit", "complete", "asteroid" })

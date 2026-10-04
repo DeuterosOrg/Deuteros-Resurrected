@@ -965,24 +965,25 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				BigLocation.Visible = false;
 				TextLayout.Visible = true;
-
-				if (Ship.ShipState == Ship_States.Docked)
-					SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_Docked.png");
-				else if (Ship.ShipState == Ship_States.InTransit)
-					SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_Travel.png");
-				else if (Ship.ShipState == Ship_States.Launching)
-					SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_StormDoors.png");
-				else if (Ship.ShipState == Ship_States.TakingOff)
-					SmallLocation.TextureNormal = null;
-				else if (Ship.ShipState == Ship_States.Landing)
-					SmallLocation.TextureNormal = null;
-				else if (Ship.ShipState == Ship_States.UnDocked || Ship.ShipState == Ship_States.Docking)
-				{
-					SmallLocation.TextureNormal = LocationTexture(true);
-				}
-				else
-					SmallLocation.TextureNormal = null;
 			}
+
+			// The mini-screen remains visible while the large view is open.
+			if (Ship.ShipState == Ship_States.Docked)
+				SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_Docked.png");
+			else if (Ship.ShipState == Ship_States.InTransit)
+				SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_Travel.png");
+			else if (Ship.ShipState == Ship_States.Launching)
+				SmallLocation.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "SmallLocation_StormDoors.png");
+			else if (Ship.ShipState == Ship_States.TakingOff)
+				SmallLocation.TextureNormal = null;
+			else if (Ship.ShipState == Ship_States.Landing)
+				SmallLocation.TextureNormal = null;
+			else if (Ship.ShipState == Ship_States.UnDocked || Ship.ShipState == Ship_States.Docking)
+			{
+				SmallLocation.TextureNormal = LocationTexture(true);
+			}
+			else
+				SmallLocation.TextureNormal = null;
 
             SetCourse.Disabled = !CanSetCourse;
             var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);

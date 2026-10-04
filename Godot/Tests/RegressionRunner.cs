@@ -368,6 +368,11 @@ namespace Deuteros.Tests
             CheckUi("AOC conversion retains paid paused jobs through selection cancellation and legacy reload", AocPaidManualQueue);
             CheckUi("AOC installation waits for staff capacity and commits once without transferable stock", AocStaffCapacity);
             await CheckAsync("MTX preset checks indirect crew allocation without blocking an existing station", SettingsMtxFullCrew);
+            await CheckAsync("Unavailable bay pods explain rejection without changing stock or fittings", BayUnavailablePods);
+            await CheckAsync("Module service background returns to the cockpit without intercepting controls", BayModuleBackground);
+            await CheckAsync("Launch view uses full-size storm doors and preserves the small preview", InteriorStormDoorArtwork);
+            await CheckAsync("Deployment completion text retains visible colours and fits the module window", DeploymentCompletionText);
+            await CheckAsync("Orbital departure refreshes both planet views while the large screen is open", InteriorOrbitViews);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

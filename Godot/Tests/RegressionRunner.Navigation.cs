@@ -72,6 +72,59 @@ namespace Deuteros.Tests
             return ActiveScreen<ShipBay>();
         }
 
+        private async Task BayModuleBackground()
+        {
+            async Task Click(Vector2 point)
+            {
+                GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+                foreach (var pressed in new[] { true, false })
+                    GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                await InputFrames();
+            }
+
+            foreach (var hull in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var bay = await NavigationBay(hull);
+                var ship = bay.Ship;
+                var day = Save.CurrentDay;
+                var fuel = ship.Fuel;
+                for (var mount = 1; mount <= ship.Modules.Count; mount++)
+                {
+                    Press(bay, "Buttons/ShipNav/Nav_Torso" + mount);
+                    await ToSignal(GetTree().CreateTimer(1.1), SceneTreeTimer.SignalName.Timeout);
+                    var torso = ShipParts + "Torso" + mount;
+                    bay.ResourceList.Stores[ItemTypes.supply_pod] = 1;
+                    GameCore.SingletonInstance.GameData.GetItem(ItemTypes.supply_pod).Locked = false;
+                    await Click(bay.GetNode<Control>(torso + "/SpriteHolder/Buttons/AddSupplyPod").GetGlobalRect().GetCenter());
+                    Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "pod button does not return to cockpit");
+                    Equal(Module_Types.Supply, ship.Modules[mount - 1].ModuleType, "pod button still fits pod");
+                    Equal(0, bay.ResourceList.Stores[ItemTypes.supply_pod], "fitting consumes one pod");
+                    var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+                    var deadline = Time.GetTicksMsec() + 3000;
+                    while (blocker.Blocked && Time.GetTicksMsec() < deadline) await InputFrames();
+                    Equal(false, blocker.Blocked, "pod animation releases input before navigation");
+                    var point = new Vector2(114, 82); // Empty area identified in Craig's screenshot.
+                    blocker.SetBlocked(true);
+                    try { await Click(point); Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "input lock blocks background"); }
+                    finally { blocker.SetBlocked(false); }
+                    await Click(bay.GetNode<Control>(torso + "/SpriteHolder/Buttons/ActivatePod").GetGlobalRect().GetCenter());
+                    Equal(true, Cursor.IsLocked, "cargo control opens its panel");
+                    await Click(point);
+                    Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "cargo panel prevents cockpit navigation");
+                    bay.GetNode<Control>("CargoService").Visible = false;
+                    Cursor.Unlock();
+                    await Click(point);
+                    Equal(Scenes.ShipInterior, GameCore.SingletonInstance.currentScene, "empty module background opens cockpit");
+                    Equal(ship, ActiveScreen<ShipInterior>().Ship, "same ship selected");
+                    Equal(day, Save.CurrentDay, "navigation preserves day");
+                    Equal(fuel, ship.Fuel, "navigation preserves fuel");
+                    Press(ActiveScreen<ShipInterior>(), "Service");
+                    await InputFrames();
+                    bay = ActiveScreen<ShipBay>();
+                }
+            }
+        }
+
         private void ExpectHover(Control button, string expected)
         {
             GameCore.HoverText = "";

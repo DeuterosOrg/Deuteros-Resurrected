@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Deuteros.Code;
 using Deuteros.Code.Objects;
 using Deuteros.Code.Platform.Screens;
+using Deuteros.Code.Platform.Helpers;
 using Godot;
 using Deuteros.Code.Utility;
 using static Deuteros.Code.Enums;
@@ -48,6 +49,68 @@ namespace Deuteros.Tests
             });
             await InputFrames();
             return ActiveScreen<ShipBay>();
+        }
+
+        private async Task BayUnavailablePods()
+        {
+            foreach (var orbital in new[] { false, true })
+            {
+                var bay = await EmptyAssemblyBay(Ship_Types.Shuttle, orbital);
+                var stores = bay.ResourceList.Stores;
+                stores[ItemTypes.s_chassis] = 1;
+                Press(bay, "Buttons/Nav_Create_Shuttle");
+                Press(bay, "Buttons/ShipNav/Nav_Torso1");
+                foreach (var pod in new[] { (ItemTypes.supply_pod, "Supply"), (ItemTypes.tool_pod, "Tool"), (ItemTypes.cryo_pod, "Cryo") })
+                {
+                    var item = GameCore.SingletonInstance.GameData.GetItem(pod.Item1);
+                    var button = ShipParts + "Torso1/SpriteHolder/Buttons/Add" + pod.Item2 + "Pod";
+                    foreach (var locked in new[] { false, true })
+                    {
+                        item.Locked = locked;
+                        stores[pod.Item1] = locked ? 1 : 0;
+                        var stock = stores.Items.ToDictionary(x => x.Key, x => x.Value);
+                        try
+                        {
+                            Press(bay, button);
+                            Equal(Module_Types.None, bay.Ship.Modules[0].ModuleType, "unavailable pod is not fitted");
+                            Equal(true, stock.OrderBy(x => x.Key).SequenceEqual(stores.Items.OrderBy(x => x.Key)), "rejection preserves stores");
+                            Equal(true, OverlayManager.Instance.IsOpen, "unavailable pod explains rejection");
+                            var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0);
+                            Equal("Pod Not Available", overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel").Text, "pod error text");
+                            await InputFrames();
+                            var panel = overlay.GetNode<Control>("ErrorButton/OuterColorRect").GetGlobalRect();
+                            var text = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel").GetGlobalRect();
+                            Equal(true, panel.Encloses(text.Grow(2)), "error box encloses text with padding");
+                            Equal(true, panel.GetCenter().DistanceTo(new Vector2(160, 100)) < 1, "error box stays centred");
+                            Press(overlay, "ErrorButton");
+                            await InputFrames();
+                            Equal(false, OverlayManager.Instance.IsOpen, "error dismisses normally");
+                        }
+                        finally { if (OverlayManager.Instance.IsOpen) OverlayManager.Instance.CloseOverlay(); }
+                    }
+                    item.Locked = false;
+                    Press(bay, button);
+                    Equal(false, OverlayManager.Instance.IsOpen, "available pod fits without error");
+                    Equal(0, stores[pod.Item1], "fitting consumes one pod");
+                    bay.GetNode<Deuteros.Code.Platform.Screens.ShipBayScenes.Torso>(ShipParts + "Torso1")._Process(1.21);
+                    Press(bay, button);
+                    Equal(Module_Types.None, bay.Ship.Modules[0].ModuleType, "empty pod removes normally");
+                    Equal(1, stores[pod.Item1], "removal returns pod");
+                    bay.GetNode<Deuteros.Code.Platform.Screens.ShipBayScenes.Torso>(ShipParts + "Torso1")._Process(1.21);
+                }
+                foreach (var message in new[] { "Not Enough Space In Stores\nTo Dismantle Ship", "Team Leader\nMust Be Rated\nExpert To\nProduce This\nItem" })
+                {
+                    GameCore.ShowError(bay, message);
+                    await InputFrames();
+                    var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0);
+                    var panel = overlay.GetNode<Control>("ErrorButton/OuterColorRect").GetGlobalRect();
+                    var label = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
+                    Equal(true, panel.Encloses(label.GetGlobalRect().Grow(2)), "multiline error fits panel");
+                    Equal(true, new Rect2(0, 0, 320, 200).Encloses(panel), "long error fits viewport");
+                    Press(overlay, "ErrorButton");
+                    await InputFrames();
+                }
+            }
         }
 
         private async Task BayPreservesResearch()
