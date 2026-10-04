@@ -27,7 +27,7 @@ The next combined checkpoint **`89a2659` passes 618/618 cases**, 19 Python check
 
 A normal pre-war continuation now delivers **500 platinum** and verifies mining and delivered-stock reloads, retaining friendly Earth/Moon and 250 palladium plus 545 platinum in Earth orbit. The later undefended wartime fork instead lost Earth; that outcome and its natural next-transmission reload are preserved. Fleet material/crew preparation is the next campaign step; see [native evidence](native-gameplay-results.md#pre-war-platinum-delivery-and-fleet-preparation--2026-10-04). No task total changes.
 
-Normal fleet preparation now delivers the common metals and fuel to Earth orbit and transports 148 production workers plus 40 marines, with exact Earth/shuttle state preserved through reload. The factory is staffed; paid manufacture, Moon gold, combat/capture and SCG progression are next. See [campaign evidence](native-gameplay-results.md#fleet-materials-and-crew-delivery--2026-10-04). This does not change acceptance totals.
+Normal fleet preparation delivers common metals/fuel,148 production workers and40 marines to Earth orbit. Eleven paid jobs promote Morse to Expert; a later Moon shipment delivers90 gold. Exact recipes, endpoint stock and UI reloads pass audits, with clean native exits and original saves restored. Fleet-scale supplies, defence manufacture, combat/capture and SCG progression remain; see [latest campaign evidence](native-gameplay-results.md#moon-gold-delivery--2026-10-04). This does not change acceptance totals.
 
 ## Requirements accepted — 2026-10-03
 

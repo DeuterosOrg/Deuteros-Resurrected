@@ -325,3 +325,13 @@ The day10912 save accounts for every recipe exactly: orbital iron decreases70, t
 UI reload retains the Expert display, exact Earth state and all ships. Native session73699 exits0, the strict log passes, and original user saves are restored byte-for-byte. Evidence and runnable audit: `artifacts/fleet-manufacture-campaign/`. Continuation `reloaded-slot-4.json` SHA-256: `8dd7e0b59aad213a1863b166de1e083ef9f7a9c62ff2fba4206ca0aa500ba997`.
 
 Next: collect the Moon's90 gold and prepare defence research/manufacture. FIRST LIGHT now has39 marines after ordinary elapsed-time attrition; WAYFARER retains seven. This verifies normal paid production, promotion and reload, without adding Windows, drone-combat or SCG acceptance. Backlog counts remain35/48 implementation evidence and four locally accepted requirements.
+
+## Moon gold delivery — 2026-10-04
+
+Normal navigation changes WAYFARER's route from Earth–Asteroids to Earth–Moon. Clearing ACC orders and selecting gold only at the Moon endpoint delivers all90 gold to Earth. ACC continues some empty trips before Complete Cycle is selected; it stops at the Moon, then a separate finishing cycle returns the ship to Earth. This is not a minimum-fuel voyage.
+
+The day10945 checkpoint has90 gold at Earth, zero at the Moon, empty supply pods, the AMA retained,218 ship fuel and stopped ACC. Earth spends71 MeH on refuelling; ship-plus-station fuel accounting shows32 units consumed by travel. Every other orbital stock at both endpoints matches the starting day10912 checkpoint. UI reload preserves exact Earth/Moon and ship state, including Morse's148 Expert workers. War remains undeclared.
+
+Evidence: `artifacts/moon-gold-campaign/`, including the ACC order, returned ship and reloaded Stores captures, four saves and runnable `audit.py`. Native session53506 exits0 with a strict clean log; original user saves are restored exactly. Continuation `reloaded-slot-4.json` SHA-256: `e0734f822e58c513c6208533e2c5e577eaf0e09c3345adc0c177ace07638992f`.
+
+Combat preparation remains incomplete:250 palladium supports only eight drones at30 per recipe. The next supply target is material for60 drones:7,200 each iron/titanium/aluminium,900 carbon,3,300 copper and1,800 each palladium/platinum, plus the DFCC recipe and fuel. This is a preparation target against the initial40-drone attack trigger, not proof of a winning fleet. Stronger hostile stations and later progression need further production. Collect supplies before triggering war; no additional task acceptance is claimed.
