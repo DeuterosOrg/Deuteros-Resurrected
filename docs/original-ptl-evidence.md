@@ -12,6 +12,14 @@ The handler checks ship byte `+0F`, bit 7. An existing installation reports a du
 
 In the remake, the recipe is `prejudice_torpedo_launcher` (enum 37, Research.Index 27), not the unused `p__t__l` alias. `InterStellarShip.PTL` already stores the flag, but ordinary gameplay never sets it. The existing `AddACC` control does have a live handler: do not treat it as unused or add PTL to the tool list. Any fitting correction must preserve ACC behavior, validate the current bay/ship and stock, reject duplicate or retained invalid commands, and preserve the flag through save/load.
 
+## Original fitting control artwork
+
+The cockpit loads icon 19 for PTL (`$31D84`) and icon 27 for ACC (`$31DA2`) through `$41ABE`. That routine selects bitmap bank 53 at `$41FAA + $D4`; its source begins at `$621D6`. Each control is **24×16**, using a 64-byte row stride, twelve bytes per icon column and `$400` bytes per icon row. This bank is read directly by the blitter; it must not be fed through the compressed illustration decoder.
+
+The extracted ACC entry matches **all 384 pixels** of the supplied `Sprites/Buttons/Shipbay/ACC.png`, with a unique mapping for each of its five palette indices. Applying that same supplied palette to PTL preserves the existing bay colours and opaque black background. PTL indexed-pixel SHA-256 is `816e35b5c694a0f799025f794d5512cf431f51a0c2c90770884c0e6e5d0c359b`; decoded PNG SHA-256 is `1051d3d6763e9ff1bed0d47a895898454803c1db3e88b36a539a269341809ba9`.
+
+Reproduce with `python3 artifacts/research/ptl/extract-cockpit-icon.py` (Pillow and the pinned local Disk 1 required). The script, `cockpit-sprite-dispatch.txt`, `cockpit-control-art.json` and `fit-torpedo-launcher.png` remain local research evidence. This resolves the source artwork; the icon is not yet wired into gameplay, and original display colour calibration remains separate.
+
 ## Discovery shares a captive-colony event
 
 Dispatcher `$37808–$37896` consumes its active delay before observing a changed hostile-system count. Count 6 selects delay 40 and handler `$37AD8`. That handler decrements a separate nonzero cooldown; when zero, it resets it to 79 and draws an ordinal from 1–32. It scans 98 station records for type `+EE = 8` and local state `+F0 = 5`: completed human stations with a captive colony. The latter state is identified by the [station-text and recovery trace](original-self-destruct-evidence.md#ground-services-and-rebuilding).
@@ -26,4 +34,4 @@ The shared research dispatcher now covers count 6 as well as count 7, including 
 
 Older saves lack reliable captive-colony history: their new flag defaults false, without fabricating previous captures, stock gifts or notices. Future captures establish eligibility normally. Existing PTL installations and Hyperlight delays survive loading; malformed or explicit-null new state is rejected. New-format saves should not be loaded into older builds.
 
-Cases 605–608 cover actual day progression, stock/cooldown boundaries, bulletin replay, capture/repair/loss and save compatibility. See [validation](validation-results.md#ptl-discovery-and-captive-colony-stock-events). Resolve the original fitting artwork and coordinate changes to Windows-owned bay work before editing those controls. Combat boundaries and their completed validation are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04); they do not establish this progression path.
+Cases 605–608 cover actual day progression, stock/cooldown boundaries, bulletin replay, capture/repair/loss and save compatibility. See [validation](validation-results.md#ptl-discovery-and-captive-colony-stock-events). The original fitting artwork is resolved above; coordinate changes to Windows-owned bay work before editing those controls. Combat boundaries and their completed validation are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04); they do not establish this progression path.
