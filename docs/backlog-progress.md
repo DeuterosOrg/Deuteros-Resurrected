@@ -198,3 +198,8 @@ The missing original six-system discovery producer and captive-colony stock even
 ### ACC activation while mining — 2026-10-04
 
 A further ACC defect is reproduced and corrected: switching from Off to Engage or Complete Cycle discarded the asteroid and incorrectly ran station refuelling/departure logic while mining. Original handlers distinguish these states. Case 617 and 90 related checks pass; normal Mac silver mining continues through both commands and UI save/reload, with clean exit and restored user saves. See [evidence](validation-results.md#acc-activation-during-mining--2026-10-04). Totals remain **35/48 implementation evidence; four locally accepted research/internal requirements**. The last full aggregate is 616; this focused correction has no new Windows/export result.
+
+
+### Normal prewar factory automation — 2026-10-04
+
+Normal Mac AOC research/installation returns all 147 workers and charges the exact recipe once. Repeated IOS-drive manufacture, stopping a paid job, mid-build reload and final stock/crew reload audits pass; two drives are produced without duplicate charges. Native exit is zero, strict logs pass and original saves are restored. See [campaign evidence](native-gameplay-results.md#prewar-aoc-installation-and-paid-repeat-production--2026-10-04). Successful defence/capture and current Windows export acceptance remain open. Counts remain **35/48 implementation evidence; four locally accepted research/internal requirements**, with the seven overlapping Windows task scenarios retained.

@@ -373,3 +373,14 @@ A **separate replay** loads the unchanged pre-battle save through test slot3 and
 Evidence: `artifacts/fleet-defence-campaign/`, including both outcomes and runnable `audit.py`. Native session4058 exits0, strict logs pass and original saves are restored exactly. Retreat checkpoint SHA-256: `4991af5ce89585ac0327a1f097dcfaa63eec7cbf2a6c253dc0efa81590c46594`.
 
 The next preparation branch should use the preserved peaceful16-trade checkpoint, research/install the already-available AOC before war, and start defence research immediately after declaration. The previous manual production schedule produced an understrength fleet; this is a preparation finding, not proof of a combat defect. Normal AOC installation/repeat production, successful defence/capture and Windows acceptance remain open. Counts remain35/48 implementation evidence and four locally accepted requirements.
+
+
+## Prewar AOC installation and paid repeat production — 2026-10-04
+
+A separate normal replay starts from the unchanged peaceful 16-trade checkpoint at day 12306 on runtime `01c81f9`. Cavell's team researches AOC, and Morse's orbital factory manufactures it. Installation consumes exactly four titanium, one aluminium, two carbon and one silver, creates no stock item, clears its queue and returns all 147 workers to quarters. Morse gains one completed-job action.
+
+AOC repeat mode manufactures one IOS drive and starts a second paid drive. Selecting the active recipe again disables repeat while retaining the reservation. Saving/reloading mid-build then finishes the second drive and leaves the queue empty. The two drives cost exactly 60 iron, 100 titanium and 30 copper; reload neither charges again nor duplicates output. Workers remain in quarters throughout automation.
+
+Final day 12342 remains peaceful, with two spare drives and AOC installed. UI reload preserves exact Earth, ships and News. `artifacts/aoc-prewar-campaign/audit.py` passes; native session 51315 exits zero with strict logs passing, and original saves are restored exactly. Continuation SHA-256: `3fbb36a77abb6d1afee8d6446002e4636e44982fcf171794e417d2edc249c12c`.
+
+Next, use this checkpoint for the war encounter, prompt defence research and automated drone manufacture. Successful defence/capture and matching Windows export acceptance remain open; this result does not change accepted-task totals.
