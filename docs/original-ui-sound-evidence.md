@@ -72,3 +72,11 @@ Each channel's bit-9 branch uses the low byte as a countdown. At `$3FE86` (with 
 The shared updater is called at `$20472` in the interrupt path. This establishes update ownership and channel interruption, not a measured audible duration: callback phase, Paula DMA repetition and original listening still need comparison. Exporting each source sample as a single unlooped WAV does not by itself reproduce this lifecycle. Existing runtime audio is unchanged.
 
 Reproduce the descriptor/branch assertions with `uv run --with capstone==5.0.7 python artifacts/research/ui-sounds/verify-playback-controls.py`. The checked trace is `playback-controls.txt`, SHA-256 `1d3870530a55b96c66e390ede38a8773f5305908fc901813975b3d860c9a445d`; `playback-controls.json` includes all seven sample hashes and countdown steps. All files use the pinned Disk 1 identity above.
+
+## Encounter cue corrections
+
+The archived encounter notes misclassify two calls. Accept (`$7C136`) and decline (`$7BF58`) load 9 before calling `$2DAB4`, a region-drawing helper. It indexes 12-byte entries at `$2D64C`, computes screen offsets and writes four bitplanes at `$2DB1A–$2DB3C`. The argument is a region ID; this is not evidence that either decision plays sound 9.
+
+Encounter completion at `$7BFA0–$7BFA4` supplies descriptor 16 and mask 2 to `$3FCB0`. Unlike the full dispatcher, that helper copies only the last four descriptor bytes into selected active channel records. Here it changes channel 1 to signed period step −2 with target 1480 (`$01FE/$05C8`), retaining its sample, volume and current period. It does not start a fresh “tone 16.” Cleanup at `$7BFE2–$7BFE6` separately dispatches silent descriptor zero with mask 9, replacing channels 0 and 3.
+
+These findings correct the sound sourcing list; they do not establish the full encounter soundscape or certify silence elsewhere. Reproduce with `uv run --with capstone==5.0.7 python artifacts/research/ui-sounds/verify-encounter-cues.py`. Checked trace `encounter-cue-corrections.txt` SHA-256: `192678037ddf88606ae83b05f11648218edd8d5b8fc68cf37e241c5650ea18b8`; the adjacent JSON records arguments and limits. No runtime cue is added from the misleading archive labels.
