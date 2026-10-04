@@ -178,3 +178,13 @@ Clear exposed a separate display bug: selections were removed from the model but
 Runtime `3ebeca0` loads the unmodified balanced Moon checkpoint. Physical clicks remove WAYFARER's second supply pod downward, then refit the returned spare upward. Saved station stock follows 0→1→0, and the mount follows Supply→None→Supply. The other modules, seven crew, 242T fuel and both orbital stations' other stores remain unchanged. Two centidays elapse naturally, allowing ground mining/refining to continue.
 
 Saving and reloading retains the fitted pod; Service and mount selection still work. Normal close exits zero, the strict runtime log passes, and the original save inventory is restored exactly. Screenshots, saves and runnable conservation checks are in `artifacts/pod-motion/physical/`. This normal-input observation covers supply pods; tool/cryo fitting and replacement have separate staged native regression evidence, not normal-campaign acceptance.
+
+## First contact and CommsPod research
+
+Runtime `3ebeca0` continues from the unmodified pod-refitting save. WAYFARER returns from the Moon to Earth Orbital, replaces its empty cryopod with a tool pod, and fits one grapple. The saved stocks confirm one cryopod returned, one tool pod consumed and grapple stock 3→2. The other two supply mounts stay empty; crew remains seven and fuel falls 242→238 through the return.
+
+Ordinary flight then reaches Jupiter, where the Methanoid menu icon appears. Docking and selecting the tool module plays the first-contact message, supplies a communications object to the empty grapple and launches the ship. The object survives save/reload and the return to Earth. This roundtrip consumes 28T, leaving 210T. Unloading shows the research-analysis message, clears the held object and unlocks CommsPod research while manufacturing remains locked.
+
+Professor Cavell's existing 249-person team completes the research through normal time advancement. The interface displays the 5T orbital-only recipe: two aluminium and one each carbon, copper and gold. Saving and reloading retains the completed research. Normal close exits zero, the strict runtime log passes and original user saves are restored exactly.
+
+Evidence and runnable stock/research checks: `artifacts/first-contact-campaign/`. Continuation `researched-slot-4.json` has SHA-256 `ffc3c2299fd2d65f18889b9f679e13efc9e7b41d3f0a33f02f8e63cf9cefa75d`. Two initial manual date advances occurred while the location view was displayed, before the actual departure; they are not counted as flight updates. Paid manufacture, fitting, trading and Windows acceptance remain pending in this normal campaign. The staffed factory is at the Moon, whose orbital stores need gold delivered from the ground.
