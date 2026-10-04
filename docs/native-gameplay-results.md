@@ -246,3 +246,15 @@ Allowing combat to finish destroys WAYFARER and returns to Master Control with i
 A separate session reloads the unedited prebattle save and clicks Flee. The ship enters return transit to the Moon, retaining one drone, seven crew, two fuel units and its modules; Jupiter retains 36 defenders and no loss report is added. Reload preserves the transit state. The return journey is not completed with this insufficient tank.
 
 Evidence: `artifacts/normal-battle-campaign/`, including six checkpoints, screenshots and `audit.py`. Native sessions 47380 and 53610 exit zero, both strict logs pass, and original saves are restored exactly. An accidental time-run toggle during post-defeat navigation was stopped and its unsaved progression discarded by reloading the defeat checkpoint before the final audit. These checks establish normal defeat/retreat persistence; victory, station capture, PTL, Windows and original-runtime acceptance remain open.
+
+## Normal automated freight and crew transport
+
+At `239beba`, the unmodified drone-campaign continuation resumes with one drone and insufficient orbital supplies for fleet expansion. WAYFARER returns from the Moon to Earth, consuming three DFCC gauge units. Admiral Blunket's seven-person crew temporarily transfers to FIRST LIGHT through the orbital roster.
+
+The shuttle lands, selects MeH as ground-source cargo and starts ACC. Four 250-unit deliveries establish 1,000 MeH in orbit. Complete Cycle stops after unloading at the next arrival. Selecting iron, titanium, aluminium and copper then produces six further deliveries while 41 marines train normally. The trained Kingston crew travels to orbit in an existing cryopod; Kingston takes the shuttle and Blunket returns to WAYFARER. The shuttle returns its empty cryopod to Earth stores, refits the conserved supply pod and completes a seventh metal delivery under Kingston.
+
+Saved-state audit confirms 500 each iron/titanium/copper and 250 aluminium delivered. Ground stock plus remaining ore accounts for every unit. MeH totals include 177 refined units, 57 spent on ground shuttle refuelling, 51 on orbital shuttle refuelling and 200 buying 20 DFCC gauge units. Total travel consumption is 138 stock-equivalent fuel units. Earth orbit ends with 749 MeH; WAYFARER has 29 gauge units, seven crew and its original drone/modules. FIRST LIGHT has 46 fuel, 41 crew and an empty supply pod. Training deducted exactly 41 available recruits; both cryopod stocks are restored.
+
+Reload preserves both crews, ships, inventories and selected ACC rotation. No additional simulation update occurs during the reload inspection; normal wall-time accumulation continues. Native session 10429 exits zero and its strict log passes. Original user saves are restored exactly. Evidence and runnable audit: `artifacts/fleet-supply-campaign/`. Continuation `reloaded-slot-4.json` SHA-256: `8bdfa99dea7ccac53f2a13f6a7fffa6eb00dc4ce35a1598259df6a0f42edf6ae`.
+
+This prepares normal fleet expansion; it does not establish victory, capture, PTL progression or Windows acceptance. Rare-metal supply and further drone manufacture remain next.
