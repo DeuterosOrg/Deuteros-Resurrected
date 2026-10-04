@@ -72,6 +72,35 @@ namespace Deuteros.Tests
             });
         }
 
+        private async Task SettingsMtxFullCrew()
+        {
+            await WithSettings(async screen =>
+            {
+                var core = GameCore.SingletonInstance;
+                core.SetProcess(false);
+                var earth = GameCore.Earth;
+                for (var i = 0; i < earth.PlanetResources.Staff.Length; i++)
+                    earth.PlanetResources.Staff[i] = new Staff { Type = StaffType.Production, Count = 5, Leader = "Builder" + i };
+                var before = Deuteros.Code.Utility.SaveStorage.Serialize(Save);
+                ConfirmSettingsPreset(screen, 4);
+                Equal(true, before == Deuteros.Code.Utility.SaveStorage.Serialize(Save), "indirect setup rejects full roster before changing the world");
+                Equal("Free a crew slot first.", screen.GetNode<Label>("Status").Text, "MTX gives crew capacity feedback");
+                Equal(true, OverlayManager.Instance.IsOpen, "rejected preset keeps settings available");
+
+                // Seven existing parts bypass shuttle setup: this path needs no extra staff slot.
+                earth.Station.BuildParts = 7;
+                Save.Unlocks.Add(Game_Unlocks.Mass_Tranceiver); // Keep this capacity check out of the independent bulletin renderer.
+                var nameIndex = Save.NextPersonIndex;
+                ConfirmSettingsPreset(screen, 4);
+                await InputFrames();
+                Equal(false, OverlayManager.Instance.IsOpen, "safe MTX setup proceeds with a full roster");
+                Equal(true, earth.Station.Built && earth.Station.MtxInstalled, "existing station receives MTX");
+                Equal(nameIndex, Save.NextPersonIndex, "safe setup does not allocate a discarded crew name");
+                for (var i = 0; i < earth.PlanetResources.Staff.Length; i++)
+                    Equal("Builder" + i, earth.PlanetResources.Staff[i].Leader, "existing teams remain unchanged");
+            });
+        }
+
         private void SettingsInvalidValues()
         {
             var path = "user://settings-test-" + Guid.NewGuid().ToString("N") + ".cfg";

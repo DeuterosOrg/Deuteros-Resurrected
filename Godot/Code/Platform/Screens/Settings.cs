@@ -159,7 +159,9 @@ public partial class Settings : Control
     {
         // These existing shortcuts can create a marine team; preflight before any other mutation.
         var earth = GameCore.Earth;
-        if (preset.Selected <= 3 && !earth.PlanetResources.Staff.Any(team => team == null || team.Type == StaffType.Marines))
+        var mayCreateCrew = preset.Selected <= 3 || (preset.Selected == 4 && !earth.Station.Built
+            && earth.Station.BuildParts < 7 && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Game_Unlocks.Shuttle_Unlock));
+        if (mayCreateCrew && !earth.PlanetResources.Staff.Any(team => team == null || team.Type == StaffType.Marines))
         {
             ClearConfirmation();
             status.Text = "Free a crew slot first.";

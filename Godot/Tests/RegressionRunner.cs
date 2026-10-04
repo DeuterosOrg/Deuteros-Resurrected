@@ -367,6 +367,7 @@ namespace Deuteros.Tests
             CheckUi("Removing production staff preserves paid jobs and progress through reload", () => ResumePaidProduction(true));
             CheckUi("AOC conversion retains paid paused jobs through selection cancellation and legacy reload", AocPaidManualQueue);
             CheckUi("AOC installation waits for staff capacity and commits once without transferable stock", AocStaffCapacity);
+            await CheckAsync("MTX preset checks indirect crew allocation without blocking an existing station", SettingsMtxFullCrew);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
