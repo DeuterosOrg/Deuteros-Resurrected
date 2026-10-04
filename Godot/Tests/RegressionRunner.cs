@@ -348,7 +348,7 @@ namespace Deuteros.Tests
             await CheckAsync("Supply tool and cryo pods animate fitting and removal with one stock transaction", PodFittingMotion);
             await CheckAsync("Pod replacement animates old then new and releases only its own lock on exit", PodReplacementAndExit);
             await CheckAsync("Empty combat fleets settle through the actual battle completion path", BattleEmptyFleets);
-            CheckUi("Exact PTL casualties cannot send an empty fleet into another combat round", BattlePtlEmptyFleet);
+            CheckUi("PTL equality boundaries preserve original survivors and refresh combat power", BattlePtlBoundaries);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

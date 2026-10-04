@@ -63,12 +63,17 @@ namespace Deuteros.Tests
 
         private sealed class PtlBoundaryRandom : System.Random
         {
-            public override int Next(int maxValue) => maxValue == 128 ? 8 : maxValue == 64 ? 6 : 0;
+            private readonly int splash;
+            public PtlBoundaryRandom(int splash) => this.splash = splash;
+            public override int Next(int maxValue) => maxValue == 128 ? 8 : maxValue == 64 ? splash : 0;
         }
 
-        private void BattlePtlEmptyFleet()
+        private void BattlePtlBoundaries()
         {
-            foreach (var counts in new[] { (20, 10, 14, 0), (6, 30, 0, 20), (6, 10, 0, 0), (5, 9, 2, 2), (7, 11, 1, 1) })
+            // Original Disk 2 raw $23780/$237B0 use carry: damage must be strictly below the fleet.
+            foreach (var counts in new[] { (20, 10, 6, 14, 2), (6, 30, 6, 2, 20), (6, 10, 6, 2, 2),
+                                           (5, 9, 6, 2, 2), (7, 11, 6, 1, 1), (20, 30, 10, 15, 20),
+                                           (20, 30, 40, 15, 20), (20, 30, 0, 20, 20) })
             {
                 var player = new IOS { DroneCount = counts.Item1, PTL = true, Fuel = 200 };
                 Save.Ships.Add(player);
@@ -76,23 +81,20 @@ namespace Deuteros.Tests
                 var logic = new Deuteros.Code.Objects.Battle.BattleLogic(player, enemy, 0, null, null, null, null, null);
                 var type = logic.GetType();
                 type.GetProperty("BattleState", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, BattleState.FleetsInBattle);
-                type.GetField("r", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, new PtlBoundaryRandom());
+                type.GetField("r", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, new PtlBoundaryRandom(counts.Item3));
                 logic.LaunchPTL();
                 Equal(100, player.Fuel, "launch pays once");
                 type.GetField("PTLCounter", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, 37);
                 type.GetMethod("ProcessPTL", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
-                Equal(counts.Item3, logic.Player1Ships, "player splash boundary");
-                Equal(counts.Item4, logic.Player2Ships, "enemy impact boundary");
+                Equal(counts.Item4, logic.Player1Ships, "player splash boundary");
+                Equal(counts.Item5, logic.Player2Ships, "enemy impact boundary");
+                type.GetMethod("DoBattleRound", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
+                Equal(counts.Item4 * 4, logic.Player1Power, "next round uses surviving player fleet power");
+                Equal(counts.Item5 * 4, logic.Player2Power, "next round uses surviving enemy fleet power");
                 for (var i = 0; i < 12; i++)
                 {
                     type.GetMethod("DoBattleRound", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
                     type.GetMethod("ApplyRoundResults", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
-                }
-                if (counts.Item3 == 0 || counts.Item4 == 0)
-                {
-                    Equal(true, logic.Completed(), "exact casualties settle without another loss");
-                    Equal(counts.Item3, player.DroneCount, "player survivors committed");
-                    Equal(counts.Item4, enemy.DroneCount, "enemy survivors committed");
                 }
                 Equal(true, logic.Player1Ships >= 0 && logic.Player2Ships >= 0, "fleet counts never become negative");
                 Equal(100, player.Fuel, "settlement cannot charge a second launch");

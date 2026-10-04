@@ -189,6 +189,8 @@ namespace Deuteros.Code.Objects.Battle
         private void DoBattleRound()
         {
             byte[] roundfactors;
+            Player1Power = P1Level * Player1Ships;
+            Player2Power = P2Level * Player2Ships;
             if (Player1Ships == 0 || Player2Ships == 0)
                 BattleState = BattleState.BattleEnded;
 
@@ -629,13 +631,13 @@ namespace Deuteros.Code.Objects.Battle
                 if (PTLCounter == 37)
                 {
                     var rnd = r.Next(128) + 2;
-                    if (Player2Ships < rnd) Player2Ships = 2; else Player2Ships -= rnd;
+                    if (Player2Ships <= rnd) Player2Ships = 2; else Player2Ships -= rnd;
 
 
                     var rnd2 = r.Next(64);
-                    while (rnd2 > rnd) rnd2 = rnd2 / 2;
+                    while (rnd2 >= rnd) rnd2 = rnd2 / 2;
 
-                    if (Player1Ships < rnd2) Player1Ships = 2; else Player1Ships -= rnd2;
+                    if (Player1Ships <= rnd2) Player1Ships = 2; else Player1Ships -= rnd2;
 
                     p1Counter = 10;
                     p2Counter = 10;
