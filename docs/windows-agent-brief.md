@@ -586,3 +586,9 @@ The new research producer restores the original six-hostile-system delay and cap
 Protect original saves: new `CaptiveBase`, `ColonyEventCountdown` and Mining Dump bulletin fields are optional when loading older saves, but older builds reject new fields. Historical captivity is not guessed; only subsequent captures acquire the new flag. Existing installed launchers and research progress must survive loading. Preserve Windows-owned bay controls and patches while the remaining fitting change is coordinated.
 
 The verified full-history bundle `C:/Users/builder/Downloads/deuteros-50b444a.bundle` contains documentation HEAD `50b444a` and tested runtime `f99b462`. SHA-256 `2e3c7b0dbd851f6f93c884ebcf775da31c5d594acb0f7795b662246e390cdbe3` matches locally and remotely. The request file in the same folder records the save-schema warning and outstanding patch collection. Nothing from this bundle has been executed on Windows by the Mac agent.
+
+## PTL cockpit fitting follow-up
+
+The subsequent fitting change edits only `ShipBay.cs`'s AddACC callback/hover, `Cockpit.cs`, the new original PTL icon and regressions 609–610. Preserve your pending v4, SCG, Service and Stocktaker work when reconciling. The older `50b444a` bundle does not include this change.
+
+On a converted IOS and SCG, completed PTL research should expose the cockpit launcher control. Fit one from local stores: consume exactly one launcher without replacing a pod or changing fuel/drones/ACC settings. Check repeated clicks, unavailable stock, locks and a bay retained after hostile capture; save/reload and use the launcher in battle. Unconverted hulls must retain ordinary ACC fitting. Targeted headless/native Mac checks, startup and audited cross-export pass; normal campaign and Windows source/export acceptance remain open. Reuse equivalent prior Windows evidence.

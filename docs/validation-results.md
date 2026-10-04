@@ -1022,4 +1022,14 @@ Runtime `f99b462831bff91eb8a3801c437dfba4c09813f9` passes the fresh full **608/6
 
 The initial aggregate attempt exited 1 during editor teardown with `!rc_owner`, after `IMPORT OK` and before any regression. Its complete logs remain in `failed-import-48263/`. A separate strict import then passed, followed by the fresh successful aggregate. No error filter, engine setting or timeout changed. The intermittent shutdown failure remains unresolved; the existing exact EditorSettings teardown exemption does not cover it.
 
-No Windows execution or normal PTL campaign acceptance is claimed. Cockpit installation remains missing; see [source findings and compatibility policy](original-ptl-evidence.md). Existing Windows results remain credited, and the 48-task completion counts do not change.
+No Windows execution or normal PTL campaign acceptance is claimed. Cockpit installation was still missing at this checkpoint; the follow-up below supplies it. See [source findings and compatibility policy](original-ptl-evidence.md). Existing Windows results remain credited, and the 48-task completion counts do not change.
+
+## Permanent PTL cockpit fitting
+
+The existing cockpit ACC control now fits PTL on DFCC-converted IOS/SCG hulls after research, using the recovered original 24×16 icon and hover text. One local item sets the saved permanent flag; pods, cargo, ACC settings, fuel and drones remain unchanged. Existing bay validity and rogue-crew checks are reused, with explicit UI/ownership gates and duplicate/no-stock feedback.
+
+Case 609 first fails through real pointer input, then passes fitting, duplicate prevention, inventory conservation, save/reload and battle use for both hulls. Case 610 covers research, input locks, stale ships, missing stock and unchanged ordinary ACC fitting. Review reproduced an additional retained-callback defect after hostile capture; the ownership guard corrects it. These are staged prerequisites, not normal research/manufacture acceptance.
+
+All **46 focused headless cases** pass, covering fitting, related bay/assembly/DFCC, hover, pod motion and rogue behavior. Final ownership checks 609/610/547/556 and native Mac 609/610 pass; both native screenshots were inspected. Build: 14 existing warnings, zero errors. Strict import, source startup and Windows cross-export pass. Independent audit confirms **1,232 pack entries**, matching PTL texture/remap payloads, **64 illustration imports** and **zero test resources**. Export: **163,902,608 bytes**, SHA-256 `f71871e09ac4997708a30873013bad3229f5484ba16e1d09b2001d55d5a828e5`.
+
+Evidence and runnable audit: `artifacts/validation/evidence/ptl-fitting/`. Initial import still failed at teardown with `!rc_owner`; its log is preserved, and a separate strict import passes without filter changes. Fixture compile/cursor failures and both failing gameplay reproductions are retained. The shutdown issue remains unresolved. The last complete aggregate remains **608 at f99b462**; no full610 or Windows execution is claimed. Normal PTL campaign acceptance and Windows source/export checks remain open; 48-task counts are unchanged.

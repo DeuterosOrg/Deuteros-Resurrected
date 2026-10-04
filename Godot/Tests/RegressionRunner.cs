@@ -354,6 +354,8 @@ namespace Deuteros.Tests
             await CheckAsync("Captive colony events preserve stock caps deposits cooldown and saved bulletin replay", PtlColonyStockEvent);
             CheckUi("Capture repair and station loss retain the original captive colony event eligibility", PtlCaptiveLifecycle);
             CheckUi("PTL discovery saves reject malformed state and retain old cargo and installed launchers", PtlDiscoverySaveValidation);
+            await CheckAsync("PTL cockpit fitting consumes one local launcher and reaches saved combat on IOS and SCG", PtlCockpitFitting);
+            await CheckAsync("PTL fitting gates research stock locks and retained ships while preserving ordinary ACC", PtlFittingGates);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

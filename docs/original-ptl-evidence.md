@@ -2,7 +2,7 @@
 
 ## Source and status
 
-Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`. Addresses below are original RAM addresses; raw disk offset is RAM plus `$5B000`. Capstone 5.0.7 M68000 extracts are retained under ignored `artifacts/research/ptl/`: `install-discovery-and-enable.txt` and `cockpit-control-and-stock-event.txt` (latter SHA-256 `43662279c269b4fab407eb01fe6610b05cd23d7fcfa3b2526fc543936ecd1089`). These are static source findings. The discovery producer and captive-colony stock event are implemented below; cockpit fitting and normal campaign acceptance remain open.
+Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`. Addresses below are original RAM addresses; raw disk offset is RAM plus `$5B000`. Capstone 5.0.7 M68000 extracts are retained under ignored `artifacts/research/ptl/`: `install-discovery-and-enable.txt` and `cockpit-control-and-stock-event.txt` (latter SHA-256 `43662279c269b4fab407eb01fe6610b05cd23d7fcfa3b2526fc543936ecd1089`). These are static source findings. Discovery, the captive-colony stock event and cockpit fitting are implemented below; normal campaign and Windows acceptance remain open.
 
 ## Permanent cockpit fitting
 
@@ -10,7 +10,7 @@ Cockpit rendering `$31CBC–$31DC6` chooses menu `$21744` when the hull code is 
 
 The handler checks ship byte `+0F`, bit 7. An existing installation reports a duplicate without spending stock. Otherwise it requires item index 26, sets the permanent flag and debits one unit through `$2415C`. It does not replace a tool pod. The normal hull tool masks correctly exclude this item.
 
-In the remake, the recipe is `prejudice_torpedo_launcher` (enum 37, Research.Index 27), not the unused `p__t__l` alias. `InterStellarShip.PTL` already stores the flag, but ordinary gameplay never sets it. The existing `AddACC` control does have a live handler: do not treat it as unused or add PTL to the tool list. Any fitting correction must preserve ACC behavior, validate the current bay/ship and stock, reject duplicate or retained invalid commands, and preserve the flag through save/load.
+In the remake, the recipe is `prejudice_torpedo_launcher` (enum 37, Research.Index 27), not the unused `p__t__l` alias. The existing `AddACC` control now switches to permanent PTL fitting on DFCC-converted IOS/SCG hulls after completed research. It consumes one local launcher and sets `InterStellarShip.PTL`, preserving pods, cargo, drones, fuel and ACC settings. Duplicate/no-stock attempts use existing error feedback. Input locks, stale/departed hulls, hostile ownership and invalid stations reject retained callbacks. Ordinary ACC fitting remains available on unconverted hulls.
 
 ## Original fitting control artwork
 
@@ -18,7 +18,7 @@ The cockpit loads icon 19 for PTL (`$31D84`) and icon 27 for ACC (`$31DA2`) thro
 
 The extracted ACC entry matches **all 384 pixels** of the supplied `Sprites/Buttons/Shipbay/ACC.png`, with a unique mapping for each of its five palette indices. Applying that same supplied palette to PTL preserves the existing bay colours and opaque black background. PTL indexed-pixel SHA-256 is `816e35b5c694a0f799025f794d5512cf431f51a0c2c90770884c0e6e5d0c359b`; decoded PNG SHA-256 is `1051d3d6763e9ff1bed0d47a895898454803c1db3e88b36a539a269341809ba9`.
 
-Reproduce with `python3 artifacts/research/ptl/extract-cockpit-icon.py` (Pillow and the pinned local Disk 1 required). The script, `cockpit-sprite-dispatch.txt`, `cockpit-control-art.json` and `fit-torpedo-launcher.png` remain local research evidence. This resolves the source artwork; the icon is not yet wired into gameplay, and original display colour calibration remains separate.
+Reproduce with `python3 artifacts/research/ptl/extract-cockpit-icon.py` (Pillow and the pinned local Disk 1 required). The script, `cockpit-sprite-dispatch.txt`, `cockpit-control-art.json` and `fit-torpedo-launcher.png` remain local research evidence. The icon is wired into gameplay as `Sprites/Buttons/Shipbay/PTL.png`; original display colour calibration remains separate.
 
 ## Discovery shares a captive-colony event
 
@@ -34,4 +34,4 @@ The shared research dispatcher now covers count 6 as well as count 7, including 
 
 Older saves lack reliable captive-colony history: their new flag defaults false, without fabricating previous captures, stock gifts or notices. Future captures establish eligibility normally. Existing PTL installations and Hyperlight delays survive loading; malformed or explicit-null new state is rejected. New-format saves should not be loaded into older builds.
 
-Cases 605–608 cover actual day progression, stock/cooldown boundaries, bulletin replay, capture/repair/loss and save compatibility. See [validation](validation-results.md#ptl-discovery-and-captive-colony-stock-events). The original fitting artwork is resolved above; coordinate changes to Windows-owned bay work before editing those controls. Combat boundaries and their completed validation are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04); they do not establish this progression path.
+Cases 605–608 cover actual day progression, stock/cooldown boundaries, bulletin replay, capture/repair/loss and save compatibility. See [discovery validation](validation-results.md#ptl-discovery-and-captive-colony-stock-events). Cases 609–610 cover pointer fitting on both hulls, duplicate/ownership/input gates, unchanged inventories, reload and subsequent battle use with staged prerequisites. See [fitting validation](validation-results.md#permanent-ptl-cockpit-fitting). Windows-owned Service, popup, Torso scene and Stocktaker patches remain separate. Combat boundaries are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04). These checks do not establish the complete normal discovery → research → paid manufacture → fitting → battle campaign.

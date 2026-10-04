@@ -15,6 +15,8 @@ Current totals: **35/48 with implementation evidence; 4/48 locally accepted agai
 
 **Windows interactive work is already underway:** the desktop agent reports passing scenarios associated with **six original task IDs** (SCG, supply discard, ACC, DFCC fuel, Stores and interior navigation), with remaining scenarios recorded separately. Craig has also explicitly accepted three related normal-play fixes: Service navigation, the resized missing-pod popup, and background-click return from all three shuttle service sections. These accepted fixes must not disappear behind a “zero Windows acceptance” headline. The [Windows reconciliation](windows-validation-results.md#windows-acceptance-reconciliation--2026-10-03-2247-utc) distinguishes these results from complete parent-task and matching-export coverage. Agent communication and patch collection are in progress.
 
+Latest PTL follow-up adds original cockpit fitting on converted IOS/SCG hulls, closing the missing producer of the saved installation flag. Pointer fitting, stock conservation, reload and subsequent battle use pass targeted Mac checks with staged prerequisites; strict startup and audited cross-export also pass. Normal campaign and Windows acceptance remain open. See [fitting evidence](validation-results.md#permanent-ptl-cockpit-fitting). This advances campaign work without increasing the 35/48 or four accepted-task totals.
+
 ## Requirements accepted — 2026-10-03
 
 The four descriptions were refreshed read-only from Asana. Acceptance follows the existing rules above; it does not claim completion of the broader campaign or original-game parity.

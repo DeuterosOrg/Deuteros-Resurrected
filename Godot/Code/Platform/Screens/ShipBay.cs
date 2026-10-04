@@ -318,7 +318,7 @@ namespace Deuteros.Code.Platform.Screens
 			BindHover(Nav_Engine, () => "Engine mounting");
 			BindHover(FuelGaugeMinus, () => ShipPresent ? "Unload fuel" : "");
 			BindHover(FuelGaugePlus, () => ShipPresent ? "Fuel ship" : "");
-			BindHover(CockpitInstance.GetNode<Control>("Buttons/AddACC"), () => "Fit A.C.C.");
+			BindHover(CockpitInstance.GetNode<Control>("Buttons/AddACC"), () => Ship is InterStellarShip { DFCC: true } ? "Fit Torpedo Launcher" : "Fit A.C.C.");
 			BindHover(CockpitInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
 			BindHover(EngineInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
 			for (int i = 0; i < 4; i++)
@@ -340,7 +340,25 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void AddACC_Pressed()
 		{
+            var core = GameCore.SingletonInstance;
+            if (GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+                || core.GetNode<InputBlocker>("InputBlocker").Blocked
+                || core.GetNode<GlobalInput>("VirtualCursorView").IsLocked) return;
             if (RejectShipCommand()) return;
+            if (Ship is InterStellarShip { DFCC: true } stellar)
+            {
+                var type = ItemTypes.prejudice_torpedo_launcher;
+                if (stellar.MethanoidOwned || CurrentPlanet.ActiveMethanoid || !core.GameData.GetItem(type).Research.Researched) return;
+                if (stellar.PTL) GameCore.ShowError(this, "P.T.L. Already\nFitted");
+                else if (ResourceList.Stores[type] <= 0) GameCore.ShowError(this, "P.T.L. Not\nAvailable");
+                else
+                {
+                    ResourceList.Stores[type]--;
+                    stellar.PTL = true;
+                }
+                UpdateState();
+                return;
+            }
 			Objects.Store stores;
 
 			if (Ground)
