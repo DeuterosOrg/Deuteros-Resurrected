@@ -39,6 +39,8 @@ namespace Deuteros.Code.Objects
             {
                 StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
                 ShipState = Ship_States.Docking;
+                if (this is InterStellarShip asteroidShip && PlanetLocation == StellarBodies.asteroids)
+                    asteroidShip.AsteroidActionTicks = 2;
             }
         }
 
@@ -84,6 +86,8 @@ namespace Deuteros.Code.Objects
                 {
                     ShipState = Ship_States.Launching;
                     StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
+                    if (this is InterStellarShip asteroidShip && PlanetLocation == StellarBodies.asteroids)
+                        asteroidShip.AsteroidActionTicks = 2;
                 }
             }
         }

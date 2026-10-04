@@ -164,7 +164,7 @@ namespace Deuteros.Tests
             {
                 Equal(true, miner.Modules[1].ItemCount > 0, "both independent mining slots receive ore");
                 Equal(ItemTypes.titanium, miner.Modules[1].ItemStored, "each pod receives its scanned mineral");
-                Equal(98, miner.Fuel, "completed approach must not keep consuming travel fuel");
+                Equal(99, miner.Fuel, "two-update approach charges only its even fuel phase");
             }
             ship.TakeOff();
             core._Process(315.6);

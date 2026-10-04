@@ -340,7 +340,7 @@ namespace Deuteros.Tests
             await CheckAsync("Interior service artwork opens the correct docked ship bay by pointer", InteriorServiceNavigation);
             await CheckAsync("Interior service rejects unavailable bays and retained locked commands", InteriorServiceGates);
             await CheckAsync("Takeoff awards experience and clears bay state only for an actual departure", InteriorTakeoffGates);
-            CheckUi("AMA departure remains possible after approach exhausts the last fuel", AmaEmptyFuelDeparture);
+            CheckUi("AMA departure remains possible after mining exhausts the last fuel", AmaEmptyFuelDeparture);
             CheckUi("MTX delivers freshly extracted materials before factory work", () => MtxProductionOrder(false));
             CheckUi("MTX sends newly completed factory output on the following update", () => MtxProductionOrder(true));
             CheckUi("ACC Clear immediately refreshes both endpoint selections and cycle markers", AccClearRefresh);
@@ -356,6 +356,12 @@ namespace Deuteros.Tests
             CheckUi("PTL discovery saves reject malformed state and retain old cargo and installed launchers", PtlDiscoverySaveValidation);
             await CheckAsync("PTL cockpit fitting consumes one local launcher and reaches saved combat on IOS and SCG", PtlCockpitFitting);
             await CheckAsync("PTL fitting gates research stock locks and retained ships while preserving ordinary ACC", PtlFittingGates);
+            CheckUi("Asteroid fuel uses the saved shared 255-update phase across scanning and mining hulls", AsteroidFuelCadence);
+            CheckUi("Asteroid exhaustion disengages ACC without destroying existing scanners or miners", AsteroidFuelExhaustion);
+            CheckUi("Asteroid approach charges alternating updates and preserves exhausted countdown across reload", AsteroidEmptyApproach);
+            CheckUi("Asteroid departure doubles remaining time on exhaustion then strands for six updates", AsteroidEmptyLaunch);
+            await CheckAsync("Asteroid interior distinguishes continuing empty-tank scanning from stranded arrival", AsteroidFuelStatus);
+            CheckUi("Asteroid fuel saves validate countdowns migrate old approaches and preserve empty arrivals", AsteroidFuelSavesAndArrival);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

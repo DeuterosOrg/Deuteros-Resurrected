@@ -67,7 +67,8 @@ namespace Deuteros.Code.Utility
                     // Version-1 saves written before engine damage have no flag; default healthy.
                     if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
                         property.Required = Required.DisallowNull;
-                    else if (typeof(InterStellarShip).IsAssignableFrom(type) && property.PropertyName == nameof(InterStellarShip.AutomationSlot))
+                    else if (typeof(InterStellarShip).IsAssignableFrom(type) && (property.PropertyName == nameof(InterStellarShip.AutomationSlot)
+                        || property.PropertyName == nameof(InterStellarShip.AsteroidActionTicks)))
                         property.Required = Required.DisallowNull;
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
                     else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord) || property.PropertyName == nameof(Staff.Pirate)))
@@ -344,6 +345,7 @@ namespace Deuteros.Code.Utility
                     || (ship is SCG && ship.ShipType == Ship_Types.SCG), "hull type");
                 Require(Enum.IsDefined(typeof(Ship_States), ship.ShipState), "ship state");
                 Require(ship is not InterStellarShip vessel || vessel.AutomationSlot >= -1, "ship automation slot");
+                Require(ship is not InterStellarShip miner || miner.AsteroidActionTicks is >= -1 and <= 4, "asteroid action countdown");
                 Require(ship is not InterStellarShip || ship.ShipState != Ship_States.InTransit
                     || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "in-flight destination");
                 Require(ship is not SCG { Flight: not null } scg || scg.Flight.IsValid(scg, save), "interstellar flight");

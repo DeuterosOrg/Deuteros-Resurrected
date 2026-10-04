@@ -807,6 +807,8 @@ namespace Deuteros.Code.Platform.Screens
 					Status.Text = "Drifting To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 			else if (Ship.ShipState == Ship_States.Docking)
 				Status.Text = "Docking With\n" + Ship.PlanetLocation.ToScreenString(" ");
+			else if (Ship is InterStellarShip && Ship.PlanetLocation == StellarBodies.asteroids)
+                Status.Text = (Ship.FallingCount > 0 ? "Stranded At\n" : "Scanning\n") + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.Fuel == 0)
 				Status.Text = "Falling To\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else
@@ -1174,6 +1176,9 @@ namespace Deuteros.Code.Platform.Screens
 
 			foreach (var ship in GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships)
 			{
+                var asteroidActivity = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
+                    && ship.ShipState is Ship_States.Docked or Ship_States.UnDocked or Ship_States.Docking or Ship_States.Launching;
+                if (asteroidActivity && !((InterStellarShip)ship).AdvanceAsteroidActivity(previousDay, currentDay)) continue;
 				if (ship.ShipType != Ship_Types.Shuttle)
 				{
 
@@ -1196,12 +1201,12 @@ namespace Deuteros.Code.Platform.Screens
 					}
 				}
 
-				if ((ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0)
+				if (!asteroidActivity && (ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0)
 				{
 					if (ship is not SCG { Flight: not null }) ship.Fuel--;
 					ship.FallingCount = 0;
 				}
-				else if (ship.Fuel == 0 && ship.ShipState == Ship_States.UnDocked)
+				else if (!asteroidActivity && ship.Fuel == 0 && ship.ShipState == Ship_States.UnDocked)
 				{
 					ship.FallingCount++;
 				}
@@ -1214,8 +1219,6 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (ship.ShipState == Ship_States.Launching)
 					{
-                        if (ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
-                            && currentDay - ship.StartTravelDay < 2) continue;
 						ship.ShipState = Ship_States.UnDocked;
 						ship.ACC?.Update(Ship_States.Launching);
 					}
@@ -1260,13 +1263,16 @@ namespace Deuteros.Code.Platform.Screens
 							ship.DestinationPlanetLocation = tempDestPlanet;
 							ship.DestinationStarLocation = tempDestStar;
 
+                            if (ship is InterStellarShip asteroidShip && ship.PlanetLocation == StellarBodies.asteroids)
+                            {
+                                ship.EngineEngaged = false;
+                                if (ship.Fuel == 0) { asteroidShip.StrandAtAsteroids(); continue; }
+                            }
 							ship.ACC?.Update(Ship_States.InTransit);
 						}	
 					}
 					else if (ship.ShipState == Ship_States.Docking)
 					{
-                        if (ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
-                            && currentDay - ship.StartTravelDay < 2) continue;
 						if (ship.ShipType == Ship_Types.Shuttle || ship.PlanetLocation == StellarBodies.asteroids
                             || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
 						{
@@ -1337,7 +1343,8 @@ namespace Deuteros.Code.Platform.Screens
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             save.Ships.RemoveAll(ship =>
             {
-                var lost = flightLosses.Contains(ship.ShipID) || ship.FallingCount == 5 || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
+                var fallLimit = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids ? 7 : 5;
+                var lost = flightLosses.Contains(ship.ShipID) || ship.FallingCount >= fallLimit || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
                 if (lost) save.News.AddShipLoss(ship);
                 return lost;
             });

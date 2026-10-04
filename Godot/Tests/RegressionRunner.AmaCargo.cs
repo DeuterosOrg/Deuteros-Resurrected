@@ -127,17 +127,13 @@ namespace Deuteros.Tests
             foreach (var automatic in new[] { false, true })
             {
                 var ship = AmaCargoShip();
-                ship.ShipState = Ship_States.UnDocked;
                 ship.Fuel = 1;
-                ship.Dock();
-                for (var day = 101u; day <= 102; day++)
-                {
-                    Save.CurrentDay = day;
-                    ShipInterior.UpdateShips(day - 1, day);
-                }
-                Equal(Ship_States.Docked, ship.ShipState, "approach completes with exhausted fuel");
-                Equal(0, ship.Fuel, "last fuel consumed during approach");
-                if (automatic) ShipInterior.UpdateShips(102, 103);
+                Save.Clock.DateCentidays = 0; // Off the mining phase so cargo does not force departure yet.
+                AsteroidFuelTick(128);
+                Equal(Ship_States.Docked, ship.ShipState, "active mining survives exhaustion");
+                Equal(0, ship.Fuel, "last fuel consumed during mining");
+                Save.Clock.DateCentidays = 200;
+                if (automatic) AsteroidFuelTick(129);
                 else ship.TakeOff();
                 Equal(Ship_States.Launching, ship.ShipState, "manual and full-cargo departures allow empty tanks");
                 Equal(0, ship.Fuel, "departure does not create fuel");

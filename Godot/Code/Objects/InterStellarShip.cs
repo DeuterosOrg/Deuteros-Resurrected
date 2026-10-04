@@ -23,6 +23,44 @@ namespace Deuteros.Code.Objects
         public int AttackedCount { get; set; }
         // Zero-based local IOS allocation, or global SCG allocation; -1 is not allocated yet.
         public int AutomationSlot { get; set; } = -1;
+        // -1 migrates an older approach/launch from StartTravelDay; zero is an exhausted action.
+        public int AsteroidActionTicks { get; set; } = -1;
+
+        internal bool AdvanceAsteroidActivity(uint previousDay, uint currentDay)
+        {
+            if (FallingCount > 0) { FallingCount++; return false; }
+            var moving = ShipState is Enums.Ship_States.Docking or Enums.Ship_States.Launching;
+            if (moving && AsteroidActionTicks < 0)
+                AsteroidActionTicks = (int)Math.Clamp(2L - ((long)previousDay - StartTravelDay), 1L, 2L);
+            // Original $1BF30 cycles 1..255. CurrentDay already saves consumed updates from zero.
+            var phase = (currentDay - 1) % 255 + 1;
+            var mask = ShipState == Enums.Ship_States.Launching ? 0
+                : ShipState == Enums.Ship_States.Docking ? 1 : 127;
+            if (Fuel > 0 && (phase & mask) == 0 && --Fuel == 0)
+            {
+                if (moving) AsteroidActionTicks *= 2;
+                EngineEngaged = false;
+                if (ACC != null) ACC.Active = ACC.CycleMode = ACC.Refuelling = false;
+            }
+            if (!moving) return true;
+            if (AsteroidActionTicks == 0 || --AsteroidActionTicks > 0) return false;
+            if (Fuel == 0)
+            {
+                // $31608 leaves an empty approach unfinished; $31590 strands an empty departure.
+                if (ShipState == Enums.Ship_States.Launching) StrandAtAsteroids();
+                return false;
+            }
+            AsteroidActionTicks = -1;
+            return true;
+        }
+
+        internal void StrandAtAsteroids()
+        {
+            ShipState = Enums.Ship_States.UnDocked;
+            EngineEngaged = false;
+            if (ACC != null) ACC.Active = ACC.CycleMode = ACC.Refuelling = false;
+            FallingCount = 1; // Six subsequent consumed updates, matching original action $11.
+        }
 
         public static void EnsureAutomationSlots(GameData.SaveFile save)
         {
