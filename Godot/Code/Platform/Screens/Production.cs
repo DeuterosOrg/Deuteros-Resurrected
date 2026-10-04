@@ -359,10 +359,11 @@ namespace Deuteros.Code.Platform.Screens
 		#region Statics
 
 		private static bool IsStationInstallation(Enums.ItemTypes type) =>
-			type == Enums.ItemTypes.m__t__x || type == Enums.ItemTypes.s__d__m;
+			type == Enums.ItemTypes.a__o__c || type == Enums.ItemTypes.m__t__x || type == Enums.ItemTypes.s__d__m;
 
 		private static bool StationItemInstalled(IPlanet planet, Enums.ItemTypes type) => type switch
 		{
+			Enums.ItemTypes.a__o__c => planet.Station.Factory.AOC,
 			Enums.ItemTypes.m__t__x => planet.Station.MtxInstalled,
 			Enums.ItemTypes.s__d__m => planet.Station.SdmInstalled,
 			_ => false
@@ -418,28 +419,35 @@ namespace Deuteros.Code.Platform.Screens
 								var outputStore = currentFactory.Ground ? currentPlanet.PlanetResources.Stores : currentPlanet.Station.Resources.Stores;
 								var completedType = currentFactory.CurrentProductionItem().Product.ItemType;
 								var installsStationItem = IsStationInstallation(completedType) && !currentFactory.Ground;
+								var wasAutomated = currentFactory.AOC;
+								var builder = currentFactory.Builder;
+								if (completedType == Enums.ItemTypes.a__o__c && currentPlanet.Station.Resources.Staff.All(staff => staff != null))
+								{
+									// Original $2337E returns without completing stage three until quarters are free.
+									currentFactory.CurrentProductionItem().Production_Complete = 3;
+									continue;
+								}
 								if (installsStationItem)
 								{
 									if (completedType == Enums.ItemTypes.m__t__x) currentPlanet.Station.MtxInstalled = true;
-									else currentPlanet.Station.SdmInstalled = true;
+									else if (completedType == Enums.ItemTypes.s__d__m) currentPlanet.Station.SdmInstalled = true;
+									else
+									{
+										currentPlanet.Station.Resources.AddStaff(builder);
+										currentFactory.Builder = null;
+										currentFactory.AOC = true;
+									}
 								}
 								else
 									outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
 
-								if (!currentFactory.AOC) currentFactory.Builder.AddAction();
+								if (!wasAutomated) builder.AddAction();
 								currentFactory.ProdCycle = 0;
 
 								GameCore.SingletonInstance.TriggerProductionFinished(currentFactory);
 
-								if (!currentFactory.AOC)
+								if (!wasAutomated)
 								{
-									if (currentFactory.CurrentProductionItem().Product.ItemType == Enums.ItemTypes.a__o__c)
-									{
-										currentPlanet.Station.Resources.AddStaff(currentFactory.Builder);
-										currentFactory.Builder = null;
-										currentFactory.AOC = true;
-									}
-
 									currentFactory.ProductionQueue.Remove(currentFactory.CurrentProductionItem());
 								}
 								/*else if (currentFactory.ProductionQueue.Any(T => T.AOCRepeat))

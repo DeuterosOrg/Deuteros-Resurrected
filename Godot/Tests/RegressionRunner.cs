@@ -366,6 +366,7 @@ namespace Deuteros.Tests
             CheckUi("Paid manual production resumes without a second recipe after switching and reloading", ResumePaidProduction);
             CheckUi("Removing production staff preserves paid jobs and progress through reload", () => ResumePaidProduction(true));
             CheckUi("AOC conversion retains paid paused jobs through selection cancellation and legacy reload", AocPaidManualQueue);
+            CheckUi("AOC installation waits for staff capacity and commits once without transferable stock", AocStaffCapacity);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

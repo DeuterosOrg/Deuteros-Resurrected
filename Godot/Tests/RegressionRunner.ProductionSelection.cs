@@ -200,6 +200,94 @@ namespace Deuteros.Tests
             }
         }
 
+        private void AocStaffCapacity()
+        {
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            PrepareRecipeStocks();
+            GameCore.Earth.GroundSelected = false;
+            var factory = GameCore.Earth.Station.Factory;
+            factory.AOC = false;
+            factory.ProductionQueue.Clear();
+            factory.Builder = new Staff { Leader = "Expert", Type = StaffType.Production, Count = 250 };
+            factory.Builder.AddAction(12);
+            var resources = GameCore.Earth.Station.Resources;
+            for (var slot = 0; slot < resources.Staff.Length; slot++)
+                resources.Staff[slot] = new Staff { Leader = "Occupied" + slot, Type = StaffType.Marines, Count = 1 };
+            var item = core.GameData.GetItem(ItemTypes.a__o__c);
+            item.Locked = item.Research.Locked = false;
+            item.Research.Researched = true;
+            resources.Stores.Items.Clear();
+            foreach (var cost in item.BuildRequirements) resources.Stores[cost.ItemType] = cost.ItemCount;
+            var notices = 0;
+            var observedCommittedState = true;
+            void Completed(Factory completed)
+            {
+                if (completed != factory) return;
+                notices++;
+                observedCommittedState &= completed.AOC && completed.Builder == null
+                    && resources.Staff[2]?.Leader == "Expert";
+            }
+            core.ProductionFinished += Completed;
+            var screen = OpenMtxProduction(false);
+            try
+            {
+                screen.Buttons.Single(b => b.ObjectData?.ItemType == item.ItemType).EmitSignal(BaseButton.SignalName.Pressed);
+                ProductionDays(100);
+                Equal(false, factory.AOC, "full quarters defer installation");
+                Equal("Expert", factory.Builder.Leader, "waiting factory retains the builder");
+                Equal(3, factory.CurrentProductionItem().Production_Complete, "original completion waits at stage three");
+                Equal(0, notices, "blocked completion emits no notice");
+                Equal(0, resources.Stores[item.ItemType], "blocked completion creates no stock");
+                Equal(12, (int)typeof(Staff).GetProperty("ActionsTaken", System.Reflection.BindingFlags.NonPublic
+                    | System.Reflection.BindingFlags.Instance).GetValue(factory.Builder), "waiting does not award experience repeatedly");
+            }
+            catch { core.ProductionFinished -= Completed; throw; }
+            finally { screen.Free(); }
+            try
+            {
+                core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                factory = GameCore.Earth.Station.Factory;
+                resources = GameCore.Earth.Station.Resources;
+                var builder = factory.Builder;
+                Equal(3, factory.CurrentProductionItem().Production_Complete, "waiting stage survives reload");
+                resources.Staff[2] = null;
+                screen = OpenMtxProduction(false);
+                try
+                {
+                    ProductionDays(100);
+                    Equal(true, factory.AOC, "freeing one slot permits installation");
+                    Equal(builder, resources.Staff[2], "the same builder occupies the free slot");
+                    Equal(1, notices, "installation notifies exactly once");
+                    Equal(true, observedCommittedState, "observers see committed installation and staff transfer");
+                    Equal(0, factory.ProductionQueue.Count, "completed AOC leaves the queue");
+                    Equal(0, resources.Stores[item.ItemType], "installed AOC is not transferable equipment");
+                    screen.DrawData();
+                    Equal(true, screen.GetNode<TextureRect>("Sprites/AocPanel").Visible, "completed installation displays the AOC panel");
+                    Equal(false, screen.GetNode<TextureButton>("RemoveStaff").Visible, "completed installation hides manual staff controls");
+                    Equal(13, (int)typeof(Staff).GetProperty("ActionsTaken", System.Reflection.BindingFlags.NonPublic
+                        | System.Reflection.BindingFlags.Instance).GetValue(builder), "one successful completion awards one action");
+                    var button = screen.Buttons.Single(b => b.ObjectData?.ItemType == item.ItemType);
+                    button.EmitSignal(BaseButton.SignalName.Pressed);
+                    Equal(0, factory.ProductionQueue.Count, "installed AOC cannot be ordered again");
+                    Equal(item.FullName + " - Installed", button.HoverText, "installed AOC is visibly unavailable");
+                    factory.ProductionQueue.Add(new ProductionItem(core.GameData.GetItem(item.ItemType)) { AOCRepeat = true });
+                    ProductionDays(20);
+                    Equal(0, factory.ProductionQueue.Count, "obsolete saved AOC repeat is discarded");
+                    Equal(1, notices, "obsolete repeat produces no completion");
+                    foreach (var cost in item.BuildRequirements) Equal(0, resources.Stores[cost.ItemType], "one recipe charged");
+                    for (var slot = 0; slot < resources.Staff.Length; slot++)
+                        if (slot != 2) Equal("Occupied" + slot, resources.Staff[slot].Leader, "other teams are preserved");
+                }
+                finally { screen.Free(); }
+            }
+            finally { core.ProductionFinished -= Completed; }
+            core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            Equal(true, GameCore.Earth.Station.Factory.AOC, "completed installation survives reload");
+            Equal("Expert", GameCore.Earth.Station.Resources.Staff[2].Leader, "returned builder survives reload");
+            Equal(0, GameCore.Earth.Station.Factory.ProductionQueue.Count, "completed queue remains empty after reload");
+        }
+
         public void RunProductionSelectionRegressions()
         {
             CheckUi("Ground production selection opens matching stores recipe without changing orbit", () => ProductionSelectionToStores(true, false));
