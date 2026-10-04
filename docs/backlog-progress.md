@@ -17,6 +17,8 @@ Current totals: **35/48 with implementation evidence; 4/48 locally accepted agai
 
 Latest PTL follow-up adds original cockpit fitting on converted IOS/SCG hulls, closing the missing producer of the saved installation flag. Pointer fitting, stock conservation, reload and subsequent battle use pass targeted Mac checks with staged prerequisites; strict startup and audited cross-export also pass. Normal campaign and Windows acceptance remain open. See [fitting evidence](validation-results.md#permanent-ptl-cockpit-fitting). This advances campaign work without increasing the 35/48 or four accepted-task totals.
 
+The asteroid fuel follow-up `d7c2ef3` now passes full616 Mac validation and an audited cross-export. Original scan/mining fuel cadence, exhaustion-specific ACC stops and approach/arrival loss rules have six new native checks plus a normal165 titanium delivery with two reloads. This is additional ACC/AMA fidelity evidence, not a new accepted task; Windows remains pending. See [validation](validation-results.md#616-case-aggregate-and-package-audit).
+
 ## Requirements accepted — 2026-10-03
 
 The four descriptions were refreshed read-only from Asana. Acceptance follows the existing rules above; it does not claim completion of the broader campaign or original-game parity.
