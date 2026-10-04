@@ -205,4 +205,14 @@ After departure and redocking, accepting the same offer exchanges exactly 180 ir
 
 Redocking consumes one further unit. Escape cancels the next offer without exchange, fuel gift, count change or departure. Saving and reloading leaves WAYFARER docked at Jupiter with the same cargo, 246T and seven crew. The native session exits zero, its strict log passes, and original saves are restored exactly.
 
-Screenshots, six normal saves and runnable cargo/fuel/counter checks are in `artifacts/comms-trading-campaign/`. Final continuation `cancelled-slot-4.json` has SHA-256 `9dd75b0346129f327b7e28dd5e0aaab3bf51649ffc76f7f3accf99bd63c8abec`. This verifies normal IOS decisions and persistence. The war threshold, Windows acceptance, original decision timeout and SCG cargo-position fidelity remain separate open requirements.
+Screenshots, six normal saves and runnable cargo/fuel/counter checks are in `artifacts/comms-trading-campaign/`. Final continuation `cancelled-slot-4.json` has SHA-256 `9dd75b0346129f327b7e28dd5e0aaab3bf51649ffc76f7f3accf99bd63c8abec`. This verifies normal IOS decisions and persistence. The next session verifies the war threshold; Windows acceptance, original decision timeout and SCG cargo-position fidelity remain separate open requirements.
+
+## Normal war declaration and Fusion Laser research
+
+Continuing that unmodified save at `3ebeca0`, WAYFARER completes 16 ordinary trade encounters. Saved checkpoints at counts 3, 6, 10, 15 and 16 retain peace, seven crew and both cargo quantities. Exchanges alternate iron/silica and titanium/copper, with each acceptance refilling fuel to 250T. The count-15 save follows a natural departure update and therefore contains 249T. Reloads after trades six and sixteen preserve progression.
+
+The next encounter declares war, replaces Comms with a grapple holding the unknown Fusion Laser prototype, and starts departure at 248T. The gift survives reload. Cavell's defence bulletin unlocks DFCC/drone research; the first alien transmission is subsequently acknowledged during the return. Its saved stage advances from 0/countdown 10 to 1/countdown 249 and survives reload. A natural clock update during the message accounts for one travel unit and the countdown decrement.
+
+WAYFARER docks at Earth with 234T, seven crew, 180 silica and 116 copper. Unloading analyses the prototype and unlocks Fusion Laser research; Cavell's existing 249-person team completes it through ordinary time advancement. Saving and reloading retains the completed 25T orbital-only recipe. No weapon manufacture or combat is claimed.
+
+Evidence: `artifacts/normal-war-campaign/`, including ten saves, screenshots and runnable cargo, fuel, research and transmission checks. Native session 70996 closes with exit zero; the final strict log and saved-state audit pass. Original user saves are restored exactly. Continuation `researched-slot-4.json` has SHA-256 `5923f4246c75d7ccb9eda9c922ef186f092e6b6821d4942851f1c203963a2b7e`. Clicks while the defence bulletin held input were ignored and are not counted as travel updates. Windows acceptance and the original trade timeout/cargo-layout questions remain open.
