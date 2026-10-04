@@ -1106,3 +1106,12 @@ The same action rebuilt product controls while retaining a deleted selected-butt
 New case **619** reuses the paid-production scenario: ground/orbit, full staff quarters rejecting removal, actual progress before removal, unchanged reserved materials, working replacement controls, save/load, team reassignment, and exactly one completion per paid order. The material-loss and disposed-button failures are preserved separately. **75 related cases**, native-window case619, and strict log audit pass; build reports 14 existing warnings and zero errors.
 
 Evidence: `artifacts/worktrees/production-queue/artifacts/validation/evidence/team-removal/`, including `audit.py`. This is staged control-level verification, not normal campaign or Windows acceptance. AOC conversion's separate paid-queue accounting remains under review; no new Asana task is counted accepted.
+
+
+## 618-case aggregate and package audit — 2026-10-04
+
+The combined ACC asteroid-activation and paid-job resumption revision **`89a2659`** passes all **618/618** fresh-process game regressions, **19/19 Python checks** including the original ending disk, strict editor import, source startup and Windows cross-export. The aggregate exits zero. The existing narrowly recognized editor-settings teardown diagnostic is recorded during export; no additional error exemption was introduced.
+
+The independent audit checks every fresh case log, discovery/count agreement, strict build/import/startup/export logs and the embedded package. It contains **1,232 entries**, **64 illustration imports** and **zero test resources**; ending JSON and audio payload hashes also verify. Export: **163,904,672 bytes**, SHA-256 `022b8be27ae29a399b54f84e7ee797ab6811b8f72e8a50267b1128df099eb3a4`.
+
+Evidence: `artifacts/validation/evidence/paid-production-resume/full-run-89a2659/`, with `audit-full.py` beside the archive. The later staff-removal fix is integrated as **`cef95c0`**, runtime-identical to its isolated `1dc8936` checkpoint, and has the separate 75-case/native619 verification above. Its integrated source build, case619 and strict startup also pass. The full aggregate and exported executable remain revision89a2659 evidence, not a full619 or Windows-execution claim. Windows595, six reported desktop scenarios and Craig's three confirmations remain credited; no new Asana acceptance is claimed.

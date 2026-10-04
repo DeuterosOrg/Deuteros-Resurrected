@@ -19,6 +19,8 @@ Latest PTL follow-up adds original cockpit fitting on converted IOS/SCG hulls, c
 
 The asteroid fuel follow-up `d7c2ef3` now passes the full 616-case Mac validation and an audited cross-export. Original scan/mining fuel cadence, exhaustion-specific ACC stops and approach/arrival loss rules have six new native checks plus a normal delivery of 165 titanium with two reloads. This is additional ACC/AMA fidelity evidence, not a new accepted task; Windows remains pending. See [validation](validation-results.md#616-case-aggregate-and-package-audit).
 
+The next combined checkpoint **`89a2659` passes 618/618 cases**, 19 Python checks, strict import/startup and an audited cross-export. It adds safe ACC activation while mining and resumption of already-paid manual production. Follow-up **`cef95c0`** prevents staff removal from discarding paid jobs and fixes its stale button reference, with 75 related checks and native619. These are additional reproduced defects; totals remain 35/48 implementation evidence and four accepted research/internal requirements. See [validation](validation-results.md#618-case-aggregate-and-package-audit--2026-10-04).
+
 ## Requirements accepted — 2026-10-03
 
 The four descriptions were refreshed read-only from Asana. Acceptance follows the existing rules above; it does not claim completion of the broader campaign or original-game parity.
