@@ -19,7 +19,7 @@ Use the [backlog ledger](backlog-progress.md) as the task-by-task record. Verify
 - Continue authorized investigation, minimal fixes, tests, documentation and local commits without routine confirmation. When one task is blocked, advance another independent task.
 - Reuse existing implementations and tests. Reproduce failures before changing behavior; retain failing and passing evidence.
 - Coordinate directly with the Windows agent using the established mesh thread and SSH Downloads handoff. Credit existing tests at their actual revisions and request only missing coverage.
-- Windows v5 is reconciled at `01c81f9` and its matching export delivered. Collect the missing matching-export acceptance; preserve the agent's live game and profile, and do not repeat completed tests.
+- Windows v5 is reconciled at `01c81f9` and its matching export delivered. Collect the missing matching-export acceptance; preserve the agent's profile and saved day-1157 checkpoint, and do not repeat completed tests. The owner closed PID62688 with native access violation `0xC0000005`; collect its retained logs through builder Downloads and investigate source/export shutdown without assuming the earlier PagedAllocator cause.
 - Protect original saves, retain reproducible checkpoints, restore originals exactly, and close only owned processes. Do not change permissions or bypass rejected actions.
 - Keep work on `codex/build-tests-and-gameplay-fixes`, using isolated local branches when useful. Do not merge into `main`. Prepare reviewable changes before requesting any still-required approval for pushing, PR creation or external status updates.
 - Preserve the existing root `AGENTS.md`. Do not write memory files or send team announcements without authorization.
