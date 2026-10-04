@@ -63,9 +63,9 @@ namespace Deuteros.Tests
             Equal(true, GetTree().Paused, "campaign paused");
             Equal(true, player.GetNode<AudioStreamPlayer>("Music").Playing, "native music running");
             Equal("Master", player.GetNode<AudioStreamPlayer>("Music").Bus.ToString(), "ending respects preferences without inheriting the SDM Game-bus mute");
-            using (var cancel = new InputEventKey { Keycode = Key.Escape, Pressed = true }) Input.ParseInputEvent(cancel);
+            using (var cancel = new InputEventKey { Keycode = Key.Escape, Pressed = true }) GetViewport().PushInput(cancel, true);
             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            using (var cancel = new InputEventKey { Keycode = Key.Escape, Pressed = false }) Input.ParseInputEvent(cancel);
+            using (var cancel = new InputEventKey { Keycode = Key.Escape, Pressed = false }) GetViewport().PushInput(cancel, true);
             Equal(true, OverlayManager.Instance.IsOpen, "Escape cannot skip original ending");
             Equal(day, Save.CurrentDay, "campaign did not advance");
             Equal<Node>(null, OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false), "duplicate activation rejected");
@@ -80,19 +80,36 @@ namespace Deuteros.Tests
         {
             var player = OpenEndingPlayer();
             var music = player.GetNode<AudioStreamPlayer>("Music");
-            using (var press = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true }) Input.ParseInputEvent(press);
-            music.Seek((float)(music.Stream.GetLength() - 0.04));
-            var deadline = Time.GetTicksMsec() + 3000;
-            while (music.Playing && Time.GetTicksMsec() < deadline) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Equal(false, music.Playing, "complete audio reached terminal black");
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Equal(false, music.Playing, "held left mouse delays replay");
-            using (var release = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false }) Input.ParseInputEvent(release);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-            Equal(true, music.Playing, "release restarts original ending");
-            Equal(true, music.GetPlaybackPosition() < 1, "replay begins at start");
-            OverlayManager.Instance.CloseOverlay();
+            try
+            {
+                using (var press = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true }) Input.ParseInputEvent(press);
+                // Headless runs do not drain accumulated input on each frame.
+                Input.FlushBufferedEvents();
+                Equal(true, Input.IsMouseButtonPressed(MouseButton.Left), "left-button press reached Input");
+                var completed = false;
+                music.Finished += () => completed = true;
+                music.Seek((float)(music.Stream.GetLength() - 0.04));
+                var deadline = Time.GetTicksMsec() + 3000;
+                while (!completed && Time.GetTicksMsec() < deadline) await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+                Equal(true, completed, "audio emitted completion");
+                await ToSignal(GetTree().CreateTimer(AudioServer.GetOutputLatency() + 0.1), SceneTreeTimer.SignalName.Timeout);
+                Equal(true, Input.IsMouseButtonPressed(MouseButton.Left), "left mouse remains held past output latency");
+                Equal(false, music.Playing, "held left mouse delays replay");
+                var bitmap = (Image)player.GetType().GetField("image", BindingFlags.NonPublic | BindingFlags.Instance).GetValue(player);
+                Equal(true, bitmap.GetData().All(value => value == 0), "ending remains black while held");
+                using (var release = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false }) Input.ParseInputEvent(release);
+                Input.FlushBufferedEvents();
+                Equal(false, Input.IsMouseButtonPressed(MouseButton.Left), "left-button release reached Input");
+                await InputFrames();
+                Equal(true, music.Playing, "release restarts original ending");
+                Equal(true, music.GetPlaybackPosition() < 1, "replay begins at start");
+            }
+            finally
+            {
+                using (var release = new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false }) Input.ParseInputEvent(release);
+                Input.FlushBufferedEvents();
+                OverlayManager.Instance.CloseOverlay();
+            }
         }
 
         private async Task EndingWorldReplacement()
