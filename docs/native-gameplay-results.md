@@ -347,3 +347,15 @@ Both ACCs stop normally. FIRST LIGHT rests on Earth with an empty supply pod,52 
 UI reload preserves exact Earth and ship state. Native session62209 exits0 with a strict clean log and byte-for-byte original-save restoration. Evidence: `artifacts/fleet-bulk-campaign/`, with intermediate saves, captures and runnable `audit.py`. Continuation `reloaded-slot-4.json` SHA-256: `8ea88ac2c93aa6e6a9a50a237d6e1618987b40539f44b045d6f2b26ddf9c2b80`.
 
 Next: refit the stocked CommsPod, progress normal Methanoid trading to the war/prototype event, then research and manufacture defence equipment promptly. The supplies are ready; drones, fleet fitting, combat/capture and later campaign acceptance remain unproved. Totals remain35/48 implementation evidence and four locally accepted requirements.
+
+## Prepared-fleet campaign reaches war and defence research — 2026-10-04
+
+The unmodified day12210 checkpoint continues on runtime `01c81f9`. Service exchanges the AMA for the stocked CommsPod and loads two250-unit copper pods. Sixteen ordinary accepted trades at Jupiter preserve both quantities. Saved milestones confirm counts3,8,12 and16 with war undeclared; UI reload at count16 preserves the exact ships and peaceful boundary.
+
+The next encounter gives the war warning, replaces the CommsPod with a grapple holding the Fusion Laser prototype, and declares war at day12309 without incrementing the trade count. The next-day defence bulletin unlocks DFCC/drone research. Jupiter damages WAYFARER's engine during departure; the slowed ship nevertheless reaches Earth, docks with five crew and222 fuel, and retains both cargo pods. The first alien transmission appears during the return.
+
+Normal grapple unloading consumes the prototype for research. Cavell's248 Professor researchers complete DFCC, Methanoid Fusion Laser and IOS Battle Drone research. The day12396 UI reload preserves exact ships, research, News and transmission state. Earth differs only in the deliberately changed ground/orbit screen selection. Orbital stocks match the initial checkpoint except500 copper loaded, one AMA returned and one CommsPod consumed; the500 copper remains aboard.
+
+Native session76875 exits0; strict logs and `artifacts/fleet-war-campaign/audit.py` pass, and original user saves are restored byte-for-byte. Continuation `reloaded-slot-4.json` SHA-256: `a8d679bbe8b948caca786b71778b31f6e472b811f335bd7ff7a17436f0dad970`.
+
+Next: manufacture a replacement IOS drive, DFCC and drones, then fit/refuel the fleet and defend Earth. The local enemy fleet already has11 drones against its40-drone attack trigger; Earth/Moon remain friendly. Morse retains147 Expert workers. This verifies normal Mac trading, escape, prototype research and reload; engine replacement, victory/capture, later progression and matching Windows export acceptance remain open. Backlog totals do not change.
