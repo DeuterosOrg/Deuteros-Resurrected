@@ -330,6 +330,17 @@ namespace Deuteros.Tests
             Equal(BulletinTypes.Self_Destruct, Save.News.LastBulletin, "original discovery bulletin requested");
             Equal(true, GameCore.Earth.ActiveMethanoid, "discovery does not capture");
             Equal(16, GameCore.Earth.Station.SdmCountdown, "discovery does not reset armed countdown");
+            var bulletin = ActiveScreen<Bulletins>();
+            var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
+            Equal(true, blocker.Blocked, "discovery text owns input");
+            GameCore.SingletonInstance._Process(30);
+            Equal(true, GameCore.Earth.Station.Built, "mandatory discovery playback cannot destroy the occupied station");
+            Equal(true, Save.Ships.Contains(interior.Ship), "capturing crew survives mandatory playback");
+            Equal(16, GameCore.Earth.Station.SdmCountdown, "typing suspends countdown consumption");
+            await FinishBulletin(bulletin);
+            Equal(false, blocker.Blocked, "completed text restores input");
+            GameCore.SingletonInstance._Process(1);
+            Equal(15, GameCore.Earth.Station.SdmCountdown, "countdown resumes while completed bulletin remains open");
         }
 
         private void SdmInvalidSave()

@@ -81,3 +81,13 @@ Cases 338–347 cover local ownership, independent MTX hardware, one recipe char
 ## Remaining implementation work
 
 Reproduce the two switches and their Hyperlight restriction on an original screen; verify alarm/countdown cadence and fast-forward behavior; verify the exact neighboring-ship casualty boundary. The remake now implements persistent arming, disarming/capture, destruction cleanup and save/load with focused regression coverage. Finish the original alarm and runtime timing/casualty observations; the local roster lifecycle is now mapped above. Keep the earlier recorded first-capture loss scenario as an acceptance case. The existing parallel-port rule that only enemy capture of a player station detonates is not adopted.
+
+## Mandatory discovery playback — 2026-10-04
+
+Normal campaign play at `d0ace3d` cleared Jupiter's 200 defenders and docked with 24 surviving drones. Immediate SDM inspection opened the mandatory discovery bulletin, but the remake continued its real-time countdown while text owned input. The station and carrier were destroyed before the switches became usable. The unmodified post-battle checkpoint and both expiry outcomes are retained under `artifacts/funded-capture-campaign/`.
+
+The original main loop calls the countdown consumer at `$4057A → $23E4E`. Discovery dispatch `$377D6 → $37DEE` enters the synchronous bulletin renderer: `$37E38/$37E50 → $1F9EC`. Its animated character path `$1FBE6–$1FC20` draws and plays a sound, then busy-waits at `$1FC12–$1FC1A` before returning. The main-loop countdown consumer cannot run during that blocking text call. Its interrupt producer still sets the single pending byte `$20290`; this does not queue all elapsed seconds. Pinned-byte assertions and aligned excerpts are reproducible with `uv run --with capstone==5.0.7 python artifacts/research/sdm-discovery/verify.py`.
+
+The narrow remake correction suspends real-time countdown consumption only while a bulletin holds the existing screen-input blocker. Countdown resumes when typing releases input, including while the completed bulletin remains open. Other screens, ordinary expiry and simulation-step rules remain covered by their existing regressions. This does not claim exact original pending-flag phase or measured wall-clock parity.
+
+Extended case370 reproduces the occupied-station loss before the correction, then verifies survival during 30 seconds of mandatory playback and countdown resumption afterwards. All27 focused SDM/alarm, bulletin, docking and danger checks pass. Full integration and normal replay results are recorded separately when completed.

@@ -422,7 +422,9 @@ namespace Deuteros.Code
 		// Called every frame. 'delta' is the elapsed time since the previous frame.
 		public override void _Process(double delta)
 		{
-			SdmSystem.AdvanceTime(delta);
+			// Original bulletin typing blocks the main-loop countdown consumer ($4057A).
+			if (currentScene != Scenes.Bulletins || !_screenLocker.Blocked)
+				SdmSystem.AdvanceTime(delta);
 			UpdateTime(delta);
 		}
 
