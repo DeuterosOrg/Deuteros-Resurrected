@@ -1,5 +1,14 @@
 # Contribution and validation results
 
+## 630-case integration checkpoint — 2026-10-04
+
+Runtime `003c087aa28b267087b5afe2719ddcb764c58fc7` passes **630/630 fresh-process Mac regressions**, **19 Python checks with the original ending disk**, strict import, source startup and Windows cross-export. This includes the integrated Windows v5 fixes and the docking/combat follow-ups. New cases 628–630 also pass native Mac checks; original save inventory is unchanged.
+
+An independent audit checks all fresh case logs, all **1,232 embedded pack payload hashes**, 64 illustration imports, ending payload, embedded .NET dependencies and absence of test resources. EXE: **163,907,216 bytes**, SHA-256 `7519808ea4565adc404dacc78a8b83b9652b53610782814e54a7eeb96b220504`. Evidence: `artifacts/validation/evidence/full-run-003c087/`. The existing exact editor-only teardown diagnostic remains recorded; gameplay logs pass strict checks.
+
+The executable ZIP was transferred to builder Downloads. A separate isolated Windows smoke attempt was rejected by PowerShell's execution policy before the game started; this checkpoint makes no new Windows execution claim. [Windows handoff](windows-validation-results.md#630-case-export-handoff-and-policy-block--2026-10-04). Counts remain **35/48 implementation evidence; four locally accepted requirements**.
+
+
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
 Latest complete Mac aggregate (2026-10-04): **621/621** at `e313b6d37af488d42523b3294a7c3a184874fec8`, with **19 Python checks**, strict import, startup and audited Windows cross-export. See [621-case audit](#621-case-aggregate-and-package-audit--2026-10-04). Windows retains its [595 audited source cases](windows-validation-results.md#595-case-source-checkpoint--2026-10-03) and separate packaged startup. The desktop agent reports scoped passes for seven task IDs, plus four related fixes accepted by Craig; see [current reconciliation](windows-validation-results.md#current-reconciliation--2026-10-04). Matching newer export acceptance remains pending.

@@ -631,3 +631,8 @@ Runtime `e313b6d`, case621: a completed AOC waits at stage three when all four l
 ### Next combined-build checks: docking and combat ownership
 
 The Mac branch adds original-backed docking gates and combat input ownership (cases 628–630). After receiving a matching newer build, verify: a fresh hostile arrival cannot Dock/ACC past defenders; a cleared station accepts a DFCC hull; peaceful trading still docks; combat blocks background Dock/engine/module controls and right-click overview navigation; Flee and PTL remain clickable; fast-forward stops when battle opens; completion restores normal controls. Preserve the existing wv03 checkpoint and prior export evidence. The delivered `01c81f9` build does **not** contain these follow-ups; do not report their acceptance against it. Shutdown logs requested in the existing thread remain outstanding.
+
+
+### ACC lamp source finding
+
+The [original indicator trace](original-acc-indicator-evidence.md) now identifies a five-VBlank red palette pulse and matches all 67 lamp/highlight pixels to the existing PNG. The traced mode is separate from Engaged/Finishing text. Compare fitted-idle, engaged and Complete Cycle in the original runtime, plus dimmed overlays, before accepting a remake animation. The source arithmetic gives a nominal PAL 0.4-second full cycle; it is not measured timing. No animation change is included in `003c087`.
