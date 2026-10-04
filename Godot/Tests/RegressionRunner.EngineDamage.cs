@@ -122,6 +122,39 @@ namespace Deuteros.Tests
             finally { interior.Reparent(parent); viewport.Free(); }
         }
 
+        private void ClearedStationDanger(bool escape)
+        {
+            foreach (var scg in new[] { false, true })
+            foreach (var sdm in new[] { false, true })
+            {
+                var ship = DamageShip(scg);
+                var station = GameCore.Earth.Station;
+                GameCore.Earth.ActiveMethanoid = true;
+                station.Resources.Stores[ItemTypes.ios_drone] = sdm ? 92 : 0;
+                station.SdmCountdown = sdm ? 16 : 0;
+                ship.AttackedCount = 1;
+                if (escape)
+                {
+                    var rolls = 0;
+                    Equal(true, DepartWithRoll(ship, () => { rolls++; return true; }), "safe escape is available");
+                    Equal(0, rolls, $"cleared/SDM station cannot roll damage scg={scg} sdm={sdm}");
+                    Equal(false, ship.EngineDamaged, "safe departure preserves the drive");
+                }
+                else
+                {
+                    for (var tick = 0; tick < 3; tick++)
+                    {
+                        var before = Save.CurrentDay++;
+                        ShipInterior.UpdateShips(before, Save.CurrentDay);
+                        Equal(true, Save.Ships.Contains(ship), $"cleared/SDM orbit survives scg={scg} sdm={sdm}");
+                        Equal(0, ship.AttackedCount, "cleared danger resets an old counter");
+                    }
+                    Equal(false, Save.News.GetNews(100).Any(n => n.Contains("UNDER ATTACK") || n.Contains("Destroyed")),
+                        "safe station generates no attack or loss report");
+                }
+            }
+        }
+
         private static bool Damaged(Ship ship) => ship.EngineDamaged;
         private static void SetDamaged(Ship ship, bool value) => ship.EngineDamaged = value;
         private static bool DepartWithRoll(Ship ship, Func<bool> roll) => ship.EngageEngine(roll);
@@ -153,6 +186,7 @@ namespace Deuteros.Tests
             else
             {
                 Save.BaseGameData.Planets[StellarBodies.mars].ActiveMethanoid = true;
+                Save.BaseGameData.Planets[StellarBodies.mars].Station.Resources.Stores[ItemTypes.ios_drone] = 92;
                 Equal(true, ship.EngageEngine(), "safe outbound departure");
                 while (ship.ShipState == Ship_States.InTransit)
                 {
@@ -180,6 +214,7 @@ namespace Deuteros.Tests
         {
             var ship = DamageShip(false);
             GameCore.Earth.ActiveMethanoid = true;
+            GameCore.Earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
             var calls = 0;
             Equal(true, DepartWithRoll(ship, () => { calls++; return false; }), "missed hit still departs");
             Equal(false, Damaged(ship), "miss preserves healthy engine");
@@ -197,6 +232,7 @@ namespace Deuteros.Tests
             {
                 var ship = DamageShip(false);
                 GameCore.Earth.ActiveMethanoid = true;
+                GameCore.Earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
                 if (reason == "dfcc") ship.DFCC = true;
                 if (reason == "peace") Save.AtWar = false;
                 if (reason == "enemy") ship.MethanoidOwned = true;

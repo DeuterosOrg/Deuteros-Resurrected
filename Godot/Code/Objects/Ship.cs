@@ -40,9 +40,7 @@ namespace Deuteros.Code.Objects
             // Original arrival enters danger before accepting another command; ACC uses this entry too.
             if (this is InterStellarShip stellar && !stellar.MethanoidOwned
                 && !data.ActiveSaveFile.RogueCrew.Controls(this) && data.ActiveSaveFile.AtWar
-                && (data.PlanetUnderAttack(PlanetLocation) || planet.ActiveMethanoid
-                    && (!stellar.DFCC || planet.Station.SdmCountdown == 0
-                        && planet.Station.Resources.Stores[ItemTypes.ios_drone] > 0))) return;
+                && (stellar.IsInDanger() || planet.ActiveMethanoid && !stellar.DFCC)) return;
             if (ShipState == Ship_States.UnDocked && (planet.Station.Built || PlanetLocation == StellarBodies.asteroids))
             {
                 StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
@@ -131,10 +129,7 @@ namespace Deuteros.Code.Objects
 
                 // Original danger-state departure rolls for damage only without DFCC.
                 // A damaged drive remains usable, so keep it distinct from absence.
-                var data = GameCore.SingletonInstance.GameData;
-                if (!EngineDamaged && this is InterStellarShip stellar && !stellar.MethanoidOwned
-                    && !stellar.DFCC && !data.ActiveSaveFile.RogueCrew.Controls(this) && data.ActiveSaveFile.AtWar
-                    && (planets[PlanetLocation].ActiveMethanoid || data.PlanetUnderAttack(PlanetLocation)))
+                if (!EngineDamaged && this is InterStellarShip stellar && !stellar.DFCC && stellar.IsInDanger())
                     EngineDamaged = engineDamageRoll();
 
                 if (this is SCG scg) scg.Flight = InterstellarFlight.Start(scg);

@@ -376,6 +376,8 @@ namespace Deuteros.Tests
             CheckUi("Hostile docking checks defenders before the first danger tick and preserves cleared access", HostileDockingGates);
             await CheckAsync("Real docking control rejects defenders and accepts victory despite a stale danger counter", HostileDockingPointer);
             await CheckAsync("Combat owns ship commands and freezes normal updates until its window closes", BattleOwnsCommands);
+            CheckUi("Cleared and SDM stations preserve orbiting IOS and SCG after an old danger tick", () => ClearedStationDanger(false));
+            CheckUi("Cleared and SDM stations never roll engine damage on IOS and SCG escape", () => ClearedStationDanger(true));
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

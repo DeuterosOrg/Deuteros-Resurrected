@@ -366,6 +366,7 @@ namespace Deuteros.Tests
         {
             var ship = NewRogueCandidate(); Save.RogueCrew.TryStart(Save);
             var planet = Save.BaseGameData.Planets[ship.PlanetLocation]; planet.ActiveMethanoid = true;
+            planet.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
             AdvanceInterstellar(); AdvanceInterstellar();
             Equal(true, Save.Ships.Contains(ship), "hostile orbit does not destroy rogue");
             Equal(0, ship.AttackedCount, "rogue bypasses danger accumulation");

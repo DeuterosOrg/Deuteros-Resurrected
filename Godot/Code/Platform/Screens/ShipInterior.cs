@@ -1186,13 +1186,7 @@ namespace Deuteros.Code.Platform.Screens
 				if (ship.ShipType != Ship_Types.Shuttle)
 				{
 
-					if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
-						!((InterStellarShip)ship).MethanoidOwned &&
-                        !GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(ship) &&
-						ship.ShipState == Ship_States.UnDocked &&
-						(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[ship.PlanetLocation].ActiveMethanoid ||
-						GameCore.SingletonInstance.GameData.PlanetUnderAttack(ship.PlanetLocation))
-					)
+                    if (ship.ShipState == Ship_States.UnDocked && ((InterStellarShip)ship).IsInDanger())
 					{
 						((InterStellarShip)ship).AttackedCount++;
                         if (((InterStellarShip)ship).AttackedCount == 1)

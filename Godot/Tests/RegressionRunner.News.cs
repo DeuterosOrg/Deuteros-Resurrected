@@ -52,6 +52,7 @@ namespace Deuteros.Tests
             Save.Ships.Add(victim);
             Save.AtWar = true;
             GameCore.Earth.ActiveMethanoid = true;
+            GameCore.Earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
             Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(2, 3);
             Equal(1, Save.News.GetNews(100).Count(n => n.Contains("Hostile Orbit UNDER ATTACK")), "attack transition reported");
             Deuteros.Code.Platform.Screens.ShipInterior.UpdateShips(3, 4);

@@ -26,6 +26,18 @@ namespace Deuteros.Code.Objects
         // -1 migrates an older approach/launch from StartTravelDay; zero is an exhausted action.
         public int AsteroidActionTicks { get; set; } = -1;
 
+        internal bool IsInDanger()
+        {
+            var data = GameCore.SingletonInstance.GameData;
+            var save = data.ActiveSaveFile;
+            if (!save.AtWar || MethanoidOwned || save.RogueCrew.Controls(this)) return false;
+            var planet = save.BaseGameData.Planets[PlanetLocation];
+            // Original $311EE skips station danger when defenders are gone or SDM is active.
+            return data.PlanetUnderAttack(PlanetLocation) || planet.ActiveMethanoid
+                && planet.Station.SdmCountdown == 0
+                && planet.Station.Resources.Stores[Enums.ItemTypes.ios_drone] > 0;
+        }
+
         internal bool AdvanceAsteroidActivity(uint previousDay, uint currentDay)
         {
             if (FallingCount > 0) { FallingCount++; return false; }
