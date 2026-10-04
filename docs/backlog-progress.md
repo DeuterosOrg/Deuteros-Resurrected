@@ -210,3 +210,10 @@ Normal Mac AOC research/installation returns all 147 workers and charges the exa
 ### Normal successful Moon defence — 2026-10-04
 
 Normal AOC production completes 58 drones and one DFCC with exact stock debits. Paid engine replacement, conversion/refuelling and transfer lead to an actual 58-versus-46 defence: the enemy flees with 23, the player retains 46 drones/five crew, the Moon remains friendly and the attack threshold doubles once. Exact all-planet/ship/News reload passes, native exit is zero and original saves are restored. The earlier missed-departure loss is preserved separately. See [campaign evidence](native-gameplay-results.md#automated-fleet-manufacture-and-successful-moon-defence--2026-10-04). Station capture and Windows export acceptance remain pending; counts stay **35/48 implementation evidence; four locally accepted requirements**.
+
+
+### Stronger normal capture preparation — 2026-10-04
+
+At `d0ace3d`, the wartime branch adds ten paid drones, conserves the original fleet and DFCC fuel during refitting, delivers 500 palladium and reaches transmission stage 4. A separately preserved pre-war continuation earns the materials for 160 drones plus DFCC through ordinary mining/freight; both ships return safely with ACC stopped. Two exact reload audits, native exit 0, strict logs and original-save restoration pass. The final day 14508 checkpoint enables the next capture attempt; the fleet is not yet built. [Evidence and branch boundaries](native-gameplay-results.md#fleet-reinforcement-and-pre-war-stock-preparation--2026-10-04). Counts remain 35/48 implementation evidence and four locally accepted requirements.
+
+A fresh read of Cheats/Bugs toggles (`1215685674676239`) still finds no description, comments or subtasks specifying original bug identities. A user clarification is pending; the existing cheat controls do not establish that undefined compatibility scope. Stores (`1215685674676245`) still contains the already integrated Windows Stocktaker pointer report and no broader description. No Asana writes were made.
