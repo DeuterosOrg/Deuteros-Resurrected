@@ -21,3 +21,7 @@ Cases **438–442** pass headless and native Mac checks. They open the actual in
 Compatibility cases 23/127/128/276/348/349/436/437 also pass. The full 442-case Mac aggregate, nine Python tests, strict import, startup and audited Windows cross-export subsequently pass at `625cae9`; Windows execution and desktop checks remain pending. Raw failed and passing logs are under ignored `artifacts/validation/evidence/battle-cleanup/`.
 
 Desktop acceptance should include finishing and fleeing real battles, leaving at different stages, saving after cancellation, loading another save, reopening controls, and repeated application closing. Check source and export separately. Staged results do not verify combat balance, animation timing, or normal campaign acceptance.
+
+## Normal campaign follow-up — 2026-10-04
+
+At runtime `3ebeca0`, a normally researched/manufactured DFCC ship and drone now reach hostile Jupiter. Real defeat removes the ship, records crew then vessel loss, preserves the station's surviving defenders and survives reload. A separate replay of the unedited encounter completes Flee and preserves both fleets and return transit through reload. Both native Mac sessions close cleanly with strict logs and original saves restored. See [normal campaign evidence](native-gameplay-results.md#normal-battle-defeat-and-retreat). Victory, PTL, interrupted presentation, Windows and original-runtime acceptance remain separate.
