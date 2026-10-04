@@ -4,7 +4,7 @@
 
 Windows evidence includes **595 automated source cases**, a separately verified export/startup, and reported desktop passes for **six original task IDs**: SCG, Supply discard, ACC, DFCC, Stocktaker and Service. Craig accepted three related UI fixes: Service, the resized missing-pod popup and all three shuttle service-section background returns. These observations remain credited at their tested revisions. The newer storm-door fix has a reported regression pass; physical appearance and export remain pending.
 
-The latest Mac suite has 601 cases; that Windows run has **not started**. Collection of the Windows-owned v4, SCG and separate Stocktaker changes remains pending. The mesh request is queued, but the Windows reply file and requested patches remain absent from the accessible SSH handoff folder at 02:38 UTC. Detailed evidence and remaining scope follow below.
+The latest completed Mac aggregate has **603 cases**; Windows execution of that revision has **not started**. Collection of the Windows-owned v4, SCG and separate Stocktaker changes remains pending. A fresh SSH check still finds no reply or requested patches in the accessible handoff folder. The mesh work item `367f5c82-f04e-59ca-a7f3-15b850dd9e8a` is queued **awaiting approval**, with no assigned worker: automatic review requires a PR-producing task and a Files in scope section, so the read-only report request was not dispatched. The machine sidecar being online does not establish contact with the interactive testing agent. That agent can reply through the machine board (`coordctl inbox`) or `C:/Users/builder/Downloads/deuteros-windows-reply.md`. Do not repeat completed tests merely to populate this ledger.
 
 ## 595-case source checkpoint — 2026-10-03
 
