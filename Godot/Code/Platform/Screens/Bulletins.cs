@@ -103,6 +103,11 @@ public partial class Bulletins : BaseSubScene
 	private string DepartmentText(BulletinTypes bulletin)
 	{
 		var bulletinText = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.BulletinTexts[bulletin].BulletinText;
+		if (bulletin == BulletinTypes.Mining_Dump)
+		{
+			var news = GameCore.SingletonInstance.GameData.ActiveSaveFile.News;
+			bulletinText = string.Format(bulletinText, news.MiningDumpLocation.ToScreenString(" "), news.MiningDumpResource.ToScreenString());
+		}
 		return "[color=ff0000]Special Bulletin.[/color]\r\n" +
 			"From: \r\n" +
 			(GameCore.Earth.ResearchStaff?.Leader ?? "Research Department") + "\r\n" +

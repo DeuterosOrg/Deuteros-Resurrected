@@ -72,7 +72,11 @@ namespace Deuteros.Code.Utility
                     // Original allocation starts at zero; do not replay losses when upgrading a save.
                     else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord) || property.PropertyName == nameof(Staff.Pirate)))
                         property.Required = Required.DisallowNull;
-                    else if (type == typeof(News) && property.PropertyName == nameof(News.PendingBulletins))
+                    else if (type == typeof(News) && (property.PropertyName == nameof(News.PendingBulletins)
+                        || property.PropertyName == nameof(News.MiningDumpLocation) || property.PropertyName == nameof(News.MiningDumpResource)))
+                        property.Required = Required.DisallowNull;
+                    // Old saves cannot establish whether an already captured colony remains captive.
+                    else if (typeof(Planet).IsAssignableFrom(type) && property.PropertyName == nameof(Planet.CaptiveBase))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SpaceStation) && (property.PropertyName == nameof(SpaceStation.SdmCountdown) || property.PropertyName == nameof(SpaceStation.RefiningSlot)))
                         property.Required = Required.DisallowNull;
@@ -81,7 +85,8 @@ namespace Deuteros.Code.Utility
                     else if (type == typeof(AlienTransmissions) && (property.PropertyName == nameof(AlienTransmissions.EnemySystems)
                         || property.PropertyName == nameof(AlienTransmissions.HyperlightSystems)
                         || property.PropertyName == nameof(AlienTransmissions.HyperlightCountdown)
-                        || property.PropertyName == nameof(AlienTransmissions.HyperlightPending)))
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightPending)
+                        || property.PropertyName == nameof(AlienTransmissions.ColonyEventCountdown)))
                         property.Required = Required.DisallowNull;
                     else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.AlienTransmissions) || property.PropertyName == nameof(SaveFile.RogueCrew)))
                         property.Required = Required.DisallowNull;
@@ -236,8 +241,9 @@ namespace Deuteros.Code.Utility
             {
                 Require(transmissions.EnemySystems >= 0 && transmissions.EnemySystems <= data.Stars.Count
                     && transmissions.HyperlightSystems >= 0 && transmissions.HyperlightSystems <= data.Stars.Count
-                    && transmissions.HyperlightCountdown >= 0 && transmissions.HyperlightCountdown <= 8
-                    && (transmissions.HyperlightCountdown == 0 || transmissions.HyperlightSystems == 7), "Hyperlight discovery state");
+                    && transmissions.HyperlightCountdown >= 0
+                    && transmissions.HyperlightCountdown <= (transmissions.HyperlightSystems == 6 ? 40 : transmissions.HyperlightSystems == 7 ? 8 : 0)
+                    && transmissions.ColonyEventCountdown >= 0 && transmissions.ColonyEventCountdown <= 79, "research discovery state");
                 Require(transmissions.AssignedStars != null && transmissions.PendingLocations != null, "alien transmission lists");
                 Require(transmissions.Stage >= -1 && transmissions.Stage <= 13
                     && transmissions.LastStage >= -1 && transmissions.LastStage <= transmissions.Stage, "alien transmission stages");
@@ -266,6 +272,12 @@ namespace Deuteros.Code.Utility
             Require(save.News.PendingBulletins != null && save.News.PendingBulletins.All(b => b != BulletinTypes.None
                 && Enum.IsDefined(typeof(BulletinTypes), b))
                 && save.News.PendingBulletins.Distinct().Count() == save.News.PendingBulletins.Count, "pending bulletins");
+            Require(save.News.MiningDumpLocation == StellarBodies.none
+                ? save.News.MiningDumpResource == ItemTypes.none
+                    && !save.News.PendingBulletins.Contains(BulletinTypes.Mining_Dump)
+                : data.Planets.ContainsKey(save.News.MiningDumpLocation)
+                    && save.News.MiningDumpResource >= ItemTypes.iron && save.News.MiningDumpResource <= ItemTypes.carbon,
+                "mining dump bulletin");
             Require(data.ItemList != null && data.ItemList.All(i => i != null)
                 && data.ItemList.Select(i => i.ItemType).Distinct().Count() == data.ItemList.Count, "items");
             Require(data.PersonNames?.Count > 0 && save.NextPersonIndex >= 0 && save.NextPersonIndex <= data.PersonNames.Count, "staff names");

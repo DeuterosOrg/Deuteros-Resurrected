@@ -16,6 +16,7 @@ namespace Deuteros.Code.Objects
         public int HyperlightSystems { get; set; } = 9;
         public int HyperlightCountdown { get; set; }
         public bool HyperlightPending { get; set; }
+        public int ColonyEventCountdown { get; set; }
 
         public int Stage { get; set; } = -1;
         public int Countdown { get; set; }
@@ -28,18 +29,49 @@ namespace Deuteros.Code.Objects
             => EnemySystems = save.BaseGameData.Planets.Values.Where(p => p.ActiveMethanoid)
                 .Select(p => p.ParentStar).Distinct().Count();
 
-        public void AdvanceHyperlight(SaveFile save)
+        internal void AdvanceResearch(SaveFile save, Func<int> random = null)
         {
-            if (!save.AtWar || !save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Locked) return;
+            if (!save.AtWar || save.News.PendingBulletins.Count > 0) return;
+            // Retain the saved Hyperlight field names for the shared original count dispatcher.
             // Original $37810 consumes an active delay before observing a changed count.
             if (HyperlightCountdown > 0) { HyperlightCountdown--; return; }
             if (EnemySystems != HyperlightSystems)
             {
                 HyperlightSystems = EnemySystems;
-                HyperlightCountdown = EnemySystems == 7 ? 8 : 0;
+                HyperlightCountdown = EnemySystems switch { 7 => 8, 6 => 40, _ => 0 };
                 return;
             }
-            if (EnemySystems == 7) HyperlightPending = true;
+            if (EnemySystems == 7 && save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.hyperlight).Research.Locked)
+                HyperlightPending = true;
+            if (EnemySystems != 6) return;
+            if (ColonyEventCountdown > 0) { ColonyEventCountdown--; return; }
+            ColonyEventCountdown = 79;
+            random ??= Random.Shared.Next;
+            FuelRefining.EnsureSlots(save);
+            var ordinal = random() & 31;
+            var colony = save.BaseGameData.Planets.Values
+                .Where(p => p.Station.Built && p.Station.Type == 8 && !p.ActiveMethanoid && p.CaptiveBase
+                    && p.Station.RefiningSlot < FuelRefining.Capacity(p.ParentStar))
+                .OrderBy(p => p.ParentStar).ThenBy(p => p.Station.RefiningSlot).Skip(ordinal).FirstOrDefault();
+            if (colony != null)
+            {
+                var mineral = (ItemTypes)((random() & 3) + 1);
+                if (colony.PlanetResources.Materials.Any(m => m.MaterialType == mineral))
+                {
+                    var stores = colony.PlanetResources.Stores;
+                    stores[mineral] = (int)Math.Min(50000L, (long)stores[mineral] + 10000);
+                    save.News.MiningDumpLocation = colony.PlanetId;
+                    save.News.MiningDumpResource = mineral;
+                    save.News.PendingBulletins.Add(BulletinTypes.Mining_Dump);
+                    return;
+                }
+            }
+            var ptl = save.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.prejudice_torpedo_launcher).Research;
+            if (ptl.Locked)
+            {
+                ptl.Locked = false;
+                save.News.PendingBulletins.Add(BulletinTypes.Eureka);
+            }
         }
 
         public bool DiscoverHyperlight(SaveFile save)

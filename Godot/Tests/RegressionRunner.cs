@@ -350,6 +350,10 @@ namespace Deuteros.Tests
             await CheckAsync("Empty combat fleets settle through the actual battle completion path", BattleEmptyFleets);
             CheckUi("PTL equality boundaries preserve original survivors and refresh combat power", BattlePtlBoundaries);
             await CheckAsync("SCG trading uses the original three pod positions and preserves later cargo through saves", TradeScgPositions);
+            CheckUi("Six hostile systems discover PTL after the saved original delay even after Hyperlight research", PtlDiscoveryProgression);
+            await CheckAsync("Captive colony events preserve stock caps deposits cooldown and saved bulletin replay", PtlColonyStockEvent);
+            CheckUi("Capture repair and station loss retain the original captive colony event eligibility", PtlCaptiveLifecycle);
+            CheckUi("PTL discovery saves reject malformed state and retain old cargo and installed launchers", PtlDiscoverySaveValidation);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

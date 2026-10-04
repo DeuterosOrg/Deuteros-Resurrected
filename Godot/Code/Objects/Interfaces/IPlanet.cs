@@ -22,6 +22,7 @@ namespace Deuteros.Code.Objects.Interfaces
         public List<int> MoonList { get; set; }
         public int BaseBuildParts { get; set; }
         public bool BaseDamaged { get; set; }
+        public bool CaptiveBase { get; set; }
 
         public string PlanetImageName();
     }

@@ -1011,3 +1011,11 @@ This does not resolve the previously retained `!rc_owner` import shutdown or lon
 ## Original trade cargo positions — 2026-10-04
 
 A two-line gameplay diff restores original trade selection to the first three module positions, preserving later SCG cargo and the save format. Case 604 reproduces the broader offer before correction, then verifies both boundary layouts, actual Accept/no-offer paths and saved cargo. All 18 affected headless checks (150, 220–235, 604) and native 604 pass strict logs; build has 14 existing warnings and zero errors. See [trade evidence](original-trade-evidence.md#original-position-trading--2026-10-04). The 603-case `bd56658` aggregate/export remains the last complete checkpoint; no new aggregate/export or Windows result is claimed for this correction.
+
+## PTL discovery and captive-colony stock events
+
+The existing research handler stopped after Hyperlight and had no six-system discovery path. Case 605 reproduces PTL remaining locked after the original delay. The correction extends the existing handler, saves its shared countdown and colony cooldown, and reuses pending bulletins. A successful captive-colony event credits 10,000 ground mineral stock up to 50,000; failed selection discovers PTL. Completed research is preserved. Capture, ground repair and station loss now maintain the separate captive flag.
+
+All **37 focused headless cases** (195, 360–375, 430–435, 459–467, 599, 605–608) and **native Mac 605–606** pass strict logs. Tests include real day progression across reload, research already completed/in progress, recapture delay, pending notices, stock limits, unchanged orbital stock/ore veins, bulletin replay without duplicate credit, lifecycle and malformed/legacy saves. Compilation reports 14 existing warnings and zero errors. Evidence: `artifacts/validation/evidence/ptl-discovery/`, including the retained failing reproduction and `focused-audit.json`.
+
+The 603-case checkpoint remains the last complete aggregate pending the new full run. No Windows execution or normal PTL campaign acceptance is claimed. Cockpit installation remains missing; see [source findings and compatibility policy](original-ptl-evidence.md). Existing Windows results remain credited, and the 48-task completion counts do not change.

@@ -355,7 +355,7 @@ namespace Deuteros.Code
 				ShowBulletin(save.News.PendingBulletins[0]);
 				return;
 			}
-			save.AlienTransmissions?.AdvanceHyperlight(save);
+			save.AlienTransmissions?.AdvanceResearch(save);
 			if (save.AlienTransmissions?.Advance() == true)
 			{
 				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
@@ -363,6 +363,7 @@ namespace Deuteros.Code
 				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
 			}
 			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true) ShowBulletin(BulletinTypes.Hyperlight_Speed);
+			else if (save.News.PendingBulletins.Count > 0) ShowBulletin(save.News.PendingBulletins[0]);
 			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
 			else if (save.RogueCrew.PublishMutiny(save)) ShowBulletin(BulletinTypes.Mutiny);
 			else if (save.RogueCrew.AdvancePrisonDiscovery(save)) ShowBulletin(BulletinTypes.Rogue_Ship);

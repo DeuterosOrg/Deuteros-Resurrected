@@ -2,7 +2,7 @@
 
 ## Source and status
 
-Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`. Addresses below are original RAM addresses; raw disk offset is RAM plus `$5B000`. Capstone 5.0.7 M68000 extracts are retained under ignored `artifacts/research/ptl/`: `install-discovery-and-enable.txt` and `cockpit-control-and-stock-event.txt` (latter SHA-256 `43662279c269b4fab407eb01fe6610b05cd23d7fcfa3b2526fc543936ecd1089`). These are static source findings; normal PTL progression is not yet implemented or accepted.
+Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`. Addresses below are original RAM addresses; raw disk offset is RAM plus `$5B000`. Capstone 5.0.7 M68000 extracts are retained under ignored `artifacts/research/ptl/`: `install-discovery-and-enable.txt` and `cockpit-control-and-stock-event.txt` (latter SHA-256 `43662279c269b4fab407eb01fe6610b05cd23d7fcfa3b2526fc543936ecd1089`). These are static source findings. The discovery producer and captive-colony stock event are implemented below; cockpit fitting and normal campaign acceptance remain open.
 
 ## Permanent cockpit fitting
 
@@ -22,4 +22,8 @@ Discovery `$37772–$377DE` uses descriptor `(26, 0, 21)`, exposes research at p
 
 ## Implementation boundaries
 
-The remake has no separate captive-base state and its existing Hyperlight dispatcher covers only count 7. Preserve the shared countdown ordering, bulletin priority, stock-event branch and save compatibility when restoring count 6. Resolve the original fitting artwork and coordinate changes to Windows-owned bay work before editing those controls. Existing installed PTLs must not disappear on load. Combat boundaries and their completed validation are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04); they do not establish this progression path.
+The shared research dispatcher now covers count 6 as well as count 7, including the saved 40-pass delay and 79-pass colony cooldown. SDM defusal records captive colonies; completed ground repair or station destruction clears that state. Eligible colonies retain the existing original station-slot order. Successful mineral events credit ground stores and queue a saved Mining Dump notice; unsuccessful selection unlocks PTL and queues Eureka without granting completed research. Events continue after Hyperlight and PTL research.
+
+Older saves lack reliable captive-colony history: their new flag defaults false, without fabricating previous captures, stock gifts or notices. Future captures establish eligibility normally. Existing PTL installations and Hyperlight delays survive loading; malformed or explicit-null new state is rejected. New-format saves should not be loaded into older builds.
+
+Cases 605–608 cover actual day progression, stock/cooldown boundaries, bulletin replay, capture/repair/loss and save compatibility. See [validation](validation-results.md#ptl-discovery-and-captive-colony-stock-events). Resolve the original fitting artwork and coordinate changes to Windows-owned bay work before editing those controls. Combat boundaries and their completed validation are documented in [battle lifecycle](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04); they do not establish this progression path.

@@ -25,6 +25,7 @@ namespace Deuteros.Code.Objects
         public List<int> MoonList { get; set; }
         public int BaseBuildParts { get; set; }
         public bool BaseDamaged { get; set; }
+        public bool CaptiveBase { get; set; }
 
         public Planet(Enums.StellarBodies planetId, int order)
         {

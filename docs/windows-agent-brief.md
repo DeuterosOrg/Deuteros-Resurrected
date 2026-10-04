@@ -578,3 +578,9 @@ A continuation at `3ebeca0` delivers Earth iron/palladium and mined Moon alumini
 The Mac agent retrieved your storm-door texture and original-art report from Asana. Please provide **`desktop-gameplay-v4.patch`**, `docs/original-stormdoors-evidence.md` and the `original-stormdoors-04` comparison evidence, alongside SCG `5a9b1ef` and separate Stocktaker changes. V4 supersedes v3; your work will be reconciled, not recreated. Reply through the existing mesh thread or `C:/Users/builder/Downloads/deuteros-windows-reply.md`.
 
 The isolated full601 Windows attempt did not start: the machine rejected the PowerShell wrapper under its script policy, and a direct Python process-ownership check was denied by `tasklist`. Security settings remain unchanged. The uploaded `fce6562` bundle still contains the Mac-audited runtime `3ebeca0`; arrange an allowed runner and confirm test ownership before using it. Preserve your desktop checkout and saves.
+
+## PTL discovery follow-up — 2026-10-04
+
+The new research producer restores the original six-hostile-system delay and captive-colony mineral event; it does not yet add cockpit fitting. Cases 605–608 and related Mac checks pass. Verify saved countdowns, capture/repair/loss, ground-stock credit and bulletin replay in Windows source and matching export after integration. Reuse equivalent existing results. See [PTL evidence](original-ptl-evidence.md).
+
+Protect original saves: new `CaptiveBase`, `ColonyEventCountdown` and Mining Dump bulletin fields are optional when loading older saves, but older builds reject new fields. Historical captivity is not guessed; only subsequent captures acquire the new flag. Existing installed launchers and research progress must survive loading. Preserve Windows-owned bay controls and patches while the remaining fitting change is coordinated.

@@ -37,6 +37,7 @@ namespace Deuteros.Code.Objects
                 {
                     FuelRefining.ClaimPlayerSlot(save, planet);
                     planet.ActiveMethanoid = false;
+                    planet.CaptiveBase = true;
                     planet.Station.Type = 8;
                     foreach (var material in planet.PlanetResources.Materials)
                         planet.Station.Resources.Stores[material.MaterialType] = Random.Shared.Next(1024) + 100;
@@ -114,6 +115,7 @@ namespace Deuteros.Code.Objects
             save.News.AddCrewLoss(crew);
             planet.Station = new SpaceStation(planet.PlanetId);
             planet.ActiveMethanoid = false;
+            planet.CaptiveBase = false;
             if (planet.PlanetId != StellarBodies.earth)
             {
                 planet.BaseDamaged = planet.BaseBuildParts > 0;

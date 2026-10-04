@@ -38,6 +38,7 @@ namespace Deuteros.Code.Objects
                     Modules[0].ItemStored = ItemTypes.none;
                     Modules[0].ItemCount = 0;
                     GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].BaseDamaged = false;
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].CaptiveBase = false;
 
                     ShipState = Enums.Ship_States.Docked;
                 }
