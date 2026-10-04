@@ -2,6 +2,8 @@
 
 ## Start here
 
+**Newer focused trade correction:** case 604 restores the original first-three-position cargo rule; see [evidence and compatibility](original-trade-evidence.md#original-position-trading--2026-10-04). It passes headless/native along with 17 existing headless trade/comms checks. Only the trade enumeration in `ShipInterior.cs` changes; pending Windows storm-door and bay work is preserved. This newer candidate has no full aggregate, export or Windows result yet.
+
 **Latest Mac candidate:** `bd566582a6906dbcff7714ef0aacc42bb4974313` passes 603/603 cases, 19 Python checks, strict import/startup and independently audited Windows cross-export. Cases 602–603 cover empty-fleet completion and original PTL damage boundaries; see [battle results](battle-lifecycle.md#empty-fleets-and-original-ptl-boundaries--2026-10-04). This candidate has not run on Windows. Your existing six-task scenario passes and Craig’s three accepted fixes remain credited. Please reconcile v4, SCG and Stocktaker patches before overlapping bay changes; [PTL discovery/fitting](original-ptl-evidence.md) is research only.
 
 **Latest completed Windows source validation:** runtime `bcaeb1c` passes all **595/595 cases**, build, strict import and source startup on Mac and Windows. A separate direct Windows export and packaged startup also pass after the console-wrapper timeout; see [current results](windows-validation-results.md#595-case-source-checkpoint--2026-10-03). DayTick sequencing, AMA source research, event-order source research and palette research are locally accepted against their requirements; other desktop/gameplay checks remain open.

@@ -297,6 +297,62 @@ namespace Deuteros.Tests
             Equal(100, ship.Fuel, "stale offer gives no fuel gift");
             Equal(false, OverlayManager.Instance.IsOpen, "invalidated decision closes");
         });
+
+        private async Task TradeScgPositions() => await WithTrade(async (ios, interior) =>
+        {
+            var core = GameCore.SingletonInstance;
+            var ship = new SCG { ShipType = Ship_Types.SCG, Engine = true, Pilot = ios.Pilot,
+                PlanetLocation = ios.PlanetLocation, StarLocation = StellarBodies.the_sun, FuelType = ItemTypes.hed_fuel,
+                DestinationPlanetLocation = ios.PlanetLocation, DestinationStarLocation = StellarBodies.the_sun,
+                Modules = Enumerable.Range(0, 6).Select(i => new ShipModule
+                    { ModuleType = Module_Types.Supply, ItemStored = ItemTypes.iron, ItemCount = 20 + i }).ToList() };
+            Save.Ships.Clear();
+            Save.Ships.Add(ship);
+            foreach (var commsPosition in new[] { 0, 5 })
+            {
+                ship.ShipState = Ship_States.Docked;
+                ship.Fuel = 100;
+                Save.MethanoidTradeCount = 5;
+                for (var i = 0; i < 6; i++)
+                {
+                    ship.Modules[i].ModuleType = i == commsPosition ? Module_Types.Tool : Module_Types.Supply;
+                    ship.Modules[i].ItemStored = i == commsPosition ? ItemTypes.commspod : ItemTypes.iron;
+                    ship.Modules[i].ItemCount = i == commsPosition ? 1 : 20 + i;
+                }
+                core.ShipSelected = ship.ShipID;
+                core.ChangeScene(Scenes.ShipInterior, new List<SceneVariables>());
+                await InputFrames();
+                Press(ActiveScreen<ShipInterior>(), "Modules/" + commsPosition.ToString("00"));
+                await InputFrames();
+                var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision");
+                Equal(commsPosition == 0 ? 2 : 3, dialog.GetNode<Label>("Cargo/Items").Text.Split('\n').Length,
+                    "offer counts absolute pod positions, not the first three supply pods");
+                Press(dialog, "Accept");
+                await InputFrames();
+                Equal(6, Save.MethanoidTradeCount, "one accepted encounter");
+                Equal(250, ship.Fuel, "accepted offer retains its fuel gift");
+                var restored = Deuteros.Code.Utility.SaveStorage.Deserialize(Deuteros.Code.Utility.SaveStorage.Serialize(Save))
+                    .Ships.Single(s => s.ShipID == ship.ShipID);
+                for (var i = 0; i < 6; i++)
+                {
+                    var expected = i == commsPosition ? ItemTypes.commspod : i < 3 ? ItemTypes.silica : ItemTypes.iron;
+                    Equal(expected, ship.Modules[i].ItemStored, "exchange boundary at pod " + (i + 1));
+                    Equal(expected, restored.Modules[i].ItemStored, "saved cargo at pod " + (i + 1));
+                    Equal(i == commsPosition ? 1 : 20 + i, restored.Modules[i].ItemCount, "saved quantity at pod " + (i + 1));
+                }
+
+                ship.ShipState = Ship_States.Docked;
+                ship.Fuel = 19;
+                foreach (var module in ship.Modules.Take(3).Where(m => m.ModuleType == Module_Types.Supply))
+                    module.ItemCount = 0;
+                Press(ActiveScreen<ShipInterior>(), "Modules/" + commsPosition.ToString("00"));
+                await InputFrames();
+                Equal(false, OverlayManager.Instance.IsOpen, "cargo only in later positions cannot create an offer");
+                Equal(6, Save.MethanoidTradeCount, "ineligible rear cargo does not change the counter");
+                Equal(19, ship.Fuel, "ineligible rear cargo earns no fuel gift");
+            }
+        });
+
         private async Task ModuleDialogueColours()
         {
             InitializeUi();

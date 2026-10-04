@@ -349,6 +349,7 @@ namespace Deuteros.Tests
             await CheckAsync("Pod replacement animates old then new and releases only its own lock on exit", PodReplacementAndExit);
             await CheckAsync("Empty combat fleets settle through the actual battle completion path", BattleEmptyFleets);
             CheckUi("PTL equality boundaries preserve original survivors and refresh combat power", BattlePtlBoundaries);
+            await CheckAsync("SCG trading uses the original three pod positions and preserves later cargo through saves", TradeScgPositions);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

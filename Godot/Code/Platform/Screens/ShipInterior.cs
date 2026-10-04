@@ -311,7 +311,8 @@ namespace Deuteros.Code.Platform.Screens
                                 var newitemlist = new Dictionary<ShipModule, Enums.ItemTypes>();
                                 var offeredCounts = new Dictionary<ShipModule, int>();
 
-                                foreach (ShipModule m in Ship.Modules)
+                                // Original $7BE6C scans three positions, including non-supply pods.
+                                foreach (ShipModule m in Ship.Modules.Take(3))
 								{
 									if (m.ModuleType == Module_Types.Supply && m.ItemCount > 0
 										&& m.ItemStored >= ItemTypes.iron && m.ItemStored <= ItemTypes.hed_fuel)

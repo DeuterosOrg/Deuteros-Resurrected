@@ -59,7 +59,7 @@ Cases 220–235 cover decisions, all table entries 1–16, quantities, repeat in
 
 The fuel gift was added after the field was identified; strengthened cases 220 and 233 reproduced the missing refill before correction. All 16 trade cases pass afterwards, including no gift for unaccepted, refused, ineligible, stale or interrupted pre-decision offers. An accepted response interruption preserves the committed gift.
 
-Before claiming full original parity, establish decision timing and how the original three cargo words correspond to this remake's IOS/SCG layouts. Keep those evidence gaps separate from implementation and native Windows acceptance; do not invent an arbitrary timeout or silently spread the exchange to unsupported modules.
+Before claiming full original parity, establish decision timing. The first-three-position mapping and local correction are recorded below; native Windows acceptance remains separate. Do not invent an arbitrary timeout.
 
 ## Decision-loop follow-up — 2026-10-03
 
@@ -67,4 +67,12 @@ The expiry counter is initialized to **200,000** (`$30D40`) at `$7BEE2`, then de
 
 Expiry writes trade count 18 and returns to the same input loop: the existing Accept/Decline branches remain reachable. It does not immediately launch war or automatically close the choice. The next encounter's threshold check starts the war branch. Reproduce that behavior in an original runtime before choosing a modern timer; an arbitrary countdown that disables both choices would introduce another divergence.
 
-The selected-module address calculation at `$340A2–$340BA` is `ship + $16 + 2 * moduleIndex`. This identifies the trade handler's three words as the first three module positions. The six-mount SCG has additional positions, so the remake's all-eligible-module exchange is broader than the literal original loop. Whether to preserve that original restriction remains a compatibility decision; this trace does not justify silently changing existing six-mount save behavior. Exact bytes/disassembly are retained in `artifacts/research/trade/timer-and-module-followup.txt`. No runtime behavior was changed by this follow-up.
+The selected-module address calculation at `$340A2–$340BA` is `ship + $16 + 2 * moduleIndex`. This identifies the trade handler's three words as the first three module positions. The six-mount SCG has additional positions, so the remake's all-eligible-module exchange was broader than the literal original loop. Acceptance independently visits exactly those three words at `$7C16A–$7C1B0`, confirming that this is also the exchange boundary. Exact bytes/disassembly are retained in `artifacts/research/trade/timer-and-module-followup.txt` and `encounter-disassembly.txt`.
+
+## Original-position trading — 2026-10-04
+
+The current candidate restores the original first-three-position rule in the shared offer selection. Empty and non-supply pods still occupy their positions; the code does not search later mounts for three eligible supplies. Cargo in mounts 4–6 remains usable elsewhere and untouched by trade or loading a save. Existing trades are not reversed and there is no save-format migration.
+
+Case 604 first reproduced an offer of five loaded supply pods where the original position limit permits two. The corrected case covers comms in the first and sixth mounts, two- and three-cargo offers, accepted quantities/fuel/counter, preserved rear cargo after serialization/deserialization, and rejection when cargo exists only beyond the first three positions. It passes headless and natively. Existing cases 150 and 220–235 also pass with strict logs: **18 focused headless cases plus native 604**. Build passes with 14 existing warnings and zero errors. Test-fixture setup failures are retained separately from the corrected results in `artifacts/validation/evidence/scg-trade-positions/`.
+
+This is staged SCG coverage, not a normal peaceful SCG campaign: normal SCG discovery follows war. Original timeout, current Windows execution and a new aggregate/export remain unverified. The last complete aggregate/export remains the 603-case `bd56658` checkpoint.
