@@ -612,3 +612,9 @@ The [earlier-checkpoint Mac replay](native-gameplay-results.md#normal-asteroid-s
 ## Asteroid fuel follow-up
 
 After reconciling the supplied bundle with your existing work, verify normal scan/mining fuel consumption, two-update approach and departure, and reload during departure. Cases 611–616 cover exhaustion: existing empty scanners/miners survive and stop ACC, an empty approach cannot start mining, while empty field arrival strands for six updates before loss. Compare visible scanning/stranded text in source and export. Preserve original saves: the new optional `AsteroidActionTicks` field is accepted by this build, but older builds reject saves containing it. Do not rerun already completed unrelated scenarios to populate the ledger. Mac normal evidence is linked above; this is still a pending Windows check.
+
+## Paid work through AOC conversion
+
+The Mac follow-up preserves manually paid jobs when a factory becomes automated. Paused work stays unselected until clicked; selecting it once resumes its saved stages without charging again. Cycling one-time → repeat → off retains a paid reservation, while subsequent fresh repeat cycles still require new materials. Case 620 uses real Production controls, AOC construction, empty/spare stores and old/new save reloads. The MTX event-order fixture now explicitly selects its automated order.
+
+After reconciling Windows-owned patches, check this sequence in source and the matching export using protected copies of saves. No overlapping Windows UI changes are included. New saves contain `MaterialsPaid`; this build accepts older saves without the field, but older executables reject new fields. Keep original saves and do not load new campaign saves in an older build. This is pending Windows acceptance, not a request to rerun completed unrelated scenarios.
