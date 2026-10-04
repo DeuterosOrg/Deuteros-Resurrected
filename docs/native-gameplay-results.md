@@ -359,3 +359,17 @@ Normal grapple unloading consumes the prototype for research. Cavell's248 Profes
 Native session76875 exits0; strict logs and `artifacts/fleet-war-campaign/audit.py` pass, and original user saves are restored byte-for-byte. Continuation `reloaded-slot-4.json` SHA-256: `a8d679bbe8b948caca786b71778b31f6e472b811f335bd7ff7a17436f0dad970`.
 
 Next: manufacture a replacement IOS drive, DFCC and drones, then fit/refuel the fleet and defend Earth. The local enemy fleet already has11 drones against its40-drone attack trigger; Earth/Moon remain friendly. Morse retains147 Expert workers. This verifies normal Mac trading, escape, prototype research and reload; engine replacement, victory/capture, later progression and matching Windows export acceptance remain open. Backlog totals do not change.
+
+## Paid fleet manufacture, failed defence and separate retreat replay — 2026-10-04
+
+Normal play from day12396 manufactures one IOS drive, one DFCC and28 drones. An initially misselected grapple job is paused, resumed and completed; the audit includes its recipe exactly once. All jobs finish with an empty manual queue. Replacing the damaged engine consumes the new drive without returning damaged salvage. Service unloads the500 copper and exchanges the grapple for DFCC. Conversion returns222 MeH and clears the gauge; filling250 fleet units consumes2,500 MeH.
+
+Five drones transfer first, then23 more. WAYFARER reaches the Moon with28 drones and fleet power196. The next natural transmission interrupts production; the saved partial job is completed rather than counting ignored clicks. At day12654, the enemy arrives with43 drones and power301. Fast time stops with the full five-update response window.
+
+**The first defence fails:** all28 player drones are destroyed, the enemy retains35, and News records WAYFARER's destruction and Admiral Blunket's death once. This outcome is retained in `lost-fleet-slot-4.json`; no victory is claimed.
+
+A **separate replay** loads the unchanged pre-battle save through test slot3 and selects Flee immediately. All28 drones and five crew escape and return to Earth with245 fuel. The day12657 reload preserves exact Earth, ships and News state. The Moon remains under attack with two updates left; retreat does not cancel that attack.
+
+Evidence: `artifacts/fleet-defence-campaign/`, including both outcomes and runnable `audit.py`. Native session4058 exits0, strict logs pass and original saves are restored exactly. Retreat checkpoint SHA-256: `4991af5ce89585ac0327a1f097dcfaa63eec7cbf2a6c253dc0efa81590c46594`.
+
+The next preparation branch should use the preserved peaceful16-trade checkpoint, research/install the already-available AOC before war, and start defence research immediately after declaration. The previous manual production schedule produced an understrength fleet; this is a preparation finding, not proof of a combat defect. Normal AOC installation/repeat production, successful defence/capture and Windows acceptance remain open. Counts remain35/48 implementation evidence and four locally accepted requirements.

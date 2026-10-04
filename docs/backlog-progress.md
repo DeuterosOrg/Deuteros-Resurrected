@@ -29,6 +29,8 @@ A normal pre-war continuation now delivers **500 platinum** and verifies mining 
 
 Normal fleet preparation delivers materials and crew, earns Morse's Expert promotion through eleven paid jobs and transfers90 Moon gold. Concurrent freight/mining stocks Earth for60 drones plus DFCC. Sixteen normal trades then reach the war/prototype event; WAYFARER survives a damaged-engine escape, returns the prototype and completes DFCC/fusion-laser/drone research. Exact stock and UI reload audits pass, with clean native exits and original saves restored. Engine replacement, fleet manufacture, combat/capture and SCG progression remain; see [latest campaign evidence](native-gameplay-results.md#prepared-fleet-campaign-reaches-war-and-defence-research--2026-10-04). This does not change acceptance totals.
 
+The next normal branch verifies paid manufacture of28 drones, engine replacement, DFCC fuel conversion and fleet transfer. Its first28-versus43 defence loses WAYFARER; a separately preserved pre-battle replay verifies Flee, return and reload without losing drones. Exact stock, casualty and restore audits pass. Stronger pre-war AOC preparation, successful defence/capture and later progression remain; see [both outcomes](native-gameplay-results.md#paid-fleet-manufacture-failed-defence-and-separate-retreat-replay--2026-10-04). No additional task acceptance is claimed.
+
 ## Requirements accepted — 2026-10-03
 
 The four descriptions were refreshed read-only from Asana. Acceptance follows the existing rules above; it does not claim completion of the broader campaign or original-game parity.
