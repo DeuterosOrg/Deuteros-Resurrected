@@ -8,6 +8,10 @@ Direct communication with the interactive Windows agent is established through h
 
 The latest complete Mac aggregate passes **621 cases** at `e313b6d`, 19 Python checks, strict import/startup and an audited Windows cross-export. Windows v5 is integrated at `01c81f9` and passes 50 focused and seven native Mac checks, plus root build/import/startup/export audit; this is not Windows execution evidence. It retains the newer six-mount SCG, pod animations, guarded Service and original palette work; only v5, the separate Stocktaker patch and the SCG pointer fix are reconciled. Earlier v2–v4 patches are superseded. A matching complete export is prepared for the desktop agent; the Craig-owned live Windows game/profile remains untouched.
 
+### Combined v5 export delivered — 2026-10-04
+
+Uploaded and independently hashed over SSH: `C:/Users/builder/Downloads/deuteros-01c81f9.zip`, **81,360,497 bytes**, SHA-256 `a6dd995526fc218eeead10d1f0319f46170134a1e44f9c0066e1ac91fe11bca6`. Includes the complete executable with embedded .NET dependencies, full Git bundle at `acbc658`, validation summary, manifest and profile-preserving handoff. Runtime is `01c81f9`; executable hash is in [integration evidence](validation-results.md#windows-v5-integration--2026-10-04). The matching-export request was delivered to the Windows machine board on the existing thread (message `0f15e0b8ce6f4126bf261bce07601183`). Delivery is verified; Windows execution/acceptance remains pending. No remote checkout or live game was changed.
+
 ### Handoff refreshed — 2026-10-04 07:06 UTC
 
 SSH and mesh checks still find no interactive-agent reply or requested patches. No Asana task has changed since 06:15 UTC. The existing Windows passes above remain credited; this is an artifact-collection gap, not failed testing.
