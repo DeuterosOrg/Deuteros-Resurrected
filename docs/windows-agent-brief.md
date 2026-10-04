@@ -2,11 +2,11 @@
 
 ## Start here
 
-**Current Mac checkpoint:** `e313b6d` passes **621/621 isolated cases**, 19 Python checks with the original disk, strict import/startup and an independently audited Windows cross-export. Windows v5 and the MTX preset capacity fix are integrated at **`01c81f9`**, with 50 focused and seven native Mac checks passing. Its complete executable SHA-256 is `88c7019b07ab260518dee1806d4fb438b0c6e16a66c9b15bd423517ba898df2d`; use the revision-labelled handoff for export acceptance. See [latest audit](validation-results.md#621-case-aggregate-and-package-audit--2026-10-04).
+**Current complete Mac checkpoint:** runtime `003c087` passes **630/630 isolated cases**, 19 Python checks with the original disk, strict import/startup and an audited Windows cross-export, including Windows v5 and docking/combat ownership fixes. A later local danger-state follow-up adds cases 631–632; distinguish its focused results from the complete 630-case checkpoint. See [current validation](validation-results.md).
 
 **Desktop coordination:** v5 was received and all 268 supplied hashes verified. The original [desktop report](windows-desktop-agent-report.md) preserves source scenario passes for seven task IDs and Craig's four confirmations. Coordinate on hub thread `217443da35594e5eb12be2b2f6c061a0`; avoid repeating completed scenarios. The owner reports PID62688 closed for reboot; preserve the wv03 profile and Craig's slot 5 at day 1157. Coordinate ownership before restarting. Use a separate profile for the new export and never load newer saves with the older build. ACC cockpit flashing remains investigation-only pending original-game evidence.
 
-**Current integration handoff:** `C:/Users/builder/Downloads/deuteros-01c81f9.zip`, **81,360,497 bytes**, SHA-256 `a6dd995526fc218eeead10d1f0319f46170134a1e44f9c0066e1ac91fe11bca6`, contains the matching export and complete Git history. The Windows reboot bundle at `3aee744` is verified and retained locally; its four code commits are already integrated via v5. Do not apply them again or replace whole gameplay files.
+**Current integration handoff:** `C:/Users/builder/Downloads/deuteros-003c087.zip`, **65,718,253 bytes**, SHA-256 `003243e6d801506d8f899c5c98cf9bdbf6b47aa2e89a2219df0bb9b8211ac6e7`, contains the complete executable. Full history is in `deuteros-82d6677.bundle`; runtime remains `003c087`. The isolated `.ps1` smoke was rejected before launch by Windows script policy; coordinate an owner-approved route without bypassing it. The older `01c81f9` package and reboot bundle remain retained, with v5 changes already integrated. Do not apply them again.
 
 **Shutdown investigation:** the owner reports Alt+F4 from playtest 07 exited with **3221225477 (`0xC0000005`)**, despite normal final disposal logs. Preserve this failure separately from older PagedAllocator diagnostics. Publish the run's `.log`, `-engine.log`, `.exit` and `.pid` files into builder Downloads for collection. Then reproduce in a separate profile and the matching export, recording process exit status as well as strict logs; no cause or fix is established.
 
@@ -630,9 +630,14 @@ Runtime `e313b6d`, case621: a completed AOC waits at stage three when all four l
 
 ### Next combined-build checks: docking and combat ownership
 
-The Mac branch adds original-backed docking gates and combat input ownership (cases 628–630). After receiving a matching newer build, verify: a fresh hostile arrival cannot Dock/ACC past defenders; a cleared station accepts a DFCC hull; peaceful trading still docks; combat blocks background Dock/engine/module controls and right-click overview navigation; Flee and PTL remain clickable; fast-forward stops when battle opens; completion restores normal controls. Preserve the existing wv03 checkpoint and prior export evidence. The delivered `01c81f9` build does **not** contain these follow-ups; do not report their acceptance against it. Shutdown logs requested in the existing thread remain outstanding.
+The Mac branch adds original-backed docking gates and combat input ownership (cases 628–630). After receiving a matching newer build, verify: a fresh hostile arrival cannot Dock/ACC past defenders; a cleared station accepts a DFCC hull; peaceful trading still docks; combat blocks background Dock/engine/module controls and right-click overview navigation; Flee and PTL remain clickable; fast-forward stops when battle opens; completion restores normal controls. Preserve the existing wv03 checkpoint and prior export evidence. The delivered `003c087` build contains these follow-ups; the older `01c81f9` does not. Shutdown logs requested in the existing thread remain outstanding.
 
 
 ### ACC lamp source finding
 
 The [original indicator trace](original-acc-indicator-evidence.md) now identifies a five-VBlank red palette pulse and matches all 67 lamp/highlight pixels to the existing PNG. The traced mode is separate from Engaged/Finishing text. Compare fitted-idle, engaged and Complete Cycle in the original runtime, plus dimmed overlays, before accepting a remake animation. The source arithmetic gives a nominal PAL 0.4-second full cycle; it is not measured timing. No animation change is included in `003c087`.
+
+
+### Cleared-station danger follow-up
+
+Cases 631–632 add source-backed protection from false attack/destruction and escape damage at zero-defender stations and while station SDM is active. Once a matching later build is supplied, verify IOS and SCG can wait in those orbits and depart safely, while defended stations and active attacking fleets remain dangerous. DFCC is still required to dock at a hostile wartime station. This follow-up is not in the delivered `003c087` executable; keep its acceptance separate.

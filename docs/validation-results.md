@@ -1,5 +1,11 @@
 # Contribution and validation results
 
+## Cleared-station danger correction — 2026-10-04
+
+Runtime `d0ace3d497779faaecdb3ef982694827218123f8` passes **102 targeted fresh-process regressions**, build and strict source startup. Cases 631–632 first reproduced destruction in cleared orbit and an invalid escape-damage roll; both now pass for IOS/SCG with zero defenders or active SDM. Docking, simulation and departure share the same original-backed danger check. Existing defended-station, fleet, rogue, damage, News and SDM coverage passes. Build retains 14 existing warnings, zero errors.
+
+Evidence: `artifacts/validation/evidence/cleared-station-danger/` includes failing logs, passing logs and `audit.json`. Original saves and root `AGENTS.md` are unchanged. The suite now declares 632 cases; this is **focused validation**, not a new full aggregate or Windows execution. The last complete aggregate and delivered export remain `003c087` below. [Source and limits](original-engine-damage-evidence.md#cleared-station-danger--2026-10-04).
+
 ## 630-case integration checkpoint — 2026-10-04
 
 Runtime `003c087aa28b267087b5afe2719ddcb764c58fc7` passes **630/630 fresh-process Mac regressions**, **19 Python checks with the original ending disk**, strict import, source startup and Windows cross-export. This includes the integrated Windows v5 fixes and the docking/combat follow-ups. New cases 628–630 also pass native Mac checks; original save inventory is unchanged.
@@ -11,7 +17,7 @@ The executable ZIP was transferred to builder Downloads. A separate isolated Win
 
 Local review on 2026-10-01, against baseline `9817216`, branch `codex/build-tests-and-gameplay-fixes`. No PR, push or Asana status changes have been made.
 
-Latest complete Mac aggregate (2026-10-04): **621/621** at `e313b6d37af488d42523b3294a7c3a184874fec8`, with **19 Python checks**, strict import, startup and audited Windows cross-export. See [621-case audit](#621-case-aggregate-and-package-audit--2026-10-04). Windows retains its [595 audited source cases](windows-validation-results.md#595-case-source-checkpoint--2026-10-03) and separate packaged startup. The desktop agent reports scoped passes for seven task IDs, plus four related fixes accepted by Craig; see [current reconciliation](windows-validation-results.md#current-reconciliation--2026-10-04). Matching newer export acceptance remains pending.
+Earlier complete Mac aggregate (2026-10-04): **621/621** at `e313b6d37af488d42523b3294a7c3a184874fec8`, with **19 Python checks**, strict import, startup and audited Windows cross-export. See [621-case audit](#621-case-aggregate-and-package-audit--2026-10-04). Windows retains its [595 audited source cases](windows-validation-results.md#595-case-source-checkpoint--2026-10-03) and separate packaged startup. The desktop agent reports scoped passes for seven task IDs, plus four related fixes accepted by Craig; see [current reconciliation](windows-validation-results.md#current-reconciliation--2026-10-04). Matching newer export acceptance remains pending.
 
 The latest additions implement rogue takeover, raids, sabotage, recovery and prison containment. Earlier changes prevent manual store overflow and clear DFCC mode when its last fitted controller is removed. They also restore all six original SCG mounts through fitting, migration, interior display and cargo controls, following saved interstellar travel, private/star clocks and Hyperlight-specific Warlord promotion, building on the earlier transmission, simulation and UI fixes. The earlier 416-case attempt failed an outdated recipe-label expectation; that assertion is corrected and the failed evidence retained. The alien campaign remains open; totals are **35/48 with implementation evidence and 4/48 locally accepted** (DayTick splitting, AMA research, event-order research and palette research; [requirements](backlog-progress.md#requirements-accepted--2026-10-03)). Remaining Windows scenarios and full parent-task acceptance are tracked in the reconciliation above.
 
