@@ -606,3 +606,5 @@ Check a route with Asteroids on each side: selected large asteroids mine, Earth-
 ## Ending test-input correction
 
 The Mac 610-case attempt stopped at case 575. The failure was traced to an undelivered synthetic mouse press in the headless test, not established as a gameplay regression. The corrected test flushes and verifies the held state, checks terminal black beyond audio latency and then verifies release-triggered replay. Escape coverage now uses viewport input. Both checks fail if their production guards are removed. Reuse your existing desktop ending results; integrate the corrected tests with the next agreed source run.
+
+The [earlier-checkpoint Mac replay](native-gameplay-results.md#normal-asteroid-source-acc-delivery) now completes 500 palladium delivery, Complete Cycle stop and reload with 228 fuel remaining. Earth stays human, while the Moon is lost. Preserve this distinction from the older failed campaign and reuse any equivalent completed Windows evidence.
