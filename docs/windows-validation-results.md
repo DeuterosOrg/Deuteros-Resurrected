@@ -1,5 +1,11 @@
 # Windows validation results
 
+## Current reconciliation — 2026-10-04
+
+Windows evidence includes **595 automated source cases**, a separately verified export/startup, and reported desktop passes for **six original task IDs**: SCG, Supply discard, ACC, DFCC, Stocktaker and Service. Craig accepted three related UI fixes: Service, the resized missing-pod popup and all three shuttle service-section background returns. These observations remain credited at their tested revisions. The newer storm-door fix has a reported regression pass; physical appearance and export remain pending.
+
+The latest Mac suite has 601 cases; that Windows run has **not started**. Collection of the Windows-owned v4, SCG and separate Stocktaker changes remains pending. The mesh request is queued, but the Windows reply file and requested patches remain absent from the accessible SSH handoff folder at 02:38 UTC. Detailed evidence and remaining scope follow below.
+
 ## 595-case source checkpoint — 2026-10-03
 
 The isolated Windows checkout at `dbac18325e92bb214d5524732157d3eb963d22ab` is runtime-identical to `bcaeb1cc9da5ae956059857f822296a1d86988d8`. All **595/595 regressions**, compilation (14 existing warnings), strict import and source startup passed. All 600 collected source-evidence files were independently audited for case discovery, fresh timestamps, individual success markers and engine errors. Evidence: `artifacts/windows-handoff/bcaeb1c-source-evidence/`; archive SHA-256 `55402ad335b83ed3b9c70eda59856bb2ed525413f7133c8a249942e39466b333`.
@@ -151,7 +157,7 @@ Craig correctly pointed out that the previous aggregate “zero Windows acceptan
 
 The newly retrieved interior-navigation update identifies displaced offsets on `Torso.tscn/OpenShipInterior` as the background-click defect. Removing those four offsets makes the hit area match cockpit/engine sections. Windows case 312 reportedly failed before and passed after, covering pointer navigation across shuttle/IOS/five-mount SCG, unchanged day/fuel, foreground controls and input locks. Craig's normal day-1002 source check passed for cockpit, mid-section and engine; fuel remained 191. Screenshots 19–24 and before/after logs are in `artifacts/windows-validation/desktop-03` on the Windows checkout. Source game PID 8340 was preserved.
 
-**Collect `pod-and-bay-feedback-v3.patch`:** this six-file patch over `878d74d` supersedes both earlier pod-feedback patches and excludes the separate Stocktaker fix. It has not yet been collected or integrated on the Mac. Do not independently recreate these Windows-owned changes or overwrite current regression numbers. The live Asana refresh and comments are archived at `artifacts/research/windows-reconcile-2026-10-03-2247.json`; both parent tasks remain open.
+At this checkpoint, the requested artifact was `pod-and-bay-feedback-v3.patch`, a six-file patch over `878d74d` excluding Stocktaker. **The later v4 report below supersedes that collection request.** Do not independently recreate these Windows-owned changes or overwrite current regression numbers. The live Asana refresh and comments are archived at `artifacts/research/windows-reconcile-2026-10-03-2247.json`; both parent tasks remain open.
 
 At Craig's explicit request, the Mac agent sent a reconciliation request to `wizzo-game-1` through the coordination service (thread `217443da35594e5eb12be2b2f6c061a0`) and copied it to `C:/Users/builder/Downloads/deuteros-mac-agent-request.txt`. The request asks for the current report, revision, existing patches and a monitored reply path. Queued delivery is confirmed; an agent acknowledgement is still pending. The protected coordination directory was not retried or modified. The latest uploaded complete-history bundle is `deuteros-1e30009.bundle`, with the normal mined-Moon save alongside it; neither was launched by this handoff.
 
@@ -167,3 +173,20 @@ The latest Supply task comment reports an additional physical failure: missing-p
 A read-only refresh of the [Supply pod task](https://app.asana.com/1/507237966097081/project/1214891399253076/task/1215685674676219) retrieves a 19:39 UTC comment reporting that Craig confirmed the resized popup works and accepts “Pod Not Available” for this batch. Exact original wording is explicitly deferred for this feedback fix. This is the Windows report's acceptance evidence, not a new Mac test or completion of the broader Ditch/AMA task. Patch integration and matching export checks remain open.
 
 The latest Mac-audited source bundle, `deuteros-22b2474.bundle`, is uploaded to `C:/Users/builder/Downloads/`; local and remote SHA-256 match `d8759542f0cb7cc8203e7d8707b0f1c3f0036f624c2b6950fa7ebdb46201861d` (15,646,802 bytes). It contains complete history through documentation commit `22b2474` and runtime `2151aa3`, including the ACC cursor-lock and departure-scan fixes. It has not been executed on Windows. The existing Windows game is now PID 8340 and remains untouched. No new patch/report is available in the accessible Downloads handoff folder. Evidence: `artifacts/windows-handoff/bundle-22b2474-upload.json` and `artifacts/research/windows-recheck-1940.json`.
+
+
+## Storm-door report and v4 handoff — 2026-10-04
+
+A read-only Asana refresh at 02:28 UTC retrieved the desktop agent's 23:39 UTC report on the interior-navigation task. The large 192×112 launch view selected `SmallLocation_StormDoors.png` (60×30). Its local one-line fix selects the existing `BigLocation_StormDoors.png`, retaining the small preview. Windows case 313 reportedly fails before and passes after; it covers large dimensions and the small-preview toggle. Physical appearance after restart and export remain untested.
+
+The agent also reports recovering Disk 2 bank `0xBB000`, record 3 from archived parallel-project commit `faf3a30beb07868e06e01ebb306f63b2b42affed`: all 21,312 pixels of the 192×111 original frame match the existing large PNG, and all eight used colours match Disk 1 RGB4 palette `0x79D24`. The PNG's extra final row is outside that comparison. This is reported evidence, not an independently repeated Mac decode.
+
+**Collect `desktop-gameplay-v4.patch`**, eight files over `878d74d`, superseding v3 and earlier pod patches. Also collect `docs/original-stormdoors-evidence.md` and `artifacts/windows-validation/desktop-03/original-stormdoors-04`. Stocktaker remains separate; SCG commit `5a9b1ef` is still required. Existing Windows case numbers conflict with the current suite and need remapping during integration.
+
+The refresh is retained at `artifacts/research/windows-reconcile-2026-10-04-0228.json`. The updated collection request is uploaded to the builder Downloads folder and queued in the existing mesh thread; no acknowledgement, reply file or requested patch is available there at 02:30 UTC. Neither Asana tasks nor Windows-owned source were modified.
+
+### Current 601-case Windows launch remains unstarted
+
+The uploaded `deuteros-fce6562.bundle` matches SHA-256 `540a81da90814e36d863b3f1d06ebdc380876e75b21499b3307159e0f91c160a` and contains runtime `3ebeca0`. A preflight found no Godot/Deuteros process and no `fce6562` validation checkout. The prepared PowerShell wrapper passed syntax checking, but execution was denied by the machine's script policy before clone/build/test. Direct Python is available; its subsequent `tasklist` ownership check returned Access Denied. No policy/ACL changes or bypasses were attempted, and no validation process was started.
+
+Retained diagnostics: `artifacts/windows-handoff/fce6562-run-ssh.log` and the native preflight follow-up. The 601-case Windows result remains **not run**; the latest completed Windows source result is still 595 cases at `bcaeb1c`. This launch failure does not invalidate that earlier run or the desktop agent's reported passes.

@@ -543,7 +543,7 @@ After repairing the Moon, manufacture a Derrick locally, carry it down in the sh
 
 For task 1216065854613325, select iron at both endpoints and complete a round trip. Confirm the richer station supplies the poorer one, total stock including cargo is conserved, and an already balanced return loads no cargo. Verify selectors, cargo and automation state after save/reload. The [normal Mac route](native-gameplay-results.md#acc-stock-balancing-and-clear-refresh) passes with 168/191 becoming 179/180 and remaining there on return. Reuse any existing equivalent Windows result rather than repeating it for the ledger.
 
-New case 598 covers an additional Clear display fix: select both sides, click Clear and verify selected diamonds disappear immediately and cycle arrows return to iron, without reopening or advancing time. Targeted headless/native checks and physical Mac replay pass; the combined [599-case checkpoint](validation-results.md#acc-clear-and-ground-crew-guards--599-case-checkpoint) also passes. Record Windows source/export results separately. Preserve the Windows-owned SCG pointer, Stocktaker and six-file pod/bay v3 changes when integrating this candidate.
+New case 598 covers an additional Clear display fix: select both sides, click Clear and verify selected diamonds disappear immediately and cycle arrows return to iron, without reopening or advancing time. Targeted headless/native checks and physical Mac replay pass; the combined [599-case checkpoint](validation-results.md#acc-clear-and-ground-crew-guards--599-case-checkpoint) also passes. Record Windows source/export results separately. Preserve the Windows-owned SCG pointer, Stocktaker and eight-file desktop gameplay v4 changes when integrating this candidate.
 
 ## Empty ground crews
 
@@ -555,7 +555,7 @@ Candidate `c4e1f41` passes the fresh full Mac suite, Python checks, startup and 
 
 Runtime `3ebeca0` adds fitting/removal presentation in `Torso.cs`; it does not edit your `Torso.tscn`, shared `ShipBay.cs`, unavailable-stock popup or background fixes. Cases 600–601 cover all pod kinds, repeat-input blocking, replacement, no-stock rejection and owned-lock cleanup. Focused headless/native checks and a normal-save supply removal/refit/reload pass on Mac. Full 601-case Mac validation, 19 Python checks, startup and audited cross-export pass; do not infer Windows execution from cross-export.
 
-After preserving and reconciling your SCG, Stocktaker and six-file v3 patches, check supply/tool/cryo motion in source and export: old pod descends, new pod rises, repeated clicks cannot duplicate stock, and navigation becomes available after completion. Reuse your existing Service, popup and background confirmations. Please return the active commit, patch files and observed results through the existing mesh thread or `C:/Users/builder/Downloads/deuteros-windows-reply.md`; no repeat testing is needed merely to populate the Mac ledger.
+After preserving and reconciling your SCG, Stocktaker and eight-file v4 patches, check supply/tool/cryo motion in source and export: old pod descends, new pod rises, repeated clicks cannot duplicate stock, and navigation becomes available after completion. Reuse your existing Service, popup and background confirmations. Please return the active commit, patch files and observed results through the existing mesh thread or `C:/Users/builder/Downloads/deuteros-windows-reply.md`; no repeat testing is needed merely to populate the Mac ledger.
 
 ## Normal first-contact milestone
 
@@ -568,3 +568,9 @@ At runtime `3ebeca0`, normal Mac play now researches DFCC/IOS drones, delivers E
 ## Normal drone and fleet milestone
 
 A continuation at `3ebeca0` delivers Earth iron/palladium and mined Moon aluminium, manufactures one IOS drone and one Fusion Laser with exact recipe charges, transfers the drone both ways, rejects another load from an empty pool, displays the overview count and preserves the fleet through reload. Strict native log and saved-state audit pass; original saves are restored. See [evidence](native-gameplay-results.md#normal-drone-production-and-fleet-transfer). This provides a normal progression checkpoint for the drone-count task; no combat/capture or Fusion Laser battle-power effect is claimed.
+
+## Latest Windows-owned patch request — 2026-10-04
+
+The Mac agent retrieved your storm-door texture and original-art report from Asana. Please provide **`desktop-gameplay-v4.patch`**, `docs/original-stormdoors-evidence.md` and the `original-stormdoors-04` comparison evidence, alongside SCG `5a9b1ef` and separate Stocktaker changes. V4 supersedes v3; your work will be reconciled, not recreated. Reply through the existing mesh thread or `C:/Users/builder/Downloads/deuteros-windows-reply.md`.
+
+The isolated full601 Windows attempt did not start: the machine rejected the PowerShell wrapper under its script policy, and a direct Python process-ownership check was denied by `tasklist`. Security settings remain unchanged. The uploaded `fce6562` bundle still contains the Mac-audited runtime `3ebeca0`; arrange an allowed runner and confirm test ownership before using it. Preserve your desktop checkout and saves.
