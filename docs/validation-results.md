@@ -1133,3 +1133,11 @@ Runtime **`e313b6d`** (isolated **`2e798fd`**) fixes a reproduced `IndexOutOfRan
 The fix reuses station-installation handling. Waiting preserves the paid job, crew and progress without output, repeated experience or notifications. Once a slot is free, completion returns the team and installs the AOC before notifying observers. The UI marks it installed; new duplicate orders and obsolete saved repeat orders are rejected. Other staff slots remain untouched.
 
 **29 targeted cases and native621 pass**, including manual/AOC production, MTX/SDM installation, ordering, paid queues and the new full-capacity case. Case621 covers waiting and completed save/load, precise staff return, one completion/experience award, no transferable stock, panel visibility and duplicate rejection. Raw failures, original trace/verifier and passing logs are at `artifacts/worktrees/production-queue/artifacts/validation/evidence/aoc-staff-capacity/`. These staged checks do not establish normal campaign or Windows acceptance. A complete **621-case** run with import/startup/export audit is underway; it is not yet a result.
+
+## MTX preset and indirect crew creation — isolated follow-up
+
+While the main checkout's full621 run remained unchanged, caller review found that Enable MTX can invoke orbital setup → station setup → shuttle setup. The existing full-roster preflight covered preset choices0–3 but excluded MTX (choice4). Actual Settings confirmation with four non-marine teams reproduced an `IndexOutOfRangeException` after partial world mutation.
+
+Isolated commit **`53ee18d`** extends the existing preflight only when MTX needs that indirect crew-creation path. Case622 verifies rejection before any saved-world change and actionable feedback. Seven existing station parts bypass shuttle setup, so MTX can still complete with a full roster while preserving all teams and the name-allocation index. **11 related checks and native622 pass**. Raw failures, passing logs and a runnable audit are under `artifacts/worktrees/production-queue/artifacts/validation/evidence/mtx-preset-capacity/`.
+
+This change is committed in the isolated worktree and **awaits integration after the full621 run**. It is not included in runtime `e313b6d`, its pending export, or any Windows result. Normal-play acceptance remains open; no additional Asana task is counted complete.
