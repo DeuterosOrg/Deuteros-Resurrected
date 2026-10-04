@@ -187,7 +187,7 @@ Ordinary flight then reaches Jupiter, where the Methanoid menu icon appears. Doc
 
 Professor Cavell's existing 249-person team completes the research through normal time advancement. The interface displays the 5T orbital-only recipe: two aluminium and one each carbon, copper and gold. Saving and reloading retains the completed research. Normal close exits zero, the strict runtime log passes and original user saves are restored exactly.
 
-Evidence and runnable stock/research checks: `artifacts/first-contact-campaign/`. Continuation `researched-slot-4.json` has SHA-256 `ffc3c2299fd2d65f18889b9f679e13efc9e7b41d3f0a33f02f8e63cf9cefa75d`. Two initial manual date advances occurred while the location view was displayed, before the actual departure; they are not counted as flight updates. Manufacture and fitting continue below; trading and Windows acceptance remain pending.
+Evidence and runnable stock/research checks: `artifacts/first-contact-campaign/`. Continuation `researched-slot-4.json` has SHA-256 `ffc3c2299fd2d65f18889b9f679e13efc9e7b41d3f0a33f02f8e63cf9cefa75d`. Two initial manual date advances occurred while the location view was displayed, before the actual departure; they are not counted as flight updates. Manufacture, fitting and trading continue below; Windows acceptance remains pending.
 
 ## CommsPod supply chain and fitting
 
@@ -195,4 +195,14 @@ Normal play at `3ebeca0` continues from that researched save. WAYFARER reaches M
 
 The factory manufactures one CommsPod. Dedicated before/after saves prove the exact charge: two aluminium and one each carbon, copper and gold. Fitting returns WAYFARER's grapple to stock and consumes the single Comms unit. Both supply mounts remain empty; fuel and crew are unchanged. Save/reload preserves the fitted CommsPod in the cockpit.
 
-Normal close exits zero, strict log validation passes and original saves are restored exactly. Evidence and runnable audit: `artifacts/comms-production-campaign/`. Continuation `fitted-slot-4.json` has SHA-256 `838295c737c55f0ee504d94540aca24efb6c976ce7c81432cf2deae82f923960`. Initial mistaken production selections left paid, inactive Tool/Cryo jobs; these are excluded from the dedicated Comms recipe comparison. A duplicate startup without the .NET environment was closed separately, as recorded in `startup-note.txt`; the intended game completed cleanly. Trade acceptance/refusal, the fuel gift and Windows acceptance remain open.
+Normal close exits zero, strict log validation passes and original saves are restored exactly. Evidence and runnable audit: `artifacts/comms-production-campaign/`. Continuation `fitted-slot-4.json` has SHA-256 `838295c737c55f0ee504d94540aca24efb6c976ce7c81432cf2deae82f923960`. Initial mistaken production selections left paid, inactive Tool/Cryo jobs; these are excluded from the dedicated Comms recipe comparison. A duplicate startup without the .NET environment was closed separately, as recorded in `startup-note.txt`; the intended game completed cleanly. The next session below verifies trade acceptance/refusal and the fuel gift; Windows acceptance remains open.
+
+## Normal Methanoid trading
+
+The next normal session at `3ebeca0` loads 180 iron and 116 titanium from Moon Orbital into WAYFARER's two supply pods. Ordinary launch, twelve travel updates and docking at Jupiter consume 14T, leaving 192T and seven crew. The first offer previews iron→silica and titanium→copper with unchanged quantities. Declining preserves both cargoes, fuel and trade count zero; departure begins normally.
+
+After departure and redocking, accepting the same offer exchanges exactly 180 iron→180 silica and 116 titanium→116 copper, fills fuel from 190T to 250T and advances trade count 0→1. Save/reload preserves that committed result. Another encounter is refused: the exchanged cargo remains and count returns 1→0. A natural .01 clock update completes departure, so the subsequent save has 247T after three movements since acceptance. The saved clock records two manual days plus that centiday; this fuel change is movement, not a refusal charge.
+
+Redocking consumes one further unit. Escape cancels the next offer without exchange, fuel gift, count change or departure. Saving and reloading leaves WAYFARER docked at Jupiter with the same cargo, 246T and seven crew. The native session exits zero, its strict log passes, and original saves are restored exactly.
+
+Screenshots, six normal saves and runnable cargo/fuel/counter checks are in `artifacts/comms-trading-campaign/`. Final continuation `cancelled-slot-4.json` has SHA-256 `9dd75b0346129f327b7e28dd5e0aaab3bf51649ffc76f7f3accf99bd63c8abec`. This verifies normal IOS decisions and persistence. The war threshold, Windows acceptance, original decision timeout and SCG cargo-position fidelity remain separate open requirements.
