@@ -213,6 +213,46 @@ namespace Deuteros.Tests
             FinishAccAtDestination(ship, false);
         }
 
+        private void AccAsteroidActivation()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            foreach (var state in new[] { Ship_States.Docked, Ship_States.UnDocked, Ship_States.Docking, Ship_States.Launching })
+            foreach (var command in new[] { "Engage", "Cycle" })
+            foreach (var fuel in new[] { 0, 100 })
+            {
+                var ship = AmaCargoShip();
+                ship.ShipState = state;
+                ship.Fuel = fuel;
+                ship.AsteroidActionTicks = state is Ship_States.Docking or Ship_States.Launching ? 2 : -1;
+                ship.Modules[1].ItemStored = ItemTypes.titanium;
+                ship.Modules[1].ItemCount = 12;
+                var scan = ship.ItemScanResults;
+                var countdown = ship.AsteroidActionTicks;
+                var fuelStock = Save.BaseGameData.Planets[StellarBodies.asteroids].Station.Resources.Stores[ship.FuelType];
+                AccCyclePress(ship, command);
+                Equal(scan, ship.ItemScanResults, command + " retains the current asteroid in " + state);
+                Equal(state, ship.ShipState, "command does not launch a miner or replace a pending action");
+                Equal(countdown, ship.AsteroidActionTicks, "approach/departure countdown preserved");
+                Equal(false, ship.ACC.Refuelling, "asteroids have no refuelling berth");
+                Equal(fuel, ship.Fuel, "command cannot refuel or consume fuel");
+                Equal(fuelStock, Save.BaseGameData.Planets[StellarBodies.asteroids].Station.Resources.Stores[ship.FuelType], "no asteroid store transaction");
+                Equal(command == "Engage", ship.ACC.Active, "requested continuous mode");
+                Equal(command == "Cycle", ship.ACC.CycleMode, "requested finishing mode");
+                Equal(12, ship.Modules[1].ItemCount, "command preserves mined cargo");
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                ship = (IOS)Save.Ships.Single();
+                Equal(ItemTypes.titanium, ship.AsteroidScanResults.Type, "reload retains mining resource");
+                Equal(countdown, ship.AsteroidActionTicks, "reload retains the pending operation");
+                if (state == Ship_States.Docked)
+                {
+                    AsteroidFuelTick(101);
+                    Equal(Ship_States.Docked, ship.ShipState, "mining continues after command and reload");
+                    Equal(true, ship.Modules[1].ItemCount > 12, "next eligible update produces ore including with an empty tank");
+                    Equal(ItemTypes.titanium, ship.Modules[1].ItemStored, "ore still matches the preserved asteroid");
+                }
+            }
+        }
+
         private void AccCycleFlight(bool toGround)
         {
             var ship = AccCycleShip(true);

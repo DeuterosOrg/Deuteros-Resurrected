@@ -253,10 +253,9 @@ namespace Deuteros.Code.Objects
 			// Changing commands during a journey or fuel wait preserves the current operation.
 			if (wasRunning) return;
 
-			if (Ship.ShipType != Ship_Types.Shuttle)
-				((InterStellarShip)Ship).ItemScanResults = null;
-
-			if (Ship.ShipState == Ship_States.Docked && Refuel())
+			// Mining shares Docked in the remake, but is not an original refuelling berth.
+			// Preserve the scan and pending activity; EngageEngine clears it when travel starts.
+			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids && Refuel())
 			{
 				LoadSupply();
 				Ship.TakeOff();
