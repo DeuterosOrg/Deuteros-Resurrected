@@ -861,7 +861,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var currentModule = Ship.Modules[torsoSection];
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
 			if (currentModule.ModuleType == Enums.Module_Types.Supply)
 			{
@@ -1052,7 +1052,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
-				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
 				if (cursor.IsLocked)
 				{

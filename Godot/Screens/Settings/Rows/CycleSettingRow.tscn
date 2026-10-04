@@ -1,0 +1,56 @@
+[gd_scene load_steps=0 format=3]
+
+[ext_resource type="Script" path="res://Code/Platform/UI/Rows/CycleSettingRow.cs" id="script"]
+[ext_resource type="Texture2D" uid="uid://jhfkn5lmn1x0" path="res://Sprites/UI/Settings/arrow_left.png" id="left"]
+[ext_resource type="Texture2D" uid="uid://c5eo3l6bqbuv0" path="res://Sprites/UI/Settings/arrow_right.png" id="right"]
+
+[node name="CycleSettingRow" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+theme_override_constants/separation = 16
+script = ExtResource("script")
+
+[node name="LabelButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 52)
+size_flags_horizontal = 3
+theme_type_variation = &"SelectRowButton"
+toggle_mode = true
+text = "Setting"
+alignment = 0
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="Controls" type="HBoxContainer" parent="."]
+layout_mode = 2
+size_flags_vertical = 4
+theme_override_constants/separation = 8
+
+[node name="PrevButton" type="Button" parent="Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(44, 44)
+theme_type_variation = &"SquareButton"
+icon = ExtResource("left")
+icon_alignment = 1
+
+[node name="ValuePill" type="PanelContainer" parent="Controls"]
+layout_mode = 2
+custom_minimum_size = Vector2(232, 44)
+theme_type_variation = &"PillPanel"
+
+[node name="ValueLabel" type="Label" parent="Controls/ValuePill"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "Value"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="NextButton" type="Button" parent="Controls"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(44, 44)
+theme_type_variation = &"SquareButton"
+icon = ExtResource("right")
+icon_alignment = 1

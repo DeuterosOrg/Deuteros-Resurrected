@@ -117,7 +117,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 		private async Task WaitMs(int ms)
 		{
 			await ToSignal(
-				GetTree().CreateTimer(ms / 1000.0),
+				GetTree().CreateTimer(ms / 1000.0, false),
 				SceneTreeTimer.SignalName.Timeout
 			);
 		}

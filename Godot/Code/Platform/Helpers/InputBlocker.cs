@@ -54,7 +54,7 @@ namespace Deuteros.Code.Platform.Helpers
         {
             if (!Blocked)
             {
-                var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+                var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
                 if (!cursor.IsLocked && @event is InputEventMouseButton)
                 {

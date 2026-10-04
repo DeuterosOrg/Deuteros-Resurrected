@@ -453,7 +453,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			DestinationStarMap.LoadMap(Ship.DestinationPlanetLocation);
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 			cursor.LockToRect(StarMap.GetGlobalRect());
 
 			UpdateState();
@@ -469,7 +469,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			ACCScreen.UpdateState();
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 			cursor.LockToRect(ACC.GetGlobalRect());
 
 			UpdateState();
@@ -694,7 +694,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
-				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
 				if (cursor.IsLocked)
 				{

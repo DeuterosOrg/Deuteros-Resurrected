@@ -1,0 +1,54 @@
+[gd_scene load_steps=0 format=3]
+
+[ext_resource type="Script" path="res://Code/Platform/UI/Rows/SliderSettingRow.cs" id="script"]
+
+[node name="SliderSettingRow" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+theme_override_constants/separation = 16
+script = ExtResource("script")
+
+[node name="LabelButton" type="Button" parent="."]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(0, 52)
+size_flags_horizontal = 3
+theme_type_variation = &"SelectRowButton"
+toggle_mode = true
+text = "Setting"
+alignment = 0
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="SliderFrame" type="PanelContainer" parent="."]
+layout_mode = 2
+custom_minimum_size = Vector2(340, 44)
+size_flags_vertical = 4
+theme_type_variation = &"SquarePanel"
+
+[node name="Inner" type="HBoxContainer" parent="SliderFrame"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DecButton" type="Button" parent="SliderFrame/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(40, 0)
+theme_type_variation = &"CapDecButton"
+text = "-"
+
+[node name="ValueSlider" type="HSlider" parent="SliderFrame/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+max_value = 10.0
+rounded = true
+tick_count = 11
+ticks_on_borders = true
+
+[node name="IncButton" type="Button" parent="SliderFrame/Inner"]
+unique_name_in_owner = true
+layout_mode = 2
+custom_minimum_size = Vector2(40, 0)
+theme_type_variation = &"CapIncButton"
+text = "+"

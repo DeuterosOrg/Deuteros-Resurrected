@@ -8,6 +8,7 @@ namespace Deuteros.Code.Platform.Helpers
         public static OverlayManager Instance { get; private set; }
 
         private Control _overlayRoot;
+        private Control _gameArea;
         private Node _contentInstance;
         private bool _wasPaused;
 
@@ -48,13 +49,24 @@ namespace Deuteros.Code.Platform.Helpers
                 _overlayRoot.AddChild(dim);
             }
 
+            _gameArea = new Control
+            {
+                Name = "GameArea",
+                MouseFilter = Control.MouseFilterEnum.Pass
+            };
+            _overlayRoot.AddChild(_gameArea);
+            FitGameArea();
+
+            if (GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged += FitGameArea;
+
             var center = new CenterContainer
             {
                 Name = "Center",
                 MouseFilter = Control.MouseFilterEnum.Pass
             };
             center.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            _overlayRoot.AddChild(center);
+            _gameArea.AddChild(center);
 
             _contentInstance = packed.Instantiate();
             center.AddChild(_contentInstance);
@@ -95,12 +107,31 @@ namespace Deuteros.Code.Platform.Helpers
                 _contentInstance.QueueFree();
             _contentInstance = null;
 
+            if (GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged -= FitGameArea;
+            _gameArea = null;
+
             _overlayRoot.QueueFree();
             _overlayRoot = null;
 
             // Defer unpausing to the next idle frame,
             // and clear any buffered input (like the Esc that closed us).
             CallDeferred(nameof(FinishClose));
+        }
+
+        private void FitGameArea()
+        {
+            var game = GameViewportContainer.Instance;
+
+            if (game == null)
+            {
+                _gameArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                return;
+            }
+
+            _gameArea.Position = game.GlobalPosition;
+            _gameArea.Scale = game.Scale;
+            _gameArea.Size = game.Size;
         }
 
         private void FinishClose()

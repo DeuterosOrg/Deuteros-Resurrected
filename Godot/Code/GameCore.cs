@@ -196,6 +196,7 @@ namespace Deuteros.Code
 		#endregion
 
 		private static GameCore _instance;
+		private static readonly Vector2I MinWindowSize = new Vector2I(1280, 720);
 		private Node _currentScreen;
 		private MainMenu _menuScreen;
 		private Unlocker _unlocker;
@@ -264,9 +265,10 @@ namespace Deuteros.Code
 			Config = new GameConfig();
 
 			// Load with default fallback
-			var width = (int)Config.GetValue("display", "window_width", 960);
-			var height = (int)Config.GetValue("display", "window_width", 600);
+			var width = Math.Max((int)Config.GetValue("display", "window_width", MinWindowSize.X), MinWindowSize.X);
+			var height = Math.Max((int)Config.GetValue("display", "window_height", MinWindowSize.Y), MinWindowSize.Y);
 
+			DisplayServer.WindowSetMinSize(MinWindowSize);
 			DisplayServer.WindowSetSize(new Vector2I(width, height));
 		}
 
@@ -287,7 +289,7 @@ namespace Deuteros.Code
 			CoreData.CreateBaseGameData();
 			GameData.ActiveSaveFile = CoreData.CreateNewSaveFile();
 
-			_screenLocker = GetNode<InputBlocker>("/root/Master/InputBlocker");
+			_screenLocker = GetNode<InputBlocker>("/root/Master/GameContainer/GameViewport/InputBlocker");
 
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Production.UpdateProduction;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
@@ -415,7 +417,7 @@ namespace Deuteros.Code
 			if (_currentScreen != null && _currentScreen.SceneFilePath.Contains("IntroScreen"))
 			{
 				var newMenuScene = GD.Load<PackedScene>("res://Screens/Base/MenuBase.tscn").Instantiate<MainMenu>();
-				GetNode<Node>("/root/Master/MainScene").AddChild(newMenuScene);
+				GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newMenuScene);
 				_menuScreen = newMenuScene;
 			}
 
@@ -426,7 +428,7 @@ namespace Deuteros.Code
 
 			var newScene = GD.Load<PackedScene>("res://Screens/" + newSceneName).Instantiate<BaseSubScene>();
 			newScene.SceneVariables = sceneVariables;
-			GetNode<Node>("/root/Master/MainScene").AddChild(newScene);
+			GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newScene);
 			_currentScreen = newScene;
 
 			UpdateMenuButtons(sceneVariables.Contains(Enums.SceneVariables.Ground), sceneVariables.Contains(Enums.SceneVariables.Orbit));

@@ -26,10 +26,8 @@ settings/stdout/verbose_stdout=true
 
 [display]
 
-window/size/viewport_width=320
-window/size/viewport_height=200
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/main_scene="res://Screens/Master.tscn"
 
 [dotnet]

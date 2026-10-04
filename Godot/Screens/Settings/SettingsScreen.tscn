@@ -1,0 +1,566 @@
+[gd_scene load_steps=9 format=3 uid="uid://dh085a43uyows"]
+
+[ext_resource type="Texture2D" uid="uid://c3tf6fmf0k8f1" path="res://Sprites/UI/Settings/close.png" id="close"]
+[ext_resource type="PackedScene" path="res://Screens/Settings/Rows/CycleSettingRow.tscn" id="cycle"]
+[ext_resource type="PackedScene" path="res://Screens/Settings/Rows/KeybindSettingRow.tscn" id="key"]
+[ext_resource type="Script" path="res://Code/Platform/UI/SettingsScreen.cs" id="script"]
+[ext_resource type="PackedScene" path="res://Screens/Settings/Rows/SliderSettingRow.tscn" id="slider"]
+[ext_resource type="Theme" uid="uid://dnrdiqvleuxl8" path="res://Themes/Settings.tres" id="theme"]
+[ext_resource type="PackedScene" uid="uid://cfnf3wvjahts4" path="res://Screens/Settings/Rows/ToggleSettingRow.tscn" id="toggle"]
+
+[sub_resource type="ButtonGroup" id="CategoryGroup"]
+
+[node name="SettingsScreen" type="Control"]
+texture_filter = 1
+custom_minimum_size = Vector2(1280, 720)
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+theme = ExtResource("theme")
+script = ExtResource("script")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0, 0, 0, 1)
+
+[node name="Margin" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 24
+theme_override_constants/margin_top = 20
+theme_override_constants/margin_right = 24
+theme_override_constants/margin_bottom = 20
+
+[node name="Layout" type="VBoxContainer" parent="Margin"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="Header" type="HBoxContainer" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+
+[node name="CloseButton" type="Button" parent="Margin/Layout/Header"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(52, 52)
+layout_mode = 2
+size_flags_vertical = 4
+tooltip_text = "Return to game"
+theme_type_variation = &"SquareButton"
+icon = ExtResource("close")
+icon_alignment = 1
+
+[node name="Spacer" type="Control" parent="Margin/Layout/Header"]
+layout_mode = 2
+size_flags_horizontal = 3
+mouse_filter = 2
+
+[node name="TitlePill" type="PanelContainer" parent="Margin/Layout/Header"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"PillPanel"
+
+[node name="TitleLabel" type="Label" parent="Margin/Layout/Header/TitlePill"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "System Settings"
+vertical_alignment = 1
+
+[node name="Body" type="HBoxContainer" parent="Margin/Layout"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 18
+
+[node name="CategoryPanel" type="PanelContainer" parent="Margin/Layout/Body"]
+custom_minimum_size = Vector2(240, 0)
+layout_mode = 2
+theme_type_variation = &"FramePanel"
+
+[node name="CategoryList" type="VBoxContainer" parent="Margin/Layout/Body/CategoryPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="DisplayTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("CategoryGroup")
+text = "Display"
+alignment = 0
+
+[node name="AudioTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_group = SubResource("CategoryGroup")
+text = "Audio"
+alignment = 0
+
+[node name="ControlsTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_group = SubResource("CategoryGroup")
+text = "Controls"
+alignment = 0
+
+[node name="GameplayTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_group = SubResource("CategoryGroup")
+text = "Gameplay"
+alignment = 0
+
+[node name="AccessTab" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_group = SubResource("CategoryGroup")
+text = "Access"
+alignment = 0
+
+[node name="Debug" type="Button" parent="Margin/Layout/Body/CategoryPanel/CategoryList"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 56)
+layout_mode = 2
+theme_type_variation = &"CategoryButton"
+toggle_mode = true
+button_group = SubResource("CategoryGroup")
+text = "Debug
+"
+alignment = 0
+
+[node name="MainColumn" type="VBoxContainer" parent="Margin/Layout/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 14
+
+[node name="SettingsPanel" type="PanelContainer" parent="Margin/Layout/Body/MainColumn"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+theme_type_variation = &"FramePanel"
+
+[node name="SettingsVBox" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="ColumnHeaders" type="HBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SettingCaption" type="Label" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/ColumnHeaders"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"HeaderLabel"
+text = "  Setting"
+
+[node name="ValueCaption" type="Label" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/ColumnHeaders"]
+custom_minimum_size = Vector2(388, 0)
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Value"
+
+[node name="SettingsScroll" type="ScrollContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+vertical_scroll_mode = 2
+
+[node name="ListMargin" type="MarginContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/margin_right = 14
+
+[node name="DisplayList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="ResolutionRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Resolution"
+
+[node name="WindowModeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Window Mode"
+
+[node name="PixelScalingRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Pixel Scaling"
+
+[node name="ScanlinesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Scanlines"
+
+[node name="InterfaceScaleRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Interface Scale"
+
+[node name="VSyncRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "VSync"
+
+[node name="FrameLimitRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Frame Limit"
+
+[node name="AudioList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="MasterVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Master Volume"
+
+[node name="MusicVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Music Volume"
+
+[node name="EffectsVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Effects Volume"
+
+[node name="InterfaceVolumeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Interface Volume"
+
+[node name="ClassicAudioRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Classic Audio"
+
+[node name="MuteUnfocusedRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AudioList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Mute Unfocused"
+
+[node name="ControlsList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="PauseKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Pause"
+
+[node name="SpeedUpKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Speed Up"
+
+[node name="SlowDownKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Slow Down"
+
+[node name="NextLocationKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Next Location"
+
+[node name="ResearchKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Research"
+
+[node name="ProductionKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Production"
+
+[node name="QuickSaveKeyRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("key")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Quick Save"
+
+[node name="EdgeScrollRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Edge Scroll"
+
+[node name="PointerSpeedRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/ControlsList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Pointer Speed"
+
+[node name="GameplayList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="GameSpeedRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Game Speed"
+
+[node name="AutoPauseRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Auto Pause"
+
+[node name="EventAlertsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Event Alerts"
+
+[node name="AutosaveRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Autosave"
+
+[node name="TooltipsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Tooltips"
+
+[node name="ConfirmLaunchRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Confirm Launch"
+
+[node name="AccessList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="TextSizeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Text Size"
+
+[node name="ColourPaletteRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("cycle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Colour Palette"
+
+[node name="ReduceFlickerRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Reduce Flicker"
+
+[node name="ScreenShakeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("slider")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Screen Shake"
+
+[node name="HoldToConfirmRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/AccessList" instance=ExtResource("toggle")]
+unique_name_in_owner = true
+layout_mode = 2
+LabelText = "Hold To Confirm"
+
+[node name="DebugList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
+unique_name_in_owner = true
+visible = false
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 8
+
+[node name="InfiniteResourcesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("toggle")]
+layout_mode = 2
+
+[node name="TextSizeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("cycle")]
+layout_mode = 2
+
+[node name="ColourPaletteRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("cycle")]
+layout_mode = 2
+
+[node name="ScreenShakeRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("slider")]
+layout_mode = 2
+
+[node name="HoldToConfirmRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("toggle")]
+layout_mode = 2
+
+[node name="ReadoutStrip" type="HBoxContainer" parent="Margin/Layout/Body/MainColumn"]
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="ReadoutTitle" type="PanelContainer" parent="Margin/Layout/Body/MainColumn/ReadoutStrip"]
+custom_minimum_size = Vector2(0, 48)
+layout_mode = 2
+size_flags_vertical = 0
+theme_type_variation = &"PillPanel"
+
+[node name="ReadoutTitleLabel" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutTitle"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Readout"
+vertical_alignment = 1
+
+[node name="ReadoutPanel" type="PanelContainer" parent="Margin/Layout/Body/MainColumn/ReadoutStrip"]
+custom_minimum_size = Vector2(0, 120)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"FramePanel"
+
+[node name="ReadoutVBox" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="SelectedLabel" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Resolution"
+autowrap_mode = 3
+
+[node name="DescriptionLabel" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"DescLabel"
+text = "Output resolution of the game window. Art renders at native resolution and is scaled up."
+autowrap_mode = 3
+
+[node name="Spacer" type="Control" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+mouse_filter = 2
+
+[node name="ValuesGrid" type="GridContainer" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox"]
+layout_mode = 2
+theme_override_constants/h_separation = 12
+theme_override_constants/v_separation = 8
+columns = 4
+
+[node name="CurrentCaption" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox/ValuesGrid"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Current"
+
+[node name="CurrentValue" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox/ValuesGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"AccentLabel"
+text = "1920 x 1080"
+horizontal_alignment = 2
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="DefaultCaption" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox/ValuesGrid"]
+layout_mode = 2
+theme_type_variation = &"HeaderLabel"
+text = "Default"
+
+[node name="DefaultValue" type="Label" parent="Margin/Layout/Body/MainColumn/ReadoutStrip/ReadoutPanel/ReadoutVBox/ValuesGrid"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ValueLabel"
+text = "1920 x 1080"
+horizontal_alignment = 2
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="Footer" type="HBoxContainer" parent="Margin/Layout"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_constants/separation = 14
+
+[node name="StatusPill" type="PanelContainer" parent="Margin/Layout/Footer"]
+custom_minimum_size = Vector2(240, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"PillPanel"
+
+[node name="StatusHBox" type="HBoxContainer" parent="Margin/Layout/Footer/StatusPill"]
+layout_mode = 2
+theme_override_constants/separation = 12
+alignment = 1
+
+[node name="StatusLight" type="ColorRect" parent="Margin/Layout/Footer/StatusPill/StatusHBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(14, 14)
+layout_mode = 2
+size_flags_vertical = 4
+color = Color(0.2196, 0.7529, 0.251, 1)
+
+[node name="StatusLabel" type="Label" parent="Margin/Layout/Footer/StatusPill/StatusHBox"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_type_variation = &"ValueLabel"
+text = "All Applied"
+
+[node name="CategoryPill" type="PanelContainer" parent="Margin/Layout/Footer"]
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+theme_type_variation = &"PillPanel"
+
+[node name="CategoryLabel" type="Label" parent="Margin/Layout/Footer/CategoryPill"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "Display & Graphics"
+vertical_alignment = 1
+clip_text = true
+text_overrun_behavior = 3
+
+[node name="RestoreButton" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Defaults"
+
+[node name="CancelButton" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_vertical = 4
+text = "Cancel"
+
+[node name="ApplyButton" type="Button" parent="Margin/Layout/Footer"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"ApplyButton"
+disabled = true
+text = "Apply"

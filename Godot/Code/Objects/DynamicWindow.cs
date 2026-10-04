@@ -35,12 +35,12 @@ namespace Deuteros.Code.Objects
 			}
 
 			if (CloseTimer)
-				GetTree().CreateTimer(CloseTimerLength).Timeout += () => { Closed?.Invoke(DataObject); this.Visible = false; };
+				GetTree().CreateTimer(CloseTimerLength, false).Timeout += () => { Closed?.Invoke(DataObject); this.Visible = false; };
 		}
 
 		public void StartCloseTimer(float timerLength)
 		{
-			GetTree().CreateTimer(timerLength).Timeout += () => { Closed?.Invoke(DataObject); this.Visible = false; };
+			GetTree().CreateTimer(timerLength, false).Timeout += () => { Closed?.Invoke(DataObject); this.Visible = false; };
 		}
 	}
 }
