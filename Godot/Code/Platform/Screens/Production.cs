@@ -170,7 +170,9 @@ namespace Deuteros.Code.Platform.Screens
 
 						if (CurrentFactory.CurrentProductionItem() == null || CurrentFactory.CurrentProductionItem().Product.ItemType != addedItem.ItemType)
 						{
-							if (CheckResourceAvailable(CurrentPlanet, addedItem, Ground))
+							// Manual queued jobs already paid when created, including across save/load.
+							if (CurrentFactory.ProductionQueue.Any(T => T.Product.ItemType == addedItem.ItemType)
+								|| CheckResourceAvailable(CurrentPlanet, addedItem, Ground))
 							{
 								if (CurrentFactory.CurrentProductionItem() != null)
 								{

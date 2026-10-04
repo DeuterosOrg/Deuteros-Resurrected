@@ -363,6 +363,7 @@ namespace Deuteros.Tests
             await CheckAsync("Asteroid interior distinguishes continuing empty-tank scanning from stranded arrival", AsteroidFuelStatus);
             CheckUi("Asteroid fuel saves validate countdowns migrate old approaches and preserve empty arrivals", AsteroidFuelSavesAndArrival);
             CheckUi("ACC commands preserve asteroid scans approaches mining and departures across reload", AccAsteroidActivation);
+            CheckUi("Paid manual production resumes without a second recipe after switching and reloading", ResumePaidProduction);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -1,7 +1,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Deuteros.Code;
+using Deuteros.Code.Objects;
 using Deuteros.Code.Platform.Screens;
+using Deuteros.Code.Utility;
 using Godot;
 using static Deuteros.Code.Enums;
 using StoreScreen = Deuteros.Code.Platform.Screens.Store;
@@ -11,6 +13,69 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private void ResumePaidProduction()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            foreach (var ground in new[] { true, false })
+            {
+                PrepareRecipeStocks();
+                GameCore.Earth.GroundSelected = ground;
+                var factory = ground ? GameCore.Earth.Factory : GameCore.Earth.Station.Factory;
+                factory.AOC = false;
+                factory.Ground = ground;
+                factory.ProductionQueue.Clear();
+                factory.Builder = new Staff { Leader = "Builder", Type = StaffType.Production, Count = 250 };
+                factory.Builder.AddAction(12);
+                var stores = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
+                stores.Items.Clear();
+                var types = new[] { ItemTypes.derrick, ItemTypes.supply_pod, ItemTypes.tool_pod };
+                foreach (var type in types)
+                {
+                    var item = GameCore.SingletonInstance.GameData.GetItem(type);
+                    item.Locked = item.Research.Locked = false;
+                    item.Research.Researched = true;
+                    item.Research.ResearchOrder = Save.BaseGameData.ItemList.Max(i => i.Research?.ResearchOrder ?? 0) + 1;
+                    if (type != ItemTypes.tool_pod)
+                        foreach (var cost in item.BuildRequirements) stores[cost.ItemType] += cost.ItemCount;
+                }
+                void Select(Production panel, ItemTypes type) => panel.Buttons.Single(b => b.ObjectData?.ItemType == type)
+                    .EmitSignal(BaseButton.SignalName.Pressed);
+                var screen = OpenMtxProduction(ground);
+                try
+                {
+                    Select(screen, ItemTypes.derrick);
+                    Select(screen, ItemTypes.supply_pod);
+                    Equal(2, factory.ProductionQueue.Count, "both jobs reserved and paid through real controls");
+                    Equal(true, stores.Items.Values.All(n => n == 0), "exact two recipes were charged once");
+                }
+                finally { screen.Free(); }
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                factory = ground ? GameCore.Earth.Factory : GameCore.Earth.Station.Factory;
+                stores = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
+                screen = OpenMtxProduction(ground);
+                try
+                {
+                    Select(screen, ItemTypes.derrick);
+                    Equal(ItemTypes.derrick, factory.CurrentProductionItem().Product.ItemType, "paid job resumes with empty stores after reload");
+                    Select(screen, ItemTypes.tool_pod);
+                    Equal(ItemTypes.derrick, factory.CurrentProductionItem().Product.ItemType, "unpaid new recipe remains blocked");
+                    Equal(2, factory.ProductionQueue.Count, "rejected recipe cannot enter the paid queue");
+                    foreach (var type in types.Take(2))
+                    {
+                        Select(screen, type);
+                        for (var tick = 0; tick < 100 && factory.CurrentProductionItem() != null; tick++)
+                            Production.UpdateProduction((uint)tick, (uint)tick + 1);
+                        Equal(1, stores[type], "one paid output completes");
+                    }
+                    Equal(0, factory.ProductionQueue.Count, "both paid jobs complete exactly once");
+                    Equal(0, stores[ItemTypes.tool_pod], "unpaid product never produced");
+                    foreach (var cost in types.Take(2).SelectMany(t => GameCore.SingletonInstance.GameData.GetItem(t).BuildRequirements))
+                        Equal(0, stores[cost.ItemType], "resumption never charges materials again");
+                }
+                finally { screen.Free(); }
+            }
+        }
+
         public void RunProductionSelectionRegressions()
         {
             CheckUi("Ground production selection opens matching stores recipe without changing orbit", () => ProductionSelectionToStores(true, false));
