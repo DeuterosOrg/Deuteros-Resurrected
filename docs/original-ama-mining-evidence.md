@@ -102,7 +102,15 @@ The aligned helper trace resolves previously open effects without changing fuel 
 
 `$30E2C` sets engine bit 6 and `$30E32` clears it; neither helper checks or reserves a bay. `$3143A` stops active ACC through `$33CAE`, clears the engine bit, then selects stranded state `$10`, destruction action `$11` and a six-update countdown. Its caller `$31590` takes that path when asteroid arrival has zero fuel. By contrast, an already scanning/mining IOS reaches `$23AF8/$23C14` immediately after the shared fuel deduction even when the last unit was consumed; the inspected dispatch does not call the stranded helper there. Mining completion `$31608` simply returns if fuel is zero. Therefore adding a periodic fuel decrement alone would interact incorrectly with the remake's generic five-update undocked loss rule and reachable empty-tank approach.
 
-Raw aligned instructions and action-table targets: `artifacts/research/ama-generation/fuel-exhaustion-helpers.txt` (SHA-256 `110f540606e474ad8752de1b6135bcb446dfa2c17abcc63642065582149fc49f`) and `fuel-exhaustion-manifest.json`. Full original runtime behavior, save/reset ownership of the counter, and a coherent port of exhaustion remain open; no emulator observation is claimed.
+Raw aligned instructions and action-table targets: `artifacts/research/ama-generation/fuel-exhaustion-helpers.txt` (SHA-256 `110f540606e474ad8752de1b6135bcb446dfa2c17abcc63642065582149fc49f`) and `fuel-exhaustion-manifest.json`. Save ownership is resolved below; original-runtime/new-game-reset observations and a coherent port of exhaustion remain open.
+
+## Fuel counter save ownership
+
+Direct Disk 1 instructions establish that the counter is game-save state. Save entry `$382F0` selects the slot offset, rounds nominal length `$9392` to disk-track writes and passes RAM `$13006` to writer `$20812`. Load entry `$38326` supplies the same base and nominal length (minus one) to `$208C0`; `$2094C–$20964` copies the read buffer into that destination. Counter `$1BF30`, at blob offset `$8F2A`, lies inside both transfers. It must not restart merely because a save is loaded.
+
+The initial disk byte is zero. Updater `$2384E` increments it modulo 256 and skips zero; the scanning/mining mask `$7F` therefore charges on counter value 128 once per 255 consumed updates. Starting from zero, the first three charge updates are **128, 383 and 638**. These are scheduler updates, not displayed whole days or elapsed seconds. IOS and SCG charge branches also clear the engine bit and switch active ACC flags when the deduction reaches zero, before their state dispatch continues. A periodic decrement alone would leave the remake's automation and generic zero-fuel loss behavior inconsistent.
+
+Reproduce with `uv run --with capstone==5.0.7 python artifacts/research/ama-generation/verify-fuel-save.py` against the pinned local disk. Complete instruction ranges, disk identity, transfer arguments and arithmetic are checked. Raw trace `fuel-save-ownership.txt` SHA-256: `a7d4084a78496185f7da0c6677995d9ef962297554756baf946ceeab01a05c2f`; the script and manifest are alongside it. This resolves static save ownership; it is not an emulator observation or an implemented fuel/exhaustion change.
 
 ## Research task acceptance
 
