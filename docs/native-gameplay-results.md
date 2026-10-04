@@ -216,3 +216,13 @@ The next encounter declares war, replaces Comms with a grapple holding the unkno
 WAYFARER docks at Earth with 234T, seven crew, 180 silica and 116 copper. Unloading analyses the prototype and unlocks Fusion Laser research; Cavell's existing 249-person team completes it through ordinary time advancement. Saving and reloading retains the completed 25T orbital-only recipe. No weapon manufacture or combat is claimed.
 
 Evidence: `artifacts/normal-war-campaign/`, including ten saves, screenshots and runnable cargo, fuel, research and transmission checks. Native session 70996 closes with exit zero; the final strict log and saved-state audit pass. Original user saves are restored exactly. Continuation `researched-slot-4.json` has SHA-256 `5923f4246c75d7ccb9eda9c922ef186f092e6b6821d4942851f1c203963a2b7e`. Clicks while the defence bulletin held input were ignored and are not counted as travel updates. Windows acceptance and the original trade timeout/cargo-layout questions remain open.
+
+## Normal DFCC manufacture, fitting and fuel
+
+The unmodified war-campaign continuation at `3ebeca0` completes DFCC and IOS Battle Drone research with Cavell's existing team. WAYFARER unloads its traded silica at Earth, loads 45 platinum and delivers it with the retained 116 copper to Moon Orbital. The trip consumes 4T, leaving 230T and seven crew. The Moon shuttle receives 12 MeH, collects 250 mined titanium and delivers it to orbit, ending with 7T and its original 40 crew.
+
+Redman's staffed orbital factory produces one DFCC. Dedicated before/after saves prove the recipe charge: two titanium, two platinum, and one each aluminium, carbon, copper and gold. Fitting replaces WAYFARER's empty grapple, returning that grapple to stock and consuming the DFCC. The old 230T tank contents return to stores, changing Moon MeH from 52 to 282 and the gauge to zero. One fuel click costs ten MeH; a minus click refunds ten. Refuelling to 23 leaves 52 MeH, conserving the pre-installation stock value. Both supply pods remain empty.
+
+Save/reload retains the DFCC, fuel, crew and stock in both cockpit and Service views. Evidence: `artifacts/defence-production-campaign/`, with four saves, screenshots and runnable research, freight, recipe and fuel-conservation checks. Native session 63976 closes with exit zero; strict log and saved-state audits pass, and original saves are restored exactly. Continuation `fitted-slot-4.json` has SHA-256 `cefcc0c051b539dce19a836ccbfe38bf7db62d88547670781bab1e0c6f23c6a8`.
+
+No battle drone was manufactured and no combat occurred. The [earlier Windows DFCC checks](windows-validation-results.md#desktop-agent-reports-retrieved-2026-10-03) remain credited separately; SCG/HeD, ACC, legacy-save and matching-export acceptance remain open.
