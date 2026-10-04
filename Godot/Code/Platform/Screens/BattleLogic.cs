@@ -189,6 +189,8 @@ namespace Deuteros.Code.Objects.Battle
         private void DoBattleRound()
         {
             byte[] roundfactors;
+            if (Player1Ships == 0 || Player2Ships == 0)
+                BattleState = BattleState.BattleEnded;
 
             switch (BattleState)
             {

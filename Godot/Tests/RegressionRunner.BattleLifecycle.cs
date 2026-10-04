@@ -13,7 +13,7 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
-        private async Task<(ShipInterior, Battle)> OpenBattleEncounter(bool roaming = false)
+        private async Task<(ShipInterior, Battle)> OpenBattleEncounter(bool roaming = false, int playerDrones = 10, int stationDrones = 40)
         {
             var interior = await OpenInterior(Ship_Types.IOS);
             GameCore.SingletonInstance.SetProcess(false);
@@ -21,7 +21,7 @@ namespace Deuteros.Tests
             ship.Name = "Battle Test";
             ship.ShipState = Ship_States.UnDocked;
             ship.DFCC = true;
-            ship.DroneCount = 10;
+            ship.DroneCount = playerDrones;
             ship.ACC = null;
             ship.Modules[0].ModuleType = Module_Types.Tool;
             ship.Modules[0].ItemStored = ItemTypes.d__f__c__c;
@@ -31,7 +31,7 @@ namespace Deuteros.Tests
             if (roaming) Save.Ships.Add(new EnemyFleet { ShipType = Ship_Types.IOS, MethanoidOwned = true,
                 PlanetLocation = ship.PlanetLocation, StarLocation = ship.StarLocation, Attacking = true,
                 AttackDay = 5, AttackTrigger = 20, DroneCount = 40, Fuel = 100, Modules = new List<ShipModule>() });
-            interior.CurrentPlanet.Station.Resources.Stores[ItemTypes.ios_drone] = 40;
+            interior.CurrentPlanet.Station.Resources.Stores[ItemTypes.ios_drone] = stationDrones;
             interior.UpdateState();
             Press(interior, "Modules/00");
             var battle = interior.GetNode<Control>("Window").GetChild<Battle>(0);
@@ -39,6 +39,64 @@ namespace Deuteros.Tests
             battle.GetNode<Timer>("Timer").Stop();
             await InputFrames();
             return (interior, battle);
+        }
+
+        private async Task BattleEmptyFleets()
+        {
+            foreach (var counts in new[] { (0, 40), (10, 0), (0, 0) })
+            {
+                var (interior, battle) = await OpenBattleEncounter(playerDrones: counts.Item1, stationDrones: counts.Item2);
+                var ship = interior.Ship;
+                var station = interior.CurrentPlanet.Station;
+                var logic = battle.GetNode<BattleCanvas>("BattleCanvas").BattleLogic;
+                battle.GetNode<BattleCanvas>("BattleCanvas").QueueRedraw();
+                await InputFrames();
+                Equal(true, logic.Completed(), "a fleet with no drones cannot enter attrition combat");
+                await ToSignal(GetTree().CreateTimer(1.3), SceneTreeTimer.SignalName.Timeout);
+                Equal(false, IsInstanceValid(battle), "empty encounter completes and frees its window");
+                Equal(counts.Item1 > 0, Save.Ships.Contains(ship), "only a ship with surviving drones remains");
+                Equal(counts.Item2, station.Resources.Stores[ItemTypes.ios_drone], "opponent drones survive unchanged");
+                GameCore.SingletonInstance.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
+                await InputFrames();
+            }
+        }
+
+        private sealed class PtlBoundaryRandom : System.Random
+        {
+            public override int Next(int maxValue) => maxValue == 128 ? 8 : maxValue == 64 ? 6 : 0;
+        }
+
+        private void BattlePtlEmptyFleet()
+        {
+            foreach (var counts in new[] { (20, 10, 14, 0), (6, 30, 0, 20), (6, 10, 0, 0), (5, 9, 2, 2), (7, 11, 1, 1) })
+            {
+                var player = new IOS { DroneCount = counts.Item1, PTL = true, Fuel = 200 };
+                Save.Ships.Add(player);
+                var enemy = new EnemyFleet { DroneCount = counts.Item2 };
+                var logic = new Deuteros.Code.Objects.Battle.BattleLogic(player, enemy, 0, null, null, null, null, null);
+                var type = logic.GetType();
+                type.GetProperty("BattleState", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, BattleState.FleetsInBattle);
+                type.GetField("r", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, new PtlBoundaryRandom());
+                logic.LaunchPTL();
+                Equal(100, player.Fuel, "launch pays once");
+                type.GetField("PTLCounter", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(logic, 37);
+                type.GetMethod("ProcessPTL", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
+                Equal(counts.Item3, logic.Player1Ships, "player splash boundary");
+                Equal(counts.Item4, logic.Player2Ships, "enemy impact boundary");
+                for (var i = 0; i < 12; i++)
+                {
+                    type.GetMethod("DoBattleRound", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
+                    type.GetMethod("ApplyRoundResults", BindingFlags.Instance | BindingFlags.NonPublic).Invoke(logic, null);
+                }
+                if (counts.Item3 == 0 || counts.Item4 == 0)
+                {
+                    Equal(true, logic.Completed(), "exact casualties settle without another loss");
+                    Equal(counts.Item3, player.DroneCount, "player survivors committed");
+                    Equal(counts.Item4, enemy.DroneCount, "enemy survivors committed");
+                }
+                Equal(true, logic.Player1Ships >= 0 && logic.Player2Ships >= 0, "fleet counts never become negative");
+                Equal(100, player.Fuel, "settlement cannot charge a second launch");
+            }
         }
 
         private async Task BattleLossCleanup()

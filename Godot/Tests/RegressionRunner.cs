@@ -347,6 +347,8 @@ namespace Deuteros.Tests
             await CheckAsync("Ground construction and repair require a nonempty pilot crew", GroundWorkRequiresCrew);
             await CheckAsync("Supply tool and cryo pods animate fitting and removal with one stock transaction", PodFittingMotion);
             await CheckAsync("Pod replacement animates old then new and releases only its own lock on exit", PodReplacementAndExit);
+            await CheckAsync("Empty combat fleets settle through the actual battle completion path", BattleEmptyFleets);
+            CheckUi("Exact PTL casualties cannot send an empty fleet into another combat round", BattlePtlEmptyFleet);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
