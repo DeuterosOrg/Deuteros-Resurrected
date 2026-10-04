@@ -21,6 +21,8 @@ The asteroid fuel follow-up `d7c2ef3` now passes the full 616-case Mac validatio
 
 The next combined checkpoint **`89a2659` passes 618/618 cases**, 19 Python checks, strict import/startup and an audited cross-export. It adds safe ACC activation while mining and resumption of already-paid manual production. Follow-up **`cef95c0`** prevents staff removal from discarding paid jobs and fixes its stale button reference, with 75 related checks and native619. These are additional reproduced defects; totals remain 35/48 implementation evidence and four accepted research/internal requirements. See [validation](validation-results.md#618-case-aggregate-and-package-audit--2026-10-04).
 
+A normal pre-war continuation now delivers **500 platinum** and verifies mining and delivered-stock reloads, retaining friendly Earth/Moon and 250 palladium plus 545 platinum in Earth orbit. The later undefended wartime fork instead lost Earth; that outcome and its natural next-transmission reload are preserved. Fleet material/crew preparation is the next campaign step; see [native evidence](native-gameplay-results.md#pre-war-platinum-delivery-and-fleet-preparation--2026-10-04). No task total changes.
+
 ## Requirements accepted — 2026-10-03
 
 The four descriptions were refreshed read-only from Asana. Acceptance follows the existing rules above; it does not claim completion of the broader campaign or original-game parity.

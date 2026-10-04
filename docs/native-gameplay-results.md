@@ -288,3 +288,18 @@ The first departure update was saved at update 8838 with **238 fuel and one acti
 Earth orbital titanium reached **1,415**: the previous 1,000, WAYFARER's 165, and a separate 250-unit FIRST LIGHT freight delivery. The audit includes Earth's ground stock, remaining deposit and both ships' cargo, proving 54,295 total titanium is conserved across the return instead of attributing the whole 415-unit orbital gain to mining. Earth remained human; the Moon was lost during this campaign continuation.
 
 The native process exited zero with a strict clean log. Original user saves were restored and their hashes verified. Raw saves, inspected screenshots and the runnable `audit.py` are under `artifacts/rare-metal-campaign/fuel-replay/`. This is normal Mac scanning/mining/departure/delivery/reload evidence. Empty-tank boundaries use the separate staged regressions; Windows and full campaign completion remain pending.
+
+
+## Natural transmission and loss of the undefended station — 2026-10-04
+
+At runtime `cef95c0`, the unmodified palladium-delivery checkpoint (day 8834) begins a platinum-only expedition. During scanning, the normal enemy campaign captures Earth and destroys FIRST LIGHT. The next alien bulletin also arrives naturally; its partially translated message is displayed and acknowledged. UI save/load retains transmission Stage 3, LastStage 2, its countdown and the exact News history, including the ship loss and Earth capture. No platinum delivery is claimed for this run.
+
+Evidence: `artifacts/platinum-campaign/`, with screenshots, before/after reload saves and `audit.py`. Native session 60212 closes zero, its strict log passes and user saves are restored exactly. This identifies a preparation gap in that campaign: the remaining station was undefended while rare metals were still being collected. It does not establish a simulation defect or complete alien-message acceptance.
+
+## Pre-war platinum delivery and fleet preparation — 2026-10-04
+
+The separate continuation starts from the unmodified day 8409 CommsPod-fitting save, before war. WAYFARER returns from the Moon to Earth through ordinary controls. Service exchanges the fitted CommsPod for the stocked AMA: one CommsPod returns, one AMA is consumed, and both empty supply pods remain. The saved day 8667 preflight has 202 fuel, Earth→Asteroids routing, no Earth pickup selection and only platinum selected at the asteroid endpoint.
+
+Normal scanning finds a class-6, 10,000-unit platinum asteroid. At 64 cargo and 191 fuel, Complete Cycle preserves mining; UI save/load retains that cargo and finishing mode. Subsequent normal updates fill the two pods and return to Earth. Orbital platinum rises **45→545**, all other orbital stocks match preflight, both supply pods empty, ACC stops and fuel is 179. Reload displays 545 platinum in Stores and preserves the exact delivered inventory. Earth and Moon remain friendly and war remains undeclared.
+
+Evidence: `artifacts/fleet-preparation-campaign/`, including four checkpoints, screenshots and `audit.py`. Native session 99389 closes zero, strict logs and saved-state audits pass, and user saves are restored byte-for-byte. The continuation `reloaded-slot-4.json` (day 9125) has SHA-256 `fb049a4812815bc31feb39685a53996bb8341c7f3c28194257f0588ac9cbe3a9`. It contains 250 palladium and 545 platinum in Earth orbit; common metals and fuel remain on Earth, and 90 gold is available in Moon orbit. Next: transfer fleet materials and crew before triggering war, then research/manufacture defence equipment and test victory/capture. This is normal Mac supply evidence, not Windows, fleet-construction or SCG acceptance.
