@@ -12,6 +12,7 @@ using Deuteros.Code.Platform.Screens.ModuleScenes;
 using Deuteros.Code.Objects.ModuleTextFrame;
 using System.Threading.Tasks;
 using Deuteros.Code.Objects.GameData;
+using System.Threading;
 
 namespace Deuteros.Code.Platform.Screens
 {
@@ -134,6 +135,64 @@ namespace Deuteros.Code.Platform.Screens
 			base._Ready();
 		}
 
+		private void tradeItems(Dictionary<ShipModule,Enums.ItemTypes> olditemlist, Dictionary<ShipModule, Enums.ItemTypes> newitemlist)
+		{
+			foreach(ShipModule m in olditemlist.Keys)
+			{
+				switch (olditemlist[m])
+				{
+					case ItemTypes.iron:
+						newitemlist[m] = ItemTypes.silica;
+						break;
+					case ItemTypes.silica:
+						newitemlist[m] = ItemTypes.iron;
+						break;
+					case ItemTypes.paladium:
+						newitemlist[m] = ItemTypes.gold;
+						break;
+					case ItemTypes.gold:
+						newitemlist[m] = ItemTypes.paladium;
+						break;
+					case ItemTypes.platinum:
+						newitemlist[m] = ItemTypes.silver;
+						break;
+					case ItemTypes.silver:
+						newitemlist[m] = ItemTypes.platinum;
+						break;
+					case ItemTypes.hydrogen:
+						newitemlist[m] = ItemTypes.methane;
+						break;
+					case ItemTypes.methane:
+						newitemlist[m] = ItemTypes.hydrogen;
+						break;
+					case ItemTypes.helium:
+						newitemlist[m] = ItemTypes.deuterium;
+						break;
+					case ItemTypes.deuterium:
+						newitemlist[m] = ItemTypes.helium;
+						break;
+					case ItemTypes.copper:
+						newitemlist[m] = ItemTypes.titanium;
+						break;
+					case ItemTypes.titanium:
+						newitemlist[m] = ItemTypes.copper;
+						break;
+					case ItemTypes.carbon:
+						newitemlist[m] = ItemTypes.aluminium;
+						break;
+					case ItemTypes.aluminium:
+						newitemlist[m] = ItemTypes.carbon;
+						break;
+					default:
+						newitemlist[m] = olditemlist[m];
+						break;
+
+				}
+
+			}
+
+		}
+
 		private async void ShipInterior_Pressed(int modulePressed)
 		{
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
@@ -190,14 +249,91 @@ namespace Deuteros.Code.Platform.Screens
 				}
 				else if (Ship.ShipType != Ship_Types.Shuttle)
 				{
-					if(CurrentPlanet.ActiveMethanoid && !Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.commspod))
+					if (CurrentPlanet.ActiveMethanoid)
 					{
+						if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.commspod))
+						{
+							if (GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount == 16)
+							{
+								await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_War_Warning], new List<string>(), (modulePressed + 1));
+								var commpodModule = Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.commspod);
+								commpodModule.ItemStored = ItemTypes.grapple;
+								commpodModule.HeldItem = new UnknownItem(UnknownItemTypes.Blazer);
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
+                                GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay + 10;
+                            }
+                            else
+							{
+								var itemlist = new Dictionary<ShipModule,Enums.ItemTypes>();
+								var newitemlist = new Dictionary<ShipModule, Enums.ItemTypes>();
 
-						if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.grapple))
-							await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro_With_Grapple], new List<string>(), (modulePressed + 1));
+								foreach (ShipModule m in Ship.Modules)
+								{
+									if (m.ModuleType == Module_Types.Supply && m.ItemCount > 0)
+									{
+										itemlist[m] = m.ItemStored;
+										newitemlist[m] = m.ItemStored;
+									}
+								}
+
+								//calculate list of new items
+								this.tradeItems(itemlist, newitemlist);
+
+								if (itemlist.Count == 0)
+								{
+									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_No_Cargo], new List<string>(), (modulePressed + 1));
+
+								}
+								else
+								{
+									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_TradeQuestion], new List<string>(), (modulePressed + 1));
+
+									//this needs to give the option to the user to cancel - not implemented yet
+
+									List<string> p = new List<string>();
+									p.Add(newitemlist.Values.ToList()[0].ToScreenString());
+									p.Add(itemlist.Values.ToList()[0].ToScreenString());
+
+									GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
+									if (itemlist.Count == 1)
+									{
+										await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Trade1], p, (modulePressed + 1));
+									}
+									else
+									{
+										p.Add(newitemlist.Values.ToList()[1].ToScreenString());
+										p.Add(itemlist.Values.ToList()[1].ToScreenString());
+										await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Trade2], p, (modulePressed + 1));
+									}
+
+									//update actual items traded
+									foreach(ShipModule m in newitemlist.Keys)
+									{
+										m.ItemStored = newitemlist[m];
+									}
+
+								}
+							}
+						}
 						else
-							await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
+						{
+							if (GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod).Locked)
+							{
+								if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.grapple))
+								{
+									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro_With_Grapple], new List<string>(), (modulePressed + 1));
+									Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.grapple).HeldItem = new UnknownItem(UnknownItemTypes.CommsPod);
+								}
+								else
+									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
+							}
+							else
+							{
+								await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
+							}
 
+						}
 						Ship.TakeOff();
 
 						UpdateState();
@@ -302,7 +438,9 @@ namespace Deuteros.Code.Platform.Screens
 
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-						}
+							GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay + 10;
+
+                        }
 
 						UpdateState();
 					}
@@ -438,7 +576,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.EngageEngine())
 			{
 				CurrentPlanet = null;
-				((InterStellarShip)Ship).AsteroidScanResults = null;
+				((InterStellarShip)Ship).ItemScanResults = null;
 			}
 
 			UpdateState();
@@ -901,7 +1039,7 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						//Is it time to generate some ore?
 						var minedAmount = AMA.Mine(((InterStellarShip)ship).AsteroidScanResults, ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a));
-
+						
 						//Our cargo hold is full so we should take off
 						//We have to mine something to trigger a takeoff
 						if (minedAmount > 0 && !ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250))
@@ -933,10 +1071,17 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						//Check grapple first
 						if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.grapple && ship.Pilot != null && ship.Pilot.GetLevel() > 1))
-							((InterStellarShip)ship).AsteroidScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+
 						//The grapple check failed, check the AMA
 						else if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a && ship.Pilot != null && ship.Pilot.GetLevel() > 0))
-							((InterStellarShip)ship).AsteroidScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+							((InterStellarShip)ship).ItemScanResults = Asteroid.ScanAsteroids(((InterStellarShip)ship).AsteroidScanResults);
+					}
+					else
+					{
+						//Check grapple
+						if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.grapple && ship.Pilot != null && ship.Pilot.GetLevel() > 1))
+							((InterStellarShip)ship).ItemScanResults = UnknownItem.ScanForItems((InterStellarShip)ship);
 					}
 
 					//Let the ACC know we are still undocked

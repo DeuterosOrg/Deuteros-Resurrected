@@ -23,7 +23,22 @@ namespace Deuteros.Code.Platform
 		{
 			switch (techType)
 			{
-				case Enums.ItemTypes.m__t__x:
+                case Enums.ItemTypes.alien_artifact:
+					var researchitem = GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.alien_artifact).Research;
+                    researchitem.Locked = false;
+                    researchitem.ResearchLimit += 11;
+                    break;
+
+                case Enums.ItemTypes.commspod:
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.CommsPod);
+                    GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.commspod).Research.Locked = false;
+					break;
+
+                case Enums.ItemTypes.pulse_blaster_laser:
+                    GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.pulse_blaster_laser).Research.Locked = false;
+                    break;
+
+                case Enums.ItemTypes.m__t__x:
 					GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.Matter_Transmitter);
 					GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.Mass_Tranceiver);
 					GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.m__t__x).Research.Locked = false;
@@ -40,7 +55,7 @@ namespace Deuteros.Code.Platform
 		private void SingletonInstance_DayPassed(uint previousDay, uint currentDay)
 		{
 			if (
-				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 17 &&
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 16 &&
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 				currentDay == GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay + 1 &&
 				!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.D_F_C_C))
@@ -83,10 +98,17 @@ namespace Deuteros.Code.Platform
 
 		private void SingletonInstance_ResearchFinished(Objects.ResearchItem researchItem)
 		{
+			if (researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser)
+			{
+				GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.Methanoid_Laser);
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.D_F_C_C);
+				GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.d__f__c__c).Research.Locked = false;
+				GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.ios_drone).Research.Locked = false;
+			}
 
-		}
+        }
 
-		private void SingletonInstance_ProductionFinished(Objects.Factory factory)
+        private void SingletonInstance_ProductionFinished(Objects.Factory factory)
 		{
 			if (factory.CurrentProductionItem().Product.ItemType == Enums.ItemTypes.i_chassis && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.IOS_Attachments))
 			{

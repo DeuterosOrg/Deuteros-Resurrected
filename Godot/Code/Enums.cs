@@ -266,6 +266,22 @@ namespace Deuteros.Code
             prison_pod = 44,
             sonic_blaster = 45,
             pulse_blaster_laser = 46,
+            alien_artifact = 47,
+        }
+
+        [Serializable]
+        public enum GrappleItemTypes
+        {
+            Asteroid,
+            UnknownItem
+        }
+
+        [Serializable]
+        public enum UnknownItemTypes
+        {
+            AlienArtifact,
+            CommsPod,
+            Blazer
         }
 
         [Serializable]
@@ -361,6 +377,7 @@ namespace Deuteros.Code
             Mass_Tranceiver,
             Self_Destruct,
             D_F_C_C,
+            CommsPod,
             Interstellar_Travel
         }
 
@@ -443,6 +460,11 @@ namespace Deuteros.Code
             Meteor_Strike,
             Sonic_Weapon,
             Eureka,
+            AlienMessage1,
+            AlienMessage2,
+            AlienMessage3,
+            AlienSegmentMessage,
+            AlienAllSegmentsMessage,
 			None
 		}
 
@@ -455,6 +477,13 @@ namespace Deuteros.Code
 			Methanoid_Intro,
 			Methanoid_Intro_With_Grapple,
             Methanoid_DeclareWar,
+            Methanoid_TradeQuestion,
+            Methanoid_Trade1,
+            Methanoid_Trade2,
+            Methanoid_No_Cargo,
+            Methanoid_No_Trade,
+            Methanoid_Trade_Too_Slow,
+            Methanoid_War_Warning,
         }
         public enum BattleState
         {

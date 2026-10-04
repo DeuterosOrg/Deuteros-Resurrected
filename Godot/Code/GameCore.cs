@@ -14,6 +14,7 @@ using Deuteros.Code.Objects.Interfaces;
 using Deuteros.Code.Platform;
 using static Deuteros.Code.Enums;
 using Deuteros.Code.Objects.GameData;
+using Deuteros.Code.Objects.Bulletins;
 
 namespace Deuteros.Code
 {
@@ -295,6 +296,7 @@ namespace Deuteros.Code
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Research.UpdateResearch;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
+			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.AlienMessages.ProcessAlienMessages;
 			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.MTX.UpdateMTX;
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
@@ -406,6 +408,51 @@ namespace Deuteros.Code
 			GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin = bulletin;
 		}
 
+		public void ShowAlienMessage()
+		{
+
+			SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
+			_menuScreen.Location.Text = "News Bulletins";
+			if (SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived < 6)
+			{
+				SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived++;
+                BulletinTypes bulletin =
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived == 1 ? BulletinTypes.Transmission1 : BulletinTypes.Transmission2;
+
+                BulletinTypes alienBulletinType = BulletinTypes.None;
+
+                switch (GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived)
+                {
+                    case 1:
+                    case 2:
+                        alienBulletinType = BulletinTypes.AlienMessage1;
+                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 250;
+                        break;
+                    case 3:
+                        alienBulletinType = BulletinTypes.AlienMessage1;
+                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 80;
+                        break;
+                    case 4:
+                        alienBulletinType = BulletinTypes.AlienMessage2;
+                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 200;
+                        break;
+                    case 5:
+                        alienBulletinType = BulletinTypes.AlienMessage3;
+                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay = 0;
+                        break;
+                    case 6:
+                        alienBulletinType = BulletinTypes.AlienSegmentMessage;
+                        break;
+                    case 7:
+                        alienBulletinType = BulletinTypes.AlienAllSegmentsMessage;
+                        break;
+                }
+
+                ((Bulletins)_currentScreen).DisplayAlienMessage(bulletin,alienBulletinType);
+			}
+
+
+		}
 		public void ChangeScene(Enums.Scenes sceneToLoad, List<Enums.SceneVariables> sceneVariables)
 		{
 			currentScene = sceneToLoad;

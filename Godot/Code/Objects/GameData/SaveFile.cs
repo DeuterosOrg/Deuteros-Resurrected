@@ -26,7 +26,8 @@ namespace Deuteros.Code.Objects.GameData
         public int MethanoidTradeCount { get; set; }
         public int StarSystemsCaptured { get; set; }
         public uint EnemyBuildDay { get; set; }
-
+        public uint NextAlienMessageDay { get; set; }
+        public int AlienTransmissionsReceived { get; set; }
         public int IOSCount { get { return Ships.Count(T => T.ShipType == Enums.Ship_Types.IOS); } }
         public int SCGCount { get { return Ships.Count(T => T.ShipType == Enums.Ship_Types.SCG); } }
     }
