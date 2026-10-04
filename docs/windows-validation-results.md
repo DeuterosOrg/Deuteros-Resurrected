@@ -6,6 +6,12 @@ Windows evidence includes **595 automated source cases**, a separately verified 
 
 The latest completed Mac aggregate has **610 cases** at `e6e5ccb`, with strict import/startup and an audited cross-export; see [audit](validation-results.md#610-case-aggregate-and-package-audit). Windows execution of that revision has **not started**. Collection of the Windows-owned v4, SCG and separate Stocktaker changes remains pending. A fresh SSH check still finds no reply or requested patches in the accessible handoff folder. The mesh work item `367f5c82-f04e-59ca-a7f3-15b850dd9e8a` is queued **awaiting approval**, with no assigned worker: automatic review requires a PR-producing task and a Files in scope section, so the read-only report request was not dispatched. The machine sidecar being online does not establish contact with the interactive testing agent. That agent can reply through the machine board (`coordctl inbox`) or `C:/Users/builder/Downloads/deuteros-windows-reply.md`. Do not repeat completed tests merely to populate this ledger.
 
+### Handoff refreshed — 2026-10-04 07:06 UTC
+
+SSH and mesh checks still find no interactive-agent reply or requested patches. No Asana task has changed since 06:15 UTC. The existing Windows passes above remain credited; this is an artifact-collection gap, not failed testing.
+
+The complete-history `deuteros-e15bf7e.bundle` is uploaded to builder Downloads: **15,738,308 bytes**, SHA-256 `37cdd61772736df838961097cf04ed1be05152bdf004e78ca9196d0a8f8ff282`, verified locally and remotely. Runtime/tests match the Mac 610-case checkpoint `e6e5ccb`; later commits only document evidence. It also records a normal 500-unit palladium delivery and save/reload check on Mac. No Windows checkout, save or running game was changed. The refreshed request asks the desktop agent to return its existing report and patches before any repeat testing.
+
 ## 595-case source checkpoint — 2026-10-03
 
 The isolated Windows checkout at `dbac18325e92bb214d5524732157d3eb963d22ab` is runtime-identical to `bcaeb1cc9da5ae956059857f822296a1d86988d8`. All **595/595 regressions**, compilation (14 existing warnings), strict import and source startup passed. All 600 collected source-evidence files were independently audited for case discovery, fresh timestamps, individual success markers and engine errors. Evidence: `artifacts/windows-handoff/bcaeb1c-source-evidence/`; archive SHA-256 `55402ad335b83ed3b9c70eda59856bb2ed525413f7133c8a249942e39466b333`.
