@@ -315,3 +315,13 @@ Training recruits 41 marines and 100 production staff through normal controls; a
 UI save/load preserves the exact Earth state and shuttle, with 148 workers visible at the orbital factory and delivered stocks visible in Stocktaker. Day9499 continuation: `artifacts/fleet-materials-campaign/reloaded-slot-4.json`, SHA-256 `7d4d6e251c5b8062d250d5705775240086017cbbe29a44d1d274efad36f3ab33`. Native session71272 exits0 with a clean strict log; `audit.py` checks the checkpoints and original-save restoration.
 
 Next: advance Morse from Apprentice through paid production (currently one completed action; Expert requires12), collect Moon gold, prepare defence equipment and test combat/capture. War remains undeclared and Earth/Moon friendly. This is normal Mac supply/staffing evidence, not fleet manufacture, Windows or SCG acceptance; backlog totals remain unchanged.
+
+## Paid production and Expert promotion — 2026-10-04
+
+The unmodified day9499 checkpoint continues on runtime `01c81f9`. Ordinary factory controls manufacture five Derricks, five Tool Pods and one Orbital Factory Frame. Morse advances from one to twelve completed actions, displaying Engineer and then Expert, with 148 workers retained. No save values or production costs are edited.
+
+The day10912 save accounts for every recipe exactly: orbital iron decreases70, titanium110, aluminium55, carbon30 and copper45; the eleven finished items appear once. Fuel and rare-metal stocks are unchanged. The manual production queue is empty and AOC remains off. Earth and Moon remain friendly, with war undeclared.
+
+UI reload retains the Expert display, exact Earth state and all ships. Native session73699 exits0, the strict log passes, and original user saves are restored byte-for-byte. Evidence and runnable audit: `artifacts/fleet-manufacture-campaign/`. Continuation `reloaded-slot-4.json` SHA-256: `8dd7e0b59aad213a1863b166de1e083ef9f7a9c62ff2fba4206ca0aa500ba997`.
+
+Next: collect the Moon's90 gold and prepare defence research/manufacture. FIRST LIGHT now has39 marines after ordinary elapsed-time attrition; WAYFARER retains seven. This verifies normal paid production, promotion and reload, without adding Windows, drone-combat or SCG acceptance. Backlog counts remain35/48 implementation evidence and four locally accepted requirements.
