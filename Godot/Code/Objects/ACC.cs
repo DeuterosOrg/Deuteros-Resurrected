@@ -168,6 +168,7 @@ namespace Deuteros.Code.Objects
 				// Original scan automation requires Engage, not Complete Cycle.
 				if (CycleMode) return;
 				var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
+				var selectedItems = Ship.PlanetLocation == Destination ? DestinationItems : SourceItems;
 				var hasAma = Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
 				// Original engaged ACC stops at a scan without AMA, before mineral/size filters.
 				// Leave the scan for manual grappling; Complete Cycle is a separate command.
@@ -182,13 +183,13 @@ namespace Deuteros.Code.Objects
 				{
 					// Return if full, or if the selected mineral cannot fit any remaining pod.
 					if (!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250) ||
-						(scanResults != null && DestinationItems.Contains(scanResults.Type) &&
+						(scanResults != null && selectedItems.Contains(scanResults.Type) &&
 						!Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply && T.ItemCount < 250 &&
 							(T.ItemCount == 0 || T.ItemStored == scanResults.Type))))
 						Ship.EngageEngine();
 					//We are not full, so check for a minable asteroid that is of the correct type and is large enough
 					//Also check the asteroid has not previously been mined - This means we just took off for it, so we should not land on it again
-					else if (scanResults != null && Ship.ACC.DestinationItems.Contains(scanResults.Type) && scanResults.Class >= 6 && !scanResults.HasBeenMined)
+					else if (scanResults != null && selectedItems.Contains(scanResults.Type) && scanResults.Class >= 6 && !scanResults.HasBeenMined)
 					{
 						//Reset lastminedday
 						Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;

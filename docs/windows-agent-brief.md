@@ -596,3 +596,9 @@ On a converted IOS and SCG, completed PTL research should expose the cockpit lau
 ## Normal freight and crew continuation
 
 The [Mac campaign continuation](native-gameplay-results.md#normal-automated-freight-and-crew-transport) at `239beba` verifies four fuel deliveries, seven metal deliveries, next-arrival Complete Cycle stops, ordinary marine training, cryopod transport, crew reassignment and reload. Both ship crews and all relevant stock/pod/fuel changes are audited; the native log is clean. This supplies further normal ACC/crew evidence, while rare-metal mining, fleet expansion and campaign victory remain pending. Preserve and reuse your existing Windows observations; these Mac results do not supersede them.
+
+## ACC asteroid-source follow-up
+
+The normal rare-metal route exposed a model defect when Asteroids is the left/source endpoint: its selections were saved correctly but ignored by mining. `Objects/ACC.cs` now reads the asteroid endpoint's list for mining and incompatible-cargo return. Extended existing case **307** covers both orientations and fails before the change; no case IDs are added. This does not edit Windows-owned bay/UI patches.
+
+Check a route with Asteroids on each side: selected large asteroids mine, Earth-only selections do not, and incompatible remaining cargo returns unchanged. Preserve selections through reload and complete one delivery. Mac focused checks and physical mining pass; the retained long campaign ends in enemy capture/self-destruct and does not prove delivery. Reuse existing Windows evidence where applicable.

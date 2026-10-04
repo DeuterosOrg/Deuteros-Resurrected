@@ -96,14 +96,41 @@ namespace Deuteros.Tests
 
         private void AsteroidAccMines()
         {
-            var ship = AsteroidAccShip();
-            ship.Modules[0].ItemStored = ItemTypes.a__m__a;
-            ship.Modules[1].ItemStored = ItemTypes.none;
-            ship.Modules[1].ItemCount = 0;
-            ship.ItemScanResults = new Asteroid { Type = ItemTypes.titanium, Class = 6, Mass = 10000, MassName = "Large" };
-            ship.ACC.Update(Ship_States.UnDocked);
-            Equal(true, ship.ACC.Active, "AMA retains automation");
-            Equal(Ship_States.Docking, ship.ShipState, "selected large asteroid starts mining approach");
+            foreach (var asteroidAtSource in new[] { false, true })
+            {
+                var ship = AsteroidAccShip();
+                if (asteroidAtSource)
+                {
+                    (ship.ACC.Source, ship.ACC.Destination) = (ship.ACC.Destination, ship.ACC.Source);
+                    (ship.ACC.SourceItems, ship.ACC.DestinationItems) = (ship.ACC.DestinationItems, ship.ACC.SourceItems);
+                }
+                ship.Modules[0].ItemStored = ItemTypes.a__m__a;
+                ship.Modules[1].ItemStored = ItemTypes.none;
+                ship.Modules[1].ItemCount = 0;
+                var asteroid = new Asteroid { Type = ItemTypes.iron, Class = 6, Mass = 10000, MassName = "Large" };
+                ship.ItemScanResults = asteroid;
+                ship.ACC.Update(Ship_States.UnDocked);
+                Equal(Ship_States.UnDocked, ship.ShipState, "Earth selection must not start asteroid mining");
+                asteroid.Type = ItemTypes.titanium;
+                asteroid.Class = 5;
+                ship.ACC.Update(Ship_States.UnDocked);
+                Equal(Ship_States.UnDocked, ship.ShipState, "selected small asteroid remains ineligible");
+                asteroid.Class = 6;
+                ship.ACC.Update(Ship_States.UnDocked);
+                Equal(true, ship.ACC.Active, "AMA retains automation");
+                Equal(Ship_States.Docking, ship.ShipState, $"selected asteroid starts approach with source={asteroidAtSource}");
+
+                var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = restored;
+                ship = (IOS)restored.Ships.Single();
+                Equal(Ship_States.Docking, ship.ShipState, "mining approach survives reload");
+                ship.ShipState = Ship_States.UnDocked;
+                ship.Modules[1].ItemStored = ItemTypes.iron;
+                ship.Modules[1].ItemCount = 12;
+                ship.ACC.Update(Ship_States.UnDocked);
+                Equal(Ship_States.InTransit, ship.ShipState, "incompatible remaining pod returns cargo to Earth");
+                Equal(12, ship.Modules[1].ItemCount, "return preserves other mineral cargo");
+            }
         }
 
         private void AsteroidAccDayTick()

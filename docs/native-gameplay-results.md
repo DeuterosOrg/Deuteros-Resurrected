@@ -258,3 +258,13 @@ Saved-state audit confirms 500 each iron/titanium/copper and 250 aluminium deliv
 Reload preserves both crews, ships, inventories and selected ACC rotation. No additional simulation update occurs during the reload inspection; normal wall-time accumulation continues. Native session 10429 exits zero and its strict log passes. Original user saves are restored exactly. Evidence and runnable audit: `artifacts/fleet-supply-campaign/`. Continuation `reloaded-slot-4.json` SHA-256: `8bdfa99dea7ccac53f2a13f6a7fffa6eb00dc4ce35a1598259df6a0f42edf6ae`.
 
 This prepares normal fleet expansion; it does not establish victory, capture, PTL progression or Windows acceptance. Rare-metal supply and further drone manufacture remain next.
+
+## Rare-metal route and endpoint failure
+
+The fleet-supply continuation replaces WAYFARER's last DFCC with the stocked AMA through the normal equipment panel. It returns 290 MeH, one drone and the DFCC, consumes one AMA and preserves the other pods. FIRST LIGHT resumes six-product ground-to-orbit ACC. The retrofit reloads, and WAYFARER's ACC refills its empty tank with 250 orbital MeH.
+
+Changing the return-leg course makes Asteroids the left/source endpoint. Palladium and platinum selected there never trigger mining because the model reads only destination selections. The untouched failure save records source Asteroids, destination Earth, source items 10/11, an empty destination list and empty cargo. The second alien transmission also occurs naturally and renders its partially translated text.
+
+With the endpoint fix, the same save and selections visibly produce 250 plus 104 platinum aboard. This replay is **not a successful delivery**: News records the Moon captured at 8755.62, Earth captured at 8822.62 and WAYFARER destroyed by Earth's station self-destruct at 8904.63. The outcome is retained rather than presented as a UI disappearance or successful return. Repeat delivery from the earlier `retrofit-slot-4.json` checkpoint, before the stalled run wastes campaign time; do not edit enemy state or stock.
+
+Evidence: `artifacts/rare-metal-campaign/`, including retrofit, stalled and final-loss saves, transmission/selection screenshots and native logs. Sessions 90096, 26927 and 51832 exit zero with clean strict logs; original user saves are restored. Victory, capture, rare-metal delivery and Windows acceptance remain open.
