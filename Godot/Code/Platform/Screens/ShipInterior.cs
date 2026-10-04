@@ -630,10 +630,12 @@ namespace Deuteros.Code.Platform.Screens
             });
         }
 
+        private bool InBattle => Window.GetChildren().OfType<Battle>().Any();
+
         private bool RejectShipCommand(Node owningOverlay = null)
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (!IsInsideTree() || IsQueuedForDeletion()) return true;
+            if (!IsInsideTree() || IsQueuedForDeletion() || InBattle) return true;
             if (OverlayManager.Instance.IsOpen && !OverlayManager.Instance.IsShowing(owningOverlay)) return true;
             return save.RogueCrew.RejectCommand(save, Ship);
         }
@@ -1045,6 +1047,11 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
+                if (InBattle)
+                {
+                    GetViewport().SetInputAsHandled();
+                    return;
+                }
 				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
 
 				if (cursor.IsLocked)

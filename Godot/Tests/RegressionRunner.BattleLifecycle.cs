@@ -13,7 +13,7 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
-        private async Task<(ShipInterior, Battle)> OpenBattleEncounter(bool roaming = false, int playerDrones = 10, int stationDrones = 40)
+        private async Task<(ShipInterior, Battle)> OpenBattleEncounter(bool roaming = false, int playerDrones = 10, int stationDrones = 40, bool timeRunning = false, bool ptl = false)
         {
             var interior = await OpenInterior(Ship_Types.IOS);
             GameCore.SingletonInstance.SetProcess(false);
@@ -21,6 +21,8 @@ namespace Deuteros.Tests
             ship.Name = "Battle Test";
             ship.ShipState = Ship_States.UnDocked;
             ship.DFCC = true;
+            ship.PTL = ptl;
+            if (ptl) ship.Fuel = 200;
             ship.DroneCount = playerDrones;
             ship.ACC = null;
             ship.Modules[0].ModuleType = Module_Types.Tool;
@@ -33,12 +35,61 @@ namespace Deuteros.Tests
                 AttackDay = 5, AttackTrigger = 20, DroneCount = 40, Fuel = 100, Modules = new List<ShipModule>() });
             interior.CurrentPlanet.Station.Resources.Stores[ItemTypes.ios_drone] = stationDrones;
             interior.UpdateState();
+            Save.TimeSkip = Save.TimeSkipDay = timeRunning;
             Press(interior, "Modules/00");
             var battle = interior.GetNode<Control>("Window").GetChild<Battle>(0);
             // Freeze random combat after opening the real module; choose the outcome below.
             battle.GetNode<Timer>("Timer").Stop();
             await InputFrames();
             return (interior, battle);
+        }
+
+        private async Task BattleOwnsCommands()
+        {
+            var (interior, battle) = await OpenBattleEncounter(timeRunning: true, ptl: true);
+            var ship = (InterStellarShip)interior.Ship;
+            var station = interior.CurrentPlanet.Station;
+            var core = GameCore.SingletonInstance;
+            Equal(0, interior.CurrentPlanet.Station.Resources.Stores[ItemTypes.ios_drone], "battle holds the station reservation");
+            Press(interior, "Dock");
+            Equal(Ship_States.UnDocked, ship.ShipState, "reserved defenders do not expose background docking");
+            Press(interior, "EngineControls/EngageEngine");
+            Equal(Ship_States.UnDocked, ship.ShipState, "escape goes through battle Flee rather than background engine");
+            Press(interior, "Modules/00");
+            Equal(1, interior.GetNode("Window").GetChildCount(), "cannot open a second encounter over the reserved fleet");
+            Equal(true, Cursor.IsLocked, "combat owns pointer input");
+            Equal(false, Save.TimeSkip || Save.TimeSkipDay, "opening battle stops fast-forward and held-day input");
+            var day = Save.CurrentDay;
+            core._Process(GameClock.NormalIntervalSeconds);
+            Equal(day, Save.CurrentDay, "normal simulation cannot destroy the ship during combat");
+            var right = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true, Position = new Vector2(10, 10) };
+            GetViewport().PushInput(right, true);
+            await InputFrames();
+            Equal(true, Cursor.IsLocked, "right click cannot release the combat input owner");
+            Equal(Scenes.ShipInterior, core.currentScene, "right click cannot leave combat through the overview");
+            async Task Click(BaseButton button)
+            {
+                var point = button.GetGlobalRect().GetCenter();
+                GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+                foreach (var pressed in new[] { true, false })
+                    GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                await InputFrames();
+            }
+            await Click(interior.GetNode<Button>("Dock"));
+            Equal(Ship_States.UnDocked, ship.ShipState, "real background Dock pointer is blocked too");
+            var logic = battle.GetNode<BattleCanvas>("BattleCanvas").BattleLogic;
+            logic.GetType().GetProperty("BattleState", BindingFlags.Instance | BindingFlags.NonPublic)
+                .SetValue(logic, BattleState.FleetsInBattle);
+            await Click(battle.GetNode<TextureButton>("PlayerPTL"));
+            Equal(100, ship.Fuel, "real PTL pointer stays available and charges once");
+            await Click(battle.GetNode<TextureButton>("PlayerFlee"));
+            Equal(true, logic.PlayerFled, "real Flee pointer remains available inside combat");
+            core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
+            await InputFrames();
+            Equal(false, Cursor.IsLocked, "leaving frees the input owner");
+            Equal(true, station.Resources.Stores[ItemTypes.ios_drone] > 0, "leaving returns surviving station defenders");
+            core._Process(0);
+            Equal(day + 1, Save.CurrentDay, "deferred normal simulation resumes once after exit");
         }
 
         private async Task BattleEmptyFleets()

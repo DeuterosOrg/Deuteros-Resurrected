@@ -42,3 +42,10 @@ The separate [PTL progression investigation](original-ptl-evidence.md) traces th
 ## Successful normal defence — 2026-10-04
 
 At runtime `01c81f9`, a normally manufactured 58-drone fleet defeats the Moon's 46-drone attackers. The enemy retreats at 23; the player retains 46 drones and five crew. Attack state clears, the threshold doubles once to 80, and exact ships/News/all-planet reload passes. The native session closes cleanly and original saves are restored. See [campaign evidence](native-gameplay-results.md#automated-fleet-manufacture-and-successful-moon-defence--2026-10-04). This establishes normal defensive victory; station capture, normal PTL use and Windows acceptance remain separate. The earlier statement that PTL reachability is unimplemented is superseded by [current fitting evidence](original-ptl-evidence.md).
+
+
+## Combat command ownership — 2026-10-04
+
+Case 630 reproduced background docking while the actual battle window held the station's defenders in its reservation. The visible encounter now uses the existing cursor restriction, stops fast-forward/held-day requests, and rejects background ship commands and right-click escape. The existing clock defers normal simulation while that input owner is active. Closing or completing the encounter releases its restriction and retains the established result/reservation settlement.
+
+The regression verifies background Dock/engine/module rejection, no duplicate encounter, deferred normal updates, right-click protection, real PTL and Flee pointer input, returned station defenders and resumed updates after exit. Thirteen focused combat/docking cases pass strict headless checks; cases 628–630 also pass natively on Mac with unchanged original save hashes. The failure and passing logs are retained under `artifacts/validation/evidence/battle-command-ownership/`. Prior cancellation/world-replacement tests remain green. These fixes do not establish combat balance or Windows acceptance, and do not add to the 48-task count.

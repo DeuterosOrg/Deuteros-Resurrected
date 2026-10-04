@@ -375,6 +375,7 @@ namespace Deuteros.Tests
             await CheckAsync("Orbital departure refreshes both planet views while the large screen is open", InteriorOrbitViews);
             CheckUi("Hostile docking checks defenders before the first danger tick and preserves cleared access", HostileDockingGates);
             await CheckAsync("Real docking control rejects defenders and accepts victory despite a stale danger counter", HostileDockingPointer);
+            await CheckAsync("Combat owns ship commands and freezes normal updates until its window closes", BattleOwnsCommands);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -626,3 +626,8 @@ After reconciling Windows-owned patches, check this sequence in source and the m
 ## AOC completion with full quarters
 
 Runtime `e313b6d`, case621: a completed AOC waits at stage three when all four local staff slots are full. It must preserve its builder, paid recipe and progress through save/load without output, extra experience or completion notices. Free one slot: the same team returns, the factory becomes automated, the panel updates and completion occurs once. No transferable AOC is created; installed AOCs cannot be ordered again. Targeted/native Mac verification passes; normal Windows source/export acceptance is pending. Keep this separate from Windows-owned orbital-view, Service, popup, bay and Stocktaker patches.
+
+
+### Next combined-build checks: docking and combat ownership
+
+The Mac branch adds original-backed docking gates and combat input ownership (cases 628–630). After receiving a matching newer build, verify: a fresh hostile arrival cannot Dock/ACC past defenders; a cleared station accepts a DFCC hull; peaceful trading still docks; combat blocks background Dock/engine/module controls and right-click overview navigation; Flee and PTL remain clickable; fast-forward stops when battle opens; completion restores normal controls. Preserve the existing wv03 checkpoint and prior export evidence. The delivered `01c81f9` build does **not** contain these follow-ups; do not report their acceptance against it. Shutdown logs requested in the existing thread remain outstanding.

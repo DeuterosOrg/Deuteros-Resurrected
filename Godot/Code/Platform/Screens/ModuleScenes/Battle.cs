@@ -1,4 +1,5 @@
 using Deuteros.Code.Objects;
+using Deuteros.Code.Utility;
 using Deuteros.Code.Objects.Battle;
 using Deuteros.Code.Platform.Base;
 using Godot;
@@ -33,6 +34,8 @@ public partial class Battle : BaseSubScene
 
 	BattleLogic _battle;
     private bool exiting;
+    private GlobalInput cursor;
+    private Rect2 inputBounds;
 	
 
 	// Called when the node enters the scene tree for the first time.
@@ -69,6 +72,9 @@ public partial class Battle : BaseSubScene
 		BattleTimer.Timeout += TimerTimeout;
 
 		base._Ready();
+        cursor = GameCore.SingletonInstance.GetNode<GlobalInput>("VirtualCursorView");
+        inputBounds = GetNode<Control>("Background").GetGlobalRect();
+        cursor.LockToRect(inputBounds);
 
 	}
 
@@ -76,6 +82,7 @@ public partial class Battle : BaseSubScene
     {
         exiting = true;
         BattleTimer.Stop();
+        if (IsInstanceValid(cursor) && cursor.IsLocked && cursor.LockRect == inputBounds) cursor.Unlock();
         base._ExitTree();
     }
 
@@ -147,6 +154,7 @@ public partial class Battle : BaseSubScene
 		_battle = new BattleLogic(player, enemy, fleeCount, PlayerPower, PlayerShips, EnemyPower, EnemyShips, BattleCanvas);
 		BattleCanvas.BattleLogic = _battle;
         var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+        save.TimeSkip = save.TimeSkipDay = false;
         var completionReported = false;
         void SettleResult()
         {
