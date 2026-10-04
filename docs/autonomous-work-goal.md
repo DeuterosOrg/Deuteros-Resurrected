@@ -8,7 +8,7 @@ Use the [backlog ledger](backlog-progress.md) as the task-by-task record. Verify
 
 ## Independent Work Priorities
 
-1. Continue from the verified day10945 Moon-gold checkpoint: Morse is Expert and90 gold has reached Earth. Prepare common and rare materials for60 drones plus DFCC/fuel before triggering war, then research/manufacture defence equipment and exercise combat/capture. Current250 palladium only supports eight drones. AOC capacity and paid-queue defects are fixed and included in the audited621 checkpoint.
+1. Continue from the verified day12210 fleet-bulk checkpoint: Earth now has materials for60 drones plus DFCC and5,790 MeH. Refit the stocked CommsPod and progress normal trading from count0 to the war/prototype event, then research/manufacture defence equipment promptly and exercise combat/capture. Morse has147 Expert workers and Cavell248 Professor researchers; WAYFARER's five crew need monitoring. AOC capacity and paid-queue defects are fixed and included in the audited621 checkpoint.
 2. Continue protected-save normal campaign testing through SCG discovery, interstellar travel and later progression. Keep ordinary campaign evidence separate from staged regression fixtures.
 3. Resolve remaining original-game fidelity gaps, including staff attrition, News events, construction artwork and timing. Keep audio work deferred behind gameplay priorities.
 4. Run the complete current regression suite, tooling checks, startup and export audit at meaningful integration checkpoints. Verify relevant pointer interactions and save/reload behavior.

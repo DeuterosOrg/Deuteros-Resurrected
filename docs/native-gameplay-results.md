@@ -335,3 +335,15 @@ The day10945 checkpoint has90 gold at Earth, zero at the Moon, empty supply pods
 Evidence: `artifacts/moon-gold-campaign/`, including the ACC order, returned ship and reloaded Stores captures, four saves and runnable `audit.py`. Native session53506 exits0 with a strict clean log; original user saves are restored exactly. Continuation `reloaded-slot-4.json` SHA-256: `e0734f822e58c513c6208533e2c5e577eaf0e09c3345adc0c177ace07638992f`.
 
 Combat preparation remains incomplete:250 palladium supports only eight drones at30 per recipe. The next supply target is material for60 drones:7,200 each iron/titanium/aluminium,900 carbon,3,300 copper and1,800 each palladium/platinum, plus the DFCC recipe and fuel. This is a preparation target against the initial40-drone attack trigger, not proof of a winning fleet. Stronger hostile stations and later progression need further production. Collect supplies before triggering war; no additional task acceptance is claimed.
+
+## Concurrent bulk freight and rare-metal supply — 2026-10-04
+
+Normal play continues from day10945 on `01c81f9`. FIRST LIGHT lands and exchanges its empty cryopod for the stocked supply pod, returning one cryopod. Its ACC ferries selected common metals and fuel while WAYFARER mines palladium/platinum through the ordinary asteroid route. Later orders narrow to titanium/aluminium for the shuttle and platinum for the miner; no stock or crew values are edited.
+
+By day12210, Earth orbit has gained6,000 iron,7,750 each titanium/aluminium,6,000 copper,2,000 palladium,1,500 platinum and4,628 net MeH. Final stocks include2,250 palladium,2,045 platinum,90 gold and5,790 MeH, satisfying60 drone recipes plus one DFCC. Ground mining/refining and storage caps continue, so this is an exact orbital-stock audit, not a global conservation claim.
+
+Both ACCs stop normally. FIRST LIGHT rests on Earth with an empty supply pod,52 fuel and Kingston's39 marines, now Admiral. WAYFARER returns to Earth orbit with its AMA, two empty supply pods,232 fuel and five crew. Ordinary attrition leaves Morse147 Expert workers; Cavell remains Professor with248 researchers. War is undeclared, Earth/Moon remain friendly and the trade count is zero.
+
+UI reload preserves exact Earth and ship state. Native session62209 exits0 with a strict clean log and byte-for-byte original-save restoration. Evidence: `artifacts/fleet-bulk-campaign/`, with intermediate saves, captures and runnable `audit.py`. Continuation `reloaded-slot-4.json` SHA-256: `8ea88ac2c93aa6e6a9a50a237d6e1618987b40539f44b045d6f2b26ddf9c2b80`.
+
+Next: refit the stocked CommsPod, progress normal Methanoid trading to the war/prototype event, then research and manufacture defence equipment promptly. The supplies are ready; drones, fleet fitting, combat/capture and later campaign acceptance remain unproved. Totals remain35/48 implementation evidence and four locally accepted requirements.
