@@ -373,6 +373,8 @@ namespace Deuteros.Tests
             await CheckAsync("Launch view uses full-size storm doors and preserves the small preview", InteriorStormDoorArtwork);
             await CheckAsync("Deployment completion text retains visible colours and fits the module window", DeploymentCompletionText);
             await CheckAsync("Orbital departure refreshes both planet views while the large screen is open", InteriorOrbitViews);
+            CheckUi("Hostile docking checks defenders before the first danger tick and preserves cleared access", HostileDockingGates);
+            await CheckAsync("Real docking control rejects defenders and accepts victory despite a stale danger counter", HostileDockingPointer);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -35,7 +35,15 @@ namespace Deuteros.Code.Objects
 
 		public void Dock()
         {
-            if (ShipState == Ship_States.UnDocked && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].Station.Built || PlanetLocation == StellarBodies.asteroids))
+            var data = GameCore.SingletonInstance.GameData;
+            var planet = data.ActiveSaveFile.BaseGameData.Planets[PlanetLocation];
+            // Original arrival enters danger before accepting another command; ACC uses this entry too.
+            if (this is InterStellarShip stellar && !stellar.MethanoidOwned
+                && !data.ActiveSaveFile.RogueCrew.Controls(this) && data.ActiveSaveFile.AtWar
+                && (data.PlanetUnderAttack(PlanetLocation) || planet.ActiveMethanoid
+                    && (!stellar.DFCC || planet.Station.SdmCountdown == 0
+                        && planet.Station.Resources.Stores[ItemTypes.ios_drone] > 0))) return;
+            if (ShipState == Ship_States.UnDocked && (planet.Station.Built || PlanetLocation == StellarBodies.asteroids))
             {
                 StartTravelDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
                 ShipState = Ship_States.Docking;

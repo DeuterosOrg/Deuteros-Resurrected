@@ -694,12 +694,8 @@ namespace Deuteros.Code.Platform.Screens
             if (RejectShipCommand()) return;
 			if (Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
-			if (Ship.ShipType == Ship_Types.Shuttle || ((InterStellarShip)Ship).AttackedCount == 0)
-			{
-
-				Ship.Dock();
-				UpdateState();
-			}
+			Ship.Dock();
+			UpdateState();
 		}
 
 		private void SmallLocation_Pressed()

@@ -55,6 +55,7 @@ namespace Deuteros.Tests
             var interior = await OpenInterior(Ship_Types.IOS);
             var ship = interior.Ship;
             ship.ShipState = Ship_States.UnDocked;
+            ((InterStellarShip)ship).DFCC = true;
             var planet = GameCore.Earth;
             planet.ActiveMethanoid = true;
             planet.Station.SdmInstalled = true;

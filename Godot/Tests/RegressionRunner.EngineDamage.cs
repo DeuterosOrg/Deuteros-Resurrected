@@ -35,6 +35,93 @@ namespace Deuteros.Tests
             CheckUi("Damaged return-course preview starts from the current day after arrival", EngineDamageReturnPreview);
         }
 
+        private void HostileDockingGates()
+        {
+            foreach (var scg in new[] { false, true })
+            {
+                var ship = DamageShip(scg);
+                ship.DFCC = true;
+                var earth = GameCore.Earth;
+                earth.Station.Built = true;
+                earth.Station.BuildParts = 8;
+                earth.ActiveMethanoid = true;
+                earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
+                var fuel = ship.Fuel;
+                ship.Dock();
+                Equal(Ship_States.UnDocked, ship.ShipState, "defended arrival cannot dock before AttackedCount advances");
+                Equal(fuel, ship.Fuel, "rejected docking preserves fuel");
+                Equal((uint)0, ship.StartTravelDay, "rejected docking preserves travel timestamp");
+                ship.ACC = new Deuteros.Code.Objects.ACC { Ship = ship, Active = true,
+                    Source = StellarBodies.mars, Destination = StellarBodies.earth };
+                ship.ACC.Update(Ship_States.InTransit);
+                Equal(Ship_States.UnDocked, ship.ShipState, "ACC arrival cannot bypass the same defenders");
+                earth.Station.SdmCountdown = 16;
+                ship.Dock();
+                Equal(Ship_States.Docking, ship.ShipState, "active SDM suppresses station defence as in the original");
+                ship.ShipState = Ship_States.UnDocked;
+                earth.Station.SdmCountdown = 0;
+                earth.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
+                ship.DFCC = false;
+                ship.Dock();
+                Equal(Ship_States.UnDocked, ship.ShipState, "unconverted hull cannot enter a wartime hostile station");
+                ship.DFCC = true;
+                ship.Dock();
+                Equal(Ship_States.Docking, ship.ShipState, "converted hull can dock after defenders are cleared");
+                ship.ShipState = Ship_States.UnDocked;
+                earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
+                Save.AtWar = false;
+                ship.DFCC = false;
+                ship.Dock();
+                Equal(Ship_States.Docking, ship.ShipState, "peaceful trade docking remains available");
+                Save.AtWar = true;
+                ship.ShipState = Ship_States.UnDocked;
+                ship.MethanoidOwned = true;
+                ship.Dock();
+                Equal(Ship_States.Docking, ship.ShipState, "enemy hull retains its own station access");
+                ship.MethanoidOwned = false;
+                ship.ShipState = Ship_States.UnDocked;
+                earth.ActiveMethanoid = false;
+                var attacker = new EnemyFleet { MethanoidOwned = true, PlanetLocation = StellarBodies.earth,
+                    DestinationPlanetLocation = StellarBodies.earth, Attacking = true, DroneCount = 40, AttackDay = 5 };
+                Save.Ships.Add(attacker);
+                ship.Dock();
+                Equal(Ship_States.UnDocked, ship.ShipState, "active attacking fleet blocks friendly docking too");
+                attacker.Attacking = false;
+                ship.Dock();
+                Equal(Ship_States.Docking, ship.ShipState, "cleared friendly orbit permits docking");
+            }
+        }
+
+        private async Task HostileDockingPointer()
+        {
+            var interior = await OpenInterior(Ship_Types.IOS);
+            GameCore.SingletonInstance.SetProcess(false);
+            var ship = (InterStellarShip)interior.Ship;
+            ship.ShipState = Ship_States.UnDocked;
+            ship.DFCC = true;
+            ship.AttackedCount = 0;
+            Save.AtWar = true;
+            GameCore.Earth.ActiveMethanoid = true;
+            GameCore.Earth.Station.Resources.Stores[ItemTypes.ios_drone] = 92;
+            interior.UpdateState();
+            var parent = interior.GetParent();
+            var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
+            AddChild(viewport);
+            interior.Reparent(viewport);
+            try
+            {
+                await InputFrames();
+                ClickMenu(viewport, interior.GetNode<Button>("Dock"));
+                Equal(Ship_States.UnDocked, ship.ShipState, "actual pointer cannot skip first-arrival defenders");
+                GameCore.Earth.Station.Resources.Stores[ItemTypes.ios_drone] = 0;
+                ship.AttackedCount = 1;
+                interior.UpdateState();
+                ClickMenu(viewport, interior.GetNode<Button>("Dock"));
+                Equal(Ship_States.Docking, ship.ShipState, "actual pointer accepts cleared station before counter refresh");
+            }
+            finally { interior.Reparent(parent); viewport.Free(); }
+        }
+
         private static bool Damaged(Ship ship) => ship.EngineDamaged;
         private static void SetDamaged(Ship ship, bool value) => ship.EngineDamaged = value;
         private static bool DepartWithRoll(Ship ship, Func<bool> roll) => ship.EngageEngine(roll);

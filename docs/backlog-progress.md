@@ -2,6 +2,8 @@
 
 Goal: resolve all 48 tasks in the [2026-10-01 Asana snapshot](asana-triage.md), including missing features and research questions. This ledger records local work; it does not change Asana status. Updated 2026-10-04 (BST). A read-only Asana refresh at the rogue-crew checkpoint still returned the same 48 open IDs among 86 tasks, with no next page.
 
+The latest docking follow-up closes a first-arrival/ACC bypass with 77 focused passes; [source and limitations](original-engine-damage-evidence.md#hostile-docking-gate--2026-10-04). Counts remain unchanged; combat-window ownership and normal capture acceptance remain open.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
