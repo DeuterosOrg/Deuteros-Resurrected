@@ -228,3 +228,15 @@ A fresh read of the [interior-navigation task](https://app.asana.com/1/507237966
 The same report identifies a separate missing-planet defect after station departure. The agent's local fix selects existing large blue planet artwork, crops only black margins to 192×112, and refreshes the mini-screen in both large-view modes. Reported staged case315 fails before and passes after for shuttle/IOS/SCG departure, toggling and docking. Per-planet original colours, normal post-restart acceptance and export remain unverified. The source remains `878d74d` plus local edits. Preserve this **Windows-owned orbital-view change** and collect its current patch/report; the older v4 patch must not be assumed to contain it.
 
 Retrieved comments are retained in `artifacts/windows-handoff/aoc-capacity-asana-refresh.json`. The builder Downloads reply file is still absent. This report establishes fresh Windows work, not an acknowledgement of the mesh/file handoff. No Asana fields or comments were written.
+
+## Retained crash evidence and Windows resume — collected 2026-10-05
+
+The Windows agent reports source `3aee744`, profile `wv03`, normal slot 5/day 1157 and live PID 61952. These are the agent's last reported state, not a new Mac process inspection. Its game and profile were left untouched. The existing coordination thread confirms Windows v5 integration was acknowledged and no duplicate patch application is needed.
+
+Six files were retrieved from the agent's builder Downloads handoff. SHA-256 values for the retained playtest-07 log, exit and PID match the report; the exit is **3221225477 (`0xC0000005`)**, PID **62688**. The agent's bounded search found **no separate `-engine.log`**; the earlier request named a nonexistent file. The minidump remains on Windows and was not transferred.
+
+The sanitized investigation identifies fault RVA `0x680935`, with strong binary evidence for `CSharpLanguage::_instance_binding_reference_callback`; its partial fixed-frame unwind reaches engine cleanup. This is the Windows agent's analysis, not an independently repeated Mac dump analysis. The originating object and invalidation sequence remain unproven. Keep this native access violation separate from the Mac case-264 Ogg-resource leak. Do not infer that another delay or GC call fixes either.
+
+Windows also verifies the delivered `003c087` executable/ZIP and `82d6677` source bundle hashes, plus ZIP CRC. This is integrity evidence, not matching-export execution: script-policy rejection remains unresolved. Its independent ACC byte trace agrees on the four red pulse values, reload five and fitted cockpit mode; original emulator/modal comparison remains untested. No new Windows task acceptance is claimed.
+
+Raw sanitized reports, received files, local hash manifest and full thread snapshot: `artifacts/windows-resume-20261004/`. Receipt and Mac ownership were acknowledged in the same thread. No newer export has been supplied while the current integration failure remains unresolved.
