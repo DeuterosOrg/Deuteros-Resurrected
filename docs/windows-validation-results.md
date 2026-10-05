@@ -1,5 +1,13 @@
 # Windows validation results
 
+## Windows documentation reconciled — 2026-10-05
+
+Retrieved the agent's documentation commit `4cfd08bc5ff46279dc194670e357c6a34e91889a` in `windows-progress-4cfd08b.bundle`: **3,277 bytes**, SHA-256 `ea343ea167da10f0379a3e51a451f4e7c615924dba3f44b1da650e927d232025`. Hash and Git prerequisite verification pass. Its two-file update was reviewed against this report and the current [Windows brief](windows-agent-brief.md); the shutdown, ACC and export findings are already recorded below. No older gameplay patches were reapplied.
+
+Additional resume detail: the agent physically loaded normal slot 5/day 1157 into the expanded Earth Shuttle cockpit, docked at its orbital station, without advancing time. It reports the slot hash remains `d00f1f3ecea28b885a8e44bb2be78c251d812a7ee1e11d17fe08b2cada40ec51`. PID 61952 describes its October 4 session, not a fresh process inventory. At Craig's next playtest boundary, check both planet views after orbital departure and the operational text at a natural factory/base completion. Both visual checks remain untested in that resumed session. Preserve the existing profile and check ownership before launching anything.
+
+The bundle's pending Mac acknowledgement and undelivered-export statements are superseded by the receipt and `929b4a5` delivery recorded below. Current-build Windows gameplay and shutdown acceptance remain pending; this documentation reconciliation adds no accepted task.
+
 ## Current reconciliation — 2026-10-04
 
 Windows evidence includes **595 automated source cases**, a separately verified export/startup, and desktop scenario passes for **seven original task IDs**: SCG (`1215685674676241`), supply discard (`1215685674676219`), ACC (`1215683087492480`), DFCC (`1215716464570901`), Stocktaker (`1215685674676245`), Service (`1215691951441136`) and save/load (`1215685674676235`). Craig accepted four related fixes: Service, the resized missing-pod popup, all three shuttle section background returns and blast doors. These are scoped observations at their tested revisions, not seven completed parent tasks. The desktop agent has not tested an export.
