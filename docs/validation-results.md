@@ -1180,3 +1180,9 @@ The subsequent **632-case aggregate failed**, despite case 264 passing its navig
 ### Unchanged shutdown baseline — 2026-10-05
 
 A predetermined four-attempt repetition of case 264 at unchanged runtime `929b4a5` passes assertions, strict diagnostics and process exit in **4/4 attempts**. This establishes intermittency; it does not repair or invalidate the preserved full-run failure, and no passing aggregate is claimed. Logs: `artifacts/research/audio-shutdown-20261005/baseline-264-{1..4}.log`. Production code and error filters remain unchanged. The separately collected Windows native-binding crash report is recorded in [Windows results](windows-validation-results.md#retained-crash-evidence-and-windows-resume--collected-2026-10-05).
+
+## Remaining cases and current Windows package — 2026-10-05
+
+At unchanged runtime `929b4a5`, a separate continuation passes **cases 265–632 (368 cases)**, fresh build/import, source startup and Windows cross-export. All **19 Python checks** pass with original-disk verification and no skips. The original attempt's cases 1–263 and failed case 264 remain preserved. Four unchanged diagnostic repetitions of 264 pass, but its intermittent teardown failure remains unresolved: **this is not a passing full 632-case aggregate**. No production code or error filter changed during the continuation.
+
+The independent package audit verifies all **1,232 embedded payload hashes**, 64 illustration imports, no test resources and source-identical ending JSON. Executable: **163,906,784 bytes**, SHA-256 `34756594b605d8673dd0fd9795592baa60466505de2fa6f55e0b46a270905a13`. Logs, executable and runnable audit: `artifacts/validation/evidence/continuation-929b4a5-20261005/`. The original user save remains byte-identical. Native Windows execution and its separate binding-callback crash remain open.

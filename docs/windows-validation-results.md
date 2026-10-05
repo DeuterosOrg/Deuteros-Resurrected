@@ -239,4 +239,8 @@ The sanitized investigation identifies fault RVA `0x680935`, with strong binary 
 
 Windows also verifies the delivered `003c087` executable/ZIP and `82d6677` source bundle hashes, plus ZIP CRC. This is integrity evidence, not matching-export execution: script-policy rejection remains unresolved. Its independent ACC byte trace agrees on the four red pulse values, reload five and fitted cockpit mode; original emulator/modal comparison remains untested. No new Windows task acceptance is claimed.
 
-Raw sanitized reports, received files, local hash manifest and full thread snapshot: `artifacts/windows-resume-20261004/`. Receipt and Mac ownership were acknowledged in the same thread. No newer export has been supplied while the current integration failure remains unresolved.
+Raw sanitized reports, received files, local hash manifest and full thread snapshot: `artifacts/windows-resume-20261004/`. Receipt and Mac ownership were acknowledged in the same thread. At report collection, no newer export had been supplied; the subsequent delivery is recorded below.
+
+## New source and export delivered — 2026-10-05
+
+The complete-history source bundle `deuteros-3c58744.bundle` and runtime `929b4a5` package, manifest and handoff are now in builder Downloads; all remote SHA-256 values match local files. The [Windows brief](windows-agent-brief.md#start-here) records names and hashes. This includes the cleared-station danger and locked-bulletin countdown fixes. The package passes the [continuation and payload audit](validation-results.md#remaining-cases-and-current-windows-package--2026-10-05), with the earlier case-264 shutdown failure explicitly retained. No current Windows process was launched, no live profile was changed, and matching-build gameplay/shutdown acceptance remains pending.
