@@ -283,6 +283,81 @@ namespace Deuteros.Tests
             core.SetProcess(true);
         }
 
+        private async Task SettingsScanlines()
+        {
+            await WithSettings(async screen =>
+            {
+                var core = GameCore.SingletonInstance;
+                core.SetProcess(false);
+                var manager = SettingsManager.Instance;
+                var game = GameViewportContainer.Instance;
+                Equal(0, screen.ScanlinesRow.Value, "scanlines default to off");
+                screen.ScanlinesRow.StepValue(10);
+                Equal(true, game.Material is ShaderMaterial, "scanline slider updates the viewport effect");
+                float Strength() => ((ShaderMaterial)game.Material).GetShaderParameter("intensity").AsSingle();
+                Equal(0.5f, Strength(), "maximum scanlines preserve half the brightness");
+                Press(screen, "%ApplyButton");
+                using (var disk = new GameConfig(manager.Config.FilePath))
+                    Equal(10, disk.GetValue("display", "scanlines").AsInt32(), "scanline intensity persists");
+                Press(screen, "%CloseButton");
+                await InputFrames();
+                var patch = new ColorRect { Color = Colors.White, Position = new Vector2(100, 80),
+                    Size = new Vector2(8, 8), MouseFilter = Control.MouseFilterEnum.Ignore };
+                core.GetNode<SubViewport>("GameContainer/GameViewport").AddChild(patch);
+                foreach (var scale in new[] { "Integer", "Fit" })
+                {
+                    manager.SetSetting("display/pixel_scaling", scale);
+                    manager.ApplyDisplay();
+                    if (DisplayServer.GetName() != "headless")
+                    {
+                        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                        using var pixels = GetViewport().GetTexture().GetImage();
+                        var light = ReadGamePixel(pixels, new Vector2(104, 80.1f));
+                        var dark = ReadGamePixel(pixels, new Vector2(104, 80.9f));
+                        Equal(true, light.R > 0.98f && Math.Abs(dark.R - 0.5f) < 0.02f,
+                            scale + " renders bright and half-dark scanline bands");
+                        Equal(true, dark.R == dark.G && dark.G == dark.B, "scanlines preserve neutral colour");
+                        manager.SetSetting("display/scanlines", 0);
+                        manager.ApplyDisplay();
+                        await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
+                        using var off = GetViewport().GetTexture().GetImage();
+                        Equal(true, ReadGamePixel(off, new Vector2(104, 80.1f)).R > 0.98f
+                            && ReadGamePixel(off, new Vector2(104, 80.9f)).R > 0.98f,
+                            scale + " off leaves both bands at full brightness");
+                        manager.SetSetting("display/scanlines", 10);
+                        manager.ApplyDisplay();
+                    }
+                }
+                patch.QueueFree();
+                await InputFrames();
+                var menu = ActiveRecipeScreen<Deuteros.Code.Platform.Screens.MainMenu>();
+                var point = menu.NewsButton.GetGlobalRect().GetCenter();
+                foreach (var pressed in new[] { true, false })
+                    PushGameInput(new InputEventMouseButton { Position = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
+                await InputFrames();
+                Equal(Scenes.News, core.currentScene, "scanlines do not intercept pointer navigation");
+                await CaptureDisplayEvidence("scanlines-fit");
+                screen = OpenSettings();
+                await InputFrames();
+                Equal(10, screen.ScanlinesRow.Value, "reopened settings show saved intensity");
+                screen.ScanlinesRow.StepValue(-10);
+                Equal(0f, Strength(), "off preview removes scanlines");
+                Press(screen, "%CancelButton");
+                await InputFrames();
+                Equal(0.5f, Strength(), "discard restores saved intensity");
+                foreach (var value in new[] { -1, 100 })
+                {
+                    manager.SetSetting("display/scanlines", value);
+                    manager.ApplyDisplay();
+                    Equal(value < 0 ? 0f : 0.5f, Strength(), "external intensity is bounded");
+                }
+                manager.SetSetting("display/scanlines", "invalid");
+                manager.ApplyDisplay();
+                Equal(0f, Strength(), "malformed intensity defaults to off");
+                core.SetProcess(true);
+            });
+        }
+
         private async Task SettingsPixelScaling()
         {
             await WithSettings(async screen =>

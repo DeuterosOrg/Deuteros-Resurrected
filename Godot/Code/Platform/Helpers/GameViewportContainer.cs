@@ -29,6 +29,8 @@ namespace Deuteros.Code.Platform.Helpers
 
         public void UpdateLayout()
         {
+            if (Material is ShaderMaterial scanlines)
+                scanlines.SetShaderParameter("intensity", (SettingsManager.Instance?.GetSetting("display/scanlines").AsInt32() ?? 0) / 20f);
             var area = GetViewportRect().Size;
             var scale = Math.Max(1, Math.Min(area.X / GameSize.X, area.Y / GameSize.Y));
             if (SettingsManager.Instance?.GetSetting("display/pixel_scaling").AsString() != "Fit")

@@ -78,6 +78,8 @@ namespace Deuteros.Code.Platform.Helpers
                 return defaultValue;
             if (_volumeBuses.ContainsKey(settingKey))
                 return Math.Clamp(value.AsInt64(), 0, VolumeSteps);
+            if (settingKey == "display/scanlines")
+                return Math.Clamp(value.AsInt64(), 0, 10);
             return value;
         }
 
@@ -241,6 +243,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["display/vsync"] = true;
             _defaults["display/frame_limit"] = UnlimitedFrameLimit;
             _defaults["display/pixel_scaling"] = "Integer";
+            _defaults["display/scanlines"] = 0;
 
             foreach (var volumeBus in _volumeBuses)
                 _defaults[volumeBus.Key] = 8;

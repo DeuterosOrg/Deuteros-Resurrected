@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://cky87cqjrgka8"]
+[gd_scene load_steps=9 format=3 uid="uid://cky87cqjrgka8"]
 
 [ext_resource type="Script" path="res://Code/GameCore.cs" id="1_udj03"]
 [ext_resource type="Script" path="res://Code/Utility/GlobalInput.cs" id="2_2sjdf"]
@@ -7,12 +7,17 @@
 [ext_resource type="Script" path="res://Code/Platform/Helpers/GameViewportContainer.cs" id="5_gvcon"]
 
 [ext_resource type="Script" path="res://Code/Platform/Helpers/GameInput.cs" id="6_input"]
+[ext_resource type="Shader" path="res://Screens/Scanlines.gdshader" id="7_scanlines"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_scanlines"]
+shader = ExtResource("7_scanlines")
 
 [node name="Master" type="Node2D"]
 script = ExtResource("1_udj03")
 
 [node name="GameContainer" type="SubViewportContainer" parent="."]
 texture_filter = 1
+material = SubResource("ShaderMaterial_scanlines")
 script = ExtResource("5_gvcon")
 
 [node name="GameViewport" type="SubViewport" parent="GameContainer"]

@@ -1405,3 +1405,16 @@ The full655 aggregate is separately running frozen d5142ac and predates this cha
 ## Complete Quick Save checkpoint — 2026-10-08
 
 Frozen `d5142ac3e6ceb5b13a502dc2d2dfb01c6df21ba2` passes **655/655 fresh-process regressions**, **19 tooling checks without skips**, build, strict import and startup smoke, with exit0. `artifacts/keyboard-full-655-20261008/audit-full.py` verifies every case and completion marker, source manifest against the exact Git revision, build/import/startup and tooling logs. `audit-full.log` and `audit-result.json` pass. The isolated profile override remains in place. This covers all seven configurable shortcuts and the separate Quick Save slot. Pixel Scaling has separate focused/native656 evidence; no full656 or matching Windows result is claimed.
+
+
+## Scanline intensity preference — 2026-10-08
+
+The Scanlines slider had no display consumer. It now controls a small canvas shader on the existing game viewport:0 is off,1–10 increasingly darken the lower half of each logical image row, with maximum50% darkening. The game retains nearest filtering, native pointer mapping and Integer/Fit scaling. Modern Settings and separate overlays remain unfiltered. No CRT curvature, blur, animation or original-hardware-fidelity claim is added. The shader uses [Godot4.2 canvas fragment support](https://docs.godotengine.org/en/4.2/tutorials/shaders/your_first_shader/your_first_2d_shader.html).
+
+Case657 first fails because moving the slider creates no viewport effect. **25 focused cases pass:**59–61,63–66,76–77,113,116,118–119,126,192,208,218,221,235,406,588,595,652,656–657. Native657 verifies actual bright/half-dark pixels in both Integer and Fit, neutral colour, and full brightness when off; it also covers saved intensity, preview/discard, malformed/out-of-range preferences and pointer navigation. Build passes with14 existing warnings and zero errors. The initial test-registration compile failure is retained; no stale-assembly run followed it.
+
+Physical checks in isolated DeuterosScanlinesValidation verify0→10→Apply, visible bands, News pointer navigation,0preview→Cancel restoring10, and visible bands/saved10 after restart. Both desktop exits are0 with strict clean logs; modern Settings remains unfiltered and readable. No campaign save is loaded/written. `artifacts/settings-scanlines-20261008/` retains red/green/strengthened native logs,25 focused logs, screenshot, observations, both manual runs and exact-source/profile `audit.py`/`audit.log`. Original saves/preferences and the day29356 checkpoint remain unchanged.
+
+The latest complete aggregate remains655/655 atd5142ac; the new full657 run is pending. Matching Windows rendering/input and restart acceptance remain open. Task counts remain35/48 implementation evidence and four locally accepted requirements.
+
+![Scanlines at maximum intensity with Fit scaling](images/scanlines-fit.png)

@@ -399,6 +399,7 @@ namespace Deuteros.Tests
             Check("Quick Save has an independent atomic slot and retains all five manual saves", QuickSaveStorage);
             await CheckAsync("Quick Save shortcut persists without navigation and its visible slot confirms loading", QuickSaveShortcut);
             await CheckAsync("Pixel scaling previews persists and discards while keeping pointer and overlay transforms aligned", SettingsPixelScaling);
+            await CheckAsync("Scanline intensity changes rendered pixels and preserves settings and pointer behavior", SettingsScanlines);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

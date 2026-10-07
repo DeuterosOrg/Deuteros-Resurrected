@@ -230,6 +230,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Scanlines"
 SettingKey = "display/scanlines"
+Description = "Darkens horizontal bands across the game image. Zero turns the effect off."
 
 [node name="InterfaceScaleRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
