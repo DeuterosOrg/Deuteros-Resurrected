@@ -393,6 +393,7 @@ namespace Deuteros.Tests
             CheckUi("Enemy arrivals and captures recheck saved station ownership", EnemyAttackRechecksOwnership);
             await CheckAsync("MTX star icon centres select the matching system and preserve the chosen route", MtxStarIconTargets);
             await CheckAsync("Research and Production shortcuts follow current menu eligibility and input ownership", SettingsNavigationShortcuts);
+            await CheckAsync("Speed shortcuts select existing fast and normal time without toggling or bypassing locks", SettingsSpeedShortcuts);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

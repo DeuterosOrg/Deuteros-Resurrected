@@ -317,6 +317,16 @@ namespace Deuteros.Code
 			if (@event is InputEventKey key)
 			{
 				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				var fast = key.IsActionPressed("speed_up", false, true);
+				if (fast || key.IsActionPressed("slow_down", false, true))
+				{
+					var timer = _menuScreen?.TimeButton;
+					if (timer == null || timer.Disabled || !timer.IsVisibleInTree() || !timer.CanProcess()) return;
+					timer.GetViewport().SetInputAsHandled();
+					if (GameData.ActiveSaveFile.TimeSkip != fast)
+						timer.EmitSignal(BaseButton.SignalName.Pressed);
+					return;
+				}
 				var target = key.IsActionPressed("research", false, true) ? Scenes.Earth_Research
 					: key.IsActionPressed("production", false, true) ? Scenes.Production : Scenes.None;
 				if (target == Scenes.None || _menuScreen == null) return;

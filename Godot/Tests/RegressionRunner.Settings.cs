@@ -26,72 +26,127 @@ namespace Deuteros.Tests
             await CheckAsync("Modern settings validate, migrate, revert and report failed saves", SettingsModernLifecycle);
         }
 
+        private async Task PushGameKey(Key key, bool echo = false, bool control = false, bool shift = false)
+        {
+            GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
+                Unicode = (uint)char.ToLowerInvariant((char)key),
+                Pressed = true, Echo = echo, CtrlPressed = control, ShiftPressed = shift }, true);
+            GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
+                Pressed = false, CtrlPressed = control, ShiftPressed = shift }, true);
+            await InputFrames();
+        }
+
         private async Task SettingsNavigationShortcuts()
         {
             InitializeUi();
             var core = GameCore.SingletonInstance;
             var settings = SettingsManager.Instance;
-            async Task KeyPress(Key key, bool echo = false, bool control = false)
-            {
-                GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
-                    Unicode = (uint)char.ToLowerInvariant((char)key),
-                    Pressed = true, Echo = echo, CtrlPressed = control }, true);
-                GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
-                    Pressed = false, CtrlPressed = control }, true);
-                await InputFrames();
-            }
             void Ground() => core.ChangeScene(Scenes.Earth_Ground,
                 new System.Collections.Generic.List<SceneVariables> { SceneVariables.Ground });
             Ground();
             await InputFrames();
-            await KeyPress(Key.R);
+            await PushGameKey(Key.R);
             Equal(Scenes.Earth_Research, core.currentScene, "default Research key navigates");
-            await KeyPress(Key.F);
+            await PushGameKey(Key.F);
             Equal(Scenes.Production, core.currentScene, "default Production key navigates");
             Equal(true, core.SceneVariables.Contains(SceneVariables.Ground), "ground production context retained");
             Ground();
             await InputFrames();
-            await KeyPress(Key.R, echo: true);
-            await KeyPress(Key.R, control: true);
+            await PushGameKey(Key.R, echo: true);
+            await PushGameKey(Key.R, control: true);
             Equal(Scenes.Earth_Ground, core.currentScene, "echo and modified key do not navigate");
             settings.SetSetting("keybinds/research", (long)Key.T);
             settings.ApplyKeybinds();
-            await KeyPress(Key.R);
+            await PushGameKey(Key.R);
             Equal(Scenes.Earth_Ground, core.currentScene, "old binding stops working");
-            await KeyPress(Key.T);
+            await PushGameKey(Key.T);
             Equal(Scenes.Earth_Research, core.currentScene, "new binding navigates");
             Ground();
             await InputFrames();
             var cursor = core.GetNode<Deuteros.Code.Utility.GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
             cursor.LockToRect(new Rect2(0, 0, 320, 200));
-            await KeyPress(Key.T);
+            await PushGameKey(Key.T);
             Equal(Scenes.Earth_Ground, core.currentScene, "cursor modal owns input");
             cursor.Unlock();
             var entry = new LineEdit();
             core.GetNode<SubViewport>("GameContainer/GameViewport").AddChild(entry);
             entry.GrabFocus();
             await InputFrames();
-            await KeyPress(Key.T);
+            await PushGameKey(Key.T);
             Equal("t", entry.Text, "focused text entry receives shortcut character");
             Equal(Scenes.Earth_Ground, core.currentScene, "text entry does not navigate");
             entry.QueueFree();
             await InputFrames();
             OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
             await InputFrames();
-            await KeyPress(Key.T);
+            await PushGameKey(Key.T);
             Equal(Scenes.Earth_Ground, core.currentScene, "settings owns keyboard input");
             OverlayManager.Instance.CloseOverlay();
             await InputFrames();
             GameCore.Earth.Station.BuildParts = 8;
             core.ChangeScene(Scenes.Station, new System.Collections.Generic.List<SceneVariables> { SceneVariables.Orbit });
             await InputFrames();
-            await KeyPress(Key.T);
+            await PushGameKey(Key.T);
             Equal(Scenes.Station, core.currentScene, "Research unavailable in orbit");
-            await KeyPress(Key.F);
+            await PushGameKey(Key.F);
             Equal(Scenes.Production, core.currentScene, "orbital Production key navigates");
             Equal(true, core.SceneVariables.Contains(SceneVariables.Orbit), "orbital production context retained");
             settings.SetSetting("keybinds/research", (long)Key.R);
             settings.ApplyKeybinds();
+        }
+
+        private async Task SettingsSpeedShortcuts()
+        {
+            var menu = TimeMenu(Scenes.Earth_Ground);
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            var day = Save.CurrentDay;
+            Save.Clock.NormalElapsed = 47;
+            await PushGameKey(Key.Equal, shift: true);
+            Equal(false, Save.TimeSkip, "Shift+Equal is not the unmodified Equal binding");
+            await PushGameKey(Key.Equal);
+            Equal(true, Save.TimeSkip, "Speed Up starts existing fast time");
+            Equal("animated", menu.TimeAnimation.Animation.ToString(), "fast time indicator animates");
+            var started = Save.TimeSkipStart;
+            await PushGameKey(Key.Equal);
+            Equal(true, Save.TimeSkip, "repeated Speed Up stays fast");
+            Equal(started, Save.TimeSkipStart, "same speed preserves cadence");
+            await PushGameKey(Key.Minus, echo: true);
+            await PushGameKey(Key.Minus, control: true);
+            Equal(true, Save.TimeSkip, "echo and modified Slow Down ignored");
+            await PushGameKey(Key.Minus);
+            Equal(false, Save.TimeSkip, "Slow Down restores normal time");
+            Equal("static", menu.TimeAnimation.Animation.ToString(), "normal indicator is static");
+            await PushGameKey(Key.Minus);
+            Equal(false, Save.TimeSkip, "repeated Slow Down stays normal");
+            var settings = SettingsManager.Instance;
+            settings.SetSetting("keybinds/speed_up", (long)Key.U);
+            settings.SetSetting("keybinds/slow_down", (long)Key.J);
+            settings.ApplyKeybinds();
+            await PushGameKey(Key.Equal);
+            Equal(false, Save.TimeSkip, "old speed binding ignored");
+            var cursor = core.GetNode<Deuteros.Code.Utility.GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+            cursor.LockToRect(new Rect2(0, 0, 320, 200));
+            await PushGameKey(Key.U);
+            Equal(false, Save.TimeSkip, "modal blocks speed shortcut");
+            cursor.Unlock();
+            await PushGameKey(Key.U);
+            Equal(true, Save.TimeSkip, "rebound Speed Up works");
+            OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
+            await InputFrames();
+            await PushGameKey(Key.J);
+            Equal(true, Save.TimeSkip, "Settings retains ownership while fast time is paused");
+            OverlayManager.Instance.CloseOverlay();
+            await InputFrames();
+            await PushGameKey(Key.J);
+            Equal(false, Save.TimeSkip, "rebound Slow Down works after closing Settings");
+            Equal(false, Save.TimeSkipDay, "speed controls do not queue a manual day");
+            Equal(day, Save.CurrentDay, "shortcut dispatch does not itself advance simulation");
+            Equal(47.0, Save.Clock.NormalElapsed, "normal remainder retained");
+            settings.SetSetting("keybinds/speed_up", (long)Key.Equal);
+            settings.SetSetting("keybinds/slow_down", (long)Key.Minus);
+            settings.ApplyKeybinds();
+            core.SetProcess(true);
         }
 
         private async Task SettingsDisplay()

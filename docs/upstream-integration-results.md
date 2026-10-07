@@ -34,7 +34,7 @@ Evidence: `artifacts/worktrees/upstream-integration/artifacts/upstream-integrati
 
 ## Still open
 
-Upstream exposes settings rows without gameplay consumers: pixel scaling, scanlines, interface scale, classic audio, edge scroll, pointer speed and the gameplay options. Research and Production now navigate through enabled menu actions, with [regression and physical rebinding evidence](validation-results.md#research-and-production-keyboard-navigation--2026-10-07). Pause, Speed Up/Down, Next Location and Quick Save still have no action handlers. Their UI presence is not completed feature evidence.
+Upstream exposes settings rows without gameplay consumers: pixel scaling, scanlines, interface scale, classic audio, edge scroll, pointer speed and the gameplay options. Research and Production now navigate through enabled menu actions, with [regression and physical rebinding evidence](validation-results.md#research-and-production-keyboard-navigation--2026-10-07). Speed Up/Down now select existing fast/normal time with [focused, native and physical rebinding checks](validation-results.md#speed-up-and-slow-down-keyboard-controls--2026-10-07). Pause, Next Location and Quick Save still have no action handlers. Their UI presence is not completed feature evidence.
 
 The 48-task goal remains at **35/48 with implementation evidence and four locally accepted requirements**. Normal campaign/SCG/ending acceptance, Windows acceptance, original-fidelity gaps and the retained Mac/Windows shutdown failures remain open. Passing this integration does not establish their resolution. The day-15901 full-fleet funding checkpoint and earlier failed campaign branches are unchanged.
 
