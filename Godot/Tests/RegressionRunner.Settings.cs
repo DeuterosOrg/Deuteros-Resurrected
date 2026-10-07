@@ -208,6 +208,81 @@ namespace Deuteros.Tests
             });
         }
 
+        private async Task SettingsNextLocationShortcut()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            foreach (var planet in Save.BaseGameData.Planets.Values)
+                planet.Station.BuildParts = 0;
+            void Station(StellarBodies body, int order, bool hostile = false, bool built = true)
+            {
+                var planet = Save.BaseGameData.Planets[body];
+                planet.ActiveMethanoid = hostile;
+                planet.Station.BuildParts = built ? 8 : 7;
+                planet.Station.Built = built;
+                planet.Station.StationOrdinal = order;
+            }
+            Station(StellarBodies.earth, 0);
+            Station(StellarBodies.the_moon, 1);
+            Station(StellarBodies.mars, 2, hostile: true);
+            Station(StellarBodies.jupiter, 3, built: false);
+            Station(StellarBodies.pacific, 4);
+            core.ChangeScene(Scenes.Earth_Ground, new System.Collections.Generic.List<SceneVariables> { SceneVariables.Ground });
+            await InputFrames();
+            await PushGameKey(Key.Tab);
+            Equal(StellarBodies.the_moon, Save.CurrentPlanet, "default Next Location reaches next completed friendly station");
+            Equal(Scenes.Station, core.currentScene, "shortcut opens station overview");
+            Equal(true, core.SceneVariables.Contains(SceneVariables.Orbit), "station menu uses orbital context");
+            await PushGameKey(Key.Tab);
+            Equal(StellarBodies.pacific, Save.CurrentPlanet, "hostile and unfinished stations skipped across systems");
+            await PushGameKey(Key.Tab);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "station cycle wraps to Earth");
+            await PushGameKey(Key.Tab, echo: true);
+            await PushGameKey(Key.Tab, control: true);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "echo and modified key do not navigate");
+            var settings = SettingsManager.Instance;
+            settings.SetSetting("keybinds/next_location", (long)Key.N);
+            settings.ApplyKeybinds();
+            await PushGameKey(Key.Tab);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "old binding no longer changes location");
+            var viewport = core.GetNode<SubViewport>("GameContainer/GameViewport");
+            viewport.GuiReleaseFocus();
+            var entry = new LineEdit();
+            viewport.AddChild(entry);
+            entry.GrabFocus();
+            await PushGameKey(Key.N);
+            Equal("n", entry.Text, "focused text entry owns rebound character");
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "text entry does not navigate");
+            entry.QueueFree();
+            await InputFrames();
+            var cursor = core.GetNode<Deuteros.Code.Utility.GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+            cursor.LockToRect(new Rect2(0, 0, 320, 200));
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "modal blocks location navigation");
+            cursor.Unlock();
+            OpenSettings();
+            await InputFrames();
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "Settings owns keyboard input");
+            OverlayManager.Instance.CloseOverlay();
+            await InputFrames();
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.the_moon, Save.CurrentPlanet, "rebound location key navigates");
+            Save.BaseGameData.Planets[StellarBodies.the_moon].ActiveMethanoid = true;
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "lost current station falls back to first accessible station");
+            Save.BaseGameData.Planets[StellarBodies.pacific].Station.BuildParts = 0;
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "single station remains usable");
+            GameCore.Earth.Station.BuildParts = 0;
+            await PushGameKey(Key.N);
+            Equal(StellarBodies.earth, Save.CurrentPlanet, "empty station list does not navigate or throw");
+            settings.SetSetting("keybinds/next_location", (long)Key.Tab);
+            settings.ApplyKeybinds();
+            core.SetProcess(true);
+        }
+
         private async Task SettingsDisplay()
         {
             await WithSettings(async screen =>

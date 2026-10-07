@@ -317,6 +317,19 @@ namespace Deuteros.Code
 			if (@event is InputEventKey key)
 			{
 				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				if (key.IsActionPressed("next_location", false, true))
+				{
+					var save = GameData.ActiveSaveFile;
+					var stations = save.BaseGameData.Planets.Values
+						.Where(p => !p.ActiveMethanoid && p.Station.Built && p.Station.BuildParts > 0)
+						.OrderBy(p => p.Station.StationOrdinal).ThenBy(p => p.PlanetId).ToList();
+					if (stations.Count == 0) return;
+					var index = stations.FindIndex(p => p.PlanetId == save.CurrentPlanet);
+					save.CurrentPlanet = stations[(index + 1) % stations.Count].PlanetId;
+					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
+					ChangeScene(Scenes.Station, new List<SceneVariables> { Enums.SceneVariables.Orbit });
+					return;
+				}
 				var fast = key.IsActionPressed("speed_up", false, true);
 				if (fast || key.IsActionPressed("slow_down", false, true))
 				{
