@@ -378,6 +378,7 @@ namespace Deuteros.Tests
             await CheckAsync("Combat owns ship commands and freezes normal updates until its window closes", BattleOwnsCommands);
             CheckUi("Cleared and SDM stations preserve orbiting IOS and SCG after an old danger tick", () => ClearedStationDanger(false));
             CheckUi("Cleared and SDM stations never roll engine damage on IOS and SCG escape", () => ClearedStationDanger(true));
+            await CheckAsync("Fitted ACC lamp pulses only original palette pixels in every hull and mode", AccLampPulse);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -1,5 +1,11 @@
 # Contribution and validation results
 
+## ACC lamp animation — 2026-10-07
+
+The cockpit lamp now reproduces the original four-step, 0.4-second pulse without recolouring the static highlight. Case 633 reproduces the old static lamp and verifies pixel selection, cadence, rollover and unchanged simulation across all three hulls and ACC modes. Build, **110 focused fresh-process regressions**, native case 633, rendered-pixel audit and strict startup pass. The build retains 14 existing warnings and zero errors. The native pointer/save/reload check and window-close exit 0 also pass; original saves were restored byte-for-byte.
+
+See [implementation and evidence](original-acc-indicator-evidence.md#lamp-animation-implementation--2026-10-07). Logs, four native screenshots, retained temporary saves and a runnable audit are under `artifacts/acc-pulse-20261007/`. This runtime change postdates the full 632-case checkpoint below. A complete 633-case aggregate, updated Windows export and matching Windows acceptance remain pending. Existing shutdown failures and modal dimming fidelity remain open; task counts are unchanged.
+
 ## 632-case complete integration checkpoint — 2026-10-07
 
 Source `64df06fe5bd4978489400ec35cfd8624f5e495f6` (unchanged runtime `929b4a5`) now passes **632/632 fresh-process Mac regressions in one run**, build, strict import, source startup and Windows cross-export. All **19 Python checks** pass separately with the original ending disk and no skips. The owned validator session 5251 exits **0**. Case 264 passes both assertions and strict shutdown checks in this run; no runtime, timeout or error-filter change was made.

@@ -24,6 +24,7 @@ namespace Deuteros.Code.Platform.Screens
 		public IPlanet CurrentPlanet { get; set; }
 		private bool sceneReady;
         private bool arrivalTimeSkip;
+        private double accPulseTime;
 
 		Control TextLayout { get; set; }
 		Control StarMap { get; set; }
@@ -139,8 +140,29 @@ namespace Deuteros.Code.Platform.Screens
 
         public override void _Process(double delta)
         {
-            if (sceneReady && arrivalTimeSkip != GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
+            if (!sceneReady) return;
+            accPulseTime = (accPulseTime + delta) % 0.4;
+            if (OpenACC.Visible) OpenACC.TextureNormal = AccLampTexture();
+            if (arrivalTimeSkip != GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
                 UpdateArrivalDate();
+        }
+
+        private Texture2D AccLampTexture()
+        {
+            // Original palette 14 cycles F00/E00/A00/500 every five PAL interrupts,
+            // independently of ACC mode. Palette 13 (the highlight) stays unchanged.
+            var red = (int)(accPulseTime * 10) switch { 0 => 255, 1 => 238, 2 => 170, _ => 85 };
+            var path = SpriteBasePath + "Ship_Component_ACC.png";
+            var key = path + ":pulse:" + red;
+            if (SpriteManager.ImageCache.TryGetValue(key, out var cached)) return cached;
+            using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
+            for (var y = 0; y < image.GetHeight(); y++)
+                for (var x = 0; x < image.GetWidth(); x++)
+                    if (image.GetPixel(x, y).ToHtml() == "a00000ff")
+                        image.SetPixel(x, y, new Color(red / 255f, 0, 0));
+            var texture = ImageTexture.CreateFromImage(image);
+            SpriteManager.ImageCache[key] = texture;
+            return texture;
         }
 
         private void UpdateArrivalDate()
@@ -856,6 +878,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.ACC != null)
 			{
 				OpenACC.Visible = true;
+                OpenACC.TextureNormal = AccLampTexture();
 
 				if (Ship.ACC.CycleMode)
 					ACCStatus.Text = "A.C.C Is \nFinishing";

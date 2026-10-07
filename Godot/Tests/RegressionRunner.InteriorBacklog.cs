@@ -38,6 +38,88 @@ namespace Deuteros.Tests
             return ActiveScreen<ShipInterior>();
         }
 
+        private async Task AccLampPulse()
+        {
+            var source = SpriteManager.LoadImage(ShipInterior.SpriteBasePath + "Ship_Component_ACC.png");
+            using var original = (Image)source.GetImage().Duplicate();
+            var frames = new Dictionary<string, Texture2D>();
+            var next = new Dictionary<string, string> { ["ff0000"] = "ee0000", ["ee0000"] = "aa0000",
+                ["aa0000"] = "550000", ["550000"] = "ff0000" };
+            foreach (var hull in new[] { Ship_Types.Shuttle, Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var interior = await OpenInterior(hull);
+                interior.SetProcess(false); // Supply deterministic elapsed time to the real scene callback.
+                var button = interior.GetNode<TextureButton>("OpenACC");
+                Equal(false, button.Visible, "unfitted ACC has no lamp");
+                var acc = new Deuteros.Code.Objects.ACC { Ship = interior.Ship };
+                interior.Ship.ACC = acc;
+                interior.UpdateState();
+                interior._Process(0);
+                Equal(true, button.Visible, "fitting exposes the lamp");
+                // Find a frame boundary without depending on the native frame time at entry.
+                var initial = button.TextureNormal;
+                for (var i = 0; i < 101 && button.TextureNormal == initial; i++) interior._Process(0.001);
+                Equal(false, initial == button.TextureNormal, "stopped game clock still animates the lamp");
+                var boundary = button.TextureNormal;
+                interior._Process(0.049);
+                Equal(boundary, button.TextureNormal, "first half of the 0.1-second frame holds");
+                interior._Process(0.049);
+                Equal(boundary, button.TextureNormal, "second half of the 0.1-second frame holds");
+                interior._Process(0.002);
+                Equal(false, boundary == button.TextureNormal, "next palette level begins after 0.1 seconds");
+                var day = Save.CurrentDay;
+                var fuel = interior.Ship.Fuel;
+                string previous = null;
+                foreach (var mode in new[] { 0, 1, 2 })
+                {
+                    acc.Active = mode == 1;
+                    acc.CycleMode = mode == 2;
+                    Save.TimeSkip = mode == 1;
+                    var beforeRefresh = button.TextureNormal;
+                    interior.UpdateState();
+                    interior._Process(0);
+                    Equal(beforeRefresh, button.TextureNormal, "status refresh does not restart the pulse");
+                    for (var step = 0; step < 4; step++)
+                    {
+                        using var pixels = (Image)button.TextureNormal.GetImage().Duplicate();
+                        string red = null;
+                        var lampPixels = 0;
+                        for (var y = 0; y < original.GetHeight(); y++)
+                            for (var x = 0; x < original.GetWidth(); x++)
+                            {
+                                var color = original.GetPixel(x, y);
+                                if (color.ToHtml() == "a00000ff")
+                                {
+                                    red ??= pixels.GetPixel(x, y).ToHtml(false);
+                                    Equal(true, next.ContainsKey(red), "lamp uses an original RGB4 pulse level");
+                                    Equal(red + "ff", pixels.GetPixel(x, y).ToHtml(), "all lamp pixels share one palette colour");
+                                    lampPixels++;
+                                }
+                                else Equal(color.ToHtml(), pixels.GetPixel(x, y).ToHtml(), "highlight and frame remain unchanged");
+                            }
+                        Equal(41, lampPixels, "original lamp mask");
+                        if (previous != null) Equal(next[previous], red, "pulse advances every 0.1 seconds in every ACC mode");
+                        if (frames.TryGetValue(red, out var cached)) Equal(cached, button.TextureNormal, "frames reused across cycles and hulls");
+                        else frames.Add(red, button.TextureNormal);
+                        previous = red;
+                        if (hull == Ship_Types.IOS && mode == 0)
+                            await CaptureDisplayEvidence("acc-lamp-" + red);
+                        var current = button.TextureNormal;
+                        interior._Process(1.2);
+                        Equal(current, button.TextureNormal, "long frames preserve the 0.4-second period");
+                        interior._Process(0.1);
+                    }
+                }
+                Save.TimeSkip = false;
+                Equal(day, Save.CurrentDay, "lamp animation does not advance the simulation");
+                Equal(fuel, interior.Ship.Fuel, "lamp animation does not spend fuel");
+                interior.Ship.ACC = null;
+                interior.UpdateState();
+                Equal(false, button.Visible, "removing ACC hides the lamp");
+            }
+            Equal(true, original.GetData().SequenceEqual(source.GetImage().GetData()), "cached source artwork stays intact");
+        }
+
         private void InteriorMenuContext(ShipInterior interior, bool ground)
         {
             var menu = ActiveScreen<MainMenu>();
