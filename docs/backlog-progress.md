@@ -34,6 +34,8 @@ Normal play now captures the remaining Sol stations and shows the SCG discovery 
 
 The Star Drone recipe now matches the original **300 titanium**. Exact-default legacy repair preserves paid orders and completed assets; regressions 640–641 and 47 focused cases pass. Native display, save/reload and the precisely accounted day-21560 checkpoint pass with original saves restored. [Recipe evidence and limits](star-drone-discovery-evidence.md#original-recipe-and-paid-order-compatibility--2026-10-07). The preceding full aggregate is 639; totals remain **35/48 implementation evidence and four locally accepted requirements**.
 
+Normal Mac play now repairs Titania, expands it to seven rigs and verifies exact orbital rare-metal output. An explicitly retained replay defends the Moon, losing 12 drones and preserving 152 aboard WAYFARER; the first fast-time failure and its ship/colony losses remain recorded. [Day-21613 checkpoint, exact accounting and replay limits](native-gameplay-results.md#titania-rare-metal-colony-and-moon-defence-replay--2026-10-07). Original saves are restored; no additional task is marked accepted.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
