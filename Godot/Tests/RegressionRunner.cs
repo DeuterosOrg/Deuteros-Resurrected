@@ -380,6 +380,8 @@ namespace Deuteros.Tests
             CheckUi("Cleared and SDM stations never roll engine damage on IOS and SCG escape", () => ClearedStationDanger(true));
             await CheckAsync("Fitted ACC lamp pulses only original palette pixels in every hull and mode", AccLampPulse);
             await CheckAsync("Optional bulletin skip preserves pause and input lock ownership", BulletinSkip);
+            await CheckAsync("SCG chassis research discovers Star Drones once and retains the bulletin across save load", StarDroneDiscovery);
+            Check("Completed-chassis saves recover missing Star Drone discovery without changing campaign assets", StarDroneDiscoveryLegacy);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

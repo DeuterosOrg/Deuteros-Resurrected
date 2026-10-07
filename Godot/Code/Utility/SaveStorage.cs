@@ -166,6 +166,9 @@ namespace Deuteros.Code.Utility
             foreach (var ship in save.Ships.OfType<SCG>())
                 while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
             ArtifactRecovery.RestoreLegacy(save);
+            // Older campaigns completed the chassis without discovering Star Drone research.
+            if (Platform.Unlocker.DiscoverStarDrones(save) && !save.News.PendingBulletins.Contains(BulletinTypes.SCG_Drone))
+                save.News.PendingBulletins.Add(BulletinTypes.SCG_Drone);
             InterStellarShip.EnsureAutomationSlots(save);
             // Every legacy system was assigned at startup; a missing location means it was collected.
             // Keep those assignments and held cargo instead of spawning replacement segments.

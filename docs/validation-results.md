@@ -1,5 +1,9 @@
 # Contribution and validation results
 
+## Star Drone research discovery — 2026-10-07
+
+The normal SCG campaign exposed unreachable Star Drone research. The original-backed chassis-completion hook and idempotent repair for older saves now pass reproduced regressions 638–639 and native research→paid manufacture→save/reload. The complete isolated run passes **639/639**, all **19 tooling checks**, build, strict import and startup, with exit 0 and matching source. [Trigger, retained failures, native audit and acceptance limits](star-drone-discovery-evidence.md).
+
 ## MTX saved scrolling — 2026-10-07
 
 Reopening MTX reset the visible list to the top while retaining its saved row counter. At the saved bottom row, Down therefore did nothing. Wheel input also changed the visible position without updating that counter. The scroll container now restores the saved row after layout and its native value-change signal maintains the counter for both wheel and arrow movement. Existing tween timing and transfer settings are unchanged.

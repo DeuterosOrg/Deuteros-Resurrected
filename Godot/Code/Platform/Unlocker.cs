@@ -102,6 +102,9 @@ namespace Deuteros.Code.Platform
 
 		private void SingletonInstance_ResearchFinished(Objects.ResearchItem researchItem)
 		{
+			if (researchItem.ItemType == Enums.ItemTypes.g_chassis && DiscoverStarDrones(GameCore.SingletonInstance.GameData.ActiveSaveFile))
+				GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.SCG_Drone);
+
 			if ((researchItem.ItemType == Enums.ItemTypes.m__f__l || researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser) &&
 				!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.D_F_C_C))
 			{
@@ -111,6 +114,17 @@ namespace Deuteros.Code.Platform
 				GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.ios_drone).Research.Locked = false;
 			}
 
+        }
+
+        internal static bool DiscoverStarDrones(Objects.GameData.SaveFile save)
+        {
+            // Original $23734 -> $37760 discovers the drone on chassis research completion.
+            if (!save.BaseGameData.ItemList.Any(i => i.ItemType == Enums.ItemTypes.g_chassis && i.Research?.Researched == true))
+                return false;
+            var research = save.BaseGameData.ItemList.FirstOrDefault(i => i.ItemType == Enums.ItemTypes.star_drone)?.Research;
+            if (research is not { Locked: true, Researched: false }) return false;
+            research.Locked = false;
+            return true;
         }
 
         private void SingletonInstance_ProductionFinished(Objects.Factory factory)
