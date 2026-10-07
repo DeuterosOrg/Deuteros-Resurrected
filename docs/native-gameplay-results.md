@@ -674,3 +674,24 @@ WAYFARER stays docked at Titania with 60 fuel and Raphael/33; PROSPECTOR stays u
 Resume: `artifacts/sol-clear-campaign-20261007/reloaded-slot-3.json`, day **21294**, date **3121 212.82**, fast time off; SHA-256 **`1b053716c6dbbedc73e5a653c8b5cff7f461f00bb7109bffa6ec5fa38c33d55f`**. `audit.py`/`audit.log` retain runnable assertions for exact production, global costs, ship state, enemies, transmission, reload and original profile restoration. Native log passes strict error inspection and the owned process exits **0**. Original saves are restored exactly. Local ignored saves/logs do not travel with Git.
 
 Implementation/acceptance totals stay **35/48** and **four locally accepted requirements**. Remaining captures, Sol-clear/SCG/interstellar progression, repairs and relevant Windows acceptance remain open. The tested overview fix `8166c0e` is verified on the main repository contribution branch; this campaign introduces documentation/evidence only.
+
+
+## Sol-clear and SCG discovery — 2026-10-07
+
+Continue the unchanged day-21294 reinforcement save at `e9ff6dc`, adding the MTX pointer correction described in [validation](validation-results.md#mtx-menu-pointer-obstruction--2026-10-07). Titania balances surplus ingredients to Earth/Jupiter. Earth, Jupiter and Uranus send drones to Titania; PROSPECTOR collects **26 Moon + 25 Mars drones**, returns them to Earth, then the transmitter forwards them. WAYFARER assembles **200 drones**. The pre-fix blocked navigation also left a fuel-send selection at Titania: its 2,963 MeH moved to Jupiter, where it remains available; the route was cleared. This normal UI side effect and its save are retained, not edited away.
+
+| First battle | Player / defenders | Surviving player drones | Losses |
+| --- | --- | --- | --- |
+| Neptune | 200 / 138 | 163 | 37 |
+| Triton | 172 / 142 | 131 | 41 |
+| Pluto | 139 / 142 | 77 | 62 |
+
+Nine reinforcements reached WAYFARER at Neptune and eight at Triton through the new forward routes. Each station's first battle result was saved before docking. All three self-destructs were disarmed on the first attempt. No battle, defusal or RNG state was replayed. Pluto's docking tick crossed the enemy build deadline before defusal; its two newly built defenders became captured stock. The retained post-battle and captured saves establish that timing.
+
+Across **21294→21356**, the six active factories consume exactly **60 drone recipes** and finish 60 drones. Global player accounting is **175 + 60 manufactured + 2 captured − 140 losses = 97 drones**. WAYFARER has 77; pools are Moon 7, Mars 7, Triton 4 and Pluto 2, with other friendly Sol pools empty. All six factories retain paid repeat orders, with remaining uncharged recipes **18/9/9/8/13/8** at Earth/Moon/Mars/Jupiter/Uranus/Titania. Drone-only routes remain active: Earth/Jupiter/Uranus→Titania→Neptune→Triton.
+
+All six hostile Sol stations are now friendly, built and disarmed, with captive ground repairs pending. The normal **Sol Cleared** bulletin unlocks research for **SCG chassis, star drive and HeD fuel**, plus the interstellar-travel unlock. Those three technologies are not yet researched. The enemy Sol fleet remains at **48**, threshold 80, no active attack/countdown; Sol-clear does not establish removal of residual warships. Transmission stage 3 has six updates left.
+
+Resume **`artifacts/sol-capture-final-20261007/reloaded-slot-4.json`**, day **21356**, date **3121 269.87**, fast time off. SHA-256: **`03175227f3c3a581bbe832d7257be9d1f575493487ed7f8d40f03c85df352ee1`**. WAYFARER is docked at Pluto with **77 drones, 38 fuel, Raphael/33**; PROSPECTOR is undocked at Earth with **0 drones, 85 fuel, Floyd/37**. Other ships' fuel and all named crews' counts are unchanged. WAYFARER used 22 fuel; PROSPECTOR used 10. Both drives remain healthy and ACCs off.
+
+`audit.py`/`audit.log` validate all first outcomes, exact recipe and fleet accounting, research unlocks, reload, both strict runtime logs/exit **0**, and exact restoration of original saves. Both owned game processes are closed; ignored evidence remains local. Research, SCG construction, first interstellar journey, colony repair, later progression and matching Windows acceptance remain open. Totals stay **35/48 implementation evidence and four locally accepted requirements**.

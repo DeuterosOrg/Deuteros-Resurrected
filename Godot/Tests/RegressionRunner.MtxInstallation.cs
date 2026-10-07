@@ -31,7 +31,38 @@ namespace Deuteros.Tests
             CheckUi("Open Stores gains MTX controls on the day local installation completes", MtxStoreCompletion);
             Check("MTX construction suspends while its station is unavailable", MtxConstructionStationLoss);
             await CheckAsync("MTX artwork fits production and research display bounds", MtxArtworkBounds);
+            await CheckAsync("MTX preserves pointer navigation and resource controls", MtxPointerNavigation);
         }
+
+        private async Task MtxPointerNavigation() => await WithMenuSound(async (menu, viewport, player) =>
+        {
+            PrepareMtxRoute();
+            Save.CurrentPlanet = StellarBodies.earth;
+            GameCore.Earth.Station.Resources.Stores.AlternativeView = true;
+            GameCore.SingletonInstance.ChangeScene(Scenes.Store, new List<SceneVariables> { SceneVariables.Orbit });
+            var store = ActiveScreen<StoreScreen>();
+            var parent = store.GetParent();
+            store.Reparent(viewport);
+            try
+            {
+                await InputFrames();
+                Equal(true, store.MTX.Visible, "installed transmitter view is open");
+                ClickMenu(viewport, menu.TimeButton);
+                Equal(true, Save.TimeSkip, "MTX background allows pointer to start time");
+                ClickMenu(viewport, menu.TimeButton);
+                Equal(false, Save.TimeSkip, "MTX background allows pointer to stop time");
+                var row = store.MTX.GetNode<BoxContainer>("Config/ResourceList/ResourceContainer")
+                    .GetChildren().OfType<MTXRow>().Single(r => r.ItemType == ItemTypes.iron);
+                ClickMenu(viewport, row.RightCross);
+                Equal(true, store.CurrentStore.MTX.BalanceItems.Contains(ItemTypes.iron), "resource control still configures balancing");
+                ClickMenu(viewport, menu.MasterControlButton);
+                Equal(Scenes.Overview, GameCore.SingletonInstance.currentScene, "MTX background allows pointer to Master Control");
+            }
+            finally
+            {
+                if (GodotObject.IsInstanceValid(store)) store.Reparent(parent);
+            }
+        });
 
         private Item PrepareMtxProduction(bool automated, bool ground = false)
         {

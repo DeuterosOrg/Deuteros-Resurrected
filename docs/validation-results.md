@@ -1,5 +1,16 @@
 # Contribution and validation results
 
+
+## MTX menu pointer obstruction — 2026-10-07
+
+Normal reinforcement at Titania reproduced a dead upper-left menu while MTX was visible. Its invisible `Imagery` control occupied the menu's 40×40 region and consumed pointer events. Set only that decorative parent's mouse filter to Ignore; resource controls retain their normal input handling.
+
+New **case 192** reproduces the blocked Time button before the fix, then passes with real pointer start/stop, resource balancing and Master Control navigation. The complete isolated run passes **636/636 fresh-process regressions**, build, strict import and startup, exit **0**. All tracked Godot/scripts source matches the main worktree, and the isolated project setting is restored. Existing compiler warnings remain; no fresh Windows result or export is claimed.
+
+Evidence: `artifacts/sol-capture-final-20261007/mtx-red-192.log`, `mtx-green-192.log`, `mtx-red-build.log`; complete run and independently checked per-case logs under `artifacts/mtx-pointer-full-validation-20261007/`, with `result.json`. The full-run audit initially assumed zero-based IDs; discovery confirms cases 1–636, and every actual case log was subsequently checked. That audit mistake did not rerun or replace tests.
+
+Normal native MTX navigation and drone forwarding pass through the subsequent [Sol-clear campaign](native-gameplay-results.md#sol-clear-and-scg-discovery--2026-10-07), preserving all first battle outcomes, clean native exits and original saves. A separate scroll-position mismatch was observed after reopening MTX: saved `CurrentScroll` can already be at the end while the visible list starts at the top, making the down button appear inactive. Mouse-wheel scrolling works. This is a retained follow-up, not covered or claimed fixed by the menu change.
+
 ## Overview refresh after real-time station loss — 2026-10-07
 
 Normal Jupiter SDM failures exposed two `InvalidOperationException: Sequence contains no matching element` errors in `Overview.IOS_Pressed`. The real-time destruction callback skipped global screens, leaving the removed ship's button visible until another simulation update. The station-loss notification now immediately calls the overview's existing refresh method, before the selected-planet check. This refreshes both ship types, station entries and paging without changing SDM timing, combat or save data.
