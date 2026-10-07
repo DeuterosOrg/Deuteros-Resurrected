@@ -286,3 +286,8 @@ Normal native play repairs Triton and expands one→eight rigs. Exact component 
 ### Titania defence replenishment and SCG growth — 2026-10-07
 
 Normal native production builds 51 IOS and 24 Star Drones, replenishes WAYFARER to 200 at the predicted next target Titania, and increases SCG to 45. Every recipe ingredient has independent non-reset interval coverage; fuel, restored routes, corrected D misrouting, D/HeD conservation and exact reload pass. Original profile restored; native exit0. [Evidence and day-23222 continuation](native-gameplay-results.md#titania-defence-replenishment-and-scg-fleet-growth--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Interstellar/later campaign, aluminium supply and matching Windows acceptance remain open.
+
+
+### Moon MTX and aluminium expansion — 2026-10-07
+
+Normal SCG cargo flight enables lunar MTX construction, then seven delivered rigs expand the Moon one→eight. Exact construction costs, ground-to-orbit mining transition, seven-update extraction, paid-order preservation, pod/fuel/fleet accounting and reload pass. Original profile restored; native exit0. [Evidence and day-23294 continuation](native-gameplay-results.md#moon-mtx-and-eight-rig-aluminium-supply--2026-10-07). New Moon exports and Uranus iron support SCG production; next aluminium freight and imminent Titania defence. Counts remain **35/48 implementation evidence; four locally accepted requirements**; interstellar/later campaign and matching Windows acceptance remain open.
