@@ -397,16 +397,33 @@ namespace Deuteros.Tests
             var transfer = OpenUi<global::FleetTransfers>("res://PreFabs/ShipModuleWindows/FleetTransfers.tscn");
             try
             {
+                transfer._Process(0);
                 transfer.TransferDrones(ship);
                 var label = transfer.GetNode<Label>("OrbitalColorRect/OrbitalDronePoolLabel");
                 Equal(true, label.Text.EndsWith("  7"), "initial star-drone pool");
+                stores[ItemTypes.star_drone] = 9;
+                transfer._Process(0.016);
+                Equal(true, label.Text.EndsWith("  9"), "new star drones appear without a transfer click");
                 Press(transfer, "RepeatingButton1");
                 Equal(3, ship.DroneCount, "fleet receives drone");
-                Equal(true, label.Text.EndsWith("  6"), "pool after loading");
+                Equal(true, label.Text.EndsWith("  8"), "pool after loading");
                 Press(transfer, "RepeatingButton2");
                 Equal(2, ship.DroneCount, "fleet returns drone");
-                Equal(true, label.Text.EndsWith("  7"), "pool after unloading");
+                Equal(true, label.Text.EndsWith("  9"), "pool after unloading");
                 Equal(3, stores[ItemTypes.ios_drone], "IOS pool unchanged");
+
+                var ios = new IOS { PlanetLocation = StellarBodies.earth, DroneCount = 2 };
+                Save.Ships.Add(ios);
+                transfer.TransferDrones(ios);
+                stores[ItemTypes.ios_drone] = 4;
+                transfer._Process(0.016);
+                Equal(true, label.Text.EndsWith("  4"), "new IOS drones appear without a transfer click");
+                stores[ItemTypes.ios_drone] = 0;
+                ios.DroneCount = 5;
+                transfer._Process(0.016);
+                Equal(true, label.Text.EndsWith("  0"), "pool reflects withdrawals elsewhere");
+                Equal(true, transfer.GetNode<Label>("FleetColorRect/FleetDronePoolLabel").Text.EndsWith("  5"), "fleet count refreshes");
+                Equal(true, transfer.GetNode<Label>("PowerColorRect/PowerLabel").Text.EndsWith("  20"), "fleet power refreshes");
             }
             finally { transfer.Free(); }
         }

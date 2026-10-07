@@ -108,6 +108,7 @@ public partial class FleetTransfers : BaseSubScene
 
 	public override void _Process(double delta)
 	{
+		if (_player != null) updatePoolLabels();
 	}
 
 	public void TransferDrones(InterStellarShip player)

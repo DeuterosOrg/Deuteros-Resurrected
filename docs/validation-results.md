@@ -1,5 +1,13 @@
 # Contribution and validation results
 
+## Live fleet-transfer inventory — 2026-10-07
+
+Normal campaign production exposed a stale fleet-transfer display: the orbital pool, fleet count and power were redrawn only when opening the panel or completing a transfer. AOC production continued behind the unchanged count. The existing frame callback now reuses the existing refresh method after a ship is bound. Production, combat, transfer limits and save data are unchanged.
+
+Extended case 22 fails before the fix on newly available star drones and passes afterward. It checks live IOS/SCG pool increases, external withdrawals, fleet count/power, existing bidirectional transfer and an unbound frame. A fresh complete run passes **635/635**, build, strict import and startup smoke, with exit 0. The isolated checkout/profile is separate from native campaign saves; its project override is restored, and all tracked `Godot`/`scripts` files match the main checkout. Existing build warnings remain. The first discovery invocation used a nonexistent scene name; its failure and corrected invocation are retained separately from the actual red/green regression.
+
+The native campaign visibly changes the open orbital pool from four to five after six ordinary date updates, without touching transfer controls. Subsequent normal manufacture, transfers and defence preserve exact resource accounting and save/reload. [Campaign results and limits](native-gameplay-results.md#live-fleet-inventory-and-sustained-defence--2026-10-07). Evidence: `artifacts/fleet-transfer-refresh-20261007/` (red/green logs, full run, source hashes, complete log manifest and read-only scope refresh) and `artifacts/worktrees/fleet-refresh-20261007/artifacts/validation/`. No new Windows execution or export is claimed; broader campaign and previous shutdown investigations remain open.
+
 ## Upstream settings and viewport integration — 2026-10-07
 
 The upstream integration at `365b0a6`, included locally through `fb0158d`, now passes **635/635 fresh-process regressions in one complete run**, build, strict import and startup smoke, with exit 0. The isolated run used a separate user-data directory; runtime and tests match the main checkout exactly, and the temporary project setting is restored. Earlier ten coordinate-test failures and their corrections remain retained. Nineteen distinct native cases, manual settings/discard/window-close, 19 tooling checks and the Windows export audit provide the separate evidence described in [the integration report](upstream-integration-results.md). The latest published contribution remains `20ce403`; the integration/export is local only. Windows acceptance, inherited inactive settings options and earlier Mac/Windows shutdown failures remain open.

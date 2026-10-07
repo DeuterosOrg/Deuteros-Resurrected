@@ -24,6 +24,8 @@ The integrated normal campaign now returns the war prototype, completes defence 
 
 The next normal run trains/transports 41 replacement crew and defends Earth with 110 drones against 82, retaining 80. Exact costs pass. A later unattended fast-forward attempt loses both colonies and all named ships; its save remains separate, and the successful day-20809 defence is the resume point. Native exit and original-save restoration pass, with no new reload comparison. [Evidence](native-gameplay-results.md#crew-reinforcement-and-earth-defence--2026-10-07). Counts remain unchanged.
 
+The fleet-transfer panel now refreshes during ongoing production; case 22 fails before and passes after, and a fresh full **635/635** run plus native production/save checks pass. The normal campaign manufactures a full 200-drone fleet and defends the Moon again, but heavy casualties leave 43 aboard and two in stores. Exact recipe/casualty/reload and original-save audits pass. [Evidence and production constraint](native-gameplay-results.md#live-fleet-inventory-and-sustained-defence--2026-10-07). A fresh read of Modern Settings, Cheats/Bugs and Stores adds no new scope details. Counts remain unchanged.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
