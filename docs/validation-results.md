@@ -1400,3 +1400,8 @@ Physical Mac checks in isolated DeuterosPixelScalingValidation verify Integer→
 The full655 aggregate is separately running frozen d5142ac and predates this change. No full656 aggregate or matching Windows acceptance is claimed; task counts remain35/48 implementation evidence and four locally accepted requirements.
 
 ![Fit scaling preserves the game shape](images/pixel-scaling-fit.png)
+
+
+## Complete Quick Save checkpoint — 2026-10-08
+
+Frozen `d5142ac3e6ceb5b13a502dc2d2dfb01c6df21ba2` passes **655/655 fresh-process regressions**, **19 tooling checks without skips**, build, strict import and startup smoke, with exit0. `artifacts/keyboard-full-655-20261008/audit-full.py` verifies every case and completion marker, source manifest against the exact Git revision, build/import/startup and tooling logs. `audit-full.log` and `audit-result.json` pass. The isolated profile override remains in place. This covers all seven configurable shortcuts and the separate Quick Save slot. Pixel Scaling has separate focused/native656 evidence; no full656 or matching Windows result is claimed.
