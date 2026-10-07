@@ -1,5 +1,15 @@
 # Contribution and validation results
 
+## MTX saved scrolling — 2026-10-07
+
+Reopening MTX reset the visible list to the top while retaining its saved row counter. At the saved bottom row, Down therefore did nothing. Wheel input also changed the visible position without updating that counter. The scroll container now restores the saved row after layout and its native value-change signal maintains the counter for both wheel and arrow movement. Existing tween timing and transfer settings are unchanged.
+
+New **case 193** fails before the correction (`expected 16, got 0`) and passes afterward, including real wheel/arrow input, Restore and serialized save/load reopening. Red/green builds and logs are retained under `artifacts/mtx-scroll-20261007/`. The complete isolated run passes **637/637 fresh-process regressions**, all **19 tooling checks with original-disk verification**, build, strict import and startup, exit **0**. Its per-case audit confirms all tracked Godot/scripts files match the contribution source and the temporary project setting is restored. Build retains 14 existing warnings and zero errors. Logs, runnable audit and `result.json`: `artifacts/mtx-scroll-full-validation-20261007/`.
+
+A separate native check loads the unchanged day-21356 Sol-clear checkpoint, restores Earth's bottom resource rows, scrolls with both controls, leaves/reopens MTX, then saves and reloads. The selected row changes from 19 to 6 and survives reload. Exact save comparison confirms no simulation-day, stock, route, crew, ship, enemy or research changes; only the selected planet, saved row and elapsed-time bookkeeping differ. The strict runtime log and process exit **0** pass, and original saves are restored byte-for-byte. Runnable audit, saves and exit record: `artifacts/mtx-scroll-native-20261007/`.
+
+The primary campaign resume point remains the original [Sol-clear checkpoint](native-gameplay-results.md#sol-clear-and-scg-discovery--2026-10-07). No new Windows execution or export is claimed. Totals remain **35/48 implementation evidence and four locally accepted requirements**.
+
 
 ## MTX menu pointer obstruction — 2026-10-07
 

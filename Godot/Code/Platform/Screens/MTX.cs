@@ -93,6 +93,10 @@ namespace Deuteros.Code.Platform.Screens
 			ResourceList = GetNode<ScrollContainer>("Config/ResourceList");
 
 			ResourceList.ScrollVertical = 0;
+			ResourceList.GetVScrollBar().ValueChanged += value =>
+			{
+				if (CurrentMTX != null) CurrentMTX.CurrentScroll = (int)Math.Ceiling(value / 8);
+			};
 
 			//Load the template row, then delete it
 			var originalResourceRow = GetNode<MTXRow>("Config/ResourceList/ResourceContainer/00");
@@ -202,6 +206,8 @@ namespace Deuteros.Code.Platform.Screens
 			CurrentStore = currentStore;
 
 			CurrentMTX = CurrentStore.MTX;
+			CurrentMTX.CurrentScroll = Math.Clamp(CurrentMTX.CurrentScroll, 0, Math.Max(0, ResourceRows.Count - 15));
+			ResourceList.SetDeferred(ScrollContainer.PropertyName.ScrollVertical, CurrentMTX.CurrentScroll * 8);
 
 			InitialState = (Deuteros.Code.Objects.MTX)CurrentMTX.Clone();
 
@@ -223,8 +229,6 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (CurrentStore.MTX.CurrentScroll + 15 < ResourceRows.Count)
 			{
-				CurrentStore.MTX.CurrentScroll++;
-
 				GameCore.LockScreen();
 
 				ScrollTween?.Kill();
@@ -239,8 +243,6 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (CurrentStore.MTX.CurrentScroll > 0)
 			{
-				CurrentStore.MTX.CurrentScroll--;
-
 				GameCore.LockScreen();
 
 				ScrollTween?.Kill();

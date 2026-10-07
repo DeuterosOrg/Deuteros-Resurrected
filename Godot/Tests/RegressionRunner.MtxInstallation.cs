@@ -32,7 +32,58 @@ namespace Deuteros.Tests
             Check("MTX construction suspends while its station is unavailable", MtxConstructionStationLoss);
             await CheckAsync("MTX artwork fits production and research display bounds", MtxArtworkBounds);
             await CheckAsync("MTX preserves pointer navigation and resource controls", MtxPointerNavigation);
+            await CheckAsync("MTX restores scrolling and keeps wheel and arrow controls synchronized", MtxScrollPosition);
         }
+
+        private async Task MtxScrollPosition() => await WithMenuSound(async (menu, viewport, player) =>
+        {
+            PrepareMtxRoute();
+            foreach (var item in Save.BaseGameData.ItemList) item.Locked = false;
+            var stores = GameCore.Earth.Station.Resources.Stores;
+            stores.AlternativeView = true;
+            stores.MTX.CurrentScroll = 2;
+            Save.CurrentPlanet = StellarBodies.earth;
+            GameCore.SingletonInstance.ChangeScene(Scenes.Store, new List<SceneVariables> { SceneVariables.Orbit });
+            var store = ActiveScreen<StoreScreen>();
+            var parent = store.GetParent();
+            store.Reparent(viewport);
+            try
+            {
+                await InputFrames();
+                var list = store.MTX.GetNode<ScrollContainer>("Config/ResourceList");
+                Equal(16, list.ScrollVertical, "opening restores the saved resource row");
+                ClickMenu(viewport, store.MTX.GetNode<Button>("Config/Buttons/ScrollDown"));
+                await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
+                Equal(24, list.ScrollVertical, "down arrow advances one row after reopening");
+                MenuPointer(viewport, list.GetGlobalRect().GetCenter(), true, MouseButton.WheelDown);
+                MenuPointer(viewport, list.GetGlobalRect().GetCenter(), false, MouseButton.WheelDown);
+                await InputFrames();
+                var wheelPosition = list.ScrollVertical;
+                Equal(true, wheelPosition > 24, "mouse wheel moves the resource list");
+                Equal((int)System.Math.Ceiling(wheelPosition / 8.0), stores.MTX.CurrentScroll, "wheel position is retained for reopening");
+                ClickMenu(viewport, store.MTX.GetNode<Button>("Config/Buttons/ScrollUp"));
+                await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
+                Equal(wheelPosition - 8, list.ScrollVertical, "up arrow follows the visible wheel position");
+                ClickMenu(viewport, store.MTX.GetNode<Button>("Config/Buttons/Restore"));
+                Equal(wheelPosition - 8, list.ScrollVertical, "restoring transfer settings preserves scrolling");
+                var savedRow = stores.MTX.CurrentScroll;
+                var savedGame = SaveStorage.Serialize(Save);
+                store.Reparent(parent);
+                GameCore.SingletonInstance.ChangeScene(Scenes.Overview, new List<SceneVariables>());
+                GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(savedGame);
+                GameCore.SingletonInstance.ChangeScene(Scenes.Store, new List<SceneVariables> { SceneVariables.Orbit });
+                store = ActiveScreen<StoreScreen>();
+                parent = store.GetParent();
+                store.Reparent(viewport);
+                await InputFrames();
+                Equal(savedRow * 8, store.MTX.GetNode<ScrollContainer>("Config/ResourceList").ScrollVertical,
+                    "save load and reopening restore the wheel-selected row");
+            }
+            finally
+            {
+                if (GodotObject.IsInstanceValid(store)) store.Reparent(parent);
+            }
+        });
 
         private async Task MtxPointerNavigation() => await WithMenuSound(async (menu, viewport, player) =>
         {
