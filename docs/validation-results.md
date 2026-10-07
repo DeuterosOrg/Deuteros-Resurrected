@@ -1,5 +1,9 @@
 # Contribution and validation results
 
+## Star Drone titanium recipe — 2026-10-07
+
+The original-backed recipe now requires 300 titanium. Exact-old-default save repair preserves paid work, inventory and custom recipes. New regressions 640–641 fail before and pass after; **47 focused cases**, build, strict import/startup, source comparison and exit 0 pass. Native Research display, the precisely accounted single normal tick, save/reload and original-save restoration pass. [Recipe trace and compatibility evidence](star-drone-discovery-evidence.md#original-recipe-and-paid-order-compatibility--2026-10-07). Discovery now lists 641 cases; the latest complete aggregate remains the preceding **639/639** run. Current Windows acceptance and further normal manufacture remain open.
+
 ## Star Drone research discovery — 2026-10-07
 
 The normal SCG campaign exposed unreachable Star Drone research. The original-backed chassis-completion hook and idempotent repair for older saves now pass reproduced regressions 638–639 and native research→paid manufacture→save/reload. The complete isolated run passes **639/639**, all **19 tooling checks**, build, strict import and startup, with exit 0 and matching source. [Trigger, retained failures, native audit and acceptance limits](star-drone-discovery-evidence.md).

@@ -382,6 +382,8 @@ namespace Deuteros.Tests
             await CheckAsync("Optional bulletin skip preserves pause and input lock ownership", BulletinSkip);
             await CheckAsync("SCG chassis research discovers Star Drones once and retains the bulletin across save load", StarDroneDiscovery);
             Check("Completed-chassis saves recover missing Star Drone discovery without changing campaign assets", StarDroneDiscoveryLegacy);
+            CheckUi("Star Drone manual and AOC production require the original 300 titanium", StarDroneRecipe);
+            CheckUi("Star Drone recipe migration preserves paid work and charges future orders at the corrected cost", StarDroneRecipeLegacy);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

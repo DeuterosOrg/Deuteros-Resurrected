@@ -86,5 +86,79 @@ namespace Deuteros.Tests
             Equal(true, loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.star_drone).Research.Researched,
                 "completed drone research is retained");
         }
+
+        private void StarDroneRecipe()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            foreach (var automated in new[] { false, true })
+            {
+                PrepareRecipeStocks();
+                var item = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.star_drone);
+                Equal(300, item.BuildRequirements.Single(r => r.ItemType == ItemTypes.titanium).ItemCount, "original titanium recipe");
+                item.Locked = item.Research.Locked = false;
+                item.Research.Researched = true;
+                var factory = GameCore.Earth.Station.Factory;
+                factory.ProductionQueue.Clear(); factory.AOC = automated;
+                factory.Builder = new Staff { Type = StaffType.Production, Count = 250, Leader = "Builder" };
+                factory.Builder.AddAction(12);
+                var stores = GameCore.Earth.Station.Resources.Stores;
+                stores.Items.Clear();
+                foreach (var cost in item.BuildRequirements) stores[cost.ItemType] = cost.ItemCount;
+                stores[ItemTypes.titanium] = 299;
+                Equal(false, Production.CheckResourceAvailable(GameCore.Earth, item, false), "299 titanium cannot fund a drone");
+                stores[ItemTypes.titanium]++;
+                var screen = OpenMtxProduction();
+                try { screen.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.star_drone).EmitSignal(Godot.BaseButton.SignalName.Pressed); }
+                finally { screen.Free(); }
+                ProductionDays(30);
+                Equal(1, stores[ItemTypes.star_drone], "one fully paid drone delivered");
+                foreach (var cost in item.BuildRequirements) Equal(0, stores[cost.ItemType], "exact original material charge");
+            }
+        }
+
+        private void StarDroneRecipeLegacy()
+        {
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            foreach (var state in new[] { "unpaid", "active", "paused" })
+            {
+                PrepareRecipeStocks();
+                var item = core.GameData.GetItem(ItemTypes.star_drone);
+                item.Locked = item.Research.Locked = false; item.Research.Researched = true;
+                item.BuildRequirements.Single(r => r.ItemType == ItemTypes.titanium).ItemCount = 200;
+                var factory = GameCore.Earth.Station.Factory;
+                factory.ProductionQueue.Clear(); factory.AOC = true;
+                var order = new ProductionItem(item) { AOCRepeat = true, Active = state == "active",
+                    MaterialsPaid = state != "unpaid", Production_Complete = state == "unpaid" ? 1 : 2, Production_Value = 80 };
+                factory.ProductionQueue.Add(order);
+                var stores = GameCore.Earth.Station.Resources.Stores;
+                stores.Items.Clear();
+                foreach (var cost in item.BuildRequirements) stores[cost.ItemType] = cost.ItemCount;
+                var before = JObject.Parse(SaveStorage.Serialize(Save));
+                core.GameData.ActiveSaveFile = SaveStorage.Deserialize(before.ToString());
+                item = core.GameData.GetItem(ItemTypes.star_drone);
+                Equal(300, item.BuildRequirements.Single(r => r.ItemType == ItemTypes.titanium).ItemCount, "old default recipe corrected");
+                var expectedRecipe = before.Descendants().OfType<JObject>().Single(j => j["ItemType"]?.Value<int>() == (int)ItemTypes.star_drone && j["BuildRequirements"] is JArray);
+                expectedRecipe["BuildRequirements"].OfType<JObject>().Single(j => j["ItemType"].Value<int>() == (int)ItemTypes.titanium)["ItemCount"] = 300;
+                Equal(true, JToken.DeepEquals(before, JObject.Parse(SaveStorage.Serialize(Save))), "migration changes only the recipe, not paid work or assets");
+                Equal(SaveStorage.Serialize(Save), SaveStorage.Serialize(SaveStorage.Deserialize(SaveStorage.Serialize(Save))), "recipe migration is idempotent");
+                factory = GameCore.Earth.Station.Factory;
+                stores = GameCore.Earth.Station.Resources.Stores;
+                Equal(true, ReferenceEquals(item, factory.ProductionQueue.Single().Product), "queued product keeps its shared definition");
+                ProductionDays(20);
+                Equal(state == "unpaid" ? 0 : 1, stores[ItemTypes.star_drone], "paid work finishes without retroactive charging; unpaid work waits");
+                Equal(200, stores[ItemTypes.titanium], "no refund or extra debit for the existing order");
+                stores[ItemTypes.titanium] += 100;
+                ProductionDays(20);
+                Equal(state == "unpaid" ? 1 : 2, stores[ItemTypes.star_drone], "next order consumes the corrected recipe");
+                foreach (var cost in item.BuildRequirements) Equal(0, stores[cost.ItemType], "future order pays every ingredient exactly once");
+                Equal(false, factory.ProductionQueue.Single().MaterialsPaid, "unfunded next repeat remains unpaid");
+            }
+            var custom = core.GameData.GetItem(ItemTypes.star_drone);
+            custom.BuildRequirements.Single(r => r.ItemType == ItemTypes.titanium).ItemCount = 200;
+            custom.BuildRequirements.Single(r => r.ItemType == ItemTypes.iron).ItemCount = 301;
+            var edited = SaveStorage.Serialize(Save);
+            Equal(edited, SaveStorage.Serialize(SaveStorage.Deserialize(edited)), "nonstandard edited recipe is not overwritten");
+        }
     }
 }

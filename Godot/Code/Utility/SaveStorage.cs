@@ -166,6 +166,14 @@ namespace Deuteros.Code.Utility
             foreach (var ship in save.Ships.OfType<SCG>())
                 while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
             ArtifactRecovery.RestoreLegacy(save);
+            // Correct only the old default recipe. Paid orders retain their reservation and progress.
+            var starDroneRecipe = save.BaseGameData.ItemList.FirstOrDefault(i => i.ItemType == ItemTypes.star_drone)?.BuildRequirements;
+            var oldStarDroneRecipe = new[] { (ItemTypes.iron, 300), (ItemTypes.titanium, 200),
+                (ItemTypes.aluminium, 300), (ItemTypes.copper, 100), (ItemTypes.paladium, 90),
+                (ItemTypes.platinum, 80), (ItemTypes.silver, 95), (ItemTypes.gold, 50) };
+            if (starDroneRecipe != null && starDroneRecipe.All(r => r != null)
+                && starDroneRecipe.OrderBy(r => r.ItemType).Select(r => (r.ItemType, r.ItemCount)).SequenceEqual(oldStarDroneRecipe))
+                starDroneRecipe.Single(r => r.ItemType == ItemTypes.titanium).ItemCount = 300;
             // Older campaigns completed the chassis without discovering Star Drone research.
             if (Platform.Unlocker.DiscoverStarDrones(save) && !save.News.PendingBulletins.Contains(BulletinTypes.SCG_Drone))
                 save.News.PendingBulletins.Add(BulletinTypes.SCG_Drone);

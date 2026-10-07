@@ -32,6 +32,8 @@ The normal campaign now funds six automatic factories through MTX and verifies *
 
 Normal play now captures the remaining Sol stations and shows the SCG discovery bulletin. Three first victories cost 140 drones; six factories manufacture 60 more, and two newly built Pluto drones are captured, leaving 97 total. Exact costs/reload and original-save restoration pass. The MTX menu input fix has a reproduced pointer regression and a full **636/636** passing run. [Sol-clear evidence and remaining scope](native-gameplay-results.md#sol-clear-and-scg-discovery--2026-10-07). SCG construction/interstellar travel, repairs and Windows acceptance remain open; totals stay **35/48 and four accepted requirements**.
 
+The Star Drone recipe now matches the original **300 titanium**. Exact-default legacy repair preserves paid orders and completed assets; regressions 640–641 and 47 focused cases pass. Native display, save/reload and the precisely accounted day-21560 checkpoint pass with original saves restored. [Recipe evidence and limits](star-drone-discovery-evidence.md#original-recipe-and-paid-order-compatibility--2026-10-07). The preceding full aggregate is 639; totals remain **35/48 implementation evidence and four locally accepted requirements**.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.

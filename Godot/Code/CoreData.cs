@@ -1191,7 +1191,7 @@ namespace Deuteros.Code
 				StarDrone.OrbitOnly = true;
 				StarDrone.BuildRequirements = new List<BuildRequirement>();
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.iron, 300));
-				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.titanium, 200));
+				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.titanium, 300));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.aluminium, 300));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.copper, 100));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.paladium, 90));
