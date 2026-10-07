@@ -317,6 +317,12 @@ namespace Deuteros.Code
 			if (@event is InputEventKey key)
 			{
 				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				if (key.IsActionPressed("quick_save", false, true))
+				{
+					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
+					QuickSave();
+					return;
+				}
 				if (key.IsActionPressed("next_location", false, true))
 				{
 					var save = GameData.ActiveSaveFile;

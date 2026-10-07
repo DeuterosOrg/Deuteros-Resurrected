@@ -16,10 +16,14 @@ namespace Deuteros.Code.Utility
     public sealed class SaveStorage
     {
         public const int SlotCount = 5;
+        public const int QuickSlot = SlotCount + 1;
         private const int MaxBytes = 16 * 1024 * 1024;
         private readonly string directory;
 
         public SaveStorage(string directory) => this.directory = directory;
+
+        public static bool IsSaveError(Exception error) => error is IOException || error is InvalidDataException || error is UnauthorizedAccessException
+            || error is JsonException || error is ArgumentException;
 
         private sealed class Document
         {
@@ -207,6 +211,7 @@ namespace Deuteros.Code.Utility
 
         public string SlotPath(int slot)
         {
+            if (slot == QuickSlot) return Path.Combine(directory, "quick-save.json");
             if (slot < 1 || slot > SlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
             return Path.Combine(directory, $"slot-{slot}.json");
         }

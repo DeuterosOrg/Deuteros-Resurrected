@@ -230,6 +230,118 @@ namespace Deuteros.Tests
             Equal(true, failed, "unknown current planet rejected");
         }
 
+        private async Task QuickSaveShortcut()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            core.SetProcess(false);
+            var originalStorage = core.Storage;
+            var directory = Path.Combine(Path.GetTempPath(), "deuteros-quick-ui-" + Guid.NewGuid());
+            var storage = new SaveStorage(directory);
+            core.Storage = storage;
+            var manager = Deuteros.Code.Platform.Helpers.SettingsManager.Instance;
+            var originalKey = manager.GetSetting("keybinds/quick_save");
+            manager.SetSetting("keybinds/quick_save", (long)Key.F5);
+            manager.ApplyKeybinds();
+            try
+            {
+                core.ChangeScene(Scenes.Earth_Ground, new List<SceneVariables> { SceneVariables.Ground });
+                await InputFrames();
+                Save.CurrentDay = 11;
+                Save.Clock.DateCentidays = 1100;
+                await PushGameKey(Key.F5);
+                Equal(true, storage.Exists(SaveStorage.QuickSlot), "default Quick Save writes separate slot");
+                Equal(11u, storage.Read(SaveStorage.QuickSlot).CurrentDay, "saved world matches active game");
+                Equal(Scenes.Earth_Ground, core.currentScene, "saving leaves current screen open");
+                Equal("Quick saved.", GameCore.HoverText, "quick save gives visible feedback");
+                var first = File.ReadAllText(storage.SlotPath(SaveStorage.QuickSlot));
+                Save.CurrentDay = 22;
+                Save.Clock.DateCentidays = 2200;
+                manager.SetSetting("keybinds/quick_save", (long)Key.F6);
+                manager.ApplyKeybinds();
+                await PushGameKey(Key.F5);
+                await PushGameKey(Key.F6, echo: true);
+                await PushGameKey(Key.F6, control: true);
+                OpenSettings();
+                await InputFrames();
+                await PushGameKey(Key.F6);
+                Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay();
+                await InputFrames();
+                Equal(first, File.ReadAllText(storage.SlotPath(SaveStorage.QuickSlot)), "old modified repeated and modal keys leave save unchanged");
+                await PushGameKey(Key.F6);
+                Equal(22u, storage.Read(SaveStorage.QuickSlot).CurrentDay, "rebound key replaces quick save");
+                Equal(first, File.ReadAllText(storage.SlotPath(SaveStorage.QuickSlot) + ".bak"), "previous snapshot backed up");
+                core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
+                await InputFrames();
+                var screen = ActiveRecipeScreen<Deuteros.Code.Platform.Screens.SaveScreen>();
+                Equal("Q: 3100 022.00", screen.GetNode<Label>("Slot6").Text, "load screen identifies quick save date");
+                var label = screen.GetNode<Label>("Slot6");
+                var rowSize = label.Size;
+                label.ClipText = false;
+                var textWidth = label.GetMinimumSize().X;
+                label.ClipText = true;
+                label.Size = rowSize;
+                Equal(true, textWidth <= rowSize.X, "quick save date fits its visible row");
+                await CaptureDisplayEvidence("quick-save-slots");
+                Equal(false, screen.GetNode<Button>("Load6").Disabled, "quick save can be loaded through normal controls");
+                Save.CurrentDay = 33;
+                Save.Clock.DateCentidays = 3300;
+                await PushGameKey(Key.F6);
+                Equal("Q: 3100 033.00", screen.GetNode<Label>("Slot6").Text, "open save screen refreshes after shortcut");
+                var valid = File.ReadAllText(storage.SlotPath(SaveStorage.QuickSlot));
+                var elapsed = Save.Clock.NormalElapsed;
+                Save.Clock.NormalElapsed = -1;
+                await PushGameKey(Key.F6);
+                Save.Clock.NormalElapsed = elapsed;
+                Equal(true, Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen, "save failure is shown");
+                Equal(valid, File.ReadAllText(storage.SlotPath(SaveStorage.QuickSlot)), "failed quick save preserves previous snapshot");
+                Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay();
+                await InputFrames();
+                Save.CurrentDay = 44;
+                Save.Clock.DateCentidays = 4400;
+                Press(screen, "Load6");
+                Press(screen, "Cancel");
+                Equal(44u, Save.CurrentDay, "cancelled quick load keeps active world");
+                Press(screen, "Load6");
+                Press(screen, "Confirm");
+                await InputFrames();
+                Equal(33u, Save.CurrentDay, "confirmed quick load restores saved world");
+                Equal(Scenes.Overview, core.currentScene, "quick load recreates overview");
+            }
+            finally
+            {
+                core.Storage = originalStorage;
+                manager.SetSetting("keybinds/quick_save", originalKey);
+                manager.ApplyKeybinds();
+                core.SetProcess(true);
+                if (Directory.Exists(directory)) Directory.Delete(directory, true);
+            }
+        }
+
+        private void QuickSaveStorage()
+        {
+            var directory = Path.Combine(Path.GetTempPath(), "deuteros-quick-save-" + Guid.NewGuid());
+            try
+            {
+                var storage = new SaveStorage(directory);
+                Save.CurrentDay = 11;
+                for (var slot = 1; slot <= 5; slot++) storage.Write(slot, Save);
+                var manuals = Directory.GetFiles(directory).ToDictionary(path => path, File.ReadAllText);
+                Save.CurrentDay = 22;
+                storage.Write(6, Save);
+                Equal(22u, storage.Read(6).CurrentDay, "quick save can be read independently");
+                Save.CurrentDay = 33;
+                storage.Write(6, Save);
+                Equal(33u, storage.Read(6).CurrentDay, "quick save replaces its own slot");
+                Equal(22u, SaveStorage.Deserialize(File.ReadAllText(storage.SlotPath(6) + ".bak")).CurrentDay,
+                    "previous quick save retained in backup");
+                foreach (var manual in manuals)
+                    Equal(manual.Value, File.ReadAllText(manual.Key), "manual slot remains byte-identical");
+                Equal(0, Directory.GetFiles(directory, "*.tmp").Length, "quick save leaves no temporary files");
+            }
+            finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
+        }
+
         private void SaveSlots()
         {
             var directory = Path.Combine(Path.GetTempPath(), "deuteros-save-test-" + Guid.NewGuid());

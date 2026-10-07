@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using Deuteros.Code.Platform.Base;
 using Deuteros.Code.Utility;
 using Godot;
@@ -18,18 +17,20 @@ namespace Deuteros.Code.Platform.Screens
         public override void _Ready()
         {
             base._Ready();
-            Storage ??= new SaveStorage(ProjectSettings.GlobalizePath("user://saves"));
+            Storage ??= GameCore.SingletonInstance.Storage;
             var background = new ColorRect { Name = "Background", Position = new Vector2(72, 24),
                 Size = new Vector2(246, 159), Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Ignore };
             AddChild(background);
             AddLabel("Title", "SAVE / LOAD", 82, 29, 230);
-            for (var slot = 1; slot <= SaveStorage.SlotCount; slot++)
+            for (var slot = 1; slot <= SaveStorage.QuickSlot; slot++)
             {
                 var selected = slot;
-                var y = 44 + (slot - 1) * 21;
+                var y = 44 + (slot - 1) * 18;
                 AddLabel($"Slot{slot}", "", 82, y + 2, 128);
-                AddButton($"Save{slot}", "Save", 214, y, 42, () => RequestSave(selected));
-                AddButton($"Load{slot}", "Load", 263, y, 42, () => RequestLoad(selected));
+                AddButton($"Save{slot}", "Save", 214, y, 42, () => RequestSave(selected)).TooltipText =
+                    slot == SaveStorage.QuickSlot ? "Save to the separate Quick Save slot." : "";
+                AddButton($"Load{slot}", "Load", 263, y, 42, () => RequestLoad(selected)).TooltipText =
+                    slot == SaveStorage.QuickSlot ? "Load the Quick Save." : "";
             }
             status = AddLabel("Status", "Choose a slot.", 82, 151, 230);
             confirmation = AddLabel("Confirmation", "", 82, 165, 144);
@@ -76,27 +77,25 @@ namespace Deuteros.Code.Platform.Screens
             confirm.Visible = cancel.Visible = true;
         }
 
-        private void RefreshSlots()
+        public void RefreshSlots()
         {
-            for (var slot = 1; slot <= SaveStorage.SlotCount; slot++)
+            for (var slot = 1; slot <= SaveStorage.QuickSlot; slot++)
             {
                 var exists = Storage.Exists(slot);
                 var label = GetNode<Label>($"Slot{slot}");
-                label.Text = $"Slot {slot}: empty";
+                var name = slot == SaveStorage.QuickSlot ? "Quick" : $"Slot {slot}";
+                label.Text = $"{name}: empty";
                 GetNode<Button>($"Load{slot}").Disabled = !exists;
                 if (!exists) continue;
-                try { label.Text = $"{slot}: {Deuteros.Code.Objects.GameClock.FormatDate(Storage.Read(slot).Clock.DateCentidays)}"; }
-                catch (Exception error) when (IsSaveError(error)) { label.Text = $"Slot {slot}: unreadable"; }
+                try { label.Text = $"{(slot == SaveStorage.QuickSlot ? "Q" : slot.ToString())}: {Deuteros.Code.Objects.GameClock.FormatDate(Storage.Read(slot).Clock.DateCentidays)}"; }
+                catch (Exception error) when (SaveStorage.IsSaveError(error)) { label.Text = $"{name}: unreadable"; }
             }
         }
-
-        private static bool IsSaveError(Exception error) => error is IOException || error is InvalidDataException || error is UnauthorizedAccessException
-            || error is Newtonsoft.Json.JsonException || error is ArgumentException;
 
         private void RequestSave(int slot)
         {
             ClearConfirmation();
-            if (Storage.Exists(slot)) Ask($"Replace slot {slot}?", () => WriteSlot(slot));
+            if (Storage.Exists(slot)) Ask(slot == SaveStorage.QuickSlot ? "Replace quick save?" : $"Replace slot {slot}?", () => WriteSlot(slot));
             else WriteSlot(slot);
         }
 
@@ -106,9 +105,9 @@ namespace Deuteros.Code.Platform.Screens
             {
                 Storage.Write(slot, GameCore.SingletonInstance.GameData.ActiveSaveFile);
                 RefreshSlots();
-                status.Text = $"Saved slot {slot}.";
+                status.Text = slot == SaveStorage.QuickSlot ? "Quick saved." : $"Saved slot {slot}.";
             }
-            catch (Exception error) when (IsSaveError(error)) { status.Text = "Save failed; file kept."; }
+            catch (Exception error) when (SaveStorage.IsSaveError(error)) { status.Text = "Save failed; file kept."; }
         }
 
         private void RequestLoad(int slot)
@@ -121,7 +120,7 @@ namespace Deuteros.Code.Platform.Screens
                     var save = Storage.Read(slot);
                     GameCore.SingletonInstance.LoadSavedGame(save);
                 }
-                catch (Exception error) when (IsSaveError(error)) { status.Text = "Cannot load this save."; }
+                catch (Exception error) when (SaveStorage.IsSaveError(error)) { status.Text = "Cannot load this save."; }
             });
         }
     }

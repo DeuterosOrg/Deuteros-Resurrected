@@ -396,6 +396,8 @@ namespace Deuteros.Tests
             await CheckAsync("Speed shortcuts select existing fast and normal time without toggling or bypassing locks", SettingsSpeedShortcuts);
             await CheckAsync("Pause binding opens and resumes Settings without discarding changes or another pause owner", SettingsPauseShortcut);
             await CheckAsync("Next Location cycles accessible stations in overview order while respecting input ownership", SettingsNextLocationShortcut);
+            Check("Quick Save has an independent atomic slot and retains all five manual saves", QuickSaveStorage);
+            await CheckAsync("Quick Save shortcut persists without navigation and its visible slot confirms loading", QuickSaveShortcut);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

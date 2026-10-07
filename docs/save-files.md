@@ -1,8 +1,10 @@
 # Save files
 
-Open the disk icon in the left menu. Five slots are available. Saving to an occupied slot asks before replacing it; loading asks before replacing the current game. Loading returns to Master Control with time advancement stopped. In an early game with no stations, use the Earth icon to return to the ground screen.
+Open the disk icon in the left menu. Five manual slots and a separate Quick Save row are available. Saving to an occupied slot asks before replacing it; loading asks before replacing the current game. Loading returns to Master Control with time advancement stopped. In an early game with no stations, use the Earth icon to return to the ground screen.
 
-Files are stored in Godot's `user://saves` directory as `slot-1.json` through `slot-5.json`. The previous contents of an overwritten slot are retained as `slot-N.json.bak`. Save files and backups belong to the player, not the source repository. To recover a backup, close the game, preserve the current file, and copy the `.bak` file to its matching `.json` filename.
+During gameplay, **F5** saves immediately to the separate Quick Save slot and displays “Quick saved.” It replaces only the previous quick save, retaining a backup. Settings → Controls can rebind the key; modal screens and text entry retain input ownership. The disk menu shows **Q** and its complete saved date once populated. Quick Load uses the normal confirmation; the five manual slots are unchanged.
+
+Files are stored in Godot's `user://saves` directory as `slot-1.json` through `slot-5.json`. The previous contents of an overwritten slot are retained as `slot-N.json.bak`. Quick Save uses `quick-save.json` and `quick-save.json.bak` with the same format and recovery procedure. Save files and backups belong to the player, not the source repository. To recover a backup, close the game, preserve the current file, and copy the `.bak` file to its matching `.json` filename.
 
 ## Format and load boundary
 

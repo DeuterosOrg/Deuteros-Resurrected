@@ -56,7 +56,7 @@ Use the mouse to select screens and interact with controls. The top navigation b
 
 ## Save and load
 
-The disk menu now provides five local save slots, overwrite/load confirmation and backups. See [save files](docs/save-files.md) for storage, recovery and format details.
+The disk menu provides five manual slots plus a separate Quick Save slot. In-game **F5** updates Quick Save without replacing a manual slot; its previous contents are backed up. Use the **Q** row to load it, with confirmation. See [save files](docs/save-files.md) for storage, recovery and format details.
 
 ## Windows export
 
