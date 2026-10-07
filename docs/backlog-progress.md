@@ -322,3 +322,8 @@ An explicit day24535 replay captured Pacific with31 SCG drones/all36 crew surviv
 ### Reopened course-chart star header — 2026-10-07
 
 Fixed a normal-campaign mismatch where a destination planet/moon in Proxima initially displayed “The Sun”. The shared renderer now refreshes its star header. Case645 fails before/passes after;642–644, build/import and native opening/reopening/save-load checks pass. The complete day24586 world remains unchanged except elapsed timers; native exit0 and actual original-profile restoration pass. [Evidence](validation-results.md#initial-course-chart-star-header--2026-10-07). Full645-case aggregate is running and not yet claimed; counts remain **35/48 implementation evidence; four locally accepted requirements**.
+
+
+### Uranus defence and full SCG fleet — 2026-10-07
+
+Normal continuation manufactures36 Star drones and loads SCG200. WAYFARER intercepts the valid Uranus attack and retains142 drones/all35 Warlord crew;58 losses remain to replenish. Unchanged routes, first-artifact12%, exact reload, strict native exit0 and original saves pass the runnable audit. [Evidence and day27945 checkpoint](native-gameplay-results.md#uranus-defence-and-full-scg-fleet--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Seven artifact recoveries, later progression and matching Windows acceptance remain open.
