@@ -271,3 +271,8 @@ Normal Mac play pays for three additional Star Drones at 300 titanium each, fits
 ### Sustained supply and reinforced Triton defence — 2026-10-07
 
 The normal campaign exposes a failed 152-versus-169 defence, preserved with WAYFARER/Raphael's loss. An explicit earlier-checkpoint replay manufactures 55 IOS reserves, reinforces the defender to 200 and wins at Triton with 142 survivors. The successful branch also manufactures 17 Star Drones, completes 86 freight cargoes, refines 1,945 HeD, fully fuels the SCG and swaps experienced crew into it. Exact non-renewed-seam/recipe, freight, fuel, fleet and reload audits pass; renewed Pd/Ag survey gaps are explicitly inferred. Original saves are restored and exit is zero. [Evidence, replay boundary and next titanium expansion](native-gameplay-results.md#sustained-scg-supply-and-reinforced-triton-defence-replay--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**; interstellar and matching Windows acceptance remain open.
+
+
+### Uranus repair and titanium expansion — 2026-10-07
+
+Normal native play repairs Uranus and expands two→eight rigs with exact component costs, measured extraction/refining, retained empty-trip fuel cost, crew return, exports and exact reload. Original saves are restored and native exit is zero. [Evidence and day-22651 continuation](native-gameplay-results.md#uranus-repair-and-eight-rig-titanium-supply--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Triton repair, SCG/interstellar progression and matching Windows acceptance remain open.
