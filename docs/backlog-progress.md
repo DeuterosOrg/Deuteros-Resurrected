@@ -20,6 +20,8 @@ The integrated build now passes a further normal campaign run through paid secon
 
 The next protected normal run reaches day 19868 with materials for **400 drones plus a DFCC**, after 5,000 palladium, 6,500 platinum and substantial shuttle freight. Both miners and freight are safely stopped; exact world/ship reload, strict native exit 0 and original-save restoration pass. [Replacement-reserve evidence](native-gameplay-results.md#replacement-reserves-and-continuous-routes--2026-10-07). Manufacturing, war progression and matching Windows acceptance remain pending; counts stay 35/48 implementation evidence and four locally accepted requirements.
 
+The integrated normal campaign now returns the war prototype, completes defence research, manufactures 89 drones and successfully defends the Moon with 46 against 43. Twelve drones are lost; the replenished fleet saves/reloads with 77 at Earth, 45 fuel and 38 crew. Exact recipe costs, strict native exit 0 and original-save restoration pass. Failed escape and weaker-defence attempts remain separate. [Wartime replacement-fleet checkpoint](native-gameplay-results.md#replacement-fleet-war-and-moon-defence--2026-10-07). Later fleet/capture progression and Windows acceptance remain open; counts stay 35/48 and four accepted requirements.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
