@@ -216,6 +216,21 @@ namespace Deuteros.Tests
                 Press(overview, group + "/Col0/" + group + "00"); await InputFrames();
                 Equal(ships[0].ShipID, ActiveScreen<Deuteros.Code.Platform.Screens.ShipInterior>().Ship.ShipID, "visible fleet control selects correct ship");
                 Equal(Scenes.ShipInterior, core.currentScene, "fleet navigation retained");
+                core.ChangeScene(Scenes.Overview, new List<SceneVariables>());
+                await InputFrames();
+                var liveOverview = ActiveScreen<global::Overview>();
+                ships[0].ShipState = Ship_States.Docked;
+                GameCore.Earth.Station.Built = true;
+                GameCore.Earth.Station.BuildParts = 8;
+                GameCore.Earth.Station.SdmCountdown = 1;
+                Save.CurrentPlanet = StellarBodies.the_moon;
+                SdmSystem.AdvanceTime(1);
+                Equal(false, Save.Ships.Contains(ships[0]), "real-time SDM removes the docked ship");
+                Equal(ships[1].ShipID.ToString(), VisibleOverviewButtons(liveOverview, group).First().GetMeta("shipid").AsString(),
+                    "global overview refreshes immediately even when another planet is selected");
+                Press(liveOverview, group + "/Col0/" + group + "00"); await InputFrames();
+                Equal(ships[1].ShipID, ActiveScreen<Deuteros.Code.Platform.Screens.ShipInterior>().Ship.ShipID,
+                    "post-destruction fleet button selects a surviving ship");
             }
             finally { GlobalInput.UnlockUi(); if (OverlayManager.Instance.IsOpen) OverlayManager.Instance.CloseOverlay(); overview.Free(); }
         }

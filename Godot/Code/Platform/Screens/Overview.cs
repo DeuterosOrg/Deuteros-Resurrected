@@ -164,7 +164,7 @@ public partial class Overview : BaseSubScene
 		UpdateState();
 	}
 	
-	private void UpdateState()
+	public void UpdateState()
 	{
 		var stationList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station.BuildParts > 0)
             .Select(p => p.Station).OrderBy(s => s.StationOrdinal).ThenBy(s => s.PlanetId).ToList();

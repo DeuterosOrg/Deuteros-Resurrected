@@ -426,6 +426,11 @@ namespace Deuteros.Code
 
 		public void StationDestroyed(IPlanet planet)
 		{
+			if (_currentScreen is Overview overview)
+			{
+				overview.UpdateState();
+				return;
+			}
 			if (_currentScreen == null || GameData.ActiveSaveFile.CurrentPlanet != planet.PlanetId) return;
 			if (_currentScreen is ShipInterior interior && GameData.ActiveSaveFile.Ships.Contains(interior.Ship))
 			{

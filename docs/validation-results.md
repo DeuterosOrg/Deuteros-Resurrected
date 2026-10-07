@@ -1,5 +1,15 @@
 # Contribution and validation results
 
+## Overview refresh after real-time station loss — 2026-10-07
+
+Normal Jupiter SDM failures exposed two `InvalidOperationException: Sequence contains no matching element` errors in `Overview.IOS_Pressed`. The real-time destruction callback skipped global screens, leaving the removed ship's button visible until another simulation update. The station-loss notification now immediately calls the overview's existing refresh method, before the selected-planet check. This refreshes both ship types, station entries and paging without changing SDM timing, combat or save data.
+
+Extended existing fleet cases **589 and 590** fail before the correction and pass afterward. They destroy a docked IOS/SCG through the real SDM timer while the global overview is open and another planet is selected; the refreshed first button then opens the surviving ship. Fresh discovery confirms **635 total cases**. The initial test selection used older case numbers; those logs remain, and the correct current docking/discovery cases **361 and 371** pass. **47 related fresh-process cases**, build (zero warnings/errors), strict import and startup pass. This is focused validation, not a new full-suite or Windows result.
+
+A separate native replay loads the unchanged day-21190 three-capture save, arms Titania's mechanism using its two switches, and returns to Master Control. Real-time expiry removes Titania and WAYFARER immediately, without any simulation-day or date advancement. Clicking the refreshed fleet button opens PROSPECTOR. The strict native log passes, the owned process exits **0**, and original saves are restored byte-for-byte with no settings file introduced. This deliberately destructive verification is separate from the preserved campaign continuation.
+
+Evidence: `artifacts/three-factory-jupiter-20261007/` (original failing log, reproduced failures, focused/build/import/startup logs) and `artifacts/overview-sdm-loss-20261007/` (separate native replay, saves, audit and exit record). The successful campaign's second native log is clean; its first failed-run log remains failing evidence. [Three-capture campaign and resume point](native-gameplay-results.md#three-station-capture-and-overview-loss-follow-up--2026-10-07). Counts remain **35/48 implementation evidence and four locally accepted requirements**.
+
 ## News menu pointer obstruction — 2026-10-07
 
 The normal Moon-defence campaign exposed an unresponsive Master Control button on News. Two invisible 40×40 parent controls (`Images` and `NewsLines`) intercepted the upper menu. Both decorative containers now ignore mouse input; their child labels and replay button retain their own input handling.
