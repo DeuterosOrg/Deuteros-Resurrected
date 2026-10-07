@@ -261,3 +261,8 @@ A fresh read of Cheats/Bugs toggles (`1215685674676239`) still finds no descript
 ## Normal MTX and captive-colony repair — 2026-10-05
 
 The captured-Jupiter campaign now reaches day 15785 through normal MTX discovery/research, paid Earth installation, conserved send/balance transfers and paid Jupiter repair manufacture. The Bandaid restores the colony; mining resumes, Blunket's crew returns to WAYFARER, and exact campaign state survives reload. Native close exits zero with strict logs; original saves are restored. [Evidence and next checkpoint](native-gameplay-results.md#normal-mtx-discovery-supply-and-jupiter-repair--2026-10-05). This strengthens ordinary gameplay evidence without completing broader task or Windows requirements: **35/48 implementation evidence; four locally accepted requirements**. Earlier shutdown failures remain unresolved.
+
+
+### SCG corrected-recipe provisioning — 2026-10-07
+
+Normal Mac play pays for three additional Star Drones at 300 titanium each, fits a DFCC and two supply pods, converts/refuels the SCG with exact accounting, and transfers its four-drone fleet. Five 250T freight deliveries and Titania/Neptune transfers reconcile exactly; an extra operator-selected fuel transfer is retained and all route settings restored. The stopped day-21735 checkpoint passes exact reload, clean native exit and original-save restoration. [Evidence and remaining provisioning](native-gameplay-results.md#scg-fleet-fitting-and-corrected-recipe-provisioning--2026-10-07). No new task acceptance or Windows result: **35/48 implementation evidence; four locally accepted requirements**.
