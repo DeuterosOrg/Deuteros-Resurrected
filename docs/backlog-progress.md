@@ -327,3 +327,8 @@ Fixed a normal-campaign mismatch where a destination planet/moon in Proxima init
 ### Uranus defence and full SCG fleet — 2026-10-07
 
 Normal continuation manufactures36 Star drones and loads SCG200. WAYFARER intercepts the valid Uranus attack and retains142 drones/all35 Warlord crew;58 losses remain to replenish. Unchanged routes, first-artifact12%, exact reload, strict native exit0 and original saves pass the runnable audit. [Evidence and day27945 checkpoint](native-gameplay-results.md#uranus-defence-and-full-scg-fleet--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Seven artifact recoveries, later progression and matching Windows acceptance remain open.
+
+
+### Cercops capture, supply and retained defence failure — 2026-10-07
+
+Uranus58 replacements restore WAYFARER200. Normal Centauri arrival, Cercops capture/SDM defusal, cross-system29-drone/18148HeD supply and refuelling pass. The subsequent mobile defence fails;61 station-battle plus158 defence losses are retained. SCG10/all29crew escapes and returnsEarth; Cercops recapture is preserved. Both reloads, original routes, native exit0 and actual original-profile restoration pass. A visible MTX star-selector hit-area mismatch remains to reproduce and diagnose. [Evidence and day28366 checkpoint](native-gameplay-results.md#uranus-replacements-cercops-capture-and-retained-defence-failure--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Seven recoveries, later progression and matching Windows acceptance remain open.
