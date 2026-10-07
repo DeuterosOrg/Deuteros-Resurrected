@@ -291,3 +291,8 @@ Normal native production builds 51 IOS and 24 Star Drones, replenishes WAYFARER 
 ### Moon MTX and aluminium expansion — 2026-10-07
 
 Normal SCG cargo flight enables lunar MTX construction, then seven delivered rigs expand the Moon one→eight. Exact construction costs, ground-to-orbit mining transition, seven-update extraction, paid-order preservation, pod/fuel/fleet accounting and reload pass. Original profile restored; native exit0. [Evidence and day-23294 continuation](native-gameplay-results.md#moon-mtx-and-eight-rig-aluminium-supply--2026-10-07). New Moon exports and Uranus iron support SCG production; next aluminium freight and imminent Titania defence. Counts remain **35/48 implementation evidence; four locally accepted requirements**; interstellar/later campaign and matching Windows acceptance remain open.
+
+
+### Titania defence and parallel drone replenishment — 2026-10-07
+
+Normal 200v200 Titania defence won with 145 drones/all 33 battle crew retained; enemy retreated with 100. Parallel production made 55 IOS and 68 Star Drones with all-ingredient interval ledgers, then loaded WAYFARER 200/SCG 113. Routes restored, fuel reconciled, later routine attrition retained, exact reload/clean exit/original-profile restoration passed. [Evidence and day-23720 continuation](native-gameplay-results.md#titania-defence-and-parallel-fleet-production--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Continue SCG fleet preparation, interstellar/later campaign and matching Windows acceptance.
