@@ -14,7 +14,7 @@ The local candidate combines contribution runtime `20ce403` with upstream `devel
 
 Pinned Godot 4.2.2 .NET and SDK 6.0.428 build with 14 existing warnings and zero errors. Strict asset import and startup smoke pass. All 19 Python tooling checks pass, with the original ending disk supplied and no skips.
 
-The complete fresh-process pass ran 635 cases in 1,075.6 seconds: **625 passed and 10 failed**. Its tested tree is `e815e8a70b902b1ee1bfd6d8caaeb77ae91ec1a7`. The failures exposed outdated test coordinates after the viewport move: nine cargo-pointer checks applied the game transform twice to window-space overlay positions; the error-dialog test still expected the old window bounds. Those tests were corrected, and **all 23 targeted headless cases pass**, including all ten failures, settings lifecycle/presets and bulletin skipping. Across those retained logs all 635 cases have passing evidence. This is an aggregate, not a second all-green full run of the final tree. Subsequent runtime cleanup only removed unused legacy preference-application methods; native framebuffer tests now transform game coordinates into final-window pixels.
+The initial fresh-process pass ran 635 cases in 1,075.6 seconds: **625 passed and 10 failed**. Its tested tree is `e815e8a70b902b1ee1bfd6d8caaeb77ae91ec1a7`. The failures exposed outdated test coordinates after the viewport move: nine cargo-pointer checks applied the game transform twice to window-space overlay positions; the error-dialog test still expected the old window bounds. Those tests were corrected, and **all 23 targeted headless cases pass**, including all ten failures, settings lifecycle/presets and bulletin skipping. Across those retained logs all 635 cases have passing evidence. At that checkpoint this was aggregate evidence; the subsequent complete run below closes that gap. Subsequent runtime cleanup only removed unused legacy preference-application methods; native framebuffer tests now transform game coordinates into final-window pixels.
 
 **19 distinct native cases pass in 20 runs**, including settings Apply/Discard and fullscreen/default restoration, keyboard conflict swapping and Escape, modal right-click ordering, trade/cargo hit testing, centered error boxes, actual window-close teardown, training-light pixels, construction/research art, orbital views, production rods, ACC palette animation and bulletin skipping. Screenshots were inspected for settings and six-cargo overlay layout.
 
@@ -23,6 +23,14 @@ Manual native check: enter the fresh game, open Settings with Escape, preview mu
 The Windows cross-export is **164,121,808 bytes**, SHA-256 `5132d64983c7282f3cc44ca130b1bd041b36c001bdfe3d5d7f9546a39d5ff3e6`. All 1,259 embedded payload hashes pass; the pack includes the new settings/game-input assembly, 64 recovered illustration imports, original ending sequence/music and .NET dependencies, with no test resources or removed old Settings scene. Runtime DLL SHA-256: `3be3e1e7b916abb7ddaa27564d9d493a8a31d9d638177573cca99e56e33f3046`. **This executable has not been run or accepted on Windows.**
 
 Evidence is retained inside the isolated worktree at `artifacts/upstream-integration/`: `full-first/` (original failures and source patch), `corrected/`, `native/`, `manual/`, `windows/`, `audit.json` and `coverage.json`. Original failed logs remain intact.
+
+## Complete final-source run — 2026-10-07
+
+A fresh validation at committed source `365b0a6dafb81a046e3e24473fe9beb9bddf48b9` now passes **635/635 cases in one run**, build, strict import and startup smoke. The owned validator exits **0**. Every case log was independently checked for its pass marker and forbidden error diagnostics, including case 264; the existing narrow editor-only exception is unchanged. No runtime, tests, timeout or validator filters changed during the run.
+
+The only temporary project override selected the separate `Deuteros-validation635-20261007` user-data directory, allowing protected-save normal campaign play to continue independently. Original project SHA-256 `f6120cd690eb5024729e6133493870125cdc09855b366cf6af87c1f93d0e79db` is restored and the isolated worktree is clean. Main checkout `5fd3c8a` has identical `Godot` and `scripts` trees. This run does not repeat the unchanged Windows export or the earlier 19 tooling checks.
+
+Evidence: `artifacts/worktrees/upstream-integration/artifacts/upstream-integration/full-final/`, containing `run.log`, `results/`, source/profile hashes, `result.json` and runnable `audit.py`. All earlier failing runs remain intact. This is current full Mac regression evidence, not Windows execution or proof that intermittent shutdown faults are resolved.
 
 ## Still open
 
