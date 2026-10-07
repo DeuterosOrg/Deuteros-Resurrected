@@ -296,3 +296,8 @@ Normal SCG cargo flight enables lunar MTX construction, then seven delivered rig
 ### Titania defence and parallel drone replenishment — 2026-10-07
 
 Normal 200v200 Titania defence won with 145 drones/all 33 battle crew retained; enemy retreated with 100. Parallel production made 55 IOS and 68 Star Drones with all-ingredient interval ledgers, then loaded WAYFARER 200/SCG 113. Routes restored, fuel reconciled, later routine attrition retained, exact reload/clean exit/original-profile restoration passed. [Evidence and day-23720 continuation](native-gameplay-results.md#titania-defence-and-parallel-fleet-production--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Continue SCG fleet preparation, interstellar/later campaign and matching Windows acceptance.
+
+
+### First normal interstellar arrival and captured-system refuelling — 2026-10-07
+
+Manufactured 87 Star Drones and loaded SCG 200. Earth→Atlantic completed normally in 212 updates with exact in-flight reload, 201 fuel consumed and correct Proxima clock offset. Station victory retained 122 drones; first SDM attempt failed and is preserved, explicit post-victory replay captured Atlantic. Cross-system MTX delivered 4992 HeD and 2030 refuelled the SCG to 250. Second Titania defence's 166-drone loss is retained; 105 replacements manufactured, 68 loaded. Final world reload/strict exit0/original-profile restoration pass. [Evidence and day 24535 continuation](native-gameplay-results.md#first-scg-interstellar-flight-and-atlantic-capture--2026-10-07). SCG return travel, imminent Proxima defence, later-system progression and matching Windows acceptance remain open. Counts remain **35/48 implementation evidence; four locally accepted requirements**.
