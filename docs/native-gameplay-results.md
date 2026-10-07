@@ -366,7 +366,7 @@ Normal play from day12396 manufactures one IOS drive, one DFCC and28 drones. An 
 
 Five drones transfer first, then23 more. WAYFARER reaches the Moon with28 drones and fleet power196. The next natural transmission interrupts production; the saved partial job is completed rather than counting ignored clicks. At day12654, the enemy arrives with43 drones and power301. Fast time stops with the full five-update response window.
 
-**The first defence fails:** all28 player drones are destroyed, the enemy retains35, and News records WAYFARER's destruction and Admiral Blunket's death once. This outcome is retained in `lost-fleet-slot-4.json`; no victory is claimed.
+**The first defence fails:** all28 player drones are destroyed, the enemy retains 35, and News records WAYFARER's destruction and Admiral Blunket's death once. This outcome is retained in `lost-fleet-slot-4.json`; no victory is claimed.
 
 A **separate replay** loads the unchanged pre-battle save through test slot3 and selects Flee immediately. All28 drones and five crew escape and return to Earth with245 fuel. The day12657 reload preserves exact Earth, ships and News state. The Moon remains under attack with two updates left; retreat does not cancel that attack.
 
@@ -714,3 +714,19 @@ Resume **`artifacts/scg-campaign-20261007/reloaded-slot-4.json`**, day **21468**
 The runnable `audit.py`/`audit.log` checks research, component costs, each factory's charges, all drones, refinery output, exact reload, routes, ship/crew state, strict native log and process exit **0**. Original saves are restored byte-for-byte, no settings file was introduced, and the owned game is closed. Ignored logs and saves remain local.
 
 This establishes normal SCG research, manufacture, assembly, drive fitting, crew transfer and fueling. **The first interstellar journey remains pending.** Establish destination capture/resupply and continuing Sol defence before departure: both Proxima planets are hostile, and the existing ordinary-route regression leaves only 53 fuel after starting at 250 for Atlantic, insufficient for the return leg. The current empty SCG has no combat controller. Captive-colony repairs, renewed factory funding, later progression and matching Windows acceptance remain open. Totals stay **35/48 implementation evidence and four locally accepted requirements**.
+
+
+## Jupiter helium colony and deuterium supply — 2026-10-07
+
+**PASS for this bounded normal campaign continuation**, runtime `877b334`, from the day-21468 SCG checkpoint. Native controls only; no edited resources, crews, prerequisites or random outcomes.
+
+- Transfer 528 copper from Neptune to Jupiter, restore Neptune's drone route, then manufacture one shuttle chassis, drive, tool pod and repair kit. Exact combined charge: 56 iron, 92 titanium, 70 aluminium, 40 carbon and 46 copper. All four components are consumed normally.
+- Fly PROSPECTOR from Earth to Jupiter, transfer Floyd's 36-person crew to the new Jupiter Shuttle, fuel it with 30 MeH and repair the captured ground base. By day 21498 both damaged/captive flags clear. Shuttle landing, repair, takeoff and docking leave 21 fuel; Floyd returns intact to PROSPECTOR, which retains 62 fuel.
+- Seven retained derricks resume mining after their survey update. The first six producing updates add exactly 42 hydrogen and 42 helium directly to orbital stores through the installed MTX. By day 21530 cumulative output is 217 of each; 15 helium has been refined into HeD.
+- Refit FIRST LIGHT with an existing supply pod. Complete Cycle from orbit returns it to ground; a second cycle loads and delivers 250 deuterium to Earth orbit, leaving 46 fuel and ACC off. The first saved freight checkpoint still has the old Earth drone route; onward deuterium supply was not yet configured at that point. Explicitly set Earth MTX to balance deuterium with Jupiter while forwarding drones. Six subsequent updates produce 15 HeD at each station and leave 132 deuterium at each.
+
+Primary checkpoint: `artifacts/jupiter-fuel-colony-20261007/reloaded-slot-2.json`, SHA-256 `2a1fd2171a1ef97456388470f7e08187031cf6ebcff894f6863911e8b592fb4d`, **day 21530**, date `3121 436.94`, fast time off. Earth/Jupiter/Uranus have 195/15/35 HeD in stores. SCG300000 remains at Earth with Thackray/40, 250 fuel, six empty mounts and no DFCC. WAYFARER retains all 164 drones and 37 fuel at Pluto. PROSPECTOR is docked Jupiter with Floyd/36; the empty Jupiter Shuttle is docked there without a pilot. Earth sends drones and balances deuterium to Jupiter, which forwards drones to Titania; the remaining chain is unchanged. Sol enemy fleet 71, trigger 80, no active attack/countdown. Stage-four transmission is due in 32 updates.
+
+Read-only `audit.py` passes exact component charges, mining/refinery conservation, freight, fleet state, save/load comparison (excluding three elapsed-clock fields), strict native log, exit 0 and original-save hash restoration. All working saves and intermediate checkpoints are retained locally in the artifact directory; these ignored files do not travel with Git. The owned game is closed. Runtime code is unchanged since the complete 637-case validation.
+
+Next: maintain deuterium supply and Sol defence, replenish manufacturing materials, and plan SCG combat/outbound resupply before launching toward hostile Proxima. Other captured bases remain unrepaired. This is Mac campaign evidence, not Windows or complete interstellar/ending acceptance; backlog totals remain 35/48 implementation evidence and four locally accepted requirements.
