@@ -720,8 +720,8 @@ namespace Deuteros.Tests
             var item = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.prison_pod); item.Research.Researched = true; item.Locked = false;
             var stock = bay.ResourceList.Stores[ItemTypes.prison_pod];
             var point=bay.GetNode<Button>("StaffList/PrisonEquipment").GetGlobalRect().GetCenter();
-            GetViewport().PushInput(new InputEventMouseMotion{Position=point,GlobalPosition=point},true);
-            foreach(var pressed in new[]{true,false}) GetViewport().PushInput(new InputEventMouseButton{Position=point,GlobalPosition=point,ButtonIndex=MouseButton.Left,Pressed=pressed},true);
+            PushGameInput(new InputEventMouseMotion{Position=point,GlobalPosition=point});
+            foreach(var pressed in new[]{true,false}) PushGameInput(new InputEventMouseButton{Position=point,GlobalPosition=point,ButtonIndex=MouseButton.Left,Pressed=pressed});
             await InputFrames();
             Equal(true,bay.GetNode<Control>("EquipmentStock").Visible,"empty prison equipment is reachable through actual pointer hit testing");
             PressEquipmentNamed(bay,item.ShortName);

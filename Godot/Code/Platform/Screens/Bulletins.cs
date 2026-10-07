@@ -19,6 +19,7 @@ public partial class Bulletins : BaseSubScene
 	public int LetterDelayMs { get; set; }
 	private int typingGeneration;
 	private bool ownsScreenLock;
+	private bool skipRequested;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -44,9 +45,20 @@ public partial class Bulletins : BaseSubScene
 		base._ExitTree();
 	}
 
+	public override void _Input(InputEvent input)
+	{
+		if (ownsScreenLock && input is InputEventMouseButton { Pressed: true, ButtonIndex: MouseButton.Left }
+			&& Deuteros.Code.Platform.Helpers.SettingsManager.Instance.GetSetting("modern/bulletin_skip", false).AsBool())
+		{
+			skipRequested = true;
+			GetViewport().SetInputAsHandled();
+		}
+	}
+
 	private void CancelTyping()
 	{
 		typingGeneration++;
+		skipRequested = false;
 		if (IsInstanceValid(TypeSound)) TypeSound.Stop();
 		if (ownsScreenLock)
 		{
@@ -70,6 +82,11 @@ public partial class Bulletins : BaseSubScene
 			for (int i = 0; i < characterCount; i++)
 			{
 				if (generation != typingGeneration) return false;
+				if (skipRequested)
+				{
+					label.VisibleCharacters = -1;
+					break;
+				}
 				label.VisibleCharacters = i + 1;
 				if (i < parsedText.Length && !char.IsWhiteSpace(parsedText[i]) && TypeSound != null)
 				{
@@ -89,7 +106,7 @@ public partial class Bulletins : BaseSubScene
 	private async Task WaitMs(int ms)
 	{
 		await ToSignal(
-			GetTree().CreateTimer(ms / 1000.0),
+			GetTree().CreateTimer(ms / 1000.0, false),
 			SceneTreeTimer.SignalName.Timeout
 		);
 	}

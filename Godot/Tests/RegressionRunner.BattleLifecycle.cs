@@ -63,16 +63,16 @@ namespace Deuteros.Tests
             core._Process(GameClock.NormalIntervalSeconds);
             Equal(day, Save.CurrentDay, "normal simulation cannot destroy the ship during combat");
             var right = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true, Position = new Vector2(10, 10) };
-            GetViewport().PushInput(right, true);
+            PushGameInput(right);
             await InputFrames();
             Equal(true, Cursor.IsLocked, "right click cannot release the combat input owner");
             Equal(Scenes.ShipInterior, core.currentScene, "right click cannot leave combat through the overview");
             async Task Click(BaseButton button)
             {
                 var point = button.GetGlobalRect().GetCenter();
-                GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+                PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
                 foreach (var pressed in new[] { true, false })
-                    GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                    PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
                 await InputFrames();
             }
             await Click(interior.GetNode<Button>("Dock"));

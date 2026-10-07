@@ -15,7 +15,7 @@ namespace Deuteros.Tests
         {
             var bay = await NavigationBay(Ship_Types.Shuttle);
             var torso = bay.GetNode<Torso>(ShipParts + "Torso1");
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             if (!string.IsNullOrEmpty(OS.GetEnvironment("DEUTEROS_SCREENSHOT_DIR")))
             {
                 Press(bay, "Buttons/ShipNav/Nav_Torso1");
@@ -67,7 +67,7 @@ namespace Deuteros.Tests
             bay.ResourceList.Stores[ItemTypes.g_chassis] = 1;
             Press(bay, "Buttons/Nav_Create_SCG");
             var torso = bay.GetNode<Torso>(ShipParts + "Torso6");
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             var oldPod = bay.Ship.Modules[5];
             oldPod.ModuleType = Module_Types.Supply;
             torso.UpdateState();

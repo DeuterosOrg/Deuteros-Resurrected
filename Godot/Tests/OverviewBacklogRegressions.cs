@@ -198,7 +198,7 @@ namespace Deuteros.Tests
                 }
                 GlobalInput.LockUi(); Press(overview, "Pages/Next"); GlobalInput.UnlockUi();
                 Equal("Page 1/3", overview.GetNode<Label>("Pages/Page").Text, "page respects UI lock");
-                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
                 Press(overview, "Pages/Next");
                 Equal("Page 1/3", overview.GetNode<Label>("Pages/Page").Text, "retained page command cannot bypass overlay");
                 OverlayManager.Instance.CloseOverlay(); await InputFrames();

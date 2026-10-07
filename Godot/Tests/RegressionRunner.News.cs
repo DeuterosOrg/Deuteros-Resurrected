@@ -149,7 +149,7 @@ namespace Deuteros.Tests
         private async Task FinishBulletin(Bulletins bulletin)
         {
             bulletin.LetterDelayMs = 0;
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             for (int i = 0; i < 400 && blocker.Blocked; i++)
                 await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
             Equal(false, blocker.Blocked, "typewriter completes and releases input");
@@ -194,7 +194,7 @@ namespace Deuteros.Tests
         {
             await OpenNews();
             GameCore.SingletonInstance.ShowBulletin(BulletinTypes.Matter_Transmitter);
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             Equal(true, blocker.Blocked, "typing owns a screen lock");
             GameCore.LockScreen();
             GameCore.SingletonInstance.ChangeScene(Scenes.Overview, new List<SceneVariables>());
@@ -206,6 +206,49 @@ namespace Deuteros.Tests
             Equal(false, blocker.Blocked, "cancelled typing cannot relock or access freed controls");
         }
 
+        private async Task BulletinSkip()
+        {
+            await OpenNews();
+            var settings = SettingsManager.Instance;
+            var original = settings.GetSetting("modern/bulletin_skip", false);
+            var core = GameCore.SingletonInstance;
+            core.ShowBulletin(BulletinTypes.Matter_Transmitter);
+            var screen = ActiveScreen<Bulletins>();
+            var label = screen.GetNode<RichTextLabel>("Labels/BulletinLabel");
+            var blocker = core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
+            void Click() => screen.GetViewport().PushInput(new InputEventMouseButton
+                { ButtonIndex = MouseButton.Left, Pressed = true, Position = new Vector2(310, 195) }, true);
+            try
+            {
+                settings.SetSetting("modern/bulletin_skip", false);
+                Click();
+                await ToSignal(GetTree().CreateTimer(0.12), SceneTreeTimer.SignalName.Timeout);
+                Equal(true, blocker.Blocked && label.VisibleCharacters < label.GetTotalCharacterCount(), "disabled skip keeps typing");
+                GetTree().Paused = true;
+                var count = label.VisibleCharacters;
+                await ToSignal(GetTree().CreateTimer(0.12), SceneTreeTimer.SignalName.Timeout);
+                Equal(count, label.VisibleCharacters, "typing pauses with the game");
+                GetTree().Paused = false;
+                GameCore.LockScreen();
+                settings.SetSetting("modern/bulletin_skip", true);
+                Click();
+                await ToSignal(GetTree().CreateTimer(0.12), SceneTreeTimer.SignalName.Timeout);
+                Equal(-1, label.VisibleCharacters, "enabled skip reveals complete text");
+                Equal(true, blocker.Blocked, "skip preserves another owner's lock");
+                GameCore.UnLockScreen();
+                Equal(false, blocker.Blocked, "skip releases exactly its typing lock");
+                Equal(Scenes.Bulletins, core.currentScene, "skip click cannot navigate behind the bulletin");
+            }
+            finally
+            {
+                GetTree().Paused = false;
+                settings.SetSetting("modern/bulletin_skip", original);
+                core.ChangeScene(Scenes.Overview, new List<SceneVariables>());
+                await InputFrames();
+                await DrainStoppedAudio();
+            }
+        }
+
         private async Task BulletinReplacement()
         {
             await OpenNews();
@@ -215,7 +258,7 @@ namespace Deuteros.Tests
             core.ShowBulletin(BulletinTypes.Matter_Transmitter);
             await InputFrames();
             Equal(first, ActiveScreen<Bulletins>(), "new request preserves the active bulletin");
-            Equal(true, core.GetNode<InputBlocker>("InputBlocker").Blocked, "active bulletin retains its typing lock");
+            Equal(true, core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "active bulletin retains its typing lock");
             await FinishBulletin(ActiveScreen<Bulletins>());
         }
     }

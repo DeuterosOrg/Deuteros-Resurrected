@@ -105,7 +105,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 foreach (var tween in GetTree().GetProcessedTweens().Where(t => !existingTweens.Contains(t))) tween.Kill();
                 bay.Free();
             }
@@ -165,7 +165,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 interior.Free();
             }
         }
@@ -195,7 +195,7 @@ namespace Deuteros.Tests
             bay.Reparent(viewport);
             await InputFrames();
             var window = bay.GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier");
-            var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("GameContainer/GameViewport/InputBlocker");
             try
             {
                 for (int i = 0; i < 3; i++)
@@ -292,7 +292,7 @@ namespace Deuteros.Tests
 
         private void InactiveMenu(bool unavailable)
         {
-            var menu = GameCore.SingletonInstance.GetNode<Node>("MainScene").GetChildren().OfType<MainMenu>().Single();
+            var menu = GameCore.SingletonInstance.GetNode<Node>("GameContainer/GameViewport/MainScene").GetChildren().OfType<MainMenu>().Single();
             var original = menu.MenuButtons;
             var calls = 0;
             var enabled = new MenuModel(Menu_Buttons.Shuttle, Scenes.ShipInterior, true,
@@ -353,7 +353,7 @@ namespace Deuteros.Tests
             Save.Ships.Add(ship);
             GameCore.SingletonInstance.ShipSelected = ship.ShipID;
             var interior = OpenUi<ShipInterior>("res://Screens/ShipInterior.tscn");
-            var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+            var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
             try
             {
                 Press(interior, "SetCourse");

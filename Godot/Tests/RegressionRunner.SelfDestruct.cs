@@ -46,7 +46,7 @@ namespace Deuteros.Tests
             Equal(true, button != null, "installed mechanism has an accessible control");
             button.EmitSignal(BaseButton.SignalName.Pressed);
             await InputFrames();
-            return GameCore.SingletonInstance.GetNode("MainScene").GetChildren()
+            return GameCore.SingletonInstance.GetNode("GameContainer/GameViewport/MainScene").GetChildren()
                 .Last(n => n.Name == "SelfDestruct" && !n.IsQueuedForDeletion());
         }
 
@@ -331,7 +331,7 @@ namespace Deuteros.Tests
             Equal(true, GameCore.Earth.ActiveMethanoid, "discovery does not capture");
             Equal(16, GameCore.Earth.Station.SdmCountdown, "discovery does not reset armed countdown");
             var bulletin = ActiveScreen<Bulletins>();
-            var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("GameContainer/GameViewport/InputBlocker");
             Equal(true, blocker.Blocked, "discovery text owns input");
             GameCore.SingletonInstance._Process(30);
             Equal(true, GameCore.Earth.Station.Built, "mandatory discovery playback cannot destroy the occupied station");

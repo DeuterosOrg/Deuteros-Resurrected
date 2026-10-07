@@ -1,24 +1,39 @@
-[gd_scene load_steps=5 format=3 uid="uid://cky87cqjrgka8"]
+[gd_scene load_steps=7 format=3 uid="uid://cky87cqjrgka8"]
 
 [ext_resource type="Script" path="res://Code/GameCore.cs" id="1_udj03"]
 [ext_resource type="Script" path="res://Code/Utility/GlobalInput.cs" id="2_2sjdf"]
 [ext_resource type="Texture2D" uid="uid://bl05c2bk21a7j" path="res://Sprites/Cursor.png" id="3_kigfk"]
 [ext_resource type="Script" path="res://Code/Platform/Helpers/InputBlocker.cs" id="4_t7gkw"]
+[ext_resource type="Script" path="res://Code/Platform/Helpers/GameViewportContainer.cs" id="5_gvcon"]
+
+[ext_resource type="Script" path="res://Code/Platform/Helpers/GameInput.cs" id="6_input"]
 
 [node name="Master" type="Node2D"]
 script = ExtResource("1_udj03")
 
-[node name="MainScene" type="Node2D" parent="."]
+[node name="GameContainer" type="SubViewportContainer" parent="."]
+texture_filter = 1
+script = ExtResource("5_gvcon")
 
-[node name="VirtualCursorView" type="CanvasLayer" parent="."]
+[node name="GameViewport" type="SubViewport" parent="GameContainer"]
+handle_input_locally = false
+canvas_item_default_texture_filter = 0
+size = Vector2i(320, 200)
+
+[node name="GameInput" type="Node" parent="GameContainer/GameViewport"]
+script = ExtResource("6_input")
+
+[node name="MainScene" type="Node2D" parent="GameContainer/GameViewport"]
+
+[node name="VirtualCursorView" type="CanvasLayer" parent="GameContainer/GameViewport"]
 script = ExtResource("2_2sjdf")
 CursorTexture = ExtResource("3_kigfk")
 Hotspot = Vector2(7, 7)
 
-[node name="Cursor" type="TextureRect" parent="VirtualCursorView"]
+[node name="Cursor" type="TextureRect" parent="GameContainer/GameViewport/VirtualCursorView"]
 offset_right = 7.0
 offset_bottom = 7.0
 mouse_filter = 2
 
-[node name="InputBlocker" type="ColorRect" parent="."]
+[node name="InputBlocker" type="ColorRect" parent="GameContainer/GameViewport"]
 script = ExtResource("4_t7gkw")

@@ -247,13 +247,13 @@ namespace Deuteros.Tests
             }
             ((Shuttle)interior.Ship).OnGround = true;
             interior.Ship.ShipState = Ship_States.Docked;
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             try
             {
                 blocker.SetBlocked(true); Rejected("screen lock"); blocker.SetBlocked(false);
                 GlobalInput.LockUi(); Rejected("UI lock"); GlobalInput.UnlockUi();
                 Cursor.LockToRect(new Rect2(0, 0, 10, 10)); Rejected("cursor lock"); Cursor.Unlock();
-                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
                 Rejected("overlay owns input"); OverlayManager.Instance.CloseOverlay();
                 GameCore.Earth.ActiveMethanoid = true; Rejected("hostile bay"); GameCore.Earth.ActiveMethanoid = false;
                 ((Shuttle)interior.Ship).OnGround = false;
@@ -369,7 +369,7 @@ namespace Deuteros.Tests
             Press(interior, "EngineControls/EngageEngine");
             Equal(Ship_States.InTransit, ship.ShipState, "departure begins");
             Equal(true, ActiveScreen<MainMenu>().MenuButtons.All(b => b == null), "menus disabled immediately in transit");
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             blocker.SetBlocked(true);
             try
             {
@@ -399,7 +399,7 @@ namespace Deuteros.Tests
             button.EmitSignal(BaseButton.SignalName.Pressed);
             Equal(true, OverlayManager.Instance.IsOpen, "rename opens an overlay");
             Equal(true, GetTree().Paused, "rename pauses simulation");
-            return OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/RenameShip");
+            return OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/RenameShip");
         }
 
         private async Task RenameShipPersistence()
@@ -497,7 +497,7 @@ namespace Deuteros.Tests
                 Press(interior, "TextLayout/RenameShip");
                 Equal(false, OverlayManager.Instance.IsOpen, "UI lock prevents opening rename");
                 GlobalInput.UnlockUi();
-                var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+                var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
                 blocker.SetBlocked(true);
                 try
                 {

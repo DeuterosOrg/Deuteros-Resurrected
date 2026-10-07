@@ -114,7 +114,7 @@ namespace Deuteros.Tests
                 await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
                 Equal<GrappleItem>(null, ship.Modules[0].HeldItem, "object removed for analysis");
                 Equal(false, research.Locked, "correct research programme unlocked");
-                Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "analysis releases input");
+                Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "analysis releases input");
                 if (type == UnknownItemTypes.AlienArtifact)
                     Equal(12, research.ResearchPercentageComplete, "first artifact directly completes twelve percent");
                 if (type == UnknownItemTypes.CommsPod)
@@ -124,7 +124,7 @@ namespace Deuteros.Tests
                 // A delayed duplicate close must not repeat the research reward or crash.
                 GameCore.LockScreen();
                 window.Closed(window.DataObject);
-                Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "duplicate close cannot release a newer input lock");
+                Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "duplicate close cannot release a newer input lock");
                 GameCore.UnLockScreen();
                 if (type == UnknownItemTypes.AlienArtifact)
                     Equal(12, research.ResearchPercentageComplete, "repeat close cannot duplicate artifact credit");
@@ -452,7 +452,7 @@ namespace Deuteros.Tests
                 core.TriggerResearchFinished(research);
                 Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.D_F_C_C), "repeat research event does not duplicate unlock");
                 Equal(bulletin, ActiveScreen<Bulletins>(), "repeat event does not reopen bulletin");
-                Equal(false, core.GetNode<InputBlocker>("InputBlocker").Blocked, "repeat event does not restart typing");
+                Equal(false, core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "repeat event does not restart typing");
             }
             finally { text.BulletinText = originalText; }
         }
@@ -553,7 +553,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 CloseDismantleBay(bay, tweens);
             }
 
@@ -574,7 +574,7 @@ namespace Deuteros.Tests
                 Press(ActiveScreen<ShipInterior>(), "Modules/01");
                 GD.Print("COMMS PHASE: trade activated");
                 await InputFrames();
-                var trade = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision");
+                var trade = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/TradeDecision");
                 Press(trade, "Accept");
                 await InputFrames();
                 Equal(1, Save.MethanoidTradeCount, "first real trade interaction recorded");

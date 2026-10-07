@@ -125,7 +125,8 @@ namespace Deuteros.Tests
         {
             var player = await OpenAlarmStation();
             var core = GameCore.SingletonInstance;
-            var soundEnabled = core.Config.SoundEnabled;
+            var settings = Deuteros.Code.Platform.Helpers.SettingsManager.Instance;
+            var volume = settings.GetSetting("audio/master_volume");
             GameCore.Earth.Station.SdmCountdown = 12;
             await InputFrames();
             try
@@ -135,13 +136,13 @@ namespace Deuteros.Tests
                 Equal(false, player.CanProcess(), "paused game pauses alarm player");
                 Equal(true, player.StreamPaused, "paused tree suspends playback");
                 GetTree().Paused = false;
-                core.Config.SoundEnabled = false;
-                core.Config.ApplyAudio();
+                settings.SetSetting("audio/master_volume", 0);
+                settings.ApplyAudio();
                 await InputFrames();
                 Equal(true, AudioServer.IsBusMute(AudioServer.GetBusIndex(player.Bus)), "alarm respects sound setting");
                 Equal(true, player.Playing, "mute does not reset alarm phase");
-                core.Config.SoundEnabled = true;
-                core.Config.ApplyAudio();
+                settings.SetSetting("audio/master_volume", 10);
+                settings.ApplyAudio();
                 core._Process(12);
                 await InputFrames();
                 Equal(false, player.Playing, "station expiry stops alarm");
@@ -159,8 +160,8 @@ namespace Deuteros.Tests
             finally
             {
                 GetTree().Paused = false;
-                core.Config.SoundEnabled = soundEnabled;
-                core.Config.ApplyAudio();
+                settings.SetSetting("audio/master_volume", volume);
+                settings.ApplyAudio();
             }
             // Leave the alarm playing: normal regression teardown must also exit cleanly.
             await InputFrames();
@@ -171,8 +172,8 @@ namespace Deuteros.Tests
         {
             await OpenAlarmStation();
             var core = GameCore.SingletonInstance;
-            var enabled = core.Config.SoundEnabled;
-            var volume = core.Config.Volume;
+            var settings = Deuteros.Code.Platform.Helpers.SettingsManager.Instance;
+            var volume = settings.GetSetting("audio/master_volume");
             Equal(true, AudioServer.GetBusIndex("Game") >= 0, "ordinary sounds have a separate bus for alarm priority");
             ActiveScreen<MainMenu>().GetNode<AudioStreamPlayer>("MenuClickSound").Stop();
             await DrainStoppedAudio();
@@ -190,9 +191,8 @@ namespace Deuteros.Tests
             AudioServer.AddBusEffect(bus, capture);
             try
             {
-                core.Config.SoundEnabled = true;
-                core.Config.Volume = 100;
-                core.Config.ApplyAudio();
+                settings.SetSetting("audio/master_volume", 10);
+                settings.ApplyAudio();
                 GameCore.Earth.Station.SdmCountdown = 12;
                 ActiveScreen<MainMenu>()._Process(0);
                 // A newly requested ordinary sound must not leak into either alarm channel.
@@ -211,9 +211,8 @@ namespace Deuteros.Tests
                 AudioServer.RemoveBusEffect(bus, effectIndex);
                 tone.Stop();
                 tone.Free();
-                core.Config.SoundEnabled = enabled;
-                core.Config.Volume = volume;
-                core.Config.ApplyAudio();
+                settings.SetSetting("audio/master_volume", volume);
+                settings.ApplyAudio();
                 await DrainStoppedAudio();
             }
         }

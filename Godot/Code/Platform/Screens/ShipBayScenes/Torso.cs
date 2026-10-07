@@ -168,7 +168,7 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 
 		public void ChangeModuleType(Module_Types moduleType)
 		{
-			if (animationOwner != null || GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked) return;
+			if (animationOwner != null || GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked) return;
 			var oldTexture = Module.ModuleType == Module_Types.None ? null : Component.Texture;
 			bool success;
 

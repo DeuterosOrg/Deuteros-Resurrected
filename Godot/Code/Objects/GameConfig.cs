@@ -16,14 +16,22 @@ namespace Deuteros.Code.Objects
 
         public void Load()
         {
+            config.Clear();
             if (FileAccess.FileExists(FilePath)) config.Load(FilePath);
+            // Convert the earlier preferences in memory; Apply remains the only disk write.
+            if (!HasValue("audio", "master_volume") && (HasValue("audio", "enabled") || HasValue("audio", "volume")))
+                config.SetValue("audio", "master_volume", SoundEnabled ? (int)Math.Round(Volume / 10.0, MidpointRounding.AwayFromZero) : 0);
+            if (!HasValue("display", "resolution") && HasValue("display", "scale"))
+                config.SetValue("display", "resolution", $"{Math.Max(1280, 320 * WindowScale)} x {Math.Max(720, 200 * WindowScale)}");
+            if (!HasValue("display", "window_mode") && HasValue("display", "fullscreen"))
+                config.SetValue("display", "window_mode", Fullscreen ? "Borderless" : "Windowed");
         }
 
         public Godot.Error Save() => config.Save(FilePath);
-        public Godot.Error SetValue(string section, string key, Variant value)
+        public Godot.Error SetValue(string section, string key, Variant value, bool save = true)
         {
             config.SetValue(section, key, value);
-            return Save();
+            return save ? Save() : Godot.Error.Ok;
         }
         public Variant GetValue(string section, string key, Variant fallback = default) => config.GetValue(section, key, fallback);
         public bool HasValue(string section, string key) => config.HasSectionKey(section, key);
@@ -39,48 +47,11 @@ namespace Deuteros.Code.Objects
             return value.VariantType == Variant.Type.Bool ? (bool)value : fallback;
         }
 
-        public bool SoundEnabled
-        {
-            get => ReadBool("audio", "enabled", true);
-            set => config.SetValue("audio", "enabled", value);
-        }
-        public int Volume
-        {
-            get => Math.Clamp(ReadInt("audio", "volume", 100), 0, 100);
-            set => config.SetValue("audio", "volume", Math.Clamp(value, 0, 100));
-        }
-        public int WindowScale
-        {
-            get => Math.Clamp(ReadInt("display", "scale", 3), 2, 4);
-            set => config.SetValue("display", "scale", Math.Clamp(value, 2, 4));
-        }
-        public bool Fullscreen
-        {
-            get => ReadBool("display", "fullscreen", false);
-            set => config.SetValue("display", "fullscreen", value);
-        }
-
-        public void ApplyAudio()
-        {
-            var master = AudioServer.GetBusIndex("Master");
-            AudioServer.SetBusMute(master, !SoundEnabled || Volume == 0);
-            AudioServer.SetBusVolumeDb(master, Volume == 0 ? -80 : Mathf.LinearToDb(Volume / 100f));
-        }
-
-        public void ApplyDisplay()
-        {
-            if (DisplayServer.GetName() == "headless") return;
-            DisplayServer.WindowSetMode(Fullscreen ? DisplayServer.WindowMode.Fullscreen : DisplayServer.WindowMode.Windowed);
-            if (!Fullscreen) DisplayServer.WindowSetSize(new Vector2I(320 * WindowScale, 200 * WindowScale));
-        }
-
-        public void ResetPreferences()
-        {
-            SoundEnabled = true;
-            Volume = 100;
-            WindowScale = 3;
-            Fullscreen = false;
-        }
+        // Legacy keys are read only during migration and remain type checked.
+        public bool SoundEnabled => ReadBool("audio", "enabled", true);
+        public int Volume => Math.Clamp(ReadInt("audio", "volume", 100), 0, 100);
+        public int WindowScale => Math.Clamp(ReadInt("display", "scale", 3), 2, 4);
+        public bool Fullscreen => ReadBool("display", "fullscreen", false);
 
         public void Dispose() => config.Dispose();
     }

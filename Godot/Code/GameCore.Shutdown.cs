@@ -28,7 +28,7 @@ namespace Deuteros.Code
             Platform.Helpers.OverlayManager.Instance?.CloseForShutdown();
             // Scene exit cancels typing and stops background players. Do this
             // while the mixer and managed runtime are still available.
-            foreach (var scene in GetNode("MainScene").GetChildren()) scene.Free();
+            foreach (var scene in GetNode("GameContainer/GameViewport/MainScene").GetChildren()) scene.Free();
             _currentScreen = null;
             _menuScreen = null;
 

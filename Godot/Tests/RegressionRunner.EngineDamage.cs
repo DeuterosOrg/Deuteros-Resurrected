@@ -286,9 +286,9 @@ namespace Deuteros.Tests
                 if (tween.IsRunning()) await ToSignal(tween, Tween.SignalName.Finished);
             await InputFrames();
             var point = bay.GetNode<Control>(path).GetGlobalRect().GetCenter();
-            GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+            PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
             foreach (var pressed in new[] { true, false })
-                GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
             await InputFrames();
             Equal(false, Damaged(ship), "replacement clears damage");
             Equal(false, ship.EngineEngaged, "new drive is disengaged");
@@ -385,9 +385,9 @@ namespace Deuteros.Tests
             Equal("Damaged !", interior.GetNode<Label>("TextLayout/EngineStatusValue").Text, "damage warning takes precedence over engagement");
             Equal(true, interior.GetNode<Control>("EngineControls/EngageEngine").Visible, "escape control remains available");
             var point = interior.GetNode<Control>("EngineControls/EngageEngine").GetGlobalRect().GetCenter();
-            GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+            PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
             foreach (var pressed in new[] { true, false })
-                GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
             await InputFrames();
             Equal(Ship_States.InTransit, ship.ShipState, "actual engine control permits damaged departure");
             await InputFrames();

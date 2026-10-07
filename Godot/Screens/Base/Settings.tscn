@@ -1,9 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://cpdbfevqjaiv"]
-
-[ext_resource type="Script" path="res://Code/Platform/Screens/Settings.cs" id="1"]
-
-[node name="Settings" type="Control"]
-custom_minimum_size = Vector2(288, 180)
-layout_mode = 3
-anchors_preset = 0
-script = ExtResource("1")

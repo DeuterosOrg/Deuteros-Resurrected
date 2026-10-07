@@ -213,9 +213,10 @@ namespace Deuteros.Tests
             GetTree().Paused = false;
             await WithSettings(async settings =>
             {
-                Press(settings, "Preferences/Sound");
+                settings.MasterVolumeRow.ValueSlider.Value = 0;
                 Equal(true, AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "menu inherits muted Master bus");
-                Press(settings, "Resume");
+                Press(settings, "%ApplyButton");
+                Press(settings, "%CloseButton");
                 await InputFrames();
                 var finished = 0;
                 player.Finished += () => finished++;

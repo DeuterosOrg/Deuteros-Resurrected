@@ -63,7 +63,7 @@ namespace Deuteros.Tests
                 Press(interior, "Modules/00");
                 Equal(true, OverlayManager.Instance.IsOpen, "missing pilot warning opens");
                 Equal(true, GetTree().Paused, "warning pauses the game");
-                var dialog = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0);
+                var dialog = OverlayManager.Instance.GetNode("GlobalOverlay/GameArea/Center").GetChild(0);
                 var warning = dialog.GetNode<RichTextLabel>("Labels/WarningBody");
                 Equal("Orbital Factory Section", dialog.GetNode<Label>("Labels/ToolType").Text, "warning identifies OF equipment");
                 Equal("1", dialog.GetNode<Label>("Window/Background/Number").Text, "warning identifies selected pod");
@@ -124,7 +124,7 @@ namespace Deuteros.Tests
                 Equal(originalPilot, ship.Pilot, "crew retained");
                 Equal(fuel, ship.Fuel, "deployment does not burn extra fuel");
                 Equal(false, OverlayManager.Instance.IsOpen, "qualified pilot gets no warning");
-                Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "deployment unlocks input");
+                Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "deployment unlocks input");
                 Equal(true, window != null, "normal deployment message was shown");
                 Equal(false, GodotObject.IsInstanceValid(window), "finished deployment message freed");
             }

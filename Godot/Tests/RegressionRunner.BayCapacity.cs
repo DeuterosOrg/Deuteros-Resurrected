@@ -37,7 +37,7 @@ namespace Deuteros.Tests
                 Equal(300, stores[ItemTypes.titanium], "blocked swap takes no replacement cargo");
                 Equal(true, OverlayManager.Instance.IsOpen, "blocked transfer explains capacity requirement");
                 await InputFrames();
-                var warning = OverlayManager.Instance.GetNode<Label>("GlobalOverlay/Center/Node2D/ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
+                var warning = OverlayManager.Instance.GetNode<Label>("GlobalOverlay/GameArea/Center/Node2D/ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
                 Equal(true, warning.GetParent<Control>().GetGlobalRect().Encloses(warning.GetGlobalRect()), "capacity message fits inside warning panel");
                 await CaptureDisplayEvidence("bay-capacity-" + hull + "-" + selected);
                 OverlayManager.Instance.CloseOverlay();

@@ -111,7 +111,7 @@ public partial class Overview : BaseSubScene
     private void ChangePage(int delta)
     {
         if (!IsInsideTree() || IsQueuedForDeletion() || GetTree().Paused || GlobalInput.UiLocked
-            || OverlayManager.Instance.IsOpen || GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked) return;
+            || OverlayManager.Instance.IsOpen || GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked) return;
         page += delta;
         UpdateState();
     }

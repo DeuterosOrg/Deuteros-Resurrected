@@ -10,7 +10,7 @@ script = ExtResource("1_3ulg8")
 TypeSound = NodePath("AudioStreamPlayer")
 
 [node name="AudioStreamPlayer" type="AudioStreamPlayer" parent="."]
-bus = &"Game"
+bus = &"Interface"
 stream = ExtResource("2_orkdq")
 
 [node name="Window" parent="." instance=ExtResource("3_capk4")]

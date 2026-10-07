@@ -84,7 +84,7 @@ namespace Deuteros.Tests
         {
             Press(interior, "Modules/01");
             await InputFrames();
-            var dialog = OverlayManager.Instance.GetNodeOrNull<Control>("GlobalOverlay/Center/TradeDecision");
+            var dialog = OverlayManager.Instance.GetNodeOrNull<Control>("GlobalOverlay/GameArea/Center/TradeDecision");
             Equal(true, dialog != null, "trade waits for an explicit decision");
             return dialog;
         }
@@ -99,7 +99,7 @@ namespace Deuteros.Tests
             Equal(100, ship.Fuel, "unaccepted offer does not refuel");
             Equal(true, GetTree().Paused, "pending decision pauses underlying simulation");
             Press(interior, "Modules/01");
-            Equal(dialog, OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision"), "repeat module input keeps the same decision");
+            Equal(dialog, OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/TradeDecision"), "repeat module input keeps the same decision");
             await CaptureDisplayEvidence("methanoid-trade-choice");
             Press(dialog, "Accept");
             Press(dialog, "Accept");
@@ -216,10 +216,10 @@ namespace Deuteros.Tests
                 new List<Line> { new Line("Trading question still typing", Colors.White, false, false) };
             Press(interior, "Modules/01");
             await InputFrames();
-            Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "typing owns a lock");
+            Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "typing owns a lock");
             GameCore.SingletonInstance.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
             await ToSignal(GetTree().CreateTimer(0.3), SceneTreeTimer.SignalName.Timeout);
-            Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "cancelled typing releases its lock");
+            Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "cancelled typing releases its lock");
             Equal(5, Save.MethanoidTradeCount, "cancelled text does not settle trade");
             Equal(false, OverlayManager.Instance.IsOpen, "cancelled text cannot open a late choice");
         });
@@ -266,7 +266,7 @@ namespace Deuteros.Tests
             Equal(6, Save.MethanoidTradeCount, "interruption does not count twice");
             Equal(250, ship.Fuel, "interruption preserves accepted fuel");
             Equal(123, ship.Modules[1].ItemCount, "interruption preserves exact cargo amount");
-            Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker").Blocked, "response interruption releases lock");
+            Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "response interruption releases lock");
         });
 
         private async Task TradeSixteenthAcceptance() => await WithTrade(async (ship, interior) =>
@@ -324,7 +324,7 @@ namespace Deuteros.Tests
                 await InputFrames();
                 Press(ActiveScreen<ShipInterior>(), "Modules/" + commsPosition.ToString("00"));
                 await InputFrames();
-                var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/TradeDecision");
+                var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/TradeDecision");
                 Equal(commsPosition == 0 ? 2 : 3, dialog.GetNode<Label>("Cargo/Items").Text.Split('\n').Length,
                     "offer counts absolute pod positions, not the first three supply pods");
                 Press(dialog, "Accept");

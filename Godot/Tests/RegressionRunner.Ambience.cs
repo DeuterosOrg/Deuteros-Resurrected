@@ -43,9 +43,10 @@ namespace Deuteros.Tests
             Equal("res://Sounds/Background/" + track + ".ogg", player.Stream.ResourcePath, "supplied track selected");
             Equal(true, player.Stream is AudioStreamOggVorbis ogg && ogg.Loop, "ambience loops");
             Equal(true, player.Playing, "ambience is playing");
-            Equal("Game", player.Bus.ToString(), "ambience follows game sound priority");
-            Equal("Master", AudioServer.GetBusSend(AudioServer.GetBusIndex(player.Bus)).ToString(), "game sounds inherit master preferences");
-            Equal(1, GameCore.SingletonInstance.GetNode("MainScene").FindChildren("SoundPlayer", "AudioStreamPlayer", true, false)
+            Equal("Music", player.Bus.ToString(), "ambience follows music preferences");
+            Equal("Game", AudioServer.GetBusSend(AudioServer.GetBusIndex("Music")).ToString(), "music follows game sound priority");
+            Equal("Master", AudioServer.GetBusSend(AudioServer.GetBusIndex("Game")).ToString(), "game sounds inherit master preferences");
+            Equal(1, GameCore.SingletonInstance.GetNode("GameContainer/GameViewport/MainScene").FindChildren("SoundPlayer", "AudioStreamPlayer", true, false)
                 .OfType<AudioStreamPlayer>().Count(p => p.Playing), "one active ambience player");
             return player;
         }
@@ -92,13 +93,13 @@ namespace Deuteros.Tests
                 }
                 await WithSettings(async settings =>
                 {
-                    Press(settings, "Preferences/Sound");
+                    settings.MasterVolumeRow.ValueSlider.Value = 0;
                     Equal(true, AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "settings mute reaches ambience through Master");
-                    settings.GetNode<HSlider>("Preferences/Volume").Value = 35;
+                    settings.MasterVolumeRow.ValueSlider.Value = 3;
                     Equal(true, AudioServer.GetBusVolumeDb(AudioServer.GetBusIndex("Master")) < 0, "settings volume reaches ambience through Master");
-                    Press(settings, "Preferences/Sound");
                     Equal(false, AudioServer.IsBusMute(AudioServer.GetBusIndex("Master")), "unmuting restores ambience through Master");
-                    Press(settings, "Resume");
+                    Press(settings, "%ApplyButton");
+                    Press(settings, "%CloseButton");
                     await InputFrames();
                     Equal(true, player.Playing, "ambience resumes after settings");
                 });
@@ -127,7 +128,7 @@ namespace Deuteros.Tests
                 core.ChangeScene(Scenes.Earth_Training, new List<SceneVariables>());
                 await InputFrames();
             }
-            Deuteros.Code.Platform.Helpers.OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+            Deuteros.Code.Platform.Helpers.OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
             Equal(true, GetTree().Paused, "shutdown begins with paused settings open");
             // The runner emits the real close notification after reporting the
             // assertion result; the external validator requires a clean exit.

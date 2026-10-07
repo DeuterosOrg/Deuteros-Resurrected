@@ -14,6 +14,7 @@ using Deuteros.Code.Objects.Interfaces;
 using Deuteros.Code.Platform;
 using static Deuteros.Code.Enums;
 using Deuteros.Code.Objects.GameData;
+using Deuteros.Code.Objects.Bulletins;
 
 namespace Deuteros.Code
 {
@@ -239,7 +240,7 @@ namespace Deuteros.Code
 
 		public Guid ShipSelected { get; set; }
 
-		public GameConfig Config { get; set; }
+		public GameConfig Config => SettingsManager.Instance.Config;
 
 		//Data stored in the GameCore is temporary
 		public delegate void DayPassedDelegate(uint previousDay, uint currentDay);
@@ -271,11 +272,6 @@ namespace Deuteros.Code
 		public GameCore()
 		{
 			HoverText = "";
-
-			Config = new GameConfig();
-
-			Config.ApplyAudio();
-			Config.ApplyDisplay();
 		}
 
 		// Called when the node enters the scene tree for the first time.
@@ -296,7 +292,7 @@ namespace Deuteros.Code
 			CoreData.CreateBaseGameData();
 			GameData.ActiveSaveFile = CoreData.CreateNewSaveFile();
 
-			_screenLocker = GetNode<InputBlocker>("/root/Master/InputBlocker");
+			_screenLocker = GetNode<InputBlocker>("/root/Master/GameContainer/GameViewport/InputBlocker");
 
 			// Original order: extraction, MTX, factory/research work, attrition, ships, refining.
 			SimulationDayPassed += _unlocker.DayTick;
@@ -316,14 +312,14 @@ namespace Deuteros.Code
 			ChangeScene(Enums.Scenes.IntroScreen, new List<Enums.SceneVariables>());
 		}
 
-		public override void _Input(InputEvent @event)
+		public void HandleGameInput(InputEvent @event)
 		{
-			// Master receives input after descendant screens, so their modal dismissals take priority.
+			// The game viewport routes input after descendant screens, so their modal dismissals take priority.
 			if (@event is not InputEventMouseButton mouse || mouse.ButtonIndex != MouseButton.Right || !mouse.Pressed)
 				return;
 			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen || currentScene == Scenes.Overview)
 				return;
-			if (GetNode<GlobalInput>("VirtualCursorView").IsLocked)
+			if (GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
 				return;
 			if (!GameData.ActiveSaveFile.BaseGameData.Planets.Values.Any(planet => planet.Station.BuildParts > 0 && !planet.ActiveMethanoid))
 				return;
@@ -342,7 +338,7 @@ namespace Deuteros.Code
 		}
 
 		private bool StoryDisplayBlocked() => _screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
-				|| GetNode<GlobalInput>("VirtualCursorView").IsLocked
+				|| GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked
 				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen;
 
 		private void PublishPendingStory()
@@ -527,7 +523,7 @@ namespace Deuteros.Code
 			if (_currentScreen != null && _currentScreen.SceneFilePath.Contains("IntroScreen"))
 			{
 				var newMenuScene = GD.Load<PackedScene>("res://Screens/Base/MenuBase.tscn").Instantiate<MainMenu>();
-				GetNode<Node>("/root/Master/MainScene").AddChild(newMenuScene);
+				GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newMenuScene);
 				_menuScreen = newMenuScene;
 			}
 
@@ -538,7 +534,7 @@ namespace Deuteros.Code
 
 			var newScene = GD.Load<PackedScene>("res://Screens/" + newSceneName).Instantiate<BaseSubScene>();
 			newScene.SceneVariables = sceneVariables;
-			GetNode<Node>("/root/Master/MainScene").AddChild(newScene);
+			GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newScene);
 			_currentScreen = newScene;
 
 			UpdateMenuButtons(sceneVariables.Contains(Enums.SceneVariables.Ground), sceneVariables.Contains(Enums.SceneVariables.Orbit));

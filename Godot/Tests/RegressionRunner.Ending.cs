@@ -190,7 +190,7 @@ namespace Deuteros.Tests
             var interior = await OpenInterstellarInterior(ship);
             var before = SaveStorage.Serialize(Save);
             Press(interior, "Modules/05"); await InputFrames();
-            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "fitted sixth-mount transmitter plays ending");
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/GameArea/Center/Ending") != null, "fitted sixth-mount transmitter plays ending");
             Press(interior, "Modules/05");
             Equal(true, before == SaveStorage.Serialize(Save), "activation consumes no fuel item crew or campaign time");
             OverlayManager.Instance.CloseOverlay(); await InputFrames();
@@ -210,13 +210,13 @@ namespace Deuteros.Tests
                 var interior = await OpenInterstellarInterior(ship);
                 Press(interior, "Modules/05"); await InputFrames();
                 Equal(true, OverlayManager.Instance.IsOpen, "low or missing rank receives module warning");
-                Equal(true, OverlayManager.Instance.GetNode<RichTextLabel>("GlobalOverlay/Center/OFPilotWarning/Labels/WarningBody").GetParsedText().Contains("Warlord"), "warning explains required rank");
+                Equal(true, OverlayManager.Instance.GetNode<RichTextLabel>("GlobalOverlay/GameArea/Center/OFPilotWarning/Labels/WarningBody").GetParsedText().Contains("Warlord"), "warning explains required rank");
                 await CaptureDisplayEvidence("transmitter-rank-" + absent);
                 OverlayManager.Instance.CloseOverlay(); await InputFrames();
             }
             ship.Pilot = crew; crew.Warlord = true; crew.Count = 0;
             var qualified = await OpenInterstellarInterior(ship); Press(qualified, "Modules/05"); await InputFrames();
-            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "original action checks assigned rank without inventing a crew-count gate");
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/GameArea/Center/Ending") != null, "original action checks assigned rank without inventing a crew-count gate");
             OverlayManager.Instance.CloseOverlay();
         }
 
@@ -252,12 +252,12 @@ namespace Deuteros.Tests
             OverlayManager.Instance.CloseOverlay(); await InputFrames();
             // Allowed owned overlay callbacks still work after the shared pause guard.
             Press(interior, "TextLayout/RenameShip"); await InputFrames();
-            var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/RenameShip");
+            var dialog = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/RenameShip");
             dialog.GetNode<LineEdit>("NameEdit").Text = "Transmitter crew";
             Press(dialog, "Confirm"); await InputFrames();
             Equal("Transmitter crew", ship.Name, "owned rename confirmation remains usable");
             Press(interior, "TextLayout/CargoActions"); await InputFrames();
-            var cargo = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/SupplyPods");
+            var cargo = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/SupplyPods");
             Press(cargo, "Rows/Pod0/Ditch");
             Equal(0, ship.Modules[0].ItemCount, "owned cargo confirmation remains usable");
             OverlayManager.Instance.CloseOverlay();
@@ -299,7 +299,7 @@ namespace Deuteros.Tests
             if (!string.IsNullOrEmpty(evidence))
                 System.IO.File.WriteAllText(System.IO.Path.Combine(evidence, "transmitter-ready.json"), SaveStorage.Serialize(Save));
             Press(interior, "Modules/05"); await InputFrames();
-            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/Center/Ending") != null, "eight captures recovery manufacture fitting launch and activation reach original ending");
+            Equal(true, OverlayManager.Instance.GetNodeOrNull<Ending>("GlobalOverlay/GameArea/Center/Ending") != null, "eight captures recovery manufacture fitting launch and activation reach original ending");
             OverlayManager.Instance.CloseOverlay();
         }
 

@@ -37,7 +37,7 @@ namespace Deuteros.Tests
         {
             var menu = TimeMenu(scene);
             var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
-            var main = GameCore.SingletonInstance.GetNode<Node>("MainScene");
+            var main = GameCore.SingletonInstance.GetNode<Node>("GameContainer/GameViewport/MainScene");
             var parent = main.GetParent();
             if (scene == Scenes.Store)
                 GameCore.SingletonInstance.ChangeScene(scene, new List<SceneVariables> { SceneVariables.Orbit });

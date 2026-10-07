@@ -115,7 +115,7 @@ namespace Deuteros.Tests
                 Equal(!scg, OverlayManager.Instance.IsOpen, "IOS rejection gives feedback");
                 if (!scg)
                 {
-                    var message = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0).GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
+                    var message = OverlayManager.Instance.GetNode("GlobalOverlay/GameArea/Center").GetChild(0).GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
                     Equal(true, message.Text.Contains("SCG"), "restriction identifies required hull");
                     await CaptureDisplayEvidence("ios-interstellar-course-rejected");
                 }

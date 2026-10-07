@@ -120,7 +120,6 @@ namespace Deuteros.Tests
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var rendered = GetViewport().GetTexture().GetImage();
             using var source = (Image)control.Texture.GetImage().Duplicate();
-            var scale = rendered.GetSize() / GetViewport().GetVisibleRect().Size;
             var rect = control.GetGlobalRect();
             var transparent = 0;
             var opaqueBlack = 0;
@@ -128,10 +127,9 @@ namespace Deuteros.Tests
                 for (var x = 0; x < source.GetWidth(); x++)
                 {
                     var sample = source.GetPixel(x, y);
-                    var px = (int)((rect.Position.X + x + 0.5f) * scale.X);
-                    var py = (int)((rect.Position.Y + y + 0.5f) * scale.Y);
-                    var expected = sample.A == 0 ? background.GetPixel(px, py) : sample;
-                    Equal(expected.ToHtml(false), rendered.GetPixel(px, py).ToHtml(false), $"research pixel ({x},{y})");
+                    var point = rect.Position + new Vector2(x + 0.5f, y + 0.5f);
+                    var expected = sample.A == 0 ? ReadGamePixel(background, point) : sample;
+                    Equal(expected.ToHtml(false), ReadGamePixel(rendered, point).ToHtml(false), $"research pixel ({x},{y})");
                     if (sample.A == 0) transparent++;
                     else if (sample.R == 0 && sample.G == 0 && sample.B == 0) opaqueBlack++;
                 }
@@ -150,7 +148,6 @@ namespace Deuteros.Tests
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var rendered = GetViewport().GetTexture().GetImage();
             using var source = atlas.Atlas.GetImage();
-            var scale = rendered.GetSize() / GetViewport().GetVisibleRect().Size;
             var rect = control.GetGlobalRect();
             var masked = 0;
             var artwork = 0;
@@ -159,11 +156,10 @@ namespace Deuteros.Tests
                 for (var x = 0; x < 64; x++)
                 {
                     var sample = source.GetPixel((int)atlas.Region.Position.X + x, (int)atlas.Region.Position.Y + y);
-                    var px = (int)((rect.Position.X + x + 0.5f) * scale.X);
-                    var py = (int)((rect.Position.Y + (56 - height) / 2 + y + 0.5f) * scale.Y);
+                    var point = rect.Position + new Vector2(x + 0.5f, (56 - height) / 2 + y + 0.5f);
                     var key = sample.R == 1 && sample.G == 0 && sample.B == 1;
-                    var expected = key ? background.GetPixel(px, py) : sample;
-                    var actual = rendered.GetPixel(px, py);
+                    var expected = key ? ReadGamePixel(background, point) : sample;
+                    var actual = ReadGamePixel(rendered, point);
                     if (Math.Abs(actual.R - expected.R) > 1.1f / 255 || Math.Abs(actual.G - expected.G) > 1.1f / 255 || Math.Abs(actual.B - expected.B) > 1.1f / 255)
                         throw new InvalidOperationException($"Construction pixel ({x},{y}), background={key}: expected {expected}, got {actual}");
                     if (key) masked++; else artwork++;

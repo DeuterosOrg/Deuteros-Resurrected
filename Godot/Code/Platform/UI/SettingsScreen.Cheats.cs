@@ -5,7 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using static Deuteros.Code.Enums;
 
-public partial class Settings
+namespace Deuteros.UI.Settings;
+
+public partial class SettingsScreen
 {
 	private void BuildTitanStation_Pressed()
 	{

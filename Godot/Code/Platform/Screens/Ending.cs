@@ -29,7 +29,7 @@ namespace Deuteros.Code.Platform.Screens
         public override void _Ready()
         {
             world = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            ownerScreen = GameCore.SingletonInstance.GetNode("MainScene").GetChildren().FirstOrDefault(n => n is BaseSubScene);
+            ownerScreen = GameCore.SingletonInstance.GetNode("GameContainer/GameViewport/MainScene").GetChildren().FirstOrDefault(n => n is BaseSubScene);
             try
             {
                 const string dataPath = "res://Ending/sequence.json", musicPath = "res://Ending/music.wav";

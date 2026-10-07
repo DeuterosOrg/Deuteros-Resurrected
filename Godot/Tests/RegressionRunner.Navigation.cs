@@ -17,8 +17,8 @@ namespace Deuteros.Tests
     public partial class RegressionRunner
     {
         private const string ShipParts = "ShipContainer/ScrollContainer2/HBoxContainer/";
-        private GlobalInput Cursor => GameCore.SingletonInstance.GetNode<GlobalInput>("VirtualCursorView");
-        private T ActiveScreen<T>() where T : Node => GameCore.SingletonInstance.GetNode("MainScene")
+        private GlobalInput Cursor => GameCore.SingletonInstance.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+        private T ActiveScreen<T>() where T : Node => GameCore.SingletonInstance.GetNode("GameContainer/GameViewport/MainScene")
             .GetChildren().OfType<T>().Last(n => !n.IsQueuedForDeletion());
         private async Task InputFrames()
         {
@@ -76,9 +76,9 @@ namespace Deuteros.Tests
         {
             async Task Click(Vector2 point)
             {
-                GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+                PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
                 foreach (var pressed in new[] { true, false })
-                    GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                    PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
                 await InputFrames();
             }
 
@@ -99,7 +99,7 @@ namespace Deuteros.Tests
                     Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "pod button does not return to cockpit");
                     Equal(Module_Types.Supply, ship.Modules[mount - 1].ModuleType, "pod button still fits pod");
                     Equal(0, bay.ResourceList.Stores[ItemTypes.supply_pod], "fitting consumes one pod");
-                    var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+                    var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
                     var deadline = Time.GetTicksMsec() + 3000;
                     while (blocker.Blocked && Time.GetTicksMsec() < deadline) await InputFrames();
                     Equal(false, blocker.Blocked, "pod animation releases input before navigation");
@@ -268,16 +268,23 @@ namespace Deuteros.Tests
             Equal("", GameCore.HoverText, "scene exit clears hover");
         }
 
+        private void PushGameInput(InputEventMouse input)
+        {
+            input.Position = GameViewportContainer.Instance.GetGlobalTransformWithCanvas() * input.Position;
+            input.GlobalPosition = input.Position;
+            GetViewport().PushInput(input, true);
+        }
+
         private async Task RightClick(Vector2 position, bool press = true)
         {
             // Godot may retain an unhandled event until physics picking. Do not
             // Dispose injected mouse events when this managed call returns.
             var click = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = press, Position = position, GlobalPosition = position };
-            GetViewport().PushInput(click, true);
+            PushGameInput(click);
             if (press)
             {
                 var release = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = false, Position = position, GlobalPosition = position };
-                GetViewport().PushInput(release, true);
+                PushGameInput(release);
             }
             await InputFrames();
         }
@@ -336,7 +343,7 @@ namespace Deuteros.Tests
         {
             var bay = await NavigationBay();
             var point = bay.GetNode<Control>("Buttons/ShipNav/Nav_Cockpit").GetGlobalRect().GetCenter();
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             try
             {
                 blocker.SetBlocked(true);
@@ -351,7 +358,7 @@ namespace Deuteros.Tests
                 await RightClick(point);
                 Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "UI lock");
                 GlobalInput.UnlockUi();
-                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
                 await RightClick(point);
                 Equal(Scenes.ShipBay, GameCore.SingletonInstance.currentScene, "settings overlay");
                 OverlayManager.Instance.CloseOverlay();
@@ -379,8 +386,8 @@ namespace Deuteros.Tests
                 Equal(true, Cursor.IsLocked, "panel opened");
                 var panel = bay.GetNode<Control>(kind == Module_Types.Supply ? "CargoService" : kind == Module_Types.Tool ? "EquipmentStock" : "StaffList");
                 var otherMount = bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso2").GetGlobalRect().GetCenter();
-                GetViewport().PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = otherMount, GlobalPosition = otherMount }, true);
-                GetViewport().PushInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = otherMount, GlobalPosition = otherMount }, true);
+                PushGameInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = true, Position = otherMount, GlobalPosition = otherMount });
+                PushGameInput(new InputEventMouseButton { ButtonIndex = MouseButton.Left, Pressed = false, Position = otherMount, GlobalPosition = otherMount });
                 await InputFrames();
                 Equal(1, bay.ScreenState, "open " + kind + " panel prevents changing its target mount");
                 await RightClick(panel.GetGlobalRect().GetCenter());
@@ -400,7 +407,7 @@ namespace Deuteros.Tests
             bay.Ship.Modules[0].ItemCount = 1;
             bay.Ship.Modules[0].HeldItem = new Asteroid { GrappleItemType = GrappleItemTypes.Asteroid, Type = ItemTypes.iron, Mass = 37 };
             bay.ResourceList.Stores[ItemTypes.iron] = 0;
-            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+            var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
             Press(bay, "Buttons/ShipNav/Nav_Torso1");
             Press(bay, ShipParts + "Torso1/SpriteHolder/Buttons/ActivatePod");
             try

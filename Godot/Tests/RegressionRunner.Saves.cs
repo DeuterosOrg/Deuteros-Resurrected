@@ -98,7 +98,7 @@ namespace Deuteros.Tests
             var screen = GD.Load<PackedScene>("res://Screens/SaveScreen.tscn")
                 .Instantiate<Deuteros.Code.Platform.Screens.SaveScreen>();
             screen.Storage = new SaveStorage(directory);
-            GameCore.SingletonInstance.GetNode<Node>("MainScene").AddChild(screen);
+            GameCore.SingletonInstance.GetNode<Node>("GameContainer/GameViewport/MainScene").AddChild(screen);
             try
             {
                 Equal(true, screen.GetNode<Button>("Load1").Disabled, "empty slot cannot load");

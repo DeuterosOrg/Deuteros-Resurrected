@@ -202,7 +202,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 interior.Free();
             }
         }
@@ -256,7 +256,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 interior.Free();
             }
         }

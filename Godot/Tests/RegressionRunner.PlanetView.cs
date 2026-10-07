@@ -135,7 +135,6 @@ namespace Deuteros.Tests
             await InputFrames();
             await ToSignal(RenderingServer.Singleton, RenderingServer.SignalName.FramePostDraw);
             using var rendered = GetViewport().GetTexture().GetImage();
-            var scale = rendered.GetSize() / GetViewport().GetVisibleRect().Size;
             var rect = display.GetGlobalRect();
             var foreground = new[] { "Background", "EngineControls", "LandingBlank" }
                 .Select(path => ActiveScreen<ShipInterior>().GetNode<TextureRect>(path))
@@ -146,8 +145,6 @@ namespace Deuteros.Tests
             for (var y = 0; y < expected.GetHeight(); y++)
                 for (var x = 0; x < expected.GetWidth(); x++)
                 {
-                    var px = (int)((rect.Position.X + (x + 0.5f) * rect.Size.X / expected.GetWidth()) * scale.X);
-                    var py = (int)((rect.Position.Y + (y + 0.5f) * rect.Size.Y / expected.GetHeight()) * scale.Y);
                     var want = expected.GetPixel(x, y);
                     var point = rect.Position + new Vector2((x + 0.5f) * rect.Size.X / expected.GetWidth(), (y + 0.5f) * rect.Size.Y / expected.GetHeight());
                     foreach (var layer in foreground)
@@ -156,7 +153,7 @@ namespace Deuteros.Tests
                             var local = (point - layer.Rect.Position) / layer.Rect.Size * layer.Image.GetSize();
                             want = want.Blend(layer.Image.GetPixel((int)local.X, (int)local.Y));
                         }
-                    var actual = rendered.GetPixel(px, py);
+                    var actual = ReadGamePixel(rendered, point);
                     if (Math.Abs(want.R - actual.R) > 1.1f / 255 || Math.Abs(want.G - actual.G) > 1.1f / 255 || Math.Abs(want.B - actual.B) > 1.1f / 255)
                         throw new InvalidOperationException($"Orbit render {name} ({x},{y}): expected {want}, got {actual}");
                 }

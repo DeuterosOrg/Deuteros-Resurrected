@@ -18,6 +18,7 @@ config/icon="res://icon.png"
 
 [autoload]
 
+SettingsManager="*res://Code/Platform/Helpers/SettingsManager.cs"
 OverlayManager="*res://Code/Platform/Helpers/OverlayManager.cs"
 
 [debug]
@@ -26,10 +27,8 @@ settings/stdout/verbose_stdout=true
 
 [display]
 
-window/size/viewport_width=320
-window/size/viewport_height=200
-window/stretch/mode="viewport"
-window/stretch/scale_mode="integer"
+window/size/viewport_width=1280
+window/size/viewport_height=720
 window/main_scene="res://Screens/Master.tscn"
 
 [dotnet]
@@ -54,6 +53,37 @@ import/blender/enabled=false
 theme/custom="res://Themes/DefaultTheme.tres"
 theme/custom_font="res://Fonts/deuteros.ttf"
 theme/default_font_antialiasing=0
+
+[input]
+
+pause={
+"deadzone": 0.5,
+"events": []
+}
+speed_up={
+"deadzone": 0.5,
+"events": []
+}
+slow_down={
+"deadzone": 0.5,
+"events": []
+}
+next_location={
+"deadzone": 0.5,
+"events": []
+}
+research={
+"deadzone": 0.5,
+"events": []
+}
+production={
+"deadzone": 0.5,
+"events": []
+}
+quick_save={
+"deadzone": 0.5,
+"events": []
+}
 
 [logging]
 
