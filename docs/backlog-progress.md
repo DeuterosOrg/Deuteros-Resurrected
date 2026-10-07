@@ -281,3 +281,8 @@ Normal native play repairs Uranus and expands two→eight rigs with exact compon
 ### Triton repair and supply expansion — 2026-10-07
 
 Normal native play repairs Triton and expands one→eight rigs. Exact component costs, seven-update extraction/refining, combined network titanium/fuel conservation, crew/fleet preservation and exact reload pass; original profile restored and native exit0. [Evidence and day-22756 continuation](native-gameplay-results.md#triton-repair-and-eight-rig-supply--2026-10-07). Earth now has 6,763 Ti; next replenish WAYFARER and sustain SCG provisioning. Counts remain **35/48 implementation evidence; four locally accepted requirements**; interstellar/later campaign and matching Windows acceptance remain open.
+
+
+### Titania defence replenishment and SCG growth — 2026-10-07
+
+Normal native production builds 51 IOS and 24 Star Drones, replenishes WAYFARER to 200 at the predicted next target Titania, and increases SCG to 45. Every recipe ingredient has independent non-reset interval coverage; fuel, restored routes, corrected D misrouting, D/HeD conservation and exact reload pass. Original profile restored; native exit0. [Evidence and day-23222 continuation](native-gameplay-results.md#titania-defence-replenishment-and-scg-fleet-growth--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Interstellar/later campaign, aluminium supply and matching Windows acceptance remain open.
