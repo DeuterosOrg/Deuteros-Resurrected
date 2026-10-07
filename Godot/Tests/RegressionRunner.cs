@@ -388,6 +388,7 @@ namespace Deuteros.Tests
             CheckUi("Original moon chart positions reach all 160 bodies and display their deposits", OriginalMoonRoutes);
             Check("Old default moon charts migrate without changing campaign state or custom charts", LegacyMoonRoutes);
             await CheckAsync("Reopened planet and moon courses show their destination star immediately", ReopenedCourseStarHeader);
+            await CheckAsync("DFCC ships operate selected tools in friendly orbit without losing fleet controls", DfccFriendlyModuleRouting);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

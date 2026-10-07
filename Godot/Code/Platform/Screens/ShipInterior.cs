@@ -431,11 +431,13 @@ namespace Deuteros.Code.Platform.Screens
 			}
 			else if (Ship.ShipState != Ship_States.Docked)
 			{
-				if ((Ship.ShipState == Ship_States.UnDocked && Ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)Ship).DFCC))
+				var combatAvailable = Ship.ShipState == Ship_States.UnDocked && GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
+					(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid ||
+						GameCore.SingletonInstance.GameData.PlanetUnderAttack(Ship.PlanetLocation));
+				if (Ship.ShipState == Ship_States.UnDocked && Ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)Ship).DFCC
+					&& (mounted.ItemStored == ItemTypes.d__f__c__c || combatAvailable))
 				{
-					if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
-						(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid ||
-							GameCore.SingletonInstance.GameData.PlanetUnderAttack(Ship.PlanetLocation)))
+					if (combatAvailable)
 					{
 
                         var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;

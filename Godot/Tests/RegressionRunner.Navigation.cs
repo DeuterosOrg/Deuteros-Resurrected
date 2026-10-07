@@ -425,6 +425,40 @@ namespace Deuteros.Tests
             finally { if (blocker.Blocked) GameCore.UnLockScreen(); }
         }
 
+        private async Task DfccFriendlyModuleRouting()
+        {
+            foreach (var hull in new[] { Ship_Types.IOS, Ship_Types.SCG })
+            {
+                var interior = await OpenInterior(hull);
+                var ship = (InterStellarShip)interior.Ship;
+                GameCore.SingletonInstance.SetProcess(false);
+                ship.ShipState = Ship_States.UnDocked;
+                ship.DFCC = true;
+                ship.DroneCount = 68;
+                ship.Pilot = new Staff { Count = 29, Type = StaffType.Marines, Warlord = true };
+                Save.AtWar = true;
+                ship.Modules[0].ModuleType = ship.Modules[1].ModuleType = Module_Types.Tool;
+                ship.Modules[0].ItemStored = ItemTypes.d__f__c__c;
+                ship.Modules[1].ItemStored = ItemTypes.grapple;
+                ship.Modules[0].ItemCount = ship.Modules[1].ItemCount = 1;
+                var star = Save.BaseGameData.Stars[ship.StarLocation];
+                star.ArtifactLocation = ship.PlanetLocation;
+                ship.ItemScanResults = UnknownItem.ScanForItems(ship);
+                interior.UpdateState();
+                Press(interior, "Modules/01");
+                var holder = interior.GetNode<Control>("GrappleHolder");
+                Equal(1, holder.GetChildCount(), hull + " selected grapple opens despite DFCC conversion");
+                Press(holder.GetChild(0), "Enabled/Buttons/Grab");
+                Equal(true, ship.Modules[1].HeldItem is UnknownItem { ItemType: UnknownItemTypes.AlienArtifact }, "real module action captures the artifact");
+                Equal(StellarBodies.none, star.ArtifactLocation, "captured artifact leaves orbit");
+                await RightClick(holder.GetGlobalRect().GetCenter());
+                Press(interior, "Modules/00");
+                Equal(true, interior.GetNode("Window").GetChild(0) is global::FleetTransfers, "selected DFCC still opens fleet transfer");
+                Equal(68, ship.DroneCount, "tool and fleet navigation preserve drones");
+                await RightClick(interior.GetNode<Control>("Window").GetGlobalRect().GetCenter());
+            }
+        }
+
         private async Task InteriorPanelNavigation()
         {
             foreach (var panel in new[] { "course", "acc", "grapple", "ama" })
