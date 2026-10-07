@@ -1,5 +1,14 @@
 # Contribution and validation results
 
+## 632-case complete integration checkpoint — 2026-10-07
+
+Source `64df06fe5bd4978489400ec35cfd8624f5e495f6` (unchanged runtime `929b4a5`) now passes **632/632 fresh-process Mac regressions in one run**, build, strict import, source startup and Windows cross-export. All **19 Python checks** pass separately with the original ending disk and no skips. The owned validator session 5251 exits **0**. Case 264 passes both assertions and strict shutdown checks in this run; no runtime, timeout or error-filter change was made.
+
+The independent audit verifies fresh logs for every discovered case, all **1,232 embedded payload hashes**, 64 illustration imports, ending JSON/music, embedded .NET dependencies and zero test resources. The executable is **163,906,784 bytes**, SHA-256 **`34756594b605d8673dd0fd9795592baa60466505de2fa6f55e0b46a270905a13`**, byte-identical to the already delivered `929b4a5` package. Runtime DLL SHA-256: `e63d0a5f82da09bc962ed74cad2c2c2824041126ea8aba776b1a14820a29e337`. Logs, package and results are retained under `artifacts/integration-632-20261007/results/`; reproduce the audit with `python3 artifacts/integration-632-20261007/audit.py`. Original saves remain byte-identical, and the root `AGENTS.md` is unchanged. Only the pre-existing Godot project manager remains running.
+
+This establishes the latest complete aggregate; it **does not resolve the earlier intermittent audio-resource failure** or the separate Windows native crash. The failed aggregate at `artifacts/validation/evidence/full-run-929b4a5-failed/` is retained, along with the complete prior validation directory under `artifacts/integration-632-20261007/previous-validation/`. The exact known editor-only teardown diagnostic remains recorded; gameplay logs have no exemption. No new native Windows execution, normal later-campaign acceptance or task completion follows from this pass. Totals remain **35/48 implementation evidence and four locally accepted requirements**.
+
+
 ## Cleared-station danger correction — 2026-10-04
 
 Runtime `d0ace3d497779faaecdb3ef982694827218123f8` passes **102 targeted fresh-process regressions**, build and strict source startup. Cases 631–632 first reproduced destruction in cleared orbit and an invalid escape-damage roll; both now pass for IOS/SCG with zero defenders or active SDM. Docking, simulation and departure share the same original-backed danger check. Existing defended-station, fleet, rogue, damage, News and SDM coverage passes. Build retains 14 existing warnings, zero errors.
