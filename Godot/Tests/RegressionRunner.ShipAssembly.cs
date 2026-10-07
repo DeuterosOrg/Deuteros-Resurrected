@@ -75,13 +75,13 @@ namespace Deuteros.Tests
                             Equal(Module_Types.None, bay.Ship.Modules[0].ModuleType, "unavailable pod is not fitted");
                             Equal(true, stock.OrderBy(x => x.Key).SequenceEqual(stores.Items.OrderBy(x => x.Key)), "rejection preserves stores");
                             Equal(true, OverlayManager.Instance.IsOpen, "unavailable pod explains rejection");
-                            var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0);
+                            var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/GameArea/Center").GetChild(0);
                             Equal("Pod Not Available", overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel").Text, "pod error text");
                             await InputFrames();
                             var panel = overlay.GetNode<Control>("ErrorButton/OuterColorRect").GetGlobalRect();
                             var text = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel").GetGlobalRect();
-                            Equal(true, panel.Encloses(text.Grow(2)), "error box encloses text with padding");
-                            Equal(true, panel.GetCenter().DistanceTo(new Vector2(160, 100)) < 1, "error box stays centred");
+                            Equal(true, panel.Encloses(text.Grow(2 * GameViewportContainer.Instance.Scale.X)), "error box encloses text with padding");
+                            Equal(true, panel.GetCenter().DistanceTo(GameViewportContainer.Instance.GetGlobalTransformWithCanvas() * new Vector2(160, 100)) < GameViewportContainer.Instance.Scale.X, "error box stays centred");
                             Press(overlay, "ErrorButton");
                             await InputFrames();
                             Equal(false, OverlayManager.Instance.IsOpen, "error dismisses normally");
@@ -102,11 +102,11 @@ namespace Deuteros.Tests
                 {
                     GameCore.ShowError(bay, message);
                     await InputFrames();
-                    var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0);
+                    var overlay = OverlayManager.Instance.GetNode("GlobalOverlay/GameArea/Center").GetChild(0);
                     var panel = overlay.GetNode<Control>("ErrorButton/OuterColorRect").GetGlobalRect();
                     var label = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
-                    Equal(true, panel.Encloses(label.GetGlobalRect().Grow(2)), "multiline error fits panel");
-                    Equal(true, new Rect2(0, 0, 320, 200).Encloses(panel), "long error fits viewport");
+                    Equal(true, panel.Encloses(label.GetGlobalRect().Grow(2 * GameViewportContainer.Instance.Scale.X)), "multiline error fits panel");
+                    Equal(true, GameViewportContainer.Instance.GetGlobalRect().Encloses(panel), "long error fits viewport");
                     Press(overlay, "ErrorButton");
                     await InputFrames();
                 }
@@ -236,9 +236,9 @@ namespace Deuteros.Tests
             stores[ItemTypes.supply_pod] = 6;
             GameCore.SingletonInstance.GameData.GetItem(ItemTypes.supply_pod).Locked = false;
             var point = bay.GetNode<Control>("Buttons/Nav_Create_SCG").GetGlobalRect().GetCenter();
-            GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+            PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
             foreach (var pressed in new[] { true, false })
-                GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
             await InputFrames();
             Equal(1, Save.Ships.Count, "SCG builds from the button centre through pointer input");
             Equal(true, bay.GetNode<Control>("Buttons/ShipNav/Nav_Torso6").Visible, "sixth mount navigation");

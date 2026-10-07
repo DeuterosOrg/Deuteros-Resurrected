@@ -72,7 +72,7 @@ public partial class Battle : BaseSubScene
 		BattleTimer.Timeout += TimerTimeout;
 
 		base._Ready();
-        cursor = GameCore.SingletonInstance.GetNode<GlobalInput>("VirtualCursorView");
+        cursor = GameCore.SingletonInstance.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
         inputBounds = GetNode<Control>("Background").GetGlobalRect();
         cursor.LockToRect(inputBounds);
 
@@ -114,7 +114,7 @@ public partial class Battle : BaseSubScene
 	private async Task WaitMs(int ms)
 	{
         if (exiting) throw new OperationCanceledException();
-        await ToSignal(GetTree().CreateTimer(ms / 1000.0), SceneTreeTimer.SignalName.Timeout);
+        await ToSignal(GetTree().CreateTimer(ms / 1000.0, false), SceneTreeTimer.SignalName.Timeout);
         if (exiting) throw new OperationCanceledException();
 	}
 

@@ -283,7 +283,7 @@ namespace Deuteros.Code.Platform.Screens
             StaffList.Visible = false;
             UpdateEquipmentStock();
             EquipmentStock.Visible = true;
-            GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").LockToRect(EquipmentStock.GetGlobalRect());
+            GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").LockToRect(EquipmentStock.GetGlobalRect());
         }
 
 		private string StaffHover(int index)
@@ -342,8 +342,8 @@ namespace Deuteros.Code.Platform.Screens
 		{
             var core = GameCore.SingletonInstance;
             if (GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
-                || core.GetNode<InputBlocker>("InputBlocker").Blocked
-                || core.GetNode<GlobalInput>("VirtualCursorView").IsLocked) return;
+                || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
             if (RejectShipCommand()) return;
             if (Ship is InterStellarShip { DFCC: true } stellar)
             {
@@ -1139,7 +1139,7 @@ namespace Deuteros.Code.Platform.Screens
             if (RejectShipCommand()) return;
 			var currentModule = Ship.Modules[torsoSection];
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
             prisonView = currentModule.ModuleType == Module_Types.Tool && currentModule.ItemStored == ItemTypes.prison_pod
                 && currentModule.ItemCount == 1 ? currentModule : null;
             GetNode<Label>("StaffList/PrisonHelp").Visible = prisonView != null;
@@ -1409,7 +1409,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
-				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
                 if (capturePrison != null) { CancelCapture(); RefreshPrison(); }
 
 				if (cursor.IsLocked)

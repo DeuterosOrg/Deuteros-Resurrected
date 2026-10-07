@@ -187,51 +187,51 @@ namespace Deuteros.Code.Platform.Screens
 						newitemlist[m] = ItemTypes.silica;
 						break;
 					case ItemTypes.silica:
-                        newitemlist[m] = ItemTypes.iron;
-                        break;
-                    case ItemTypes.paladium:
-                        newitemlist[m] = ItemTypes.gold;
-                        break;
-                    case ItemTypes.gold:
-                        newitemlist[m] = ItemTypes.paladium;
-                        break;
-                    case ItemTypes.platinum:
-                        newitemlist[m] = ItemTypes.silver;
-                        break;
-                    case ItemTypes.silver:
-                        newitemlist[m] = ItemTypes.platinum;
-                        break;
-                    case ItemTypes.hydrogen:
-                        newitemlist[m] = ItemTypes.methane;
-                        break;
-                    case ItemTypes.methane:
-                        newitemlist[m] = ItemTypes.hydrogen;
-                        break;
-                    case ItemTypes.helium:
-                        newitemlist[m] = ItemTypes.deuterium;
-                        break;
-                    case ItemTypes.deuterium:
-                        newitemlist[m] = ItemTypes.helium;
-                        break;
-                    case ItemTypes.copper:
-                        newitemlist[m] = ItemTypes.titanium;
-                        break;
-                    case ItemTypes.titanium:
-                        newitemlist[m] = ItemTypes.copper;
-                        break;
-                    case ItemTypes.carbon:
-                        newitemlist[m] = ItemTypes.aluminium;
-                        break;
-                    case ItemTypes.aluminium:
-                        newitemlist[m] = ItemTypes.carbon;
-                        break;
+						newitemlist[m] = ItemTypes.iron;
+						break;
+					case ItemTypes.paladium:
+						newitemlist[m] = ItemTypes.gold;
+						break;
+					case ItemTypes.gold:
+						newitemlist[m] = ItemTypes.paladium;
+						break;
+					case ItemTypes.platinum:
+						newitemlist[m] = ItemTypes.silver;
+						break;
+					case ItemTypes.silver:
+						newitemlist[m] = ItemTypes.platinum;
+						break;
+					case ItemTypes.hydrogen:
+						newitemlist[m] = ItemTypes.methane;
+						break;
+					case ItemTypes.methane:
+						newitemlist[m] = ItemTypes.hydrogen;
+						break;
+					case ItemTypes.helium:
+						newitemlist[m] = ItemTypes.deuterium;
+						break;
+					case ItemTypes.deuterium:
+						newitemlist[m] = ItemTypes.helium;
+						break;
+					case ItemTypes.copper:
+						newitemlist[m] = ItemTypes.titanium;
+						break;
+					case ItemTypes.titanium:
+						newitemlist[m] = ItemTypes.copper;
+						break;
+					case ItemTypes.carbon:
+						newitemlist[m] = ItemTypes.aluminium;
+						break;
+					case ItemTypes.aluminium:
+						newitemlist[m] = ItemTypes.carbon;
+						break;
 					default:
-                        newitemlist[m] = olditemlist[m];
+						newitemlist[m] = olditemlist[m];
 						break;
 
-                }
+				}
 
-            }
+			}
 
 		}
 
@@ -319,7 +319,7 @@ namespace Deuteros.Code.Platform.Screens
 						{
 							if (GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount >= 16)
 							{
-                                await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_War_Warning], new List<string>(), (modulePressed + 1));
+								await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_War_Warning], new List<string>(), (modulePressed + 1));
 								var commpodModule = Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.commspod);
 								commpodModule.ItemStored = ItemTypes.grapple;
                                 commpodModule.HeldItem = new UnknownItem(UnknownItemTypes.Blazer);
@@ -355,7 +355,7 @@ namespace Deuteros.Code.Platform.Screens
 								}
 								else
 								{
-                                    await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_TradeQuestion], new List<string>(), (modulePressed + 1));
+									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_TradeQuestion], new List<string>(), (modulePressed + 1));
 
                                     var decision = await AskTradeDecision(itemlist, newitemlist, offeredCounts);
                                     if (decision == null || !IsInsideTree() || IsQueuedForDeletion()) return;
@@ -390,9 +390,9 @@ namespace Deuteros.Code.Platform.Screens
                                     }
 
 								}
-                            }
-                        }
-                        else
+							}
+						}
+						else
 						{
 							if (GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod).Locked)
 							{
@@ -407,18 +407,18 @@ namespace Deuteros.Code.Platform.Screens
 							}
 							else
 							{
-                                await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
-                            }
+								await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro], new List<string>(), (modulePressed + 1));
+							}
 
-                        }
-                        Ship.TakeOff();
+						}
+						Ship.TakeOff();
 
-                        UpdateState();
-                        GameCore.SingletonInstance.ShipSelected = Ship.ShipID;
-                        newScene = Scenes.ShipInterior;
-                    }
+						UpdateState();
+						GameCore.SingletonInstance.ShipSelected = Ship.ShipID;
+						newScene = Scenes.ShipInterior;
+					}
 
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
 
 					CurrentPlanet.Station.StarShipState = modulePressed + 1;
 					sceneVariables.Add(Enums.SceneVariables.Orbit);
@@ -637,8 +637,8 @@ namespace Deuteros.Code.Platform.Screens
         {
             if (RejectShipCommand() || !CanService) return;
             var core = GameCore.SingletonInstance;
-            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked
-                || core.GetNode<GlobalInput>("VirtualCursorView").IsLocked) return;
+            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
             var ground = Ship is Shuttle { OnGround: true };
             core.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
             core.ShipSelected = Ship.ShipID;
@@ -666,8 +666,8 @@ namespace Deuteros.Code.Platform.Screens
 		{
             if (RejectShipCommand()) return;
 			var core = GameCore.SingletonInstance;
-			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked ||
-				core.GetNode<GlobalInput>("VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
+			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked ||
+				core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
 				return;
 
 			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/RenameShip.tscn"));
@@ -745,7 +745,7 @@ namespace Deuteros.Code.Platform.Screens
 				CurrentPlanet = null;
             }
 
-            UpdateState();
+			UpdateState();
 		}
 
         private bool CanSetCourse => Ship is not SCG { Flight: not null }
@@ -762,7 +762,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			DestinationStarMap.LoadMap(Ship.DestinationPlanetLocation);
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 			cursor.LockToRect(StarMap.GetGlobalRect());
 
 			UpdateState();
@@ -779,7 +779,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			ACCScreen.UpdateState();
 
-			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 			cursor.LockToRect(ACC.GetGlobalRect());
 
 			UpdateState();
@@ -1075,7 +1075,7 @@ namespace Deuteros.Code.Platform.Screens
                     GetViewport().SetInputAsHandled();
                     return;
                 }
-				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView");
+				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
 				if (cursor.IsLocked)
 				{
@@ -1171,7 +1171,7 @@ namespace Deuteros.Code.Platform.Screens
 			ACC.RemoveChild(ACCScreen);
 			ACCScreen.QueueFree();
 			ACCScreen = null;
-			GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+			GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
 
 			UpdateState();
 		}
@@ -1352,13 +1352,13 @@ namespace Deuteros.Code.Platform.Screens
 					}
 					else
 					{
-                        //Check grapple
-                        if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.grapple && ship.Pilot != null && ship.Pilot.GetLevel() > 1))
-                            ((InterStellarShip)ship).ItemScanResults = UnknownItem.ScanForItems((InterStellarShip)ship);
-                    }
+						//Check grapple
+						if (ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.grapple && ship.Pilot != null && ship.Pilot.GetLevel() > 1))
+							((InterStellarShip)ship).ItemScanResults = UnknownItem.ScanForItems((InterStellarShip)ship);
+					}
 
-                    //Let the ACC know we are still undocked
-                    ship.ACC?.Update(Ship_States.UnDocked);
+					//Let the ACC know we are still undocked
+					ship.ACC?.Update(Ship_States.UnDocked);
 				}
 			}
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;

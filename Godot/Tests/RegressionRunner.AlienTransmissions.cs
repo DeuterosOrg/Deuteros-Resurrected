@@ -438,7 +438,7 @@ namespace Deuteros.Tests
             GameCore.LockScreen();
             await InputFrames();
             await ToSignal(GetTree().CreateTimer(0.2), Godot.SceneTreeTimer.SignalName.Timeout);
-            Equal(true, core.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker").Blocked, "cancelled typing preserves another owner's lock");
+            Equal(true, core.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "cancelled typing preserves another owner's lock");
             Equal(true, Save.AlienTransmissions.Ready, "interrupted notification remains pending");
             Equal(-1, Save.AlienTransmissions.LastStage, "interrupted notification is not a displayed transmission");
             AdvanceTickDay();

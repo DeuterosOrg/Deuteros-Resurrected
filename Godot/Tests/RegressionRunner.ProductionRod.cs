@@ -132,12 +132,11 @@ namespace Deuteros.Tests
             using var rendered = GetViewport().GetTexture().GetImage();
             var atlas = (AtlasTexture)rod.SpriteFrames.GetFrameTexture("default", rod.Frame);
             using var source = (Image)atlas.Atlas.GetImage().Duplicate();
-            var scale = rendered.GetSize() / GetViewport().GetVisibleRect().Size;
             for (var y = 0; y < 9; y++)
                 for (var x = 0; x < 32; x++)
                 {
                     var expected = source.GetPixel((int)atlas.Region.Position.X + x, (int)atlas.Region.Position.Y + y);
-                    var actual = rendered.GetPixel((int)((240 + x + 0.5f) * scale.X), (int)((96 + y + 0.5f) * scale.Y));
+                    var actual = ReadGamePixel(rendered, new Vector2(240 + x + 0.5f, 96 + y + 0.5f));
                     Equal(expected.ToHtml(false), actual.ToHtml(false), $"native rod pixel ({x},{y})");
                 }
             GD.Print($"NATIVE PIXELS: production rod frame {rod.Frame}: 288 passed");

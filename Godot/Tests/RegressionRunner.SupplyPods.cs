@@ -42,12 +42,12 @@ namespace Deuteros.Tests
             var button = interior.GetNodeOrNull<Button>("TextLayout/CargoActions");
             Equal(true, button != null, "interior exposes the cargo action button");
             var point = button.GetGlobalRect().GetCenter();
-            GetViewport().PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point }, true);
+            PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
             foreach (var pressed in new[] { true, false })
-                GetViewport().PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed }, true);
+                PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
             await InputFrames();
             Equal(true, OverlayManager.Instance.IsOpen, "cargo dialog opens");
-            return OverlayManager.Instance.GetNode<Control>("GlobalOverlay/Center/SupplyPods");
+            return OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/SupplyPods");
         }
 
         private async Task SupplyPodDitch(Ship_Types type, Ship_States state, bool mining = false)

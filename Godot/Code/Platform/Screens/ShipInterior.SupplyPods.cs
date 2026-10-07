@@ -14,8 +14,8 @@ namespace Deuteros.Code.Platform.Screens
             if (RejectShipCommand()) return;
             var core = GameCore.SingletonInstance;
             if (!IsInsideTree() || IsQueuedForDeletion() || moduleInteractionInProgress ||
-                GlobalInput.UiLocked || core.GetNode<InputBlocker>("InputBlocker").Blocked ||
-                core.GetNode<GlobalInput>("VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
+                GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked ||
+                core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
                 return;
 
             var dialog = OverlayManager.Instance.ShowOverlay(

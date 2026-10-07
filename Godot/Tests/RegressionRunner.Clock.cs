@@ -82,7 +82,7 @@ namespace Deuteros.Tests
             var directory = Path.Combine(Path.GetTempPath(), "deuteros-clock-ui-" + Guid.NewGuid());
             var screen = GD.Load<PackedScene>("res://Screens/SaveScreen.tscn").Instantiate<SaveScreen>();
             screen.Storage = new SaveStorage(directory);
-            GameCore.SingletonInstance.GetNode<Node>("MainScene").AddChild(screen);
+            GameCore.SingletonInstance.GetNode<Node>("GameContainer/GameViewport/MainScene").AddChild(screen);
             try
             {
                 Press(screen, "Save1");

@@ -1,0 +1,52 @@
+[gd_scene load_steps=3 format=3 uid="uid://cfnf3wvjahts4"]
+
+[ext_resource type="Script" path="res://Code/Platform/UI/Rows/ToggleSettingRow.cs" id="script"]
+
+[sub_resource type="ButtonGroup" id="ToggleGroup"]
+resource_local_to_scene = true
+
+[node name="ToggleSettingRow" type="HBoxContainer"]
+custom_minimum_size = Vector2(0, 52)
+theme_override_constants/separation = 16
+script = ExtResource("script")
+
+[node name="LabelButton" type="Button" parent="."]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"SelectRowButton"
+toggle_mode = true
+text = "Setting"
+alignment = 0
+text_overrun_behavior = 3
+clip_text = true
+
+[node name="TogglePill" type="PanelContainer" parent="."]
+custom_minimum_size = Vector2(340, 44)
+layout_mode = 2
+size_flags_vertical = 4
+theme_type_variation = &"PillPanel"
+
+[node name="Halves" type="HBoxContainer" parent="TogglePill"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="OffButton" type="Button" parent="TogglePill/Halves"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ToggleOffButton"
+toggle_mode = true
+button_pressed = true
+button_group = SubResource("ToggleGroup")
+text = "Off"
+
+[node name="OnButton" type="Button" parent="TogglePill/Halves"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_type_variation = &"ToggleOnButton"
+toggle_mode = true
+button_group = SubResource("ToggleGroup")
+text = "On"

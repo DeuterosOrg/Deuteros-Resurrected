@@ -379,6 +379,7 @@ namespace Deuteros.Tests
             CheckUi("Cleared and SDM stations preserve orbiting IOS and SCG after an old danger tick", () => ClearedStationDanger(false));
             CheckUi("Cleared and SDM stations never roll engine damage on IOS and SCG escape", () => ClearedStationDanger(true));
             await CheckAsync("Fitted ACC lamp pulses only original palette pixels in every hull and mode", AccLampPulse);
+            await CheckAsync("Optional bulletin skip preserves pause and input lock ownership", BulletinSkip);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

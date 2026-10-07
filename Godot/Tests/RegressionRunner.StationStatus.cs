@@ -238,6 +238,13 @@ namespace Deuteros.Tests
             Equal(false, icon.Visible, "destroyed station disappears");
         }
 
+        private Color ReadGamePixel(Image image, Vector2 gamePosition)
+        {
+            var position = Deuteros.Code.Platform.Helpers.GameViewportContainer.Instance.GetGlobalTransformWithCanvas() * gamePosition;
+            position *= image.GetSize() / GetViewport().GetVisibleRect().Size;
+            return image.GetPixel((int)position.X, (int)position.Y);
+        }
+
         private async Task CaptureDisplayEvidence(string name)
         {
             var directory = OS.GetEnvironment("DEUTEROS_SCREENSHOT_DIR");

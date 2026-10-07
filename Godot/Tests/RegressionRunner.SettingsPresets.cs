@@ -1,3 +1,4 @@
+using Settings = Deuteros.UI.Settings.SettingsScreen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -21,10 +22,11 @@ namespace Deuteros.Tests
 
         private void ConfirmSettingsPreset(Settings screen, int choice)
         {
-            Press(screen, "CheatsTab");
-            screen.GetNode<OptionButton>("Cheats/Preset").Select(choice);
-            Press(screen, "Cheats/ApplyPreset");
-            Press(screen, "ConfirmPreset");
+            screen.DebugTab.ButtonPressed = true;
+            var rows = new[] { screen.SkipToShuttlesRow, screen.EarthStationTo7Row, screen.EarthOrbitProductionRow,
+                screen.IOSModulesReadyRow, screen.ActivateMTXRow, screen.BuildTitanStationRow };
+            Press(rows[choice], "%ActionButton");
+            Press(screen, "%ConfirmApplyButton");
         }
 
         private async Task SettingsPresetRepeat(int choice)
@@ -79,7 +81,7 @@ namespace Deuteros.Tests
                         Equal(true, bulletin.GetNode<RichTextLabel>("Labels/BulletinLabel").Text.Length > 0,
                             "fresh-game discovery bulletin renders without a researcher");
                         bulletin.LetterDelayMs = 0;
-                        var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("InputBlocker");
+                        var blocker = GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker");
                         for (var frame = 0; frame < 300 && blocker.Blocked; frame++)
                             await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
                         Equal(false, blocker.Blocked, "discovery bulletin completes and releases input");
@@ -100,7 +102,7 @@ namespace Deuteros.Tests
                 try
                 {
                     var beforeRepeat = SaveStorage.Serialize(Save);
-                    screen = (Settings)OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Settings.tscn"));
+                    screen = OpenSettings();
                     ConfirmSettingsPreset(screen, choice);
                     await InputFrames();
                     Equal(beforeRepeat, SaveStorage.Serialize(Save), "repeat does not duplicate ships, teams, research, unlocks or stock");

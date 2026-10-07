@@ -300,7 +300,7 @@ namespace Deuteros.Tests
 
         private T ActiveRecipeScreen<T>() where T : Node
         {
-            return GameCore.SingletonInstance.GetNode<Node>("MainScene").GetChildren().OfType<T>()
+            return GameCore.SingletonInstance.GetNode<Node>("GameContainer/GameViewport/MainScene").GetChildren().OfType<T>()
                 .Single(node => !node.IsQueuedForDeletion());
         }
 

@@ -153,7 +153,7 @@ namespace Deuteros.Tests
                 Equal(true, roster.SequenceEqual(resources.Staff), "roster unchanged");
                 Equal(true, stock.OrderBy(x => x.Key).SequenceEqual(resources.Stores.Items.OrderBy(x => x.Key)), "stores unchanged");
                 Equal(true, OverlayManager.Instance.IsOpen, "explanation shown");
-                var error = OverlayManager.Instance.GetNode("GlobalOverlay/Center").GetChild(0)
+                var error = OverlayManager.Instance.GetNode("GlobalOverlay/GameArea/Center").GetChild(0)
                     .GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel").Text;
                 Equal(true, error.Contains(reason == "staff" ? "Staff" : reason == "stores" ? "Stores" : "Grapple"), "explanation identifies the blocker");
             }

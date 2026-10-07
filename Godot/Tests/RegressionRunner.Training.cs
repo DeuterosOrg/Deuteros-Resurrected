@@ -70,9 +70,9 @@ namespace Deuteros.Tests
                 for (var y = 120; y < 136; y++)
                     for (var x = 136; x < 150; x++)
                     {
-                        var colour = before.GetPixel(x, y);
+                        var colour = ReadGamePixel(before, new Vector2(x + 0.5f, y + 0.5f));
                         if (colour.R < 0.8f || colour.G < 0.8f || colour.B < 0.8f) continue;
-                        Equal(true, dimmed.GetPixel(x, y).IsEqualApprox(colour), "rendered arrow retains brightness");
+                        Equal(true, ReadGamePixel(dimmed, new Vector2(x + 0.5f, y + 0.5f)).IsEqualApprox(colour), "rendered arrow retains brightness");
                         checkedPixels++;
                     }
                 before.Dispose();
@@ -103,7 +103,8 @@ namespace Deuteros.Tests
             var sounds = screen.FindChildren("*", "AudioStreamPlayer", true, false).OfType<AudioStreamPlayer>();
             var door = sounds.SingleOrDefault(p => p.Stream?.ResourcePath == "res://Sounds/Button/sTrainingRoom_Door.wav");
             Equal(true, door != null && door.Playing, "simultaneous closing plays one original door cue");
-            Equal("Game", door.Bus.ToString(), "door obeys game audio preferences");
+            Equal("Effects", door.Bus.ToString(), "door obeys effects preferences");
+            Equal("Game", AudioServer.GetBusSend(AudioServer.GetBusIndex("Effects")).ToString(), "effects obey game audio priority");
             foreach (var name in new[] { "Research", "Production", "Marines" })
                 Equal("close", screen.GetNode<AnimatedSprite2D>("Doors/" + name + "/TrainingDoors/DoorAnimation").Animation.ToString(), "door closes");
             door.Stop();
@@ -134,7 +135,7 @@ namespace Deuteros.Tests
             training.ResearcherLocked = true;
             var screen = OpenTraining();
             var core = GameCore.SingletonInstance;
-            var blocker = core.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("InputBlocker");
+            var blocker = core.GetNode<Deuteros.Code.Platform.Helpers.InputBlocker>("GameContainer/GameViewport/InputBlocker");
             GameCore.LockScreen("another owner");
             await ToSignal(GetTree().CreateTimer(0.4), SceneTreeTimer.SignalName.Timeout);
             Equal(true, blocker.Blocked, "static closed door cannot release another owner's lock");

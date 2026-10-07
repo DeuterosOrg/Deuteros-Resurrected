@@ -57,7 +57,7 @@ namespace Deuteros.Tests
                 Press(interior, "OpenACC");
                 var panel = interior.GetNode<Control>("ACCScreen").GetChildren().OfType<AccPanel>().Single();
                 Press(panel, "Window/Buttons/" + button);
-                Equal(false, GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").IsLocked,
+                Equal(false, GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked,
                     "closing an ACC command releases its cursor lock");
                 if (button == "Cycle")
                     Equal(true, interior.GetNode<Label>("TextLayout/ACCStatus").Text.Contains("Finishing"), "finishing status visible");
@@ -66,7 +66,7 @@ namespace Deuteros.Tests
             }
             finally
             {
-                GetTree().CurrentScene.GetNode<GlobalInput>("VirtualCursorView").Unlock();
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
                 interior.Free();
             }
         }

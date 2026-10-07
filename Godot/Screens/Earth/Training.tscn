@@ -194,10 +194,10 @@ RepeatRate = 0.005
 SoundToPlay = 1
 
 [node name="SoundPlayer" type="AudioStreamPlayer" parent="."]
-bus = &"Game"
+bus = &"Effects"
 
 [node name="DoorSoundPlayer" type="AudioStreamPlayer" parent="."]
-bus = &"Game"
+bus = &"Effects"
 
 [node name="TraineeCountLabel" type="Label" parent="."]
 anchors_preset = -1

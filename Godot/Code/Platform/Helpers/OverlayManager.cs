@@ -8,8 +8,10 @@ namespace Deuteros.Code.Platform.Helpers
         public static OverlayManager Instance { get; private set; }
 
         private Control _overlayRoot;
+        private Control _gameArea;
         private Node _contentInstance;
         private bool _wasPaused;
+        private PackedScene _settingsScreen;
 
         public bool IsOpen => _overlayRoot != null;
         public bool IsShowing(Node content) => content != null && _contentInstance == content;
@@ -18,10 +20,12 @@ namespace Deuteros.Code.Platform.Helpers
         {
             Instance = this; // assign the AutoLoaded instance
             Layer = 128;
-            ProcessMode = Node.ProcessModeEnum.WhenPaused;
+            ProcessMode = Node.ProcessModeEnum.Always;
+
+            _settingsScreen = GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn");
         }
 
-        public Node ShowOverlay(PackedScene packed, bool dodim = true)
+        public Node ShowOverlay(PackedScene packed, bool dodim = true, bool fullResolution = false)
         {
             if (_overlayRoot != null)
                 return null; // Already showing something
@@ -49,13 +53,29 @@ namespace Deuteros.Code.Platform.Helpers
                 _overlayRoot.AddChild(dim);
             }
 
+            var host = _overlayRoot;
+
+            if (!fullResolution)
+            {
+                _gameArea = new Control();
+                _gameArea.Name = "GameArea";
+                _gameArea.MouseFilter = Control.MouseFilterEnum.Pass;
+                _overlayRoot.AddChild(_gameArea);
+                FitGameArea();
+
+                if (GameViewportContainer.Instance != null)
+                    GameViewportContainer.Instance.LayoutChanged += FitGameArea;
+
+                host = _gameArea;
+            }
+
             var center = new CenterContainer
             {
                 Name = "Center",
                 MouseFilter = Control.MouseFilterEnum.Pass
             };
             center.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            _overlayRoot.AddChild(center);
+            host.AddChild(center);
 
             _contentInstance = packed.Instantiate();
             center.AddChild(_contentInstance);
@@ -72,17 +92,18 @@ namespace Deuteros.Code.Platform.Helpers
             return _contentInstance;
         }
 
-        /// Handle Escape / Cancel while overlay is up.
+        /// Handle Escape / Cancel: opens the settings screen, or closes the overlay that is up.
         public override void _UnhandledInput(InputEvent @event)
         {
-            if (_overlayRoot == null)
+            if (!@event.IsActionPressed("ui_cancel"))
                 return;
 
-            if (@event.IsActionPressed("ui_cancel"))
-            {
-                GetViewport().SetInputAsHandled(); // swallow the event
+            GetViewport().SetInputAsHandled(); // swallow the event
+
+            if (_overlayRoot == null)
+                ShowOverlay(_settingsScreen, true, true);
+            else
                 CloseOverlay();
-            }
         }
 
         public void CloseOverlay()
@@ -96,6 +117,10 @@ namespace Deuteros.Code.Platform.Helpers
                 _contentInstance.QueueFree();
             _contentInstance = null;
 
+            if (_gameArea != null && GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged -= FitGameArea;
+            _gameArea = null;
+
             _overlayRoot.QueueFree();
             _overlayRoot = null;
 
@@ -107,9 +132,27 @@ namespace Deuteros.Code.Platform.Helpers
         public void CloseForShutdown()
         {
             // Free paused overlay audio before GameCore waits for mixer disposal.
+            if (_gameArea != null && GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged -= FitGameArea;
+            _gameArea = null;
             _overlayRoot?.Free();
             _contentInstance = null;
             _overlayRoot = null;
+        }
+
+        private void FitGameArea()
+        {
+            var game = GameViewportContainer.Instance;
+
+            if (game == null)
+            {
+                _gameArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                return;
+            }
+
+            _gameArea.Position = game.GlobalPosition;
+            _gameArea.Scale = game.Scale;
+            _gameArea.Size = game.Size;
         }
 
         private void FinishClose()

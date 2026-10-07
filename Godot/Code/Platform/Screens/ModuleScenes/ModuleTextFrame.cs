@@ -125,7 +125,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 		private async Task WaitMs(int ms)
 		{
 			lifetime.Token.ThrowIfCancellationRequested();
-			var timer = GetTree().CreateTimer(ms / 1000.0);
+			var timer = GetTree().CreateTimer(ms / 1000.0, false);
 			var completion = new TaskCompletionSource<bool>();
 			void Finish() => completion.TrySetResult(true);
 			timer.Timeout += Finish;

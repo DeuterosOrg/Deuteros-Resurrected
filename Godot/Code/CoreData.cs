@@ -354,7 +354,7 @@ namespace Deuteros.Code
 								"be controlled via a computer\r\n" +
 								"fitted to a standard IOS.\r\n" +
 								"However, this computer will\r\n" +
-								"occupy all the ship's cargo\rn" +
+								"occupy all the ship's cargo\r\n" +
 								"space..!"));
 
 							StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.Self_Destruct,
