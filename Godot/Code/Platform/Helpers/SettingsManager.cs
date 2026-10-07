@@ -112,6 +112,7 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/resolution" => ResolutionOptions,
                 "display/window_mode" => _windowModeOptions.ToArray(),
                 "display/frame_limit" => _frameLimitOptions.ToArray(),
+                "display/pixel_scaling" => new[] { "Integer", "Fit" },
                 _ => null
             };
         }
@@ -138,6 +139,7 @@ namespace Deuteros.Code.Platform.Helpers
         public void ApplyDisplay()
         {
             Engine.MaxFps = ParseFrameLimit(GetSetting("display/frame_limit").AsString());
+            GameViewportContainer.Instance?.UpdateLayout();
             if (DisplayServer.GetName() == "headless") return;
             DisplayServer.WindowSetMinSize(MinWindowSize);
             DisplayServer.WindowSetVsyncMode(GetSetting("display/vsync").AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
@@ -238,6 +240,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["display/window_mode"] = WindowedMode;
             _defaults["display/vsync"] = true;
             _defaults["display/frame_limit"] = UnlimitedFrameLimit;
+            _defaults["display/pixel_scaling"] = "Integer";
 
             foreach (var volumeBus in _volumeBuses)
                 _defaults[volumeBus.Key] = 8;

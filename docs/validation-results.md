@@ -1387,3 +1387,16 @@ In-game F5 now saves immediately to `quick-save.json`, independently of the five
 - Full655 and matching Windows acceptance remain pending. A read-only SSH handoff refresh timed out on8October (`artifacts/windows-handoff/read-only-recheck-20261008.log`); no remote process, profile or permission was changed.
 
 ![Quick Save alongside five manual slots](images/quick-save-slots.png)
+
+
+## Pixel scaling preference — 2026-10-08
+
+The inactive Pixel Scaling row now offers Integer (the existing default) and Fit. Fit uses the largest uniform scale within the window; both modes retain the320×200 game viewport, nearest filtering, centered layout and native pointer mapping. Existing Settings preview, Apply, Cancel and restart persistence apply. Game overlays follow the same layout event.
+
+Case656 first reproduces the placeholder choice (`expected Fit, got Value`). **23 focused cases pass**:59–61,63–66,76–77,113,116,118–119,126,192,208,218,221,235,588,595,652,656. It verifies fractional scale/centering, actual pointer navigation, overlay alignment and resize, saved preference, revert/discard and malformed-value fallback. Native656 passes with clean exit. Main/isolated builds pass with14 existing warnings and zero errors.
+
+Physical Mac checks in isolated DeuterosPixelScalingValidation verify Integer→Fit→Apply, News pointer navigation, Integer preview→Cancel restoring Fit, and Fit rendering/settings after restart. Both owned desktop processes exit0. No campaign save is loaded or written. Source/profile audit preserves the original saves, absent original settings and unchanged day28947 checkpoint. `artifacts/settings-pixel-scaling-20261008/` retains red/green logs, native screenshot, both manual runs, observations and runnable `audit.py`.
+
+The full655 aggregate is separately running frozen d5142ac and predates this change. No full656 aggregate or matching Windows acceptance is claimed; task counts remain35/48 implementation evidence and four locally accepted requirements.
+
+![Fit scaling preserves the game shape](images/pixel-scaling-fit.png)

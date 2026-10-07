@@ -283,6 +283,73 @@ namespace Deuteros.Tests
             core.SetProcess(true);
         }
 
+        private async Task SettingsPixelScaling()
+        {
+            await WithSettings(async screen =>
+            {
+                var core = GameCore.SingletonInstance;
+                core.SetProcess(false);
+                var manager = SettingsManager.Instance;
+                GetWindow().Size = new Vector2I(1280, 720);
+                await InputFrames();
+                var game = GameViewportContainer.Instance;
+                Equal(new Vector2(3, 3), game.Scale, "default integer scaling preserves whole pixels");
+                screen.PixelScalingRow.StepValue(1);
+                await InputFrames();
+                Equal("Fit", screen.PixelScalingRow.SettingValue.AsString(), "pixel scaling offers a working Fit choice");
+                Equal(true, Mathf.IsEqualApprox(3.6f, game.Scale.X) && game.Scale.X == game.Scale.Y,
+                    "Fit fills available height without changing aspect ratio");
+                Equal(new Vector2(64, 0), game.Position, "Fit centers its remaining letterbox space");
+                Press(screen, "%ApplyButton");
+                using (var disk = new GameConfig(manager.Config.FilePath))
+                    Equal("Fit", disk.GetValue("display", "pixel_scaling").AsString(), "scaling choice survives disk reload");
+                Press(screen, "%CloseButton");
+                await InputFrames();
+                var menu = ActiveRecipeScreen<Deuteros.Code.Platform.Screens.MainMenu>();
+                var point = menu.NewsButton.GetGlobalRect().GetCenter();
+                PushGameInput(new InputEventMouseMotion { Position = point });
+                foreach (var pressed in new[] { true, false })
+                    PushGameInput(new InputEventMouseButton { Position = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
+                await InputFrames();
+                Equal(Scenes.News, core.currentScene, "fractionally scaled pointer reaches the visible menu button");
+                await CaptureDisplayEvidence("pixel-scaling-fit");
+                GameCore.ShowError(null, "Scaling check");
+                await InputFrames();
+                var area = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea");
+                Equal(game.Scale, area.Scale, "game overlay follows fractional scale");
+                Equal(game.Position, area.Position, "game overlay follows letterbox offset");
+                GetWindow().Size = new Vector2I(1400, 900);
+                await InputFrames();
+                Equal(new Vector2(4.375f, 4.375f), game.Scale, "Fit responds to window resize");
+                Equal(new Vector2(0, 12), game.Position, "resized Fit stays centered on whole screen pixels");
+                Equal(game.Scale, area.Scale, "open overlay follows resizing");
+                GetWindow().Size = new Vector2I(1280, 720);
+                await InputFrames();
+                manager.SetSetting("display/pixel_scaling", "Integer");
+                manager.ApplyDisplay();
+                await InputFrames();
+                Equal(new Vector2(3, 3), game.Scale, "integer preview returns to whole pixels");
+                Equal(game.Scale, area.Scale, "open overlay follows preference changes");
+                manager.Revert();
+                await InputFrames();
+                Equal(true, Mathf.IsEqualApprox(3.6f, game.Scale.X), "revert restores saved Fit scale");
+                OverlayManager.Instance.CloseOverlay();
+                await InputFrames();
+                screen = OpenSettings();
+                await InputFrames();
+                Equal("Fit", screen.PixelScalingRow.SettingValue.AsString(), "reopened settings show applied scale");
+                screen.PixelScalingRow.StepValue(1);
+                Equal(new Vector2(3, 3), game.Scale, "row previews Integer immediately");
+                Press(screen, "%CancelButton");
+                await InputFrames();
+                Equal(true, Mathf.IsEqualApprox(3.6f, game.Scale.X), "discard restores Fit rendering");
+                manager.SetSetting("display/pixel_scaling", 42);
+                manager.ApplyDisplay();
+                Equal(new Vector2(3, 3), game.Scale, "malformed preference falls back to Integer");
+                core.SetProcess(true);
+            });
+        }
+
         private async Task SettingsDisplay()
         {
             await WithSettings(async screen =>

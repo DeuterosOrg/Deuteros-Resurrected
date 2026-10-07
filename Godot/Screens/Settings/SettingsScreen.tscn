@@ -223,6 +223,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Pixel Scaling"
 SettingKey = "display/pixel_scaling"
+Description = "Integer keeps whole-size pixels. Fit fills available space while preserving the game shape."
 
 [node name="ScanlinesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("slider")]
 unique_name_in_owner = true

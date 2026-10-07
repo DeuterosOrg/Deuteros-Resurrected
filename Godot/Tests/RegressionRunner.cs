@@ -398,6 +398,7 @@ namespace Deuteros.Tests
             await CheckAsync("Next Location cycles accessible stations in overview order while respecting input ownership", SettingsNextLocationShortcut);
             Check("Quick Save has an independent atomic slot and retains all five manual saves", QuickSaveStorage);
             await CheckAsync("Quick Save shortcut persists without navigation and its visible slot confirms loading", QuickSaveShortcut);
+            await CheckAsync("Pixel scaling previews persists and discards while keeping pointer and overlay transforms aligned", SettingsPixelScaling);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
