@@ -16,7 +16,7 @@ namespace Deuteros.Tests
         private async Task RunNewsRegressions()
         {
             await CheckAsync("News renders dated latest twelve entries and preserves history in saves", NewsHistory);
-            await CheckAsync("News replay is unavailable until a bulletin exists", NewsReplayAvailability);
+            await CheckAsync("News preserves pointer navigation and enables replay only when a bulletin exists", NewsReplayAvailability);
             await CheckAsync("News replays the saved bulletin without duplicating history", NewsReplay);
             await CheckAsync("Leaving a typing bulletin releases only its own input lock", BulletinExit);
             await CheckAsync("Repeated bulletin requests preserve the active typing screen and lock", BulletinReplacement);
@@ -135,16 +135,38 @@ namespace Deuteros.Tests
             Equal(true, news.NewsLabels[0].Text.Contains("New Rank:Doctor"), "real promotion appears on next day refresh");
         }
 
-        private async Task NewsReplayAvailability()
+        private async Task NewsReplayAvailability() => await WithMenuSound(async (menu, viewport, player) =>
         {
-            var news = await OpenNews();
-            Equal(true, news.ReplayIcon.Disabled, "no bulletin disables replay control");
-            news.ReplayIcon.EmitSignal(BaseButton.SignalName.Pressed);
-            Equal(Scenes.News, GameCore.SingletonInstance.currentScene, "empty replay cannot navigate");
-            Save.News.LastBulletin = BulletinTypes.Matter_Transmitter;
-            news.DrawData();
-            Equal(false, news.ReplayIcon.Disabled, "available bulletin enables replay");
-        }
+            GameCore.SingletonInstance.ChangeScene(Scenes.News, new List<SceneVariables>());
+            await InputFrames();
+            var news = ActiveScreen<NewsScreen>();
+            var parent = news.GetParent();
+            news.Reparent(viewport);
+            try
+            {
+                await InputFrames();
+                Equal(true, news.ReplayIcon.Disabled, "no bulletin disables replay control");
+                ClickMenu(viewport, news.ReplayIcon);
+                Equal(Scenes.News, GameCore.SingletonInstance.currentScene, "empty replay cannot navigate");
+                Save.News.LastBulletin = BulletinTypes.Matter_Transmitter;
+                news.DrawData();
+                Equal(false, news.ReplayIcon.Disabled, "available bulletin enables replay");
+                ClickMenu(viewport, menu.TimeButton);
+                Equal(true, Save.TimeSkip, "News background allows pointer to start time");
+                ClickMenu(viewport, menu.TimeButton);
+                Equal(false, Save.TimeSkip, "News background allows pointer to stop time");
+                var hovered = false;
+                news.NewsLabels[0].MouseEntered += () => hovered = true;
+                MenuPointer(viewport, news.NewsLabels[0].GetGlobalRect().GetCenter());
+                Equal(true, hovered, "News labels still receive hover input");
+                ClickMenu(viewport, menu.MasterControlButton);
+                Equal(Scenes.Overview, GameCore.SingletonInstance.currentScene, "News background allows pointer to Master Control");
+            }
+            finally
+            {
+                if (GodotObject.IsInstanceValid(news)) news.Reparent(parent);
+            }
+        });
 
         private async Task FinishBulletin(Bulletins bulletin)
         {

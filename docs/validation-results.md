@@ -1,5 +1,15 @@
 # Contribution and validation results
 
+## News menu pointer obstruction — 2026-10-07
+
+The normal Moon-defence campaign exposed an unresponsive Master Control button on News. Two invisible 40×40 parent controls (`Images` and `NewsLines`) intercepted the upper menu. Both decorative containers now ignore mouse input; their child labels and replay button retain their own input handling.
+
+Extended case **126** uses real pointer events with both the News scene and persistent menu present. It fails before the fix when Time cannot start; afterwards it verifies start/stop, label hover and Master Control navigation, alongside existing replay availability checks. **26 related fresh-process cases**, compilation, strict import and startup pass. The first editor invocation omitted the pinned SDK from `PATH`; its failed log is retained separately from the corrected import. The last full **635-case aggregate** remains the fleet-refresh run; this two-line scene correction has focused validation, not a new full aggregate or Windows result.
+
+Native normal-save verification loads the unchanged day-21824 checkpoint, navigates News → Master Control, starts/stops Time from News, and opens the retained alien bulletin through its replay icon. Three ordinary updates occur; a separate day-21827 save confirms both time flags are off and News history is unchanged. Reload preserves game data apart from elapsed-time bookkeeping. The owned game exits 0 with a strict log, and the original user save is restored byte-for-byte. A post-close UI observation relaunched the auxiliary project manager without the SDK environment; that manager was closed and the pre-existing Godot 4.2.1 process was untouched.
+
+Evidence and runnable audit: `artifacts/news-menu-input-20261007/`. The campaign continuation remains the retained day-21824 boundary; day-21827 is only this pointer/replay verification branch. Task totals remain 35/48 implementation evidence and four locally accepted requirements.
+
 ## Live fleet-transfer inventory — 2026-10-07
 
 Normal campaign production exposed a stale fleet-transfer display: the orbital pool, fleet count and power were redrawn only when opening the panel or completing a transfer. AOC production continued behind the unchanged count. The existing frame callback now reuses the existing refresh method after a ship is bound. Production, combat, transfer limits and save data are unchanged.
