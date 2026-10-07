@@ -28,6 +28,8 @@ The next normal run trains/transports 41 replacement crew and defends Earth with
 
 The fleet-transfer panel now refreshes during ongoing production; case 22 fails before and passes after, and a fresh full **635/635** run plus native production/save checks pass. The normal campaign manufactures a full 200-drone fleet and defends the Moon again, but heavy casualties leave 43 aboard and two in stores. Exact recipe/casualty/reload and original-save audits pass. [Evidence and production constraint](native-gameplay-results.md#live-fleet-inventory-and-sustained-defence--2026-10-07). A fresh read of Modern Settings, Cheats/Bugs and Stores adds no new scope details. The subsequent News menu obstruction is fixed with a reproduced pointer failure, 26 focused passes and native navigation/replay/save verification; [its evidence is separate from the full aggregate](validation-results.md#news-menu-pointer-obstruction--2026-10-07). Counts remain unchanged.
 
+The normal campaign now funds six automatic factories through MTX and verifies **48 drones in 48 updates**, with exact station costs and total MTX/recipe accounting. The day-21294 checkpoint retains **175 drones**, all six paid repeat orders and the three earlier captures; exact reload, strict native exit 0 and original-save restoration pass. [Six-factory evidence](native-gameplay-results.md#six-factory-reinforcement--2026-10-07). Totals remain **35/48 implementation evidence and four locally accepted requirements**; remaining Sol captures and later progression/Windows acceptance remain open.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
