@@ -384,6 +384,9 @@ namespace Deuteros.Tests
             Check("Completed-chassis saves recover missing Star Drone discovery without changing campaign assets", StarDroneDiscoveryLegacy);
             CheckUi("Star Drone manual and AOC production require the original 300 titanium", StarDroneRecipe);
             CheckUi("Star Drone recipe migration preserves paid work and charges future orders at the corrected cost", StarDroneRecipeLegacy);
+            await CheckAsync("IOS and SCG can select Oberon through its moon button and retain the ACC course across saves", OberonCourse);
+            CheckUi("Original moon chart positions reach all 160 bodies and display their deposits", OriginalMoonRoutes);
+            Check("Old default moon charts migrate without changing campaign state or custom charts", LegacyMoonRoutes);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

@@ -166,6 +166,14 @@ namespace Deuteros.Code.Utility
             foreach (var ship in save.Ships.OfType<SCG>())
                 while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
             ArtifactRecovery.RestoreLegacy(save);
+            // Original chart masks ($1C402). Repair known defaults, preserving edited charts and campaign state.
+            foreach (var (parent, oldSlots, slots) in new[] {
+                (StellarBodies.mars, new[] { 1, 8 }, new[] { 1, 6 }),
+                (StellarBodies.uranus, new[] { 1, 5, 6, 10 }, new[] { 2, 5, 6, 8, 10 }),
+                (StellarBodies.julius, new[] { 1, 4, 5, 9 }, new[] { 2, 4, 5, 9 }) })
+                if (save.BaseGameData.Planets.TryGetValue(parent, out var planet)
+                    && planet.MoonList != null && planet.MoonList.OrderBy(i => i).SequenceEqual(oldSlots))
+                    planet.MoonList = slots.ToList();
             // Correct only the old default recipe. Paid orders retain their reservation and progress.
             var starDroneRecipe = save.BaseGameData.ItemList.FirstOrDefault(i => i.ItemType == ItemTypes.star_drone)?.BuildRequirements;
             var oldStarDroneRecipe = new[] { (ItemTypes.iron, 300), (ItemTypes.titanium, 200),

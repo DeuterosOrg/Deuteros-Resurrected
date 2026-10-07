@@ -43,7 +43,13 @@ namespace Deuteros.Code.Objects
 
         public string PlanetImageName()
         {
-            return PlanetColor.ToString().ToPascalCase() + "_" + PlanetStyle.ToString().ToPascalCase();
+            // These supplied map assets use different names for the same planet shapes.
+            var style = PlanetStyle;
+            if (style == Enums.PlanetStyle.massive_rings && PlanetColor is Enums.PlanetColor.red or Enums.PlanetColor.yellow)
+                style = Enums.PlanetStyle.rings;
+            if (style == Enums.PlanetStyle.massive && PlanetColor == Enums.PlanetColor.white)
+                style = Enums.PlanetStyle.giant;
+            return PlanetColor.ToString().ToPascalCase() + "_" + style.ToString().ToPascalCase();
         }
 
         public virtual void DayTick(uint previousDay, uint currentDay)

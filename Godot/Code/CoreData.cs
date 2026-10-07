@@ -1608,7 +1608,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.silver, 1)
 						}
 					),
-					MoonList = new List<int> { 1, 8 },
+					MoonList = new List<int> { 1, 6 },
 					PlanetColor = PlanetColor.red,
 					PlanetStyle = PlanetStyle.whirl
 				});
@@ -1990,7 +1990,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.silica, 1)
 						}
 					),
-					MoonList = new List<int> { 1, 5, 6, 10 },
+					MoonList = new List<int> { 2, 5, 6, 8, 10 },
 					PlanetColor = PlanetColor.green,
 					PlanetStyle = PlanetStyle.whirl
 				});
@@ -2982,7 +2982,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.gold, 1),
 						}
 					),
-					MoonList = new List<int> { 1, 4, 5, 9 },
+					MoonList = new List<int> { 2, 4, 5, 9 },
 					PlanetColor = PlanetColor.white,
 					PlanetStyle = PlanetStyle.moon
 				});

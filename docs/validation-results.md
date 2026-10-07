@@ -1,5 +1,10 @@
 # Contribution and validation results
 
+## Original moon charts and complete body coverage — 2026-10-07
+
+The original-backed Mars/Uranus/Julius correction exposes Oberon and migrates only known old chart defaults. All 160 bodies are reached by the new regression, which also exposed and verified corrections for three missing image paths. Cases 642–644, build, strict import and native all-Uranus-moon/IOS-course/save-reload checks pass. The fresh full **644/644** run, all **19 tooling checks** with original-disk verification, build, strict import/startup, source comparison and exit 0 pass. Original saves are restored; Windows acceptance remains open. [Original trace, migration audit and retained failures](original-moon-chart-evidence.md).
+
+
 ## Star Drone titanium recipe — 2026-10-07
 
 The original-backed recipe now requires 300 titanium. Exact-old-default save repair preserves paid work, inventory and custom recipes. New regressions 640–641 fail before and pass after; **47 focused cases**, build, strict import/startup, source comparison and exit 0 pass. Native Research display, the precisely accounted single normal tick, save/reload and original-save restoration pass. [Recipe trace and compatibility evidence](star-drone-discovery-evidence.md#original-recipe-and-paid-order-compatibility--2026-10-07). Discovery now lists 641 cases; the latest complete aggregate remains the preceding **639/639** run. Current Windows acceptance and further normal manufacture remain open.
