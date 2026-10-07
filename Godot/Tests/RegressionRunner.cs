@@ -389,6 +389,8 @@ namespace Deuteros.Tests
             Check("Old default moon charts migrate without changing campaign state or custom charts", LegacyMoonRoutes);
             await CheckAsync("Reopened planet and moon courses show their destination star immediately", ReopenedCourseStarHeader);
             await CheckAsync("DFCC ships operate selected tools in friendly orbit without losing fleet controls", DfccFriendlyModuleRouting);
+            CheckUi("Enemy fleets require a player station before scheduling an attack", EnemyAttackRequiresPlayerStation);
+            CheckUi("Enemy arrivals and captures recheck saved station ownership", EnemyAttackRechecksOwnership);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

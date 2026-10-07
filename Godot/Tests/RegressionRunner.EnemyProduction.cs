@@ -1,12 +1,82 @@
 using System.Linq;
 using Deuteros.Code;
 using Deuteros.Code.Platform;
+using Deuteros.Code.Objects;
+using Deuteros.Code.Utility;
 using static Deuteros.Code.Enums;
 
 namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private void EnemyAttackRequiresPlayerStation()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            Save.AtWar = true;
+            var target = Save.BaseGameData.Planets[StellarBodies.atlantic];
+            foreach (var planet in Save.BaseGameData.Planets.Values.Where(p => p.ParentStar == target.ParentStar))
+                planet.ActiveMethanoid = true;
+            target.Station.BuildParts = 8;
+            var fleet = new EnemyFleet { StarLocation = target.ParentStar, PlanetLocation = target.PlanetId,
+                DestinationPlanetLocation = target.PlanetId, DroneCount = 200, AttackTrigger = 100 };
+            Save.Ships.Add(fleet);
+            foreach (var repeats in new[] { 0, 2 })
+            {
+                fleet.AttackCount = repeats;
+                fleet.ProcessAttackTrigger();
+                Equal(0, fleet.AttackDay, "enemy-owned system cannot schedule attacks on an old target");
+                Equal(repeats, fleet.AttackCount, "no player station leaves repeat state untouched");
+            }
+            target.ActiveMethanoid = false;
+            fleet.AttackCount = 0;
+            fleet.ProcessAttackTrigger();
+            Equal(true, fleet.AttackDay > 0, "recaptured player station resumes ordinary attack scheduling");
+            Equal(target.PlanetId, fleet.DestinationPlanetLocation, "new player station is selected");
+        }
+
+        private void EnemyAttackRechecksOwnership()
+        {
+            GameCore.SingletonInstance.SetProcess(false);
+            Save.AtWar = true;
+            var target = Save.BaseGameData.Planets[StellarBodies.atlantic];
+            var fleet = new EnemyFleet { StarLocation = target.ParentStar, PlanetLocation = target.PlanetId,
+                DestinationPlanetLocation = target.PlanetId, DroneCount = 200, AttackTrigger = 100 };
+            Save.Ships.Add(fleet);
+            foreach (var captured in new[] { true, false })
+            {
+                target.ActiveMethanoid = captured;
+                target.Station.BuildParts = captured ? 8 : 0;
+                target.Station.Resources.Stores[ItemTypes.ios_drone] = 177;
+                foreach (var capturing in new[] { false, true })
+                {
+                    fleet.Attacking = capturing;
+                    fleet.AttackDay = 1;
+                    var news = string.Join("\n", Save.News.GetNews(100));
+                    var attacks = target.MethanoidAttackedCount;
+                    var before = SaveStorage.Serialize(Save);
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile = SaveStorage.Deserialize(before);
+                    fleet = Save.Ships.OfType<EnemyFleet>().Last();
+                    target = Save.BaseGameData.Planets[StellarBodies.atlantic];
+                    Save.TimeSkip = true;
+                    fleet.ProcessFleet();
+                    Equal(false, fleet.Attacking, "invalid target cannot enter or remain in capture phase");
+                    Equal(0, fleet.AttackDay, "expired invalid target countdown clears");
+                    Equal(true, Save.TimeSkip, "invalid target cannot interrupt time advance");
+                    Equal(attacks, target.MethanoidAttackedCount, "invalid target does not count as an attack");
+                    Equal(177, target.Station.Resources.Stores[ItemTypes.ios_drone], "invalid capture preserves station stock");
+                    Equal(news, string.Join("\n", Save.News.GetNews(100)), "invalid target emits no attack or capture news");
+                }
+            }
+            target.ActiveMethanoid = false;
+            target.Station.BuildParts = 8;
+            fleet.AttackDay = 1;
+            fleet.ProcessFleet();
+            Equal(true, fleet.Attacking, "valid player station starts capture countdown");
+            Equal(5, fleet.AttackDay, "valid attack preserves the five-update capture window");
+            for (var tick = 0; tick < 5; tick++) fleet.ProcessFleet();
+            Equal(true, target.ActiveMethanoid, "valid attack still captures the player station");
+        }
+
         private void EnemyProductionOverdueDeadline()
         {
             GameCore.SingletonInstance.SetProcess(false);

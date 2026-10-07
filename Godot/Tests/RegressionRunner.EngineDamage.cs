@@ -177,6 +177,8 @@ namespace Deuteros.Tests
             var ship = DamageShip(scg);
             if (attacked)
             {
+                GameCore.Earth.Station.Built = true;
+                GameCore.Earth.Station.BuildParts = 8;
                 var fleet = new EnemyFleet { ShipType = Ship_Types.IOS, MethanoidOwned = true,
                     PlanetLocation = StellarBodies.mars, DestinationPlanetLocation = StellarBodies.earth, AttackDay = 1 };
                 Save.Ships.Add(fleet);

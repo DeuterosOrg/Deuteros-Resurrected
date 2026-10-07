@@ -16,10 +16,13 @@ namespace Deuteros.Code.Objects
         public int AttackCount { get; set; }
         public bool Attacking { get; set; }
 
+        private static bool IsPlayerStation(IPlanet planet)
+            => planet.Station != null && planet.Station.BuildParts == 8 && !planet.ActiveMethanoid;
+
         private Enums.StellarBodies FindAttackStation()
         {
             var star = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[this.StarLocation];
-            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(p => p.Value.ParentStar == star.StarId && p.Value.Station != null && p.Value.Station.BuildParts == 8 && !p.Value.ActiveMethanoid).OrderBy(p => p.Value.MethanoidAttackedCount).ThenByDescending(p=>p.Key);
+            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(p => p.Value.ParentStar == star.StarId && IsPlayerStation(p.Value)).OrderBy(p => p.Value.MethanoidAttackedCount).ThenByDescending(p=>p.Key);
             if (planets.Count()>0)
             {
                 return planets.First().Key;
@@ -56,7 +59,7 @@ namespace Deuteros.Code.Objects
         {
             if (DroneCount >= AttackTrigger)
             {
-                if (AttackDay == 0)
+                if (AttackDay == 0 && FindAttackStation() != StellarBodies.none)
                 {
                     ChooseAttackTarget();
                 }
@@ -68,6 +71,7 @@ namespace Deuteros.Code.Objects
         {
             Attacking = false;
             var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
+            if (!IsPlayerStation(attackedPlanet)) return;
             attackedPlanet.Station.MtxInstalled = true;
             attackedPlanet.Station.SdmInstalled = true;
             attackedPlanet.MethanoidAttackedCount = 0;
@@ -137,9 +141,10 @@ namespace Deuteros.Code.Objects
                 AttackDay--;
                 if (!Attacking && AttackDay == 0)
                 {
+                    var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
+                    if (!IsPlayerStation(attackedPlanet)) return;
                     GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip = false;
                     PlanetLocation = DestinationPlanetLocation;
-                    var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
                     attackedPlanet.MethanoidAttackedCount++;
                     Attacking = true;
                     GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(attackedPlanet.PlanetId.ToScreenString(" ") + " UNDER ATTACK !");
