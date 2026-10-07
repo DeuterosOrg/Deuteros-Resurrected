@@ -1,5 +1,11 @@
 # Windows validation results
 
+## New ACC lamp package prepared locally — 2026-10-07
+
+Runtime/source `20ce403` passes the [complete 633-case Mac aggregate and export audit](validation-results.md#633-case-complete-integration-checkpoint--2026-10-07). A new local handoff contains the executable, complete-history source bundle, audit and profile-preserving instructions. ZIP: `artifacts/windows-handoff/deuteros-20ce403.zip`, **81,446,718 bytes**, SHA-256 **`78135dbd903e46e8e408242e4a923b0d14fac0c298a2693ea3b12b6be102af9b`**. All four manifest entries and ZIP integrity are verified.
+
+It is **not uploaded or executed on Windows**. The last delivered runtime remains `929b4a5`; the new lamp requires matching desktop/source/export checks. The earlier PowerShell policy rejection and native `0xC0000005` remain open. Existing profiles, checkpoints and remote processes were not changed. The unfinished upstream merge is excluded from this package.
+
 ## Windows documentation reconciled — 2026-10-05
 
 Retrieved the agent's documentation commit `4cfd08bc5ff46279dc194670e357c6a34e91889a` in `windows-progress-4cfd08b.bundle`: **3,277 bytes**, SHA-256 `ea343ea167da10f0379a3e51a451f4e7c615924dba3f44b1da650e927d232025`. Hash and Git prerequisite verification pass. Its two-file update was reviewed against this report and the current [Windows brief](windows-agent-brief.md); the shutdown, ACC and export findings are already recorded below. No older gameplay patches were reapplied.

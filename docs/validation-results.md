@@ -1,10 +1,20 @@
 # Contribution and validation results
 
+## 633-case complete integration checkpoint — 2026-10-07
+
+Source/runtime `20ce403fb5c7fc5512dbdde5d7ef313775ffe05b` passes **633/633 fresh-process Mac regressions in one run**, build, strict import, startup and Windows cross-export. All **19 Python checks** pass with the original ending disk and no skips. The owned validator exits **0**; the full validation plus tooling checks took 1,068 seconds. Case 264 passes strict shutdown checks in this run. No runtime or validator changes were made during it.
+
+The independent audit verifies fresh logs for every case, all **1,232 embedded payload hashes**, 64 illustration imports, ending JSON/music, embedded .NET dependencies and zero test resources. The exported DLL contains the new ACC lamp implementation. EXE: **163,908,912 bytes**, SHA-256 **`d22af129db4e88ef7990f3947d2341c0dc772e149ea372e142173731b6bd9445`**. Runtime DLL SHA-256: `3dad78a1afe41bf682cf1efce0f275c95db9814ff8dc7fa5afa276cc74dd74b3`.
+
+Evidence: `artifacts/integration-633-20261007/results/`; run `python3 artifacts/integration-633-20261007/audit.py`. Original saves remain byte-identical and root `AGENTS.md` is unchanged. Prior validation logs, the complete 632-case export and all earlier failure evidence remain retained. The new source/export handoff is prepared locally; it has not been uploaded or run on Windows.
+
+This checkpoint does **not** resolve the intermittent Mac audio teardown or the separate Windows crash, and does not certify the [unfinished upstream integration](upstream-integration.md). Counts remain **35/48 implementation evidence and four locally accepted requirements**. Normal later-campaign and matching Windows acceptance remain open.
+
 ## ACC lamp animation — 2026-10-07
 
 The cockpit lamp now reproduces the original four-step, 0.4-second pulse without recolouring the static highlight. Case 633 reproduces the old static lamp and verifies pixel selection, cadence, rollover and unchanged simulation across all three hulls and ACC modes. Build, **110 focused fresh-process regressions**, native case 633, rendered-pixel audit and strict startup pass. The build retains 14 existing warnings and zero errors. The native pointer/save/reload check and window-close exit 0 also pass; original saves were restored byte-for-byte.
 
-See [implementation and evidence](original-acc-indicator-evidence.md#lamp-animation-implementation--2026-10-07). Logs, four native screenshots, retained temporary saves and a runnable audit are under `artifacts/acc-pulse-20261007/`. This runtime change postdates the full 632-case checkpoint below. A complete 633-case aggregate, updated Windows export and matching Windows acceptance remain pending. Existing shutdown failures and modal dimming fidelity remain open; task counts are unchanged.
+See [implementation and evidence](original-acc-indicator-evidence.md#lamp-animation-implementation--2026-10-07). Logs, four native screenshots, retained temporary saves and a runnable audit are under `artifacts/acc-pulse-20261007/`. The subsequent complete 633-case aggregate/export passes above; matching Windows acceptance and existing shutdown failures remain open. The later caller trace identifies original dimming as an inactivity path, not an established modal requirement. Task counts are unchanged.
 
 ## 632-case complete integration checkpoint — 2026-10-07
 
