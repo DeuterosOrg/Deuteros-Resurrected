@@ -314,6 +314,20 @@ namespace Deuteros.Code
 
 		public void HandleGameInput(InputEvent @event)
 		{
+			if (@event is InputEventKey key)
+			{
+				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				var target = key.IsActionPressed("research", false, true) ? Scenes.Earth_Research
+					: key.IsActionPressed("production", false, true) ? Scenes.Production : Scenes.None;
+				if (target == Scenes.None || _menuScreen == null) return;
+				var button = _menuScreen.GetNode("MainButtons").GetChildren().OfType<Platform.MenuButton>()
+					.FirstOrDefault(b => b.TargetScene == target && !b.Disabled && b.IsVisibleInTree() && b.CanProcess());
+				if (button == null) return;
+				button.GetViewport().SetInputAsHandled();
+				button._Pressed();
+				button.EmitSignal(BaseButton.SignalName.Pressed);
+				return;
+			}
 			// The game viewport routes input after descendant screens, so their modal dismissals take priority.
 			if (@event is not InputEventMouseButton mouse || mouse.ButtonIndex != MouseButton.Right || !mouse.Pressed)
 				return;

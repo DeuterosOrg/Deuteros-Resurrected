@@ -392,6 +392,7 @@ namespace Deuteros.Tests
             CheckUi("Enemy fleets require a player station before scheduling an attack", EnemyAttackRequiresPlayerStation);
             CheckUi("Enemy arrivals and captures recheck saved station ownership", EnemyAttackRechecksOwnership);
             await CheckAsync("MTX star icon centres select the matching system and preserve the chosen route", MtxStarIconTargets);
+            await CheckAsync("Research and Production shortcuts follow current menu eligibility and input ownership", SettingsNavigationShortcuts);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

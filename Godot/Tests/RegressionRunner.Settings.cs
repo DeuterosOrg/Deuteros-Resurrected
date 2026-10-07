@@ -26,6 +26,74 @@ namespace Deuteros.Tests
             await CheckAsync("Modern settings validate, migrate, revert and report failed saves", SettingsModernLifecycle);
         }
 
+        private async Task SettingsNavigationShortcuts()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            var settings = SettingsManager.Instance;
+            async Task KeyPress(Key key, bool echo = false, bool control = false)
+            {
+                GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
+                    Unicode = (uint)char.ToLowerInvariant((char)key),
+                    Pressed = true, Echo = echo, CtrlPressed = control }, true);
+                GetViewport().PushInput(new InputEventKey { Keycode = key, PhysicalKeycode = key,
+                    Pressed = false, CtrlPressed = control }, true);
+                await InputFrames();
+            }
+            void Ground() => core.ChangeScene(Scenes.Earth_Ground,
+                new System.Collections.Generic.List<SceneVariables> { SceneVariables.Ground });
+            Ground();
+            await InputFrames();
+            await KeyPress(Key.R);
+            Equal(Scenes.Earth_Research, core.currentScene, "default Research key navigates");
+            await KeyPress(Key.F);
+            Equal(Scenes.Production, core.currentScene, "default Production key navigates");
+            Equal(true, core.SceneVariables.Contains(SceneVariables.Ground), "ground production context retained");
+            Ground();
+            await InputFrames();
+            await KeyPress(Key.R, echo: true);
+            await KeyPress(Key.R, control: true);
+            Equal(Scenes.Earth_Ground, core.currentScene, "echo and modified key do not navigate");
+            settings.SetSetting("keybinds/research", (long)Key.T);
+            settings.ApplyKeybinds();
+            await KeyPress(Key.R);
+            Equal(Scenes.Earth_Ground, core.currentScene, "old binding stops working");
+            await KeyPress(Key.T);
+            Equal(Scenes.Earth_Research, core.currentScene, "new binding navigates");
+            Ground();
+            await InputFrames();
+            var cursor = core.GetNode<Deuteros.Code.Utility.GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+            cursor.LockToRect(new Rect2(0, 0, 320, 200));
+            await KeyPress(Key.T);
+            Equal(Scenes.Earth_Ground, core.currentScene, "cursor modal owns input");
+            cursor.Unlock();
+            var entry = new LineEdit();
+            core.GetNode<SubViewport>("GameContainer/GameViewport").AddChild(entry);
+            entry.GrabFocus();
+            await InputFrames();
+            await KeyPress(Key.T);
+            Equal("t", entry.Text, "focused text entry receives shortcut character");
+            Equal(Scenes.Earth_Ground, core.currentScene, "text entry does not navigate");
+            entry.QueueFree();
+            await InputFrames();
+            OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Settings/SettingsScreen.tscn"), true, true);
+            await InputFrames();
+            await KeyPress(Key.T);
+            Equal(Scenes.Earth_Ground, core.currentScene, "settings owns keyboard input");
+            OverlayManager.Instance.CloseOverlay();
+            await InputFrames();
+            GameCore.Earth.Station.BuildParts = 8;
+            core.ChangeScene(Scenes.Station, new System.Collections.Generic.List<SceneVariables> { SceneVariables.Orbit });
+            await InputFrames();
+            await KeyPress(Key.T);
+            Equal(Scenes.Station, core.currentScene, "Research unavailable in orbit");
+            await KeyPress(Key.F);
+            Equal(Scenes.Production, core.currentScene, "orbital Production key navigates");
+            Equal(true, core.SceneVariables.Contains(SceneVariables.Orbit), "orbital production context retained");
+            settings.SetSetting("keybinds/research", (long)Key.R);
+            settings.ApplyKeybinds();
+        }
+
         private async Task SettingsDisplay()
         {
             await WithSettings(async screen =>
