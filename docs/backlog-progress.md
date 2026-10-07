@@ -14,7 +14,7 @@ Normal funded campaign play now manufactures 162 drones with exact material char
 
 An original FS-UAE recording corroborates the ACC lamp's 0.4-second pulse while engaged, finishing and disengaged. The remake now animates only the original lamp pixels, preserving its highlight. Case 633, 110 focused regressions, native rendered-pixel checks, a protected-save pointer/reload/shutdown check and the full 633-case aggregate/export pass. The new caller trace identifies constant `$800` dimming as an inactivity path, not established modal behavior. Original inactivity/global-phase observation and Windows comparison remain open. See [implementation and corrected evidence](original-acc-indicator-evidence.md#dimming-caller-correction--2026-10-07).
 
-The separate [upstream integration](upstream-integration.md) has 11 of 17 conflict files staged, with six still unmerged. It is unvalidated and does not change the tested contribution checkpoint.
+The upstream integration is committed locally as `365b0a6` and included in the contribution branch at `fb0158d`. Its 635-case full pass had 625 passes and ten outdated overlay-coordinate test failures; all ten corrections and 23 targeted cases now pass. Nineteen distinct native cases, manual settings/discard/window-close, 19 tooling checks, startup and the Windows export audit pass. This is [aggregate evidence with explicit limits](upstream-integration-results.md), not a second all-green 635-case run. The main checkout rebuilt/imported/smoked cleanly and has identical runtime source. The latest published contribution remains `20ce403`; the new integration/export is local only. Windows acceptance, inherited inactive settings options and earlier Mac/Windows shutdown failures remain open.
 
 ## Completion rules
 

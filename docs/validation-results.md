@@ -1,5 +1,11 @@
 # Contribution and validation results
 
+## Upstream settings and viewport integration — 2026-10-07
+
+The upstream integration is committed locally as `365b0a6` and included in the contribution branch at `fb0158d`. Its 635-case full pass had 625 passes and ten outdated overlay-coordinate test failures; all ten corrections and 23 targeted cases now pass. Nineteen distinct native cases, manual settings/discard/window-close, 19 tooling checks, startup and the Windows export audit pass. This is [aggregate evidence with explicit limits](upstream-integration-results.md), not a second all-green 635-case run. The main checkout rebuilt/imported/smoked cleanly and has identical runtime source. The latest published contribution remains `20ce403`; the new integration/export is local only. Windows acceptance, inherited inactive settings options and earlier Mac/Windows shutdown failures remain open.
+
+All 1,259 Windows package payload hashes pass, with 64 illustration imports and no test resources. The executable has not been run on Windows. Full results, exact hashes, native screenshots and retained failures are in [the integration report](upstream-integration-results.md). Task counts remain 35/48 implementation evidence and four locally accepted requirements.
+
 ## 633-case complete integration checkpoint — 2026-10-07
 
 Source/runtime `20ce403fb5c7fc5512dbdde5d7ef313775ffe05b` passes **633/633 fresh-process Mac regressions in one run**, build, strict import, startup and Windows cross-export. All **19 Python checks** pass with the original ending disk and no skips. The owned validator exits **0**; the full validation plus tooling checks took 1,068 seconds. Case 264 passes strict shutdown checks in this run. No runtime or validator changes were made during it.
@@ -8,7 +14,7 @@ The independent audit verifies fresh logs for every case, all **1,232 embedded p
 
 Evidence: `artifacts/integration-633-20261007/results/`; run `python3 artifacts/integration-633-20261007/audit.py`. Original saves remain byte-identical and root `AGENTS.md` is unchanged. Prior validation logs, the complete 632-case export and all earlier failure evidence remain retained. The new source/export handoff is prepared locally; it has not been uploaded or run on Windows.
 
-This checkpoint does **not** resolve the intermittent Mac audio teardown or the separate Windows crash, and does not certify the [unfinished upstream integration](upstream-integration.md). Counts remain **35/48 implementation evidence and four locally accepted requirements**. Normal later-campaign and matching Windows acceptance remain open.
+This checkpoint does **not** resolve the intermittent Mac audio teardown or the separate Windows crash, and does not certify the [later upstream integration](upstream-integration.md). Counts remain **35/48 implementation evidence and four locally accepted requirements**. Normal later-campaign and matching Windows acceptance remain open.
 
 ## ACC lamp animation — 2026-10-07
 
