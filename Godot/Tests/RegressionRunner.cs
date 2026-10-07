@@ -394,6 +394,7 @@ namespace Deuteros.Tests
             await CheckAsync("MTX star icon centres select the matching system and preserve the chosen route", MtxStarIconTargets);
             await CheckAsync("Research and Production shortcuts follow current menu eligibility and input ownership", SettingsNavigationShortcuts);
             await CheckAsync("Speed shortcuts select existing fast and normal time without toggling or bypassing locks", SettingsSpeedShortcuts);
+            await CheckAsync("Pause binding opens and resumes Settings without discarding changes or another pause owner", SettingsPauseShortcut);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

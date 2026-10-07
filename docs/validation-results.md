@@ -1349,3 +1349,14 @@ In a separate physical Mac session, Settings rebinding/applying Speed Up toU and
 Both owned desktop processes (PID77405 and81109) exited0 with strict clean logs. `artifacts/settings-speed-20261007/` retains the red/green tests, first physical run, diagnostic events, strengthened tests, isolated profile and runnable `audit.py`/`audit.log`. Original saves/settings remain untouched; the day28947 campaign hash is still `bef75023bd84696fe048c8a8e3a57fff10504ac7c57c63cc8580743ea48858e0`.
 
 Pause, Next Location and Quick Save bindings and the other inactive settings still require implementation/acceptance. The latest full648 aggregate predates both shortcut corrections; no full651 or matching Windows result is claimed. Task counts remain35/48 implementation evidence and four locally accepted requirements.
+
+
+## Pause binding and Settings ownership — 2026-10-07
+
+The configurable Pause binding (`P`) now opens the existing Settings pause screen and resumes through that screen's established close flow. Previously no consumer read the action; case652 first failed with `Pause resumes clean Settings: expected False, got True`. The correction adds action recognition in the global overlay opener and Settings handler. An open non-Settings overlay retains ownership. Pending changes still require Apply/Discard, pressing Pause in the confirmation returns to editing, and closing Settings restores any pause that already existed. Keyboard rebinding capture consumes its key before the pause handler.
+
+Case652 verifies default and rebound keys, echo/modifier rejection, tree pause/resume, pending-change confirmation, preserved previews, explicit discard, rebind capture, another overlay and pre-existing pause ownership. **15 focused fresh-process cases pass:**76–77,116–119,208,221,477,481,486,637,650–652. Native652 passes. Main/isolated builds pass with14 existing warnings and zero errors.
+
+Physical Mac checks in isolated `DeuterosPauseValidation`: P opens Settings and P resumes. Previewing master volume8→7 then pressing P displays Unsaved Changes; P returns to editing with7 intact. Explicit Discard closes; reopening shows8. Rebinding Pause toO and applying makes P inert and O open/resume Settings. The isolated saved binding is `pause=79`. The displayed game date remains `3100 000.00`. Closing the OS window while Settings is open exits0 (owned PID86218), with a strict clean log. The primary day28947 campaign and original saves/preferences are unchanged.
+
+`artifacts/settings-pause-20261007/` retains the failure, focused/native/manual logs, exact-source audit and `audit.py`/`audit.log`. This reuses the established Settings pause semantics rather than introducing another pause state. Next Location, Quick Save and other inactive upstream settings remain open. Full652 and matching Windows acceptance remain pending; no acceptance count changes.

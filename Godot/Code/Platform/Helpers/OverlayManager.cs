@@ -92,10 +92,11 @@ namespace Deuteros.Code.Platform.Helpers
             return _contentInstance;
         }
 
-        /// Handle Escape / Cancel: opens the settings screen, or closes the overlay that is up.
+        /// Escape can dismiss overlays; Pause opens Settings and lets that screen own resuming.
         public override void _UnhandledInput(InputEvent @event)
         {
-            if (!@event.IsActionPressed("ui_cancel"))
+            if (!@event.IsActionPressed("ui_cancel")
+                && (!@event.IsActionPressed("pause", false, true) || IsOpen))
                 return;
 
             GetViewport().SetInputAsHandled(); // swallow the event

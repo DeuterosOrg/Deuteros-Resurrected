@@ -149,6 +149,65 @@ namespace Deuteros.Tests
             core.SetProcess(true);
         }
 
+        private async Task SettingsPauseShortcut()
+        {
+            await WithSettings(async initial =>
+            {
+                var overlays = OverlayManager.Instance;
+                var manager = SettingsManager.Instance;
+                await PushGameKey(Key.P);
+                Equal(false, overlays.IsOpen, "Pause resumes clean Settings");
+                Equal(false, GetTree().Paused, "game resumes after owned pause");
+                await PushGameKey(Key.P, echo: true);
+                await PushGameKey(Key.P, control: true);
+                Equal(false, overlays.IsOpen, "echo and modified Pause ignored");
+                await PushGameKey(Key.P);
+                Equal(true, overlays.IsOpen, "Pause opens existing Settings screen");
+                Equal(true, GetTree().Paused, "Pause freezes game tree");
+                var screen = overlays.GetNode<Settings>("GlobalOverlay/Center/SettingsScreen");
+                screen.AudioTab.ButtonPressed = true;
+                screen.MasterVolumeRow.ValueSlider.Value = 2;
+                await PushGameKey(Key.P);
+                Equal(true, screen.ConfirmOverlay.Visible, "Pause requests a decision for unsaved changes");
+                Equal(true, GetTree().Paused, "confirmation remains paused");
+                await PushGameKey(Key.P);
+                Equal(false, screen.ConfirmOverlay.Visible, "Pause cancels confirmation without discarding");
+                Equal(2, manager.GetSetting("audio/master_volume").AsInt32(), "preview remains available to apply");
+                await PushGameKey(Key.P);
+                Press(screen, "%ConfirmDiscardButton");
+                await InputFrames();
+                Equal(false, overlays.IsOpen, "explicit discard resumes");
+                Equal(8, manager.GetSetting("audio/master_volume").AsInt32(), "discard restores applied preference");
+                manager.SetSetting("keybinds/pause", (long)Key.O);
+                manager.ApplyKeybinds();
+                await PushGameKey(Key.P);
+                Equal(false, overlays.IsOpen, "old Pause binding ignored");
+                await PushGameKey(Key.O);
+                Equal(true, GetTree().Paused, "rebound Pause opens Settings");
+                screen = overlays.GetNode<Settings>("GlobalOverlay/Center/SettingsScreen");
+                screen.ControlsTab.ButtonPressed = true;
+                screen.PauseKeyRow.RebindButton.ButtonPressed = true;
+                await PushGameKey(Key.O);
+                Equal(true, overlays.IsOpen, "key capture owns the active Pause key");
+                Equal(false, screen.ConfirmOverlay.Visible, "key capture does not request close");
+                await PushGameKey(Key.O);
+                Equal(false, overlays.IsOpen, "rebound Pause resumes after capture ends");
+                var error = overlays.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Error.tscn"), false);
+                await InputFrames();
+                await PushGameKey(Key.O);
+                Equal(true, overlays.IsShowing(error), "Pause cannot dismiss another overlay");
+                overlays.CloseOverlay();
+                await InputFrames();
+                GetTree().Paused = true;
+                await PushGameKey(Key.O);
+                Equal(true, overlays.IsOpen, "Settings can be opened over an existing pause");
+                await PushGameKey(Key.O);
+                Equal(false, overlays.IsOpen, "Settings closes over existing pause");
+                Equal(true, GetTree().Paused, "closing Settings preserves previous pause owner");
+                GetTree().Paused = false;
+            });
+        }
+
         private async Task SettingsDisplay()
         {
             await WithSettings(async screen =>

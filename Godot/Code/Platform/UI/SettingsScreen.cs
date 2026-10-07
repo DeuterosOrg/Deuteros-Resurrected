@@ -187,7 +187,7 @@ public partial class SettingsScreen : Control
 
     public override void _UnhandledInput(InputEvent @event)
     {
-        if (!@event.IsActionPressed("ui_cancel")) return;
+        if (!@event.IsActionPressed("ui_cancel") && !@event.IsActionPressed("pause", false, true)) return;
 
         GetViewport().SetInputAsHandled();
 
