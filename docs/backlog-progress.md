@@ -337,3 +337,8 @@ Uranus58 replacements restore WAYFARER200. Normal Centauri arrival, Cercops capt
 ### MTX star-icon diagnostic — 2026-10-07
 
 The preserved Cercops selector symptom did not reproduce in two instrumented native centre clicks. Production code is unchanged. Case649 covers all nine painted icon centres through main-viewport input, actual route selection and save/load; headless/native checks pass, and a deliberately shifted selector fails. Strict diagnostic exit0, source identity and untouched campaign/user-profile audits pass. [Evidence and limits](validation-results.md#mtx-star-icon-targeting--2026-10-07). Latest full aggregate remains648; no acceptance count changes. Continue campaign reserve rebuilding and remaining original/Windows requirements.
+
+
+### Silver resupply continuation — 2026-10-07
+
+Normal AMA refit, automated500-silver delivery, exact Star-production accounting and Jupiter defence now pass. Day28621 retains WAYFARER147 and the53 losses, SCG10 and all earlier expedition losses; Earth has22 Star reserves with automated silver supply active. Exact reload, native exit0 and original-save restoration pass. [Evidence](native-gameplay-results.md#automated-silver-resupply-and-jupiter-defence--2026-10-07). Counts remain35/48 implementation evidence and four locally accepted requirements; matching Windows and remaining campaign acceptance are open.

@@ -1080,3 +1080,16 @@ The total interval is417 manual updates plus four natural ticks:421 CurrentDay i
 
 
 The [subsequent selector diagnostic](validation-results.md#mtx-star-icon-targeting--2026-10-07) did not reproduce the apparent Centauri hit-area mismatch: saved-state native clicks and all-nine main-viewport checks pass with unchanged production code. This does not establish a fix for the earlier observation. The day28366 failed-expedition checkpoint remains byte-identical and authoritative.
+
+
+## Automated silver resupply and Jupiter defence — 2026-10-07
+
+Continued the unchanged day28366 failed-expedition checkpoint on runtime `067f1f2`. PROSPECTOR returned from Triton to Earth in26 manual updates, exchanged its DFCC for the available AMA through the normal equipment screen, refuelled to250 and engaged ACC with only silver selected from Asteroids to Earth. The two existing supply pods were retained. Scanning initially found unsuitable silica; normal scanning subsequently found a class7 silver asteroid with25000 units. Mining filled both pods to250 each, then ACC returned and delivered all500 silver before automatically departing for another trip. No save JSON or production code was changed.
+
+During mining, Sol scheduled Jupiter at200 drones. WAYFARER travelled Uranus→Jupiter in8 updates, consuming8 fuel. Its200/1600 fleet defeated the mobile200/1400 fleet, which retreated at100. WAYFARER retains147 drones and all34 current crew; **53 drone losses and the earlier natural crew attrition35→34 are retained**. Jupiter remains friendly.
+
+The pre-delivery day28616 save contains500 silver aboard PROSPECTOR,9 Earth silver,21 Earth Star drones and a paid Star order. The final save contains empty cargo,414 Earth silver,22 Star drones and another paid Star order: **9 +500 -95 =414**. Titania's silver rose7→42 across the five intervening day increments; it did not contribute another delivery in that interval. All original Earth/Uranus/Titania MTX routing fields remain unchanged.
+
+**Primary checkpoint:** `artifacts/silver-mining-resupply-20261007/reloaded-slot-5.json`, SHA-256 `d3a3b97af56339454824dad6e6fc0b35a14e528ab72d07182fc892622117bdae`, **day28621**, Sol `3128 460.62`, fast off. PROSPECTOR is departing Earth for Asteroids with AMA, empty pods,227 fuel/Thackray Captain36 and silver ACC active. SCG remains undockedEarth10/132/Raphael Warlord29. WAYFARER is undockedJupiter147/55/Floyd Warlord34. Earth holds22 Star drones,414 silver,2 IOS and1460 HeD; Star repeat remains active. Sol enemy104 has no attack countdown. The first artifact remains12%; the failed Cercops expedition and all earlier losses remain retained.
+
+The continuation totals252 manual updates plus three natural ticks:255 CurrentDay increments/25203 centidays. Whole-world reload matches except the three elapsed timers. Owned PID26701 exited0, strict log audit passes, and original saves/settings absence are restored. `python3 artifacts/silver-mining-resupply-20261007/audit.py` and retained `audit.log` verify refitting, delivery accounting, combat losses, routes, reload and cleanup. Next replenish WAYFARER and continue building SCG expedition reserves with automated silver supply. Latest complete aggregate remains648/648 with focused case649 separately passing; no full649 run, new Windows acceptance or additional accepted task is claimed.
