@@ -387,6 +387,7 @@ namespace Deuteros.Tests
             await CheckAsync("IOS and SCG can select Oberon through its moon button and retain the ACC course across saves", OberonCourse);
             CheckUi("Original moon chart positions reach all 160 bodies and display their deposits", OriginalMoonRoutes);
             Check("Old default moon charts migrate without changing campaign state or custom charts", LegacyMoonRoutes);
+            await CheckAsync("Reopened planet and moon courses show their destination star immediately", ReopenedCourseStarHeader);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

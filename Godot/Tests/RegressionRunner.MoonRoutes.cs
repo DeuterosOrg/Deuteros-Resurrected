@@ -13,6 +13,27 @@ namespace Deuteros.Tests
 {
     public partial class RegressionRunner
     {
+        private async Task ReopenedCourseStarHeader()
+        {
+            var interior = await OpenInterior(Ship_Types.SCG);
+            foreach (var (destination, star, planet, moon) in new[] {
+                (StellarBodies.atlantic, "Proxima", "Atlantic", ""),
+                (StellarBodies.barent, "Proxima", "Pacific", "Barent"),
+                (StellarBodies.the_moon, "The Sun", "Earth", "The Moon") })
+            {
+                interior.Ship.DestinationPlanetLocation = destination;
+                Press(interior, "SetCourse");
+                var map = interior.GetNode("StarMap").GetChildren().OfType<StarMap>().Single();
+                Equal(star, map.SunLabel.Text, "reopened course header belongs to its destination system");
+                Equal(planet, map.PlanetLabel.Text, "destination parent planet");
+                Equal(moon, map.MoonLabel.Text, "destination moon");
+                Equal(destination, map.CurrentLocation, "opening preserves the selected course");
+                using var close = new InputEventMouseButton { ButtonIndex = MouseButton.Right, Pressed = true };
+                interior._Input(close);
+                await InputFrames();
+            }
+        }
+
         private async Task OberonCourse()
         {
             foreach (var hull in new[] { Ship_Types.IOS, Ship_Types.SCG })

@@ -315,6 +315,7 @@ namespace Deuteros.Code.Platform.Screens
                 PlanetGoBackAction = () => PlanetGoBack_Pressed(currentPlanet.ParentStar);
                 PlanetGoBack.Pressed += PlanetGoBackAction;
 
+                SunLabel.Text = currentPlanet.ParentStar.ToScreenString(" ");
                 PlanetLabel.Text = SelectedPlanet.ToScreenString(" ");
 
                 var moonList = currentPlanet.IsMoon
