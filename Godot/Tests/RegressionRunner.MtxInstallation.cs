@@ -35,6 +35,61 @@ namespace Deuteros.Tests
             await CheckAsync("MTX restores scrolling and keeps wheel and arrow controls synchronized", MtxScrollPosition);
         }
 
+        private async Task MtxStarIconTargets()
+        {
+            InitializeUi();
+            async Task Click(Vector2 point)
+            {
+                PushGameInput(new InputEventMouseMotion { Position = point, GlobalPosition = point });
+                foreach (var pressed in new[] { true, false })
+                    PushGameInput(new InputEventMouseButton { Position = point, GlobalPosition = point,
+                        ButtonIndex = MouseButton.Left, Pressed = pressed });
+                await InputFrames();
+            }
+            PrepareMtxRoute();
+            var stars = new[] { StellarBodies.the_sun, StellarBodies.proxima, StellarBodies.centauri,
+                StellarBodies.barnard, StellarBodies.lalande, StellarBodies.sirius,
+                StellarBodies.cygni, StellarBodies.procyon, StellarBodies.tau_ceti };
+            var targets = stars.Select(star => Save.BaseGameData.Planets.Values.First(p =>
+                p.ParentStar == star && p.PlanetId != StellarBodies.earth)).ToArray();
+            foreach (var target in targets)
+            {
+                target.ActiveMethanoid = false;
+                target.Station.Built = target.Station.MtxInstalled = true;
+            }
+            var stores = GameCore.Earth.Station.Resources.Stores;
+            stores.AlternativeView = true;
+            Save.CurrentPlanet = StellarBodies.earth;
+            GameCore.SingletonInstance.ChangeScene(Scenes.Store, new List<SceneVariables> { SceneVariables.Orbit });
+            var store = ActiveScreen<StoreScreen>();
+            try
+            {
+                await InputFrames();
+                var buttons = store.MTX.GetNode<VBoxContainer>("Destination/SystemButtons").GetChildren().OfType<Button>().ToArray();
+                for (var i = 0; i < stars.Length; i++)
+                {
+                    GD.Print($"MTX icon {stars[i]}: button={buttons[i].GetGlobalRect()} minimum={buttons[i].GetCombinedMinimumSize()}");
+                    // These positions are the nine 24x16 icons painted into MTX/Background.png.
+                    // Using button centres would hide a layout drift away from that artwork.
+                    var point = store.MTX.ToGlobal(new Vector2(228, 36 + 16 * i));
+                    await Click(point);
+                    var destination = store.MTX.GetNode<TextureButton>("Destination/StationButtons/00");
+                    var planet = (StellarBodies)(int)destination.GetMeta("StationId");
+                    Equal(stars[i], Save.BaseGameData.Planets[planet].ParentStar, $"visible {stars[i]} icon selects its system");
+                    if (planet == StellarBodies.earth)
+                        destination = store.MTX.GetNode<TextureButton>("Destination/StationButtons/01");
+                    await Click(destination.GetGlobalRect().GetCenter());
+                    var selected = (StellarBodies)(int)destination.GetMeta("StationId");
+                    Equal(selected, stores.MTX.Target, "displayed station becomes the actual route");
+                    Equal(stars[i], Save.BaseGameData.Planets[selected].ParentStar, "route belongs to the selected icon");
+                }
+                var loaded = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                Equal(stores.MTX.Target, loaded.BaseGameData.Planets[StellarBodies.earth].Station.Resources.Stores.MTX.Target,
+                    "selected route survives save load");
+            }
+            finally { GameCore.SingletonInstance.ChangeScene(Scenes.Overview, new List<SceneVariables>()); }
+        }
+
         private async Task MtxScrollPosition() => await WithMenuSound(async (menu, viewport, player) =>
         {
             PrepareMtxRoute();

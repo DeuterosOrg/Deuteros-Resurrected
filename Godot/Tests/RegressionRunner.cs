@@ -391,6 +391,7 @@ namespace Deuteros.Tests
             await CheckAsync("DFCC ships operate selected tools in friendly orbit without losing fleet controls", DfccFriendlyModuleRouting);
             CheckUi("Enemy fleets require a player station before scheduling an attack", EnemyAttackRequiresPlayerStation);
             CheckUi("Enemy arrivals and captures recheck saved station ownership", EnemyAttackRechecksOwnership);
+            await CheckAsync("MTX star icon centres select the matching system and preserve the chosen route", MtxStarIconTargets);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
