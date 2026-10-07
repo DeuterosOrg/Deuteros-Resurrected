@@ -16,6 +16,8 @@ An original FS-UAE recording corroborates the ACC lamp's 0.4-second pulse while 
 
 The upstream integration is committed locally as `365b0a6` and included in the contribution branch at `fb0158d`. Its 635-case full pass had 625 passes and ten outdated overlay-coordinate test failures; all ten corrections and 23 targeted cases now pass. Nineteen distinct native cases, manual settings/discard/window-close, 19 tooling checks, startup and the Windows export audit pass. This is [aggregate evidence with explicit limits](upstream-integration-results.md), not a second all-green 635-case run. The main checkout rebuilt/imported/smoked cleanly and has identical runtime source. The latest published contribution remains `20ce403`; the new integration/export is local only. Windows acceptance, inherited inactive settings options and earlier Mac/Windows shutdown failures remain open.
 
+The integrated build now passes a further normal campaign run through paid second-IOS construction, crew training/transport and its first mining delivery. Day 16570 retains 200-drone/DFCC funding, adds 1,000 palladium and 500 platinum delivered, and records the single-IOS-berth logistics constraint. Exact material, reload, native exit and original-save audits pass. [Fleet expansion checkpoint](native-gameplay-results.md#second-ios-and-first-mining-delivery--2026-10-07). Counts remain unchanged; replacement reserves, war progression and Windows acceptance remain pending.
+
 ## Completion rules
 
 - Report implementation and verification separately. Source presence alone is not completion.
