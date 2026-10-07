@@ -276,3 +276,8 @@ The normal campaign exposes a failed 152-versus-169 defence, preserved with WAYF
 ### Uranus repair and titanium expansion — 2026-10-07
 
 Normal native play repairs Uranus and expands two→eight rigs with exact component costs, measured extraction/refining, retained empty-trip fuel cost, crew return, exports and exact reload. Original saves are restored and native exit is zero. [Evidence and day-22651 continuation](native-gameplay-results.md#uranus-repair-and-eight-rig-titanium-supply--2026-10-07). Counts remain **35/48 implementation evidence; four locally accepted requirements**. Triton repair, SCG/interstellar progression and matching Windows acceptance remain open.
+
+
+### Triton repair and supply expansion — 2026-10-07
+
+Normal native play repairs Triton and expands one→eight rigs. Exact component costs, seven-update extraction/refining, combined network titanium/fuel conservation, crew/fleet preservation and exact reload pass; original profile restored and native exit0. [Evidence and day-22756 continuation](native-gameplay-results.md#triton-repair-and-eight-rig-supply--2026-10-07). Earth now has 6,763 Ti; next replenish WAYFARER and sustain SCG provisioning. Counts remain **35/48 implementation evidence; four locally accepted requirements**; interstellar/later campaign and matching Windows acceptance remain open.
