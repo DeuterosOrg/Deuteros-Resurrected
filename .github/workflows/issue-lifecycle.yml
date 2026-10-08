@@ -1,0 +1,67 @@
+name: Issue lifecycle
+
+# - PR merged into develop: label every issue it references (#N) as `staged`
+#   ("fixed on develop, not released yet").
+# - Release published: remove `staged` from issues closed before the release
+#   commit. They're now in a release.
+# Unknown or bogus #N references only warn; they never fail the job.
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  stage-on-merge:
+    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const text = `${pr.title || ''}\n${pr.body || ''}`;
+            const nums = [...new Set([...text.matchAll(/(?<![\w/])#(\d+)/g)].map(m => Number(m[1])))]
+              .filter(n => n !== pr.number);
+            for (const issue_number of nums) {
+              try {
+                const { data } = await github.rest.issues.get({ ...context.repo, issue_number });
+                if (data.pull_request) { core.info(`#${issue_number} is a PR; skipped.`); continue; }
+                await github.rest.issues.addLabels({ ...context.repo, issue_number, labels: ['staged'] });
+                core.info(`Labelled #${issue_number} staged.`);
+              } catch (e) {
+                core.warning(`Could not label #${issue_number}: ${e.message}`);
+              }
+            }
+
+  unstage-on-release:
+    if: github.event_name == 'release'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+    steps:
+      - uses: actions/github-script@f28e40c7f34bde8b3046d885e986cb6290c5673b # v7
+        with:
+          script: |
+            const tag = context.payload.release.tag_name;
+            const { data: commit } = await github.rest.repos.getCommit({ ...context.repo, ref: tag });
+            const releasedAt = new Date(commit.commit.committer.date);
+            const issues = await github.paginate(github.rest.issues.listForRepo, {
+              ...context.repo, state: 'closed', labels: 'staged', per_page: 100,
+            });
+            for (const issue of issues) {
+              if (issue.pull_request || new Date(issue.closed_at) > releasedAt) continue;
+              try {
+                await github.rest.issues.removeLabel({ ...context.repo, issue_number: issue.number, name: 'staged' });
+                core.info(`Released #${issue.number}.`);
+              } catch (e) {
+                core.warning(`Could not unstage #${issue.number}: ${e.message}`);
+              }
+            }
