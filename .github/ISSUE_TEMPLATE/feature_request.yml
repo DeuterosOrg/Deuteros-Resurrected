@@ -1,0 +1,17 @@
+name: Feature or modernisation
+description: Suggest an improvement or a modern quality-of-life option.
+labels: [enhancement]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve?
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: How it should work. Note whether it should be optional, so the original experience stays available.
+    validations:
+      required: true

@@ -1,0 +1,25 @@
+name: Fidelity gap
+description: The remake behaves differently from the original Amiga/Atari ST game.
+labels: [fidelity]
+body:
+  - type: textarea
+    id: original
+    attributes:
+      label: Original behaviour
+      description: What the original game does.
+    validations:
+      required: true
+  - type: textarea
+    id: remake
+    attributes:
+      label: Remake behaviour
+      description: What this remake does instead, with build/commit.
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence
+      description: Decoded routine or table, reproducible emulator observation, or manual reference. Mark anything you're assuming.
+    validations:
+      required: true

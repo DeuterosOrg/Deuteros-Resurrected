@@ -1,0 +1,32 @@
+name: Labels
+
+on:
+  push:
+    branches: [develop]
+    paths: [.github/labels.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - name: Create or update labels (never deletes)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          yq -o=json -I=0 '.[]' .github/labels.yml | while IFS= read -r label; do
+            name=$(jq -r .name <<<"$label")
+            gh label create "$name" \
+              --color "$(jq -r .color <<<"$label")" \
+              --description "$(jq -r .description <<<"$label")" \
+              --force -R "$GITHUB_REPOSITORY"
+            echo "synced: $name"
+          done

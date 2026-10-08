@@ -1,0 +1,28 @@
+# Source of truth for issue/PR labels. The Labels workflow creates or updates
+# these; it never deletes labels that aren't listed (release-please and
+# Dependabot manage their own).
+- { name: bug, color: "d73a4a", description: "Something isn't working" }
+- { name: enhancement, color: "a2eeef", description: "New feature or modernisation" }
+- { name: fidelity, color: "5319e7", description: "Behaves differently from the Amiga/Atari ST original" }
+- { name: documentation, color: "0075ca", description: "Improvements or additions to documentation" }
+- { name: tech-debt, color: "d4c5f9", description: "Refactors, cleanup, paying down debt" }
+- { name: performance, color: "d4a017", description: "Frame time, load time or memory" }
+- { name: "area:ui", color: "bfd4f2", description: "Screens, menus, input and layout" }
+- { name: "area:simulation", color: "bfd4f2", description: "Game rules: research, production, travel, combat, economy" }
+- { name: "area:assets", color: "bfd4f2", description: "Sprites, fonts, palettes and animation" }
+- { name: "area:audio", color: "bfd4f2", description: "Music and sound effects" }
+- { name: "area:tooling", color: "bfd4f2", description: "Build, CI, scripts and project setup" }
+- { name: "priority:high", color: "b60205", description: "Address soon" }
+- { name: "priority:medium", color: "fbca04", description: "Normal priority" }
+- { name: "priority:low", color: "c2e0c6", description: "Nice to have" }
+- { name: "status:in-progress", color: "0e8a16", description: "Being worked on (set from Asana)" }
+- { name: staged, color: "fbca04", description: "Merged to develop, awaiting release" }
+- { name: good first issue, color: "7057ff", description: "Good for newcomers" }
+- { name: help wanted, color: "008672", description: "Extra attention is needed" }
+- { name: question, color: "d876e3", description: "Further information is requested" }
+- { name: duplicate, color: "cfd3d7", description: "This issue or pull request already exists" }
+- { name: invalid, color: "e4e669", description: "This doesn't seem right" }
+- { name: wontfix, color: "ffffff", description: "This will not be worked on" }
+- { name: do-not-merge, color: "b60205", description: "Hold: not ready to merge" }
+- { name: security, color: "ee0701", description: "Security-relevant change or finding" }
+- { name: dependencies, color: "0366d6", description: "Updates a dependency" }

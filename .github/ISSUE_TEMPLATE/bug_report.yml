@@ -1,0 +1,42 @@
+name: Bug report
+description: Something in the remake is broken.
+labels: [bug]
+body:
+  - type: input
+    id: build
+    attributes:
+      label: Build or commit
+      description: Release version (e.g. v0.2.0) or commit SHA.
+    validations:
+      required: true
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [Windows, macOS, Linux, Other]
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Starting game state and the exact actions.
+      placeholder: |
+        1. New game, research the shuttle
+        2. Open the ship bay
+        3. ...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual
+      description: Include screenshots, recordings or log output if you have them.
+    validations:
+      required: true

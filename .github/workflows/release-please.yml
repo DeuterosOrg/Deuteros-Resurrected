@@ -1,0 +1,43 @@
+name: Release
+
+# Every merge to develop updates a "release PR" (version bump + CHANGELOG from
+# Conventional Commit PR titles). Merging that PR tags vX.Y.Z and publishes a
+# GitHub Release. See docs/workflow.md.
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release-please
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    # Skips (not fails) until the Deuteros Bot App is configured. A GitHub App
+    # token is required so the release PR triggers CI like any other PR; the
+    # default GITHUB_TOKEN can't do that, so there is deliberately no fallback.
+    if: vars.RELEASE_APP_ID != ''
+    runs-on: ubuntu-latest
+    steps:
+      - name: Repository-scoped App token
+        id: token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.RELEASE_APP_ID }}
+          private-key: ${{ secrets.RELEASE_APP_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-issues: write
+          permission-pull-requests: write
+      - uses: googleapis/release-please-action@5c625bfb5d1ff62eadeeb3772007f7f66fdcf071 # v4
+        with:
+          token: ${{ steps.token.outputs.token }}
+          target-branch: develop
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
