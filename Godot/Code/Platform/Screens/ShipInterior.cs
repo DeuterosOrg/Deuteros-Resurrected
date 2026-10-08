@@ -710,10 +710,44 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void TakeOff_Pressed()
 		{
-            if (RejectShipCommand()) return;
-			Ship.TakeOff();
-			UpdateState();
+            ConfirmDeparture("Launch", () =>
+            {
+                Ship.TakeOff();
+                UpdateState();
+            });
 		}
+
+        private void ConfirmDeparture(string command, Action depart)
+        {
+            if (RejectShipCommand()) return;
+            var core = GameCore.SingletonInstance;
+            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
+            if (!SettingsManager.Instance.GetSetting("gameplay/confirm_launch").AsBool())
+            {
+                depart();
+                return;
+            }
+
+            var save = core.GameData.ActiveSaveFile;
+            var ship = Ship;
+            var route = (ship.ShipState, ship.PlanetLocation, ship.StarLocation,
+                ship.DestinationPlanetLocation, ship.DestinationStarLocation);
+            var overlays = OverlayManager.Instance;
+            var dialog = overlays.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/ConfirmLaunch.tscn"));
+            dialog.GetNode<Label>("Message").Text = command + "?\n" + ship.Name;
+            dialog.GetNode<Button>("Cancel").Pressed += overlays.CloseOverlay;
+            dialog.GetNode<Button>("Cancel").GrabFocus();
+            dialog.GetNode<Button>("Confirm").Pressed += () =>
+            {
+                if (!overlays.IsShowing(dialog)) return;
+                overlays.CloseOverlay();
+                if (!IsInstanceValid(this) || !ReferenceEquals(save, core.GameData.ActiveSaveFile) || !ReferenceEquals(ship, Ship)
+                    || !save.Ships.Contains(ship) || route != (ship.ShipState, ship.PlanetLocation, ship.StarLocation,
+                        ship.DestinationPlanetLocation, ship.DestinationStarLocation) || RejectShipCommand()) return;
+                depart();
+            };
+        }
 
 		private void Dock_Pressed()
 		{
@@ -741,13 +775,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void EngageEngine_Pressed()
 		{
-            if (RejectShipCommand()) return;
-			if (Ship.EngageEngine())
-			{
-				CurrentPlanet = null;
-            }
-
-			UpdateState();
+            ConfirmDeparture("Engage engines", () =>
+            {
+                if (Ship.EngageEngine()) CurrentPlanet = null;
+                UpdateState();
+            });
 		}
 
         private bool CanSetCourse => Ship is not SCG { Flight: not null }

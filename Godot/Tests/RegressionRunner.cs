@@ -403,6 +403,7 @@ namespace Deuteros.Tests
             await CheckAsync("Tooltips preference hides shared hover labels without hiding save feedback or changing navigation", SettingsTooltips);
             await CheckAsync("Auto Pause freezes background simulation and resumes only its own pause", SettingsAutoPause);
             await CheckAsync("Autosave times active play, preserves other slots and confirms recovery", SettingsAutosave);
+            await CheckAsync("Optional launch confirmation protects manual departures and preserves automation", SettingsConfirmLaunch);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

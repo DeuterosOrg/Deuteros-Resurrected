@@ -257,6 +257,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["gameplay/tooltips"] = true;
             _defaults["gameplay/auto_pause"] = false;
             _defaults["gameplay/autosave"] = "Off";
+            _defaults["gameplay/confirm_launch"] = false;
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;

@@ -413,6 +413,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Confirm Launch"
 SettingKey = "gameplay/confirm_launch"
+Description = "Asks before manual takeoff, undocking or engaging a course. Cancel or Escape keeps the ship where it is. Automatic routes continue without prompts."
 
 [node name="ModernList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
