@@ -208,6 +208,103 @@ namespace Deuteros.Tests
             });
         }
 
+        private async Task SettingsAutoPause()
+        {
+            await WithSettings(async screen =>
+            {
+                var manager = SettingsManager.Instance;
+                var overlays = OverlayManager.Instance;
+                void Focus(bool focused) => manager.Notification((int)(focused
+                    ? NotificationApplicationFocusIn : NotificationApplicationFocusOut));
+                try
+                {
+                    screen.GameplayTab.ButtonPressed = true;
+                    screen.AutoPauseRow.StepValue(1);
+                    Press(screen, "%ApplyButton");
+                    using var disk = new ConfigFile();
+                    Equal(Godot.Error.Ok, disk.Load(GameCore.SingletonInstance.Config.FilePath), "Auto Pause preference written");
+                    Equal(true, disk.GetValue("gameplay", "auto_pause").AsBool(), "Auto Pause On persisted");
+                    Press(screen, "%CloseButton");
+                    await InputFrames();
+                    Focus(false);
+                    Equal(true, GetTree().Paused, "Auto Pause On freezes the tree on focus loss");
+                    Focus(false);
+                    var day = Save.CurrentDay;
+                    Save.TimeSkipDay = true;
+                    await InputFrames();
+                    Equal(day, Save.CurrentDay, "background pause prevents a queued simulation update");
+                    Focus(true);
+                    Equal(false, GetTree().Paused, "returning focus releases the owned pause");
+                    await InputFrames();
+                    Equal(day + 1, Save.CurrentDay, "queued update resumes exactly once");
+
+                    // Both ownership orders must preserve the overlay until it is closed.
+                    foreach (var focusFirst in new[] { true, false })
+                    {
+                        if (focusFirst) Focus(false);
+                        screen = OpenSettings();
+                        if (!focusFirst) Focus(false);
+                        Focus(true);
+                        Equal(true, GetTree().Paused, "focus return preserves the open Settings pause");
+                        Press(screen, "%CloseButton");
+                        await InputFrames();
+                        Equal(false, GetTree().Paused, "last owner closes without leaving a stale pause");
+                    }
+                    screen = OpenSettings();
+                    Focus(false);
+                    Press(screen, "%CloseButton");
+                    await InputFrames();
+                    Equal(true, GetTree().Paused, "closing Settings while unfocused preserves Auto Pause");
+                    Focus(true);
+                    Equal(false, GetTree().Paused, "focus resumes after the overlay closed");
+                    screen = OpenSettings();
+                    Press(screen, "%CloseButton");
+                    Focus(false); // The overlay still owns its deferred close frame.
+                    await InputFrames();
+                    Focus(true);
+                    Equal(false, GetTree().Paused, "focus loss during deferred close does not capture a stale pause");
+                    var error = overlays.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/Error.tscn"), false);
+                    Focus(false);
+                    Focus(true);
+                    Equal(true, overlays.IsShowing(error) && GetTree().Paused, "focus cannot dismiss an error overlay");
+                    overlays.CloseOverlay();
+                    await InputFrames();
+                    GetTree().Paused = true;
+                    Focus(false);
+                    Focus(true);
+                    Equal(true, GetTree().Paused, "an existing independent pause is retained");
+                    GetTree().Paused = false;
+
+                    screen = OpenSettings();
+                    Equal(true, screen.AutoPauseRow.Value, "applied On survives reopening");
+                    screen.GameplayTab.ButtonPressed = true;
+                    screen.AutoPauseRow.StepValue(-1);
+                    Press(screen, "%CancelButton");
+                    await InputFrames();
+                    Focus(false);
+                    Equal(true, GetTree().Paused, "Cancel restores applied Auto Pause On");
+                    Focus(true);
+                    screen = OpenSettings();
+                    screen.AutoPauseRow.StepValue(-1);
+                    Press(screen, "%ApplyButton");
+                    Press(screen, "%CloseButton");
+                    await InputFrames();
+                    Focus(false);
+                    Equal(false, GetTree().Paused, "saved Off keeps background processing enabled");
+                    Focus(true);
+                    manager.SetSetting("gameplay/auto_pause", "invalid");
+                    Focus(false);
+                    Equal(false, GetTree().Paused, "malformed preference falls back to opt-in Off");
+                }
+                finally
+                {
+                    Focus(true);
+                    Save.TimeSkipDay = false;
+                    GetTree().Paused = overlays.IsOpen;
+                }
+            });
+        }
+
         private async Task SettingsNextLocationShortcut()
         {
             InitializeUi();

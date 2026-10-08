@@ -11,6 +11,8 @@ namespace Deuteros.Code.Platform.Helpers
         private Control _gameArea;
         private Node _contentInstance;
         private bool _wasPaused;
+        private bool _focusPaused;
+        private bool _overlayPaused;
         private PackedScene _settingsScreen;
 
         public bool IsOpen => _overlayRoot != null;
@@ -86,7 +88,9 @@ namespace Deuteros.Code.Platform.Helpers
                 ctrl.GrabFocus();
             }
 
-            _wasPaused = GetTree().Paused;
+            if (!_focusPaused && !_overlayPaused)
+                _wasPaused = GetTree().Paused;
+            _overlayPaused = true;
             GetTree().Paused = true;
 
             return _contentInstance;
@@ -161,7 +165,17 @@ namespace Deuteros.Code.Platform.Helpers
             // Drop any lingering key presses so the base scene doesn't see them.
             Input.FlushBufferedEvents(); // Godot 4.x
 
-            GetTree().Paused = _wasPaused;
+            _overlayPaused = IsOpen;
+            GetTree().Paused = _wasPaused || _focusPaused || _overlayPaused;
+        }
+
+        public void SetFocusPaused(bool paused)
+        {
+            if (_focusPaused == paused) return;
+            if (paused && !_overlayPaused)
+                _wasPaused = GetTree().Paused;
+            _focusPaused = paused;
+            GetTree().Paused = _wasPaused || _focusPaused || _overlayPaused;
         }
     }
 

@@ -386,6 +386,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Auto Pause"
 SettingKey = "gameplay/auto_pause"
+Description = "Pauses the game while the app is unfocused. Returning resumes play unless another screen is keeping it paused."
 
 [node name="EventAlertsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true

@@ -24,6 +24,7 @@ namespace Deuteros.Code.Platform.Helpers
         private readonly Dictionary<string, string> _volumeBuses = new Dictionary<string, string>();
         private readonly Dictionary<string, Variant> _defaults = new Dictionary<string, Variant>();
         private bool _focusMuted;
+        private bool _unfocused;
 
         public static SettingsManager Instance { get; private set; }
 
@@ -129,6 +130,8 @@ namespace Deuteros.Code.Platform.Helpers
                 ApplyAudio();
             else if (section == KeybindSection)
                 ApplyKeybinds();
+            else if (settingKey == "gameplay/auto_pause")
+                ApplyAutoPause();
         }
 
         public void ApplyAll()
@@ -136,6 +139,7 @@ namespace Deuteros.Code.Platform.Helpers
             ApplyDisplay();
             ApplyAudio();
             ApplyKeybinds();
+            ApplyAutoPause();
         }
 
         public void ApplyDisplay()
@@ -250,6 +254,7 @@ namespace Deuteros.Code.Platform.Helpers
 
             _defaults["audio/mute_unfocused"] = false;
             _defaults["gameplay/tooltips"] = true;
+            _defaults["gameplay/auto_pause"] = false;
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
@@ -257,9 +262,14 @@ namespace Deuteros.Code.Platform.Helpers
 
         private void SetFocusMuted(bool unfocused)
         {
+            _unfocused = unfocused;
             _focusMuted = unfocused && GetSetting("audio/mute_unfocused").AsBool();
             ApplyAudio();
+            ApplyAutoPause();
         }
+
+        private void ApplyAutoPause() => OverlayManager.Instance?.SetFocusPaused(
+            _unfocused && GetSetting("gameplay/auto_pause").AsBool());
 
         private void ApplyBusVolume(string busName, int volume)
         {
