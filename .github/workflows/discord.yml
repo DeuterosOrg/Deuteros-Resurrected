@@ -1,9 +1,15 @@
 name: Discord Notifications
 
+# PR notifications use pull_request_target so they also work for fork and
+# Dependabot PRs (plain pull_request runs get no secrets there). Safe: nothing is
+# checked out or executed from the PR. Untrusted text (titles, commit messages)
+# is passed only through env vars and jq, never interpolated into the script or
+# a template, and mentions are disabled so nobody can ping @everyone.
+
 on:
   push:
     branches: [develop]
-  pull_request:
+  pull_request_target:
     types: [opened, closed]
 
 permissions:
@@ -13,22 +19,29 @@ jobs:
   discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Commit pushed
-        if: github.event_name == 'push'
-        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9 # 0.3.2
+      - name: Post to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          args: |
-            📢 New commit pushed by ${{ github.actor }} on branch `${{ github.ref_name }}`:
-            - ${{ github.event.head_commit.message }}
-            🔗 ${{ github.event.head_commit.url }}
-      - name: Pull request
-        if: github.event_name == 'pull_request'
-        uses: Ilshidur/action-discord@0c4b27844ba47cb1c7bee539c8eead5284ce9fa9 # 0.3.2
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-        with:
-          args: |
-            🔀 PR #${{ github.event.pull_request.number }} ${{ github.event.pull_request.merged && 'merged' || github.event.action }} by ${{ github.actor }}: ${{ github.event.pull_request.title }}
-            🔗 ${{ github.event.pull_request.html_url }}
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_STATE: ${{ github.event.pull_request.merged && 'merged' || github.event.action }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK is not set; skipping."
+            exit 0
+          fi
+          if [ "$EVENT" = push ]; then
+            text=$(printf "📢 New commit pushed by %s on branch \`%s\`:\n- %s\n🔗 %s" \
+              "$ACTOR" "$BRANCH" "$COMMIT_MSG" "$COMMIT_URL")
+          else
+            text=$(printf '🔀 PR #%s %s by %s: %s\n🔗 %s' \
+              "$PR_NUMBER" "$PR_STATE" "$ACTOR" "$PR_TITLE" "$PR_URL")
+          fi
+          jq -n --arg content "${text:0:1900}" '{content: $content, allowed_mentions: {parse: []}}' \
+            | curl -fsS -H 'Content-Type: application/json' -d @- "$DISCORD_WEBHOOK"

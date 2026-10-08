@@ -8,13 +8,16 @@
    `priority:*` labels and the GitHub assignee. Moving the task to **In Progress**
    adds `status:in-progress`.
 3. Work happens on a branch and lands as a squash-merged PR into `develop` with
-   `Closes #N` in the description. The issue closes and gets `staged` (fixed on
-   `develop`, not released yet). The Asana task moves to **Done**.
+   `Closes #N` (or `Fixes` / `Resolves`) in the description. The issue closes and
+   gets `staged` (fixed on `develop`, not released yet). The Asana task moves to
+   **Done**. Plain mentions like "see #N" or "part of #N" don't stage anything.
 4. When the next release is published, `staged` comes off and the Asana task moves
    to **Released**.
 
 Closing an issue or completing its Asana task closes both; reopening either reopens
-both.
+both. **Done** and **Released** are set automatically from merges and releases, so
+don't drag tasks into them by hand. Tick the task complete instead (or close the
+issue), and the sections will follow.
 
 ## Labels
 

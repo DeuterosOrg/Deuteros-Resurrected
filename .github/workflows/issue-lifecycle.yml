@@ -1,13 +1,17 @@
 name: Issue lifecycle
 
-# - PR merged into develop: label every issue it references (#N) as `staged`
-#   ("fixed on develop, not released yet").
+# - PR merged into develop: label the issues it closes ("Closes/Fixes/Resolves #N")
+#   as `staged` ("fixed on develop, not released yet"). Plain mentions ("see #5",
+#   "part of #5") are ignored, so open or already-released issues aren't relabelled.
 # - Release published: remove `staged` from issues closed before the release
 #   commit. They're now in a release.
-# Unknown or bogus #N references only warn; they never fail the job.
+# Unknown or bogus references only warn; they never fail the job.
+#
+# pull_request_target so merges of fork PRs (outside contributors) can label too.
+# Safe: neither job checks out or runs PR code; they only read the event payload.
 
 on:
-  pull_request:
+  pull_request_target:
     types: [closed]
     branches: [develop]
   release:
@@ -18,7 +22,7 @@ permissions:
 
 jobs:
   stage-on-merge:
-    if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+    if: github.event_name == 'pull_request_target' && github.event.pull_request.merged == true
     runs-on: ubuntu-latest
     permissions:
       issues: write
@@ -28,7 +32,8 @@ jobs:
           script: |
             const pr = context.payload.pull_request;
             const text = `${pr.title || ''}\n${pr.body || ''}`;
-            const nums = [...new Set([...text.matchAll(/(?<![\w/])#(\d+)/g)].map(m => Number(m[1])))]
+            const CLOSING = /(?<![\w/])(?:close[sd]?|fix(?:e[sd])?|resolve[sd]?):?\s+#(\d+)/gi;
+            const nums = [...new Set([...text.matchAll(CLOSING)].map(m => Number(m[1])))]
               .filter(n => n !== pr.number);
             for (const issue_number of nums) {
               try {
