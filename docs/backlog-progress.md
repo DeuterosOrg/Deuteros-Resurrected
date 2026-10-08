@@ -351,3 +351,6 @@ The [day32178 Mars expansion](native-gameplay-results.md#mars-resource-station-a
 
 
 The [day32327 continuation](native-gameplay-results.md#mars-drone-factory-and-retained-cercops-defeat--2026-10-08) verifies normal Mars Star Drone manufacture/export and preserves the subsequent failed Cercops defence: SCG300000,158 drones and Raphael25 were lost against200 enemies. The next campaign step is recovery, not an assumed successful defence. Exact reload/source/profile/exit0 audits pass. Full662 also passes all662 regressions,19 tooling checks,build/import/startup and exact-source audit at `b28631c`. No additional task acceptance is claimed; Windows remains pending.
+
+
+The [day32375 recovery](native-gameplay-results.md#neptune-defence-and-replacement-scg-assembly--2026-10-08) retains Cercops capture, verifies a successful normal Neptune defence with63 WAYFARER drone losses, and manufactures/assembles a new SCG at Earth. Crew, fuel and a full fleet are still needed. Save/reload/source/profile/exit0 audits pass; runtime remains the audited `b28631c` with662 passing cases. Counts and Windows acceptance are unchanged.
