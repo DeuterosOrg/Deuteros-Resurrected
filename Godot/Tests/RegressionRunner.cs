@@ -406,6 +406,7 @@ namespace Deuteros.Tests
             await CheckAsync("Optional launch confirmation protects manual departures and preserves automation", SettingsConfirmLaunch);
             await CheckAsync("Interface scale resizes settings, stays within the window and preserves pointer and preference ownership", SettingsInterfaceScale);
             await CheckAsync("Game speed controls calendar rates with saved preferences and unchanged single-day steps", SettingsGameSpeed);
+            await CheckAsync("Event alerts show new active-world News without losing history or taking modal ownership", SettingsEventAlerts);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

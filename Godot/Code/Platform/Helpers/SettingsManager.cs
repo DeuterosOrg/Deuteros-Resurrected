@@ -126,6 +126,7 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/interface_scale" => new[] { "100%", "125%", "150%", "200%" },
                 "gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
                 "gameplay/game_speed" => new[] { "0.5x", "1x", "2x" },
+                "gameplay/event_alerts" => new[] { "Off", "On" },
                 _ => null
             };
         }
@@ -269,6 +270,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["gameplay/autosave"] = "Off";
             _defaults["gameplay/confirm_launch"] = false;
             _defaults["gameplay/game_speed"] = "1x";
+            _defaults["gameplay/event_alerts"] = "Off";
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;

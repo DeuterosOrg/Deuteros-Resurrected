@@ -24,6 +24,9 @@ namespace Deuteros.Code.Objects
 		public void AddNews(string NewsItem)
 		{
 			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.RelativeDate.PadRight(3, ' ') + ": " + NewsItem);
+			if (ReferenceEquals(this, GameCore.SingletonInstance.GameData.ActiveSaveFile.News)
+				&& Platform.Helpers.SettingsManager.Instance?.GetSetting("gameplay/event_alerts").AsString() == "On")
+				GameCore.ShowStatusText(NewsItem);
 		}
 
         public void AddCrewLoss(IEnumerable<Staff> teams)

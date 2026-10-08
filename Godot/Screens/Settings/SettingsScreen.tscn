@@ -395,6 +395,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Event Alerts"
 SettingKey = "gameplay/event_alerts"
+Description = "Shows new News reports in the status line until you hover another control. The latest report replaces the previous one. News history and story bulletins are always retained."
 
 [node name="AutosaveRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true

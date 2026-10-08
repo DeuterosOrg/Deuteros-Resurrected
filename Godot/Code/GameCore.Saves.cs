@@ -35,8 +35,7 @@ namespace Deuteros.Code
             try
             {
                 Storage.Write(SaveStorage.AutoSlot, save);
-                HoverText = "Autosaved.";
-                HoverTextIsStatus = true;
+                ShowStatusText("Autosaved.");
             }
             catch (Exception error) when (SaveStorage.IsSaveError(error))
             {
@@ -50,8 +49,7 @@ namespace Deuteros.Code
             {
                 Storage.Write(SaveStorage.QuickSlot, GameData.ActiveSaveFile);
                 if (_currentScreen is Platform.Screens.SaveScreen screen) screen.RefreshSlots();
-                HoverText = "Quick saved.";
-                HoverTextIsStatus = true;
+                ShowStatusText("Quick saved.");
             }
             catch (Exception error) when (SaveStorage.IsSaveError(error))
             {

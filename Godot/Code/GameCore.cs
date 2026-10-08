@@ -250,6 +250,12 @@ namespace Deuteros.Code
 
 		public Guid ShipSelected { get; set; }
 
+		public static void ShowStatusText(string text)
+		{
+			HoverText = text;
+			HoverTextIsStatus = true;
+		}
+
 		public GameConfig Config => SettingsManager.Instance.Config;
 
 		//Data stored in the GameCore is temporary
