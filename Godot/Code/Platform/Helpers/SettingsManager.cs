@@ -116,6 +116,7 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/window_mode" => _windowModeOptions.ToArray(),
                 "display/frame_limit" => _frameLimitOptions.ToArray(),
                 "display/pixel_scaling" => new[] { "Integer", "Fit" },
+                "display/interface_scale" => new[] { "100%", "125%", "150%", "200%" },
                 "gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
                 _ => null
             };
@@ -248,6 +249,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["display/vsync"] = true;
             _defaults["display/frame_limit"] = UnlimitedFrameLimit;
             _defaults["display/pixel_scaling"] = "Integer";
+            _defaults["display/interface_scale"] = "100%";
             _defaults["display/scanlines"] = 0;
 
             foreach (var volumeBus in _volumeBuses)

@@ -237,6 +237,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Interface Scale"
 SettingKey = "display/interface_scale"
+Description = "Enlarges the settings interface up to the selected size, limited to fit the window. Game pixels use Pixel Scaling."
 
 [node name="VSyncRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true

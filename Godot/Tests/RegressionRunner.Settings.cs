@@ -164,7 +164,7 @@ namespace Deuteros.Tests
                 await PushGameKey(Key.P);
                 Equal(true, overlays.IsOpen, "Pause opens existing Settings screen");
                 Equal(true, GetTree().Paused, "Pause freezes game tree");
-                var screen = overlays.GetNode<Settings>("GlobalOverlay/Center/SettingsScreen");
+                var screen = overlays.GetNode<Settings>("GlobalOverlay/InterfaceArea/Center/SettingsScreen");
                 screen.AudioTab.ButtonPressed = true;
                 screen.MasterVolumeRow.ValueSlider.Value = 2;
                 await PushGameKey(Key.P);
@@ -184,7 +184,7 @@ namespace Deuteros.Tests
                 Equal(false, overlays.IsOpen, "old Pause binding ignored");
                 await PushGameKey(Key.O);
                 Equal(true, GetTree().Paused, "rebound Pause opens Settings");
-                screen = overlays.GetNode<Settings>("GlobalOverlay/Center/SettingsScreen");
+                screen = overlays.GetNode<Settings>("GlobalOverlay/InterfaceArea/Center/SettingsScreen");
                 screen.ControlsTab.ButtonPressed = true;
                 screen.PauseKeyRow.RebindButton.ButtonPressed = true;
                 await PushGameKey(Key.O);

@@ -1,4 +1,5 @@
 ﻿using Godot;
+using System;
 
 namespace Deuteros.Code.Platform.Helpers
 {
@@ -8,7 +9,8 @@ namespace Deuteros.Code.Platform.Helpers
         public static OverlayManager Instance { get; private set; }
 
         private Control _overlayRoot;
-        private Control _gameArea;
+        private Control _contentArea;
+        private bool _fullResolution;
         private Node _contentInstance;
         private bool _wasPaused;
         private bool _focusPaused;
@@ -55,21 +57,16 @@ namespace Deuteros.Code.Platform.Helpers
                 _overlayRoot.AddChild(dim);
             }
 
-            var host = _overlayRoot;
-
-            if (!fullResolution)
+            _fullResolution = fullResolution;
+            _contentArea = new Control
             {
-                _gameArea = new Control();
-                _gameArea.Name = "GameArea";
-                _gameArea.MouseFilter = Control.MouseFilterEnum.Pass;
-                _overlayRoot.AddChild(_gameArea);
-                FitGameArea();
-
-                if (GameViewportContainer.Instance != null)
-                    GameViewportContainer.Instance.LayoutChanged += FitGameArea;
-
-                host = _gameArea;
-            }
+                Name = fullResolution ? "InterfaceArea" : "GameArea",
+                MouseFilter = Control.MouseFilterEnum.Pass
+            };
+            _overlayRoot.AddChild(_contentArea);
+            FitContentArea();
+            if (GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged += FitContentArea;
 
             var center = new CenterContainer
             {
@@ -77,7 +74,7 @@ namespace Deuteros.Code.Platform.Helpers
                 MouseFilter = Control.MouseFilterEnum.Pass
             };
             center.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-            host.AddChild(center);
+            _contentArea.AddChild(center);
 
             _contentInstance = packed.Instantiate();
             center.AddChild(_contentInstance);
@@ -122,9 +119,9 @@ namespace Deuteros.Code.Platform.Helpers
                 _contentInstance.QueueFree();
             _contentInstance = null;
 
-            if (_gameArea != null && GameViewportContainer.Instance != null)
-                GameViewportContainer.Instance.LayoutChanged -= FitGameArea;
-            _gameArea = null;
+            if (_contentArea != null && GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged -= FitContentArea;
+            _contentArea = null;
 
             _overlayRoot.QueueFree();
             _overlayRoot = null;
@@ -137,27 +134,44 @@ namespace Deuteros.Code.Platform.Helpers
         public void CloseForShutdown()
         {
             // Free paused overlay audio before GameCore waits for mixer disposal.
-            if (_gameArea != null && GameViewportContainer.Instance != null)
-                GameViewportContainer.Instance.LayoutChanged -= FitGameArea;
-            _gameArea = null;
+            if (_contentArea != null && GameViewportContainer.Instance != null)
+                GameViewportContainer.Instance.LayoutChanged -= FitContentArea;
+            _contentArea = null;
             _overlayRoot?.Free();
             _contentInstance = null;
             _overlayRoot = null;
         }
 
-        private void FitGameArea()
+        private void FitContentArea()
         {
+            if (_fullResolution)
+            {
+                var requested = SettingsManager.Instance?.GetSetting("display/interface_scale").AsString() switch
+                {
+                    "125%" => 1.25f,
+                    "150%" => 1.5f,
+                    "200%" => 2f,
+                    _ => 1f
+                };
+                var window = GetViewport().GetVisibleRect().Size;
+                var minimum = SettingsManager.MinWindowSize;
+                var scale = Math.Min(requested, Math.Min(window.X / minimum.X, window.Y / minimum.Y));
+                _contentArea.Scale = Vector2.One * scale;
+                _contentArea.Size = window / scale;
+                return;
+            }
+
             var game = GameViewportContainer.Instance;
 
             if (game == null)
             {
-                _gameArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);
+                _contentArea.SetAnchorsPreset(Control.LayoutPreset.FullRect);
                 return;
             }
 
-            _gameArea.Position = game.GlobalPosition;
-            _gameArea.Scale = game.Scale;
-            _gameArea.Size = game.Size;
+            _contentArea.Position = game.GlobalPosition;
+            _contentArea.Scale = game.Scale;
+            _contentArea.Size = game.Size;
         }
 
         private void FinishClose()

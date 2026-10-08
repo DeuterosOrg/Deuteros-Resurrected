@@ -404,6 +404,7 @@ namespace Deuteros.Tests
             await CheckAsync("Auto Pause freezes background simulation and resumes only its own pause", SettingsAutoPause);
             await CheckAsync("Autosave times active play, preserves other slots and confirms recovery", SettingsAutosave);
             await CheckAsync("Optional launch confirmation protects manual departures and preserves automation", SettingsConfirmLaunch);
+            await CheckAsync("Interface scale resizes settings, stays within the window and preserves pointer and preference ownership", SettingsInterfaceScale);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
