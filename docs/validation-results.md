@@ -1415,6 +1415,15 @@ Case657 first fails because moving the slider creates no viewport effect. **25 f
 
 Physical checks in isolated DeuterosScanlinesValidation verify0→10→Apply, visible bands, News pointer navigation,0preview→Cancel restoring10, and visible bands/saved10 after restart. Both desktop exits are0 with strict clean logs; modern Settings remains unfiltered and readable. No campaign save is loaded/written. `artifacts/settings-scanlines-20261008/` retains red/green/strengthened native logs,25 focused logs, screenshot, observations, both manual runs and exact-source/profile `audit.py`/`audit.log`. Original saves/preferences and the day29356 checkpoint remain unchanged.
 
-The latest complete aggregate remains655/655 atd5142ac; the new full657 run is pending. Matching Windows rendering/input and restart acceptance remain open. Task counts remain35/48 implementation evidence and four locally accepted requirements.
+The complete657 aggregate now passes at80824e7, including19 tooling checks and exact-source/log audit; see the complete display checkpoint below. Matching Windows rendering/input and restart acceptance remain open. Task counts remain35/48 implementation evidence and four locally accepted requirements.
 
 ![Scanlines at maximum intensity with Fit scaling](images/scanlines-fit.png)
+
+
+## Complete display checkpoint — 2026-10-08
+
+Frozen `80824e725715cc67b727d80c7b987150626f8171` passes **657/657 fresh-process regressions**, **19 tooling checks without skips**, build, strict import and startup smoke, with terminal exit0. This includes all seven configurable shortcuts, separate Quick Save, Integer/Fit scaling and scanline intensity. Main build retains14 existing warnings and zero errors. Native display and physical apply/discard/restart evidence remain in the corresponding sections above.
+
+`artifacts/display-full-657-20261008/audit-full.py` verifies complete discovery1–657, every individual case, aggregate summary, build/import/smoke/tooling logs and every tracked Godot/scripts/global.json file against the frozen Git revision. `audit-full.log`, `audit-result.json` and terminal `result.json` pass. The isolated `DeuterosDisplayFull657` profile override remains in place; no runner is left active. The contribution branch was pushed and remote-verified at80824e7 under Craig’s publication authorization.
+
+No matching657 Windows export execution or acceptance is claimed. Existing Windows policy/shutdown issues and inactive Settings controls remain open; counts stay35/48 implementation evidence and four locally accepted requirements.
