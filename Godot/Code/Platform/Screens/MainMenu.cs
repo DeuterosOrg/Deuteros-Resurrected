@@ -129,9 +129,11 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			UpdateSdmAlarm();
 			UpdateTimeAnimation();
-			if (Deuteros.Code.GameCore.HoverText != HoverInfo.Text)
+			var hoverText = GameCore.HoverTextIsStatus || Helpers.SettingsManager.Instance.GetSetting("gameplay/tooltips").AsBool()
+				? GameCore.HoverText : "";
+			if (hoverText != HoverInfo.Text)
 			{
-				HoverInfo.Text = Deuteros.Code.GameCore.HoverText;
+				HoverInfo.Text = hoverText;
 			}
 		}
 

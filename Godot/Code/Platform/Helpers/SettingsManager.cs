@@ -249,6 +249,7 @@ namespace Deuteros.Code.Platform.Helpers
                 _defaults[volumeBus.Key] = 8;
 
             _defaults["audio/mute_unfocused"] = false;
+            _defaults["gameplay/tooltips"] = true;
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;

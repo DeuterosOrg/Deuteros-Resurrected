@@ -1427,3 +1427,20 @@ Frozen `80824e725715cc67b727d80c7b987150626f8171` passes **657/657 fresh-process
 `artifacts/display-full-657-20261008/audit-full.py` verifies complete discovery1–657, every individual case, aggregate summary, build/import/smoke/tooling logs and every tracked Godot/scripts/global.json file against the frozen Git revision. `audit-full.log`, `audit-result.json` and terminal `result.json` pass. The isolated `DeuterosDisplayFull657` profile override remains in place; no runner is left active. The contribution branch was pushed and remote-verified at80824e7 under Craig’s publication authorization.
 
 No matching657 Windows export execution or acceptance is claimed. Existing Windows policy/shutdown issues and inactive Settings controls remain open; counts stay35/48 implementation evidence and four locally accepted requirements.
+
+
+## Tooltips preference and save feedback — 2026-10-08
+
+The existing Tooltips toggle now controls the shared hover readout used by menu, research, production, stores, overview and ship controls. The default is On, preserving existing help. Off suppresses current and subsequent hover labels; Quick Save success remains visible, and the next hover clears its status classification. The existing Apply, Cancel and configuration validation handle persistence and malformed values. No input-routing change is introduced.
+
+Case658 reproduces the inert preference (`Tooltips Off hides the current hover readout: expected empty, got News Bulletins`). The correction passes **25 focused cases**:34–35,37,54–59,76–77,116,118–119,126,208,218,221,235,591–592,652,654–655,658. Strengthened headless/native658 also verifies actual hover hit testing using the existing detached SubViewport harness, On/Off rendering, ordinary pointer navigation, a real Quick Save and visible success, clearing that status on the next hover, Apply/reopen, preview/Cancel and malformed fallback. Build passes with14 existing warnings and zero errors.
+
+An attempted native-root-motion hover assertion failed and is retained in `native-hover.log`. [Godot4.2 Viewport::_update_mouse_over](https://github.com/godotengine/godot/blob/4.2/scene/main/viewport.cpp#L3105) uses the OS pointer for native-window hover; event-position injection alone does not establish the intended hover. The corrected test reuses the existing GUI-hit-test harness; the failed assertion is not evidence of a game input defect.
+
+Physical Mac checks in isolated `DeuterosTooltipsValidation` verify default On, Off→Apply, readable description, visible F5 success while Off, On preview→Cancel restoring Off, and saved Off after restart. Both owned desktop processes exit0 with strict clean logs. The physical click helper did not establish stationary hover appearance; that behavior has the regression evidence described above. Only a new-game day0 Quick Save was written in this isolated profile; no campaign was loaded.
+
+`artifacts/settings-tooltips-20261008/` retains red/green/strengthened logs, focused results, both manual runs, screenshot, observations and passing `audit.py`/`audit.log`. Exact source, original saves/absent settings and the canonical day29842 campaign hash are verified. The first audit’s extra-blank-line mismatch when removing the declared profile override is retained separately; the corrected removal passes without runtime/source changes.
+
+Full657 at80824e7 predates this preference. The new full658 aggregate and matching Windows acceptance remain pending. Counts stay35/48 implementation evidence and four locally accepted requirements.
+
+![Quick Save feedback remains visible with Tooltips Off](images/tooltips-off-save-feedback.png)

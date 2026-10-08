@@ -400,6 +400,7 @@ namespace Deuteros.Tests
             await CheckAsync("Quick Save shortcut persists without navigation and its visible slot confirms loading", QuickSaveShortcut);
             await CheckAsync("Pixel scaling previews persists and discards while keeping pointer and overlay transforms aligned", SettingsPixelScaling);
             await CheckAsync("Scanline intensity changes rendered pixels and preserves settings and pointer behavior", SettingsScanlines);
+            await CheckAsync("Tooltips preference hides shared hover labels without hiding save feedback or changing navigation", SettingsTooltips);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");

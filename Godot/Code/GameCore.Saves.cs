@@ -18,6 +18,7 @@ namespace Deuteros.Code
                 Storage.Write(SaveStorage.QuickSlot, GameData.ActiveSaveFile);
                 if (_currentScreen is Platform.Screens.SaveScreen screen) screen.RefreshSlots();
                 HoverText = "Quick saved.";
+                HoverTextIsStatus = true;
             }
             catch (Exception error) when (SaveStorage.IsSaveError(error))
             {

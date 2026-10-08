@@ -236,7 +236,17 @@ namespace Deuteros.Code
 
 		public CoreData GameData { get; set; }
 
-		public static string HoverText { get; set; }
+		private static string hoverText;
+		public static bool HoverTextIsStatus { get; private set; }
+		public static string HoverText
+		{
+			get => hoverText;
+			set
+			{
+				hoverText = value;
+				HoverTextIsStatus = false;
+			}
+		}
 
 		public Guid ShipSelected { get; set; }
 

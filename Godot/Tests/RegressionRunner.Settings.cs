@@ -283,6 +283,100 @@ namespace Deuteros.Tests
             core.SetProcess(true);
         }
 
+        private async Task SettingsTooltips()
+        {
+            await WithSettings(async screen =>
+            {
+                var core = GameCore.SingletonInstance;
+                core.SetProcess(false);
+                var manager = SettingsManager.Instance;
+                var menu = ActiveRecipeScreen<Deuteros.Code.Platform.Screens.MainMenu>();
+                screen.GameplayTab.ButtonPressed = true;
+                screen.TooltipsRow.StepValue(1);
+                menu.NewsButton.EmitSignal(Control.SignalName.MouseEntered);
+                menu._Process(0);
+                Equal(true, menu.HoverInfo.Text.Length > 0, "enabled tooltip describes the menu action");
+                screen.TooltipsRow.StepValue(-1);
+                menu._Process(0);
+                Equal("", menu.HoverInfo.Text, "Tooltips Off hides the current hover readout");
+                Equal(true, manager.GetDefault("gameplay/tooltips").AsBool(), "existing hover help stays enabled by default");
+                Press(screen, "%ApplyButton");
+                using (var disk = new GameConfig(manager.Config.FilePath))
+                    Equal(false, disk.GetValue("gameplay", "tooltips", true).AsBool(), "disabled tooltips persist");
+                Press(screen, "%CloseButton");
+                await InputFrames();
+                foreach (var scene in new[] { Scenes.Earth_Research, Scenes.Production, Scenes.Overview })
+                {
+                    core.ChangeScene(scene, new System.Collections.Generic.List<SceneVariables> { SceneVariables.Ground });
+                    await InputFrames();
+                    GameCore.HoverText = "Shared hover label";
+                    menu._Process(0);
+                    Equal("", menu.HoverInfo.Text, scene + " also respects the shared preference");
+                }
+                // Native window hover uses the OS pointer; use the existing GUI-hit-test harness.
+                var viewport = new SubViewport { Size = new Vector2I(320, 200), GuiDisableInput = false };
+                AddChild(viewport);
+                var parent = menu.GetParent();
+                menu.Reparent(viewport);
+                try
+                {
+                    await PointAt(menu.EarthButton);
+                    await PointAt(menu.NewsButton);
+                    Equal("News Bulletins", GameCore.HoverText, "GUI hit testing reaches the actual hover source");
+                    Equal("", menu.HoverInfo.Text, "hovered control stays hidden while Off");
+                    manager.SetSetting("gameplay/tooltips", true);
+                    await InputFrames();
+                    Equal("News Bulletins", menu.HoverInfo.Text, "On renders the hovered control");
+                    manager.SetSetting("gameplay/tooltips", false);
+                }
+                finally
+                {
+                    menu.Reparent(parent);
+                    viewport.Free();
+                }
+                var point = menu.NewsButton.GetGlobalRect().GetCenter();
+                foreach (var pressed in new[] { true, false })
+                    PushGameInput(new InputEventMouseButton { Position = point, ButtonIndex = MouseButton.Left, Pressed = pressed });
+                await InputFrames();
+                Equal(Scenes.News, core.currentScene, "hidden tooltip leaves pointer navigation active");
+                var originalStorage = core.Storage;
+                var directory = Path.Combine(Path.GetTempPath(), "deuteros-tooltip-save-" + Guid.NewGuid());
+                try
+                {
+                    core.Storage = new Deuteros.Code.Utility.SaveStorage(directory);
+                    await PushGameKey(Key.F5);
+                    menu._Process(0);
+                    Equal("Quick saved.", menu.HoverInfo.Text, "save confirmation remains visible with tooltips off");
+                    Equal(true, core.Storage.Exists(Deuteros.Code.Utility.SaveStorage.QuickSlot), "visible confirmation accompanies a real save");
+                    await CaptureDisplayEvidence("tooltips-off-save-feedback");
+                    menu.NewsButton.EmitSignal(Control.SignalName.MouseExited);
+                    menu.MasterControlButton.EmitSignal(Control.SignalName.MouseEntered);
+                    menu._Process(0);
+                    Equal("", menu.HoverInfo.Text, "next hover does not inherit save-notice visibility");
+                }
+                finally
+                {
+                    core.Storage = originalStorage;
+                    if (Directory.Exists(directory)) Directory.Delete(directory, true);
+                }
+                screen = OpenSettings();
+                await InputFrames();
+                Equal(false, screen.TooltipsRow.Value, "reopened row reflects saved Off");
+                screen.TooltipsRow.StepValue(1);
+                menu._Process(0);
+                Equal(true, menu.HoverInfo.Text.Length > 0, "On preview restores current help");
+                Press(screen, "%CancelButton");
+                await InputFrames();
+                menu._Process(0);
+                Equal("", menu.HoverInfo.Text, "discard restores saved Off");
+                manager.SetSetting("gameplay/tooltips", "invalid");
+                menu._Process(0);
+                Equal(true, menu.HoverInfo.Text.Length > 0, "malformed preference preserves default help");
+                GameCore.HoverText = "";
+                core.SetProcess(true);
+            });
+        }
+
         private async Task SettingsScanlines()
         {
             await WithSettings(async screen =>
