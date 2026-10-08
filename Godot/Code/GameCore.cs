@@ -511,9 +511,10 @@ namespace Deuteros.Code
 		{
 			if (GetTree().Paused) return;
 			var save = GameData.ActiveSaveFile;
-			var manual = save.TimeSkipDay || (save.TimeSkip && Time.GetTicksMsec() - save.TimeSkipStart >= 500);
+			var speed = SettingsManager.Instance?.CalendarSpeed ?? 1;
+			var manual = save.TimeSkipDay || (save.TimeSkip && Time.GetTicksMsec() - save.TimeSkipStart >= 500 / speed);
 			if (manual) save.Clock.QueueManual();
-			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen) save.Clock.AdvanceNormal(delta);
+			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen) save.Clock.AdvanceNormal(delta * speed);
 			var manualConsumed = save.Clock.PendingIncrement == 100;
 			if ((!manual && StoryDisplayBlocked()) || !save.Clock.Consume()) return;
 			save.CurrentDay++;

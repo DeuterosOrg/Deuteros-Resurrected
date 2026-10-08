@@ -30,6 +30,13 @@ namespace Deuteros.Code.Platform.Helpers
 
         public GameConfig Config { get; private set; }
 
+        public double CalendarSpeed => GetSetting("gameplay/game_speed").AsString() switch
+        {
+            "0.5x" => 0.5,
+            "2x" => 2,
+            _ => 1
+        };
+
         public string[] ResolutionOptions { get; private set; }
 
         public override void _Ready()
@@ -118,6 +125,7 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/pixel_scaling" => new[] { "Integer", "Fit" },
                 "display/interface_scale" => new[] { "100%", "125%", "150%", "200%" },
                 "gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
+                "gameplay/game_speed" => new[] { "0.5x", "1x", "2x" },
                 _ => null
             };
         }
@@ -260,6 +268,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["gameplay/auto_pause"] = false;
             _defaults["gameplay/autosave"] = "Off";
             _defaults["gameplay/confirm_launch"] = false;
+            _defaults["gameplay/game_speed"] = "1x";
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;

@@ -381,6 +381,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Game Speed"
 SettingKey = "gameplay/game_speed"
+Description = "Changes natural calendar time and continuous fast-forward. A date click still advances one day. Combat, animations and autosave intervals keep their normal pace."
 
 [node name="AutoPauseRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true

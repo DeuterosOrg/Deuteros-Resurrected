@@ -405,6 +405,7 @@ namespace Deuteros.Tests
             await CheckAsync("Autosave times active play, preserves other slots and confirms recovery", SettingsAutosave);
             await CheckAsync("Optional launch confirmation protects manual departures and preserves automation", SettingsConfirmLaunch);
             await CheckAsync("Interface scale resizes settings, stays within the window and preserves pointer and preference ownership", SettingsInterfaceScale);
+            await CheckAsync("Game speed controls calendar rates with saved preferences and unchanged single-day steps", SettingsGameSpeed);
             if (listCases)
             {
                 GD.Print($"TEST CASE COUNT: {declaredCases}");
