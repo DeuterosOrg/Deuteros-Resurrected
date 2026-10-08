@@ -230,6 +230,113 @@ namespace Deuteros.Tests
             Equal(true, failed, "unknown current planet rejected");
         }
 
+        private async Task SettingsAutosave()
+        {
+            await WithSettings(async settings =>
+            {
+                var core = GameCore.SingletonInstance;
+                core.SetProcess(false);
+                var manager = Deuteros.Code.Platform.Helpers.SettingsManager.Instance;
+                var originalStorage = core.Storage;
+                var directory = Path.Combine(Path.GetTempPath(), "deuteros-autosave-" + Guid.NewGuid());
+                var storage = new SaveStorage(directory);
+                core.Storage = storage;
+                try
+                {
+                    Equal("Off", settings.AutosaveRow.SettingValue.AsString(), "Autosave defaults to Off");
+                    settings.AutosaveRow.StepValue(1);
+                    Equal("5 minutes", settings.AutosaveRow.SettingValue.AsString(), "Autosave offers an active-play interval");
+                    Press(settings, "%ApplyButton");
+                    using (var disk = new GameConfig(manager.Config.FilePath))
+                        Equal("5 minutes", disk.GetValue("gameplay", "autosave").AsString(), "Autosave preference persists");
+                    Press(settings, "%CloseButton");
+                    await InputFrames();
+                    core.ChangeScene(Scenes.Earth_Ground, new List<SceneVariables> { SceneVariables.Ground });
+                    await InputFrames();
+                    for (var slot = 1; slot <= 6; slot++) storage.Write(slot, Save);
+                    var protectedFiles = Directory.GetFiles(directory).ToDictionary(path => path, File.ReadAllText);
+                    core._Process(299);
+                    Equal(false, File.Exists(Path.Combine(directory, "autosave.json")), "not saved before interval");
+                    var cursor = core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+                    cursor.LockToRect(new Rect2(0, 0, 320, 200));
+                    core._Process(600);
+                    Equal(false, File.Exists(Path.Combine(directory, "autosave.json")), "modal time does not trigger saving");
+                    cursor.Unlock();
+                    core._Process(1);
+                    Equal(true, File.Exists(Path.Combine(directory, "autosave.json")), "active interval writes independent autosave");
+                    Equal(Save.CurrentDay, storage.Read(7).CurrentDay, "autosave contains the settled world");
+                    var first = File.ReadAllText(storage.SlotPath(7));
+                    core._Process(300);
+                    Equal(first, File.ReadAllText(storage.SlotPath(7) + ".bak"), "previous autosave retained atomically");
+                    foreach (var file in protectedFiles)
+                        Equal(file.Value, File.ReadAllText(file.Key), "manual and Quick Saves stay byte-identical");
+                    var latest = File.ReadAllText(storage.SlotPath(7));
+                    core.ChangeScene(Scenes.SaveScreen, new List<SceneVariables>());
+                    await InputFrames();
+                    core._Process(600);
+                    Equal(latest, File.ReadAllText(storage.SlotPath(7)), "save selection cannot be overwritten while choosing recovery");
+                    var screen = ActiveRecipeScreen<Deuteros.Code.Platform.Screens.SaveScreen>();
+                    Equal(false, screen.GetNode<Button>("Load7").Disabled, "autosave is recoverable through normal controls");
+                    Equal(false, screen.HasNode("Save7"), "automatic slot has no manual write control");
+                    Equal(true, screen.GetNode<Label>("Slot7").Text.StartsWith("A:"), "autosave date is identified");
+                    await CaptureDisplayEvidence("autosave-slots");
+                    var savedDay = storage.Read(7).CurrentDay;
+                    Save.CurrentDay += 10;
+                    var unsavedDay = Save.CurrentDay;
+                    Press(screen, "Load7");
+                    Press(screen, "Cancel");
+                    Equal(unsavedDay, Save.CurrentDay, "cancel keeps current world");
+                    Press(screen, "Load7");
+                    Press(screen, "Confirm");
+                    await InputFrames();
+                    Equal(savedDay, Save.CurrentDay, "confirmed load recovers autosave");
+                    core._Process(299);
+                    Equal(latest, File.ReadAllText(storage.SlotPath(7)), "loaded world gets a fresh interval");
+                    manager.SetSetting("gameplay/autosave", "Off");
+                    core._Process(600);
+                    Equal(latest, File.ReadAllText(storage.SlotPath(7)), "Off preserves the previous recovery file");
+                    manager.SetSetting("gameplay/autosave", true);
+                    core._Process(600);
+                    Equal(latest, File.ReadAllText(storage.SlotPath(7)), "malformed preference falls back to Off");
+                    manager.SetSetting("gameplay/autosave", "5 minutes");
+                    var validDeadline = Save.EnemyBuildDay;
+                    Save.EnemyBuildDay = ulong.MaxValue;
+                    core._Process(300);
+                    Save.EnemyBuildDay = validDeadline;
+                    Equal(latest, File.ReadAllText(storage.SlotPath(7)), "failed write preserves recovery file");
+                    Equal(true, Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen, "autosave failure is visible");
+                    Deuteros.Code.Platform.Helpers.OverlayManager.Instance.CloseOverlay();
+                    await InputFrames();
+                    core._Process(1);
+                    Equal(false, Deuteros.Code.Platform.Helpers.OverlayManager.Instance.IsOpen, "failure does not retry every frame");
+                    settings = OpenSettings();
+                    await InputFrames();
+                    Equal("5 minutes", settings.AutosaveRow.SettingValue.AsString(), "reopening restores saved interval");
+                    settings.AutosaveRow.StepValue(1);
+                    Equal("10 minutes", settings.AutosaveRow.SettingValue.AsString(), "next interval is selectable");
+                    Press(settings, "%CancelButton");
+                    await InputFrames();
+                    Equal("5 minutes", manager.GetSetting("gameplay/autosave").AsString(), "Cancel discards interval preview");
+                    foreach (var minutes in new[] { 10, 15 })
+                    {
+                        var previous = File.ReadAllText(storage.SlotPath(7));
+                        manager.SetSetting("gameplay/autosave", $"{minutes} minutes");
+                        core._Process(minutes * 60 - 1);
+                        Equal(previous, File.ReadAllText(storage.SlotPath(7)), "longer interval starts fresh");
+                        core._Process(1);
+                        Equal(Save.CurrentDay, storage.Read(7).CurrentDay, "selected longer interval saves current world");
+                        Equal(previous, File.ReadAllText(storage.SlotPath(7) + ".bak"), "longer interval retains its predecessor");
+                    }
+                }
+                finally
+                {
+                    core.Storage = originalStorage;
+                    core.SetProcess(true);
+                    if (Directory.Exists(directory)) Directory.Delete(directory, true);
+                }
+            });
+        }
+
         private async Task QuickSaveShortcut()
         {
             InitializeUi();

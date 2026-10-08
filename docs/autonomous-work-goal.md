@@ -55,3 +55,5 @@ While actively working, provide an hourly update with implementation and accepte
 Completion requires evidence against every task's actual requirements, relevant Windows/source/export acceptance, and documented resolution of remaining scope questions. A green suite or prepared branch is insufficient by itself.
 
 The Codex goal controller remains authoritative for automatic execution. If it reports a usage limit, preserve this brief and current evidence; resume through Codex rather than creating a replacement goal to bypass the limit.
+
+Autosave continuation: opt-in5/10/15 active-play minutes and separate atomic recovery slot now pass case660 native/headless and28 focused cases. The physical five-minute/new-game recovery check is running in `artifacts/settings-autosave-20261008/`; inspect its owned handle and artifacts before crediting completion. Latest accepted campaign remains day31583. Full660 and Windows acceptance are pending; the Desktop Commander Windows endpoint is currently offline.

@@ -22,15 +22,16 @@ namespace Deuteros.Code.Platform.Screens
                 Size = new Vector2(246, 159), Color = Colors.Black, MouseFilter = Control.MouseFilterEnum.Ignore };
             AddChild(background);
             AddLabel("Title", "SAVE / LOAD", 82, 29, 230);
-            for (var slot = 1; slot <= SaveStorage.QuickSlot; slot++)
+            for (var slot = 1; slot <= SaveStorage.AutoSlot; slot++)
             {
                 var selected = slot;
-                var y = 44 + (slot - 1) * 18;
+                var y = 44 + (slot - 1) * 15;
                 AddLabel($"Slot{slot}", "", 82, y + 2, 128);
-                AddButton($"Save{slot}", "Save", 214, y, 42, () => RequestSave(selected)).TooltipText =
-                    slot == SaveStorage.QuickSlot ? "Save to the separate Quick Save slot." : "";
+                if (slot != SaveStorage.AutoSlot)
+                    AddButton($"Save{slot}", "Save", 214, y, 42, () => RequestSave(selected)).TooltipText =
+                        slot == SaveStorage.QuickSlot ? "Save to the separate Quick Save slot." : "";
                 AddButton($"Load{slot}", "Load", 263, y, 42, () => RequestLoad(selected)).TooltipText =
-                    slot == SaveStorage.QuickSlot ? "Load the Quick Save." : "";
+                    slot == SaveStorage.AutoSlot ? "Load the latest Autosave." : slot == SaveStorage.QuickSlot ? "Load the Quick Save." : "";
             }
             status = AddLabel("Status", "Choose a slot.", 82, 151, 230);
             confirmation = AddLabel("Confirmation", "", 82, 165, 144);
@@ -79,15 +80,15 @@ namespace Deuteros.Code.Platform.Screens
 
         public void RefreshSlots()
         {
-            for (var slot = 1; slot <= SaveStorage.QuickSlot; slot++)
+            for (var slot = 1; slot <= SaveStorage.AutoSlot; slot++)
             {
                 var exists = Storage.Exists(slot);
                 var label = GetNode<Label>($"Slot{slot}");
-                var name = slot == SaveStorage.QuickSlot ? "Quick" : $"Slot {slot}";
+                var name = slot == SaveStorage.AutoSlot ? "Auto" : slot == SaveStorage.QuickSlot ? "Quick" : $"Slot {slot}";
                 label.Text = $"{name}: empty";
                 GetNode<Button>($"Load{slot}").Disabled = !exists;
                 if (!exists) continue;
-                try { label.Text = $"{(slot == SaveStorage.QuickSlot ? "Q" : slot.ToString())}: {Deuteros.Code.Objects.GameClock.FormatDate(Storage.Read(slot).Clock.DateCentidays)}"; }
+                try { label.Text = $"{(slot == SaveStorage.AutoSlot ? "A" : slot == SaveStorage.QuickSlot ? "Q" : slot.ToString())}: {Deuteros.Code.Objects.GameClock.FormatDate(Storage.Read(slot).Clock.DateCentidays)}"; }
                 catch (Exception error) when (SaveStorage.IsSaveError(error)) { label.Text = $"{name}: unreadable"; }
             }
         }

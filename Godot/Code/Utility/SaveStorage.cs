@@ -17,6 +17,7 @@ namespace Deuteros.Code.Utility
     {
         public const int SlotCount = 5;
         public const int QuickSlot = SlotCount + 1;
+        public const int AutoSlot = QuickSlot + 1;
         private const int MaxBytes = 16 * 1024 * 1024;
         private readonly string directory;
 
@@ -212,6 +213,7 @@ namespace Deuteros.Code.Utility
         public string SlotPath(int slot)
         {
             if (slot == QuickSlot) return Path.Combine(directory, "quick-save.json");
+            if (slot == AutoSlot) return Path.Combine(directory, "autosave.json");
             if (slot < 1 || slot > SlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
             return Path.Combine(directory, $"slot-{slot}.json");
         }

@@ -399,6 +399,7 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Autosave"
 SettingKey = "gameplay/autosave"
+Description = "Saves to a separate Autosave slot after the chosen minutes of active play. Pauses, dialogs and the Save / Load screen do not count. Loading starts a fresh interval."
 
 [node name="TooltipsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true

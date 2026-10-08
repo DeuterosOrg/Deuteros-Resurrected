@@ -10,6 +10,39 @@ namespace Deuteros.Code
     public partial class GameCore
     {
         public SaveStorage Storage { get; set; } = new SaveStorage(ProjectSettings.GlobalizePath("user://saves"));
+        private SaveFile autosaveWorld;
+        private int autosaveInterval;
+        private double autosaveElapsed;
+
+        private void UpdateAutosave(double delta)
+        {
+            var interval = Platform.Helpers.SettingsManager.Instance.GetSetting("gameplay/autosave").AsString() switch
+            {
+                "5 minutes" => 300, "10 minutes" => 600, "15 minutes" => 900, _ => 0
+            };
+            var save = GameData.ActiveSaveFile;
+            if (autosaveWorld != save || autosaveInterval != interval)
+            {
+                autosaveWorld = save;
+                autosaveInterval = interval;
+                autosaveElapsed = 0;
+            }
+            if (interval == 0 || !double.IsFinite(delta) || delta <= 0 || StoryDisplayBlocked()
+                || currentScene == Scenes.SaveScreen) return;
+            autosaveElapsed += delta;
+            if (autosaveElapsed < interval) return;
+            autosaveElapsed = 0;
+            try
+            {
+                Storage.Write(SaveStorage.AutoSlot, save);
+                HoverText = "Autosaved.";
+                HoverTextIsStatus = true;
+            }
+            catch (Exception error) when (SaveStorage.IsSaveError(error))
+            {
+                ShowError(_currentScreen as Platform.Base.BaseSubScene, "Autosave failed; previous save kept.");
+            }
+        }
 
         private void QuickSave()
         {

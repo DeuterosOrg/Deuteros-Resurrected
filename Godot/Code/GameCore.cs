@@ -475,6 +475,7 @@ namespace Deuteros.Code
 			if (currentScene != Scenes.Bulletins || !_screenLocker.Blocked)
 				SdmSystem.AdvanceTime(delta);
 			UpdateTime(delta);
+			UpdateAutosave(delta);
 		}
 
 		public void StationDestroyed(IPlanet planet)

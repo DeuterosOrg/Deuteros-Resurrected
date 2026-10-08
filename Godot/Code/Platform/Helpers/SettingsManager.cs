@@ -116,6 +116,7 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/window_mode" => _windowModeOptions.ToArray(),
                 "display/frame_limit" => _frameLimitOptions.ToArray(),
                 "display/pixel_scaling" => new[] { "Integer", "Fit" },
+                "gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
                 _ => null
             };
         }
@@ -255,6 +256,7 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["audio/mute_unfocused"] = false;
             _defaults["gameplay/tooltips"] = true;
             _defaults["gameplay/auto_pause"] = false;
+            _defaults["gameplay/autosave"] = "Off";
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
