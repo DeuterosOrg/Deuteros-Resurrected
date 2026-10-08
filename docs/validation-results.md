@@ -1441,6 +1441,13 @@ Physical Mac checks in isolated `DeuterosTooltipsValidation` verify default On, 
 
 `artifacts/settings-tooltips-20261008/` retains red/green/strengthened logs, focused results, both manual runs, screenshot, observations and passing `audit.py`/`audit.log`. Exact source, original saves/absent settings and the canonical day29842 campaign hash are verified. The first audit’s extra-blank-line mismatch when removing the declared profile override is retained separately; the corrected removal passes without runtime/source changes.
 
-Full657 at80824e7 predates this preference. The new full658 aggregate and matching Windows acceptance remain pending. Counts stay35/48 implementation evidence and four locally accepted requirements.
+Full657 at80824e7 predates this preference. The full658 aggregate now passes atdf5a4e6; matching Windows acceptance remains pending. Counts stay35/48 implementation evidence and four locally accepted requirements.
 
 ![Quick Save feedback remains visible with Tooltips Off](images/tooltips-off-save-feedback.png)
+
+
+## Complete Tooltips checkpoint — 2026-10-08
+
+Frozen `df5a4e620bf01b0d46645452b4d4f17116c1412f` passes **658/658 fresh-process regressions**, **19 tooling checks without skips**, build, strict import and startup smoke, with terminal exit0. `artifacts/tooltips-full-658-20261008/audit-full.py` verifies discovery1–658, every case log, aggregate summary, build/import/smoke/tooling logs and tracked Godot/scripts/global.json files against that exact revision. `audit-full.log`, `audit-result.json` and `result.json` pass. The isolated `DeuterosTooltipsFull658` profile override remains; the runner is terminal.
+
+This covers the shared Tooltips preference and Quick Save status handling in addition to the prior shortcuts/display changes. Separate native and physical evidence retains its stated hover-harness limits. Matching Windows execution and remaining inactive settings/later campaign acceptance remain open; counts stay35/48 implementation evidence and four locally accepted requirements. The revision is local; the last verified published branch remains80824e7.
