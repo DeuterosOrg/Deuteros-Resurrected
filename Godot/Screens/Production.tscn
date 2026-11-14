@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3 uid="uid://dm6c3u7eka7hc"]
+[gd_scene load_steps=19 format=3 uid="uid://dm6c3u7eka7hc"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/Production.cs" id="1_7mj6f"]
 [ext_resource type="Texture2D" uid="uid://clcj5c7woisxx" path="res://Sprites/Scenes/Production.png" id="2"]
@@ -10,6 +10,57 @@
 [ext_resource type="Texture2D" uid="uid://c7knvkf0f66yw" path="res://Sprites/SceneSprites/Buttons.png" id="4_tahoa"]
 [ext_resource type="Texture2D" uid="uid://11pif8j3he8r" path="res://Sprites/Items/Production/derrick_1.png" id="5_t6bcq"]
 [ext_resource type="Texture2D" uid="uid://bc52dl6g8a6o3" path="res://Sprites/Items/Research/a__o__c.png" id="6_timql"]
+[ext_resource type="Texture2D" path="res://Sprites/SceneSprites/Production_Spindle_Sheet.png" id="7_spnsh"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn00"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(0, 0, 18, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn01"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(18, 0, 18, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn02"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(36, 0, 18, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn03"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(54, 0, 18, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn04"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(72, 0, 18, 9)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_spn05"]
+atlas = ExtResource("7_spnsh")
+region = Rect2(90, 0, 18, 9)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_spndl"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn00")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn01")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn02")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn03")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn04")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_spn05")
+}],
+"loop": true,
+"name": &"turning",
+"speed": 10.0
+}]
 
 [node name="Node2D" type="Node2D"]
 script = ExtResource("1_7mj6f")
@@ -60,6 +111,12 @@ offset_top = 50.0
 offset_right = 184.0
 offset_bottom = 98.0
 texture = ExtResource("6_timql")
+
+[node name="SpindleAnimation" type="AnimatedSprite2D" parent="Sprites"]
+position = Vector2(246, 96)
+sprite_frames = SubResource("SpriteFrames_spndl")
+animation = &"turning"
+centered = false
 
 [node name="Labels" type="Node2D" parent="."]
 

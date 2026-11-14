@@ -18,6 +18,17 @@ namespace Deuteros.Code.Platform.Screens
 	{
 		public const string ResearchSpriteBasePath = "res://Sprites//Items//Research//";
 		public const string ProductionProgressSpriteBasePath = "res://Sprites//Items//Production//";
+		//Temporary enum. Should either be removed together with SpindleAnimationMode once we decide which model to use,
+		//or implemented as a modern setting (perhaps as a global "fix animation inconsistencies")
+		public enum SpindleAnimationModes
+		{
+			Original,
+			WhileBuilding
+		}
+
+		//Original: The spindle turns from a product is clicked until Advance Time is pressed
+		//WhileBuilding: The spindle turns as long as something is being built
+		public const SpindleAnimationModes SpindleAnimationMode = SpindleAnimationModes.Original;
 		public List<ProductionButton> Buttons { get; set; }
 		public ProductionButton SelectedButton { get; set; }
 		Label ProductionNameLabel { get; set; }
@@ -26,6 +37,8 @@ namespace Deuteros.Code.Platform.Screens
 		Label StaffCountLabel { get; set; }
 		TextureRect SmallItemImageTextureRect { get; set; }
 		TextureRect ItemProgressImageTextureRect { get; set; }
+		AnimatedSprite2D SpindleAnimation { get; set; }
+		bool SpindleTurning { get; set; }
 
 		TextureButton RemoveStaff { get; set; }
 
@@ -43,6 +56,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			SmallItemImageTextureRect = GetNode<TextureRect>("Sprites/SmallItemImage");
 			ItemProgressImageTextureRect = GetNode<TextureRect>("Sprites/ItemProgressImage");
+			SpindleAnimation = GetNode<AnimatedSprite2D>("Sprites/SpindleAnimation");
 
 			RemoveStaff = GetNode<TextureButton>("RemoveStaff");
 
@@ -95,8 +109,27 @@ namespace Deuteros.Code.Platform.Screens
 
 			CheckProductionStart();
 
+			SpindleTurning = true;
+
 			DrawData();
 			clickedButton.Redraw(false);
+		}
+
+		public override void _Process(double delta)
+		{
+			//Advance Time stops the spindle in Original mode
+			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip || GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkipDay)
+				SpindleTurning = false;
+
+			var turning = CurrentFactory.CurrentProductionItem() != null && (SpindleAnimationMode == SpindleAnimationModes.WhileBuilding || SpindleTurning);
+
+			if (turning != SpindleAnimation.IsPlaying())
+			{
+				if (turning)
+					SpindleAnimation.Play("turning");
+				else
+					SpindleAnimation.Pause();
+			}
 		}
 
 		private void CheckProductionStart()
