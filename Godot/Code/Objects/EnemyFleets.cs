@@ -16,10 +16,13 @@ namespace Deuteros.Code.Objects
         public int AttackCount { get; set; }
         public bool Attacking { get; set; }
 
+        private static bool IsPlayerStation(IPlanet planet)
+            => planet.Station != null && planet.Station.BuildParts == 8 && !planet.ActiveMethanoid;
+
         private Enums.StellarBodies FindAttackStation()
         {
             var star = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[this.StarLocation];
-            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(p => p.Value.ParentStar == star.StarId && p.Value.Station != null && p.Value.Station.BuildParts == 8 && !p.Value.ActiveMethanoid).OrderBy(p => p.Value.MethanoidAttackedCount).ThenByDescending(p=>p.Key);
+            var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(p => p.Value.ParentStar == star.StarId && IsPlayerStation(p.Value)).OrderBy(p => p.Value.MethanoidAttackedCount).ThenByDescending(p=>p.Key);
             if (planets.Count()>0)
             {
                 return planets.First().Key;
@@ -56,7 +59,7 @@ namespace Deuteros.Code.Objects
         {
             if (DroneCount >= AttackTrigger)
             {
-                if (AttackDay == 0)
+                if (AttackDay == 0 && FindAttackStation() != StellarBodies.none)
                 {
                     ChooseAttackTarget();
                 }
@@ -68,9 +71,11 @@ namespace Deuteros.Code.Objects
         {
             Attacking = false;
             var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
+            if (!IsPlayerStation(attackedPlanet)) return;
             attackedPlanet.Station.MtxInstalled = true;
             attackedPlanet.Station.SdmInstalled = true;
             attackedPlanet.MethanoidAttackedCount = 0;
+            var captured = !attackedPlanet.ActiveMethanoid;
             attackedPlanet.ActiveMethanoid = true;
 
             //todo remove planetary stocks
@@ -83,13 +88,19 @@ namespace Deuteros.Code.Objects
             IShip ship = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == attackedPlanet.PlanetId && s.GetType()!=typeof(EnemyFleet));
             while (ship != null)
             {
-                GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Remove(ship);
+                var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+                if (save.Ships.Remove(ship)) save.News.AddShipLoss(ship);
                 ship = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == attackedPlanet.PlanetId && s.GetType() != typeof(EnemyFleet));
             }
 
-            //remove all stack from planet and station
+            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddCrewLoss(
+                attackedPlanet.Station.Resources.Staff.Concat(attackedPlanet.PlanetResources.Staff)
+                    .Append(attackedPlanet.Station.Factory.Builder));
+
+            //remove all staff from planet and station
             attackedPlanet.Station.Resources.RemoveAllStaff();
             attackedPlanet.PlanetResources.RemoveAllStaff();
+            attackedPlanet.Station.Factory.Builder = null;
 
             attackedPlanet.PlanetResources.Derricks = Random.Shared.Next(8);
 
@@ -106,6 +117,7 @@ namespace Deuteros.Code.Objects
                 attackedPlanet.Station.Resources.Stores.Items[material.MaterialType] = Random.Shared.Next(1024) + 100;
             }
             AttackCount = 0;
+            if (captured) GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(attackedPlanet.PlanetId.ToScreenString(" ") + " CAPTURED !");
         }
 
         public void CancelAttack(Enums.StellarBodies attackLocation)
@@ -129,11 +141,13 @@ namespace Deuteros.Code.Objects
                 AttackDay--;
                 if (!Attacking && AttackDay == 0)
                 {
+                    var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
+                    if (!IsPlayerStation(attackedPlanet)) return;
                     GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip = false;
                     PlanetLocation = DestinationPlanetLocation;
-                    var attackedPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[DestinationPlanetLocation];
                     attackedPlanet.MethanoidAttackedCount++;
                     Attacking = true;
+                    GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(attackedPlanet.PlanetId.ToScreenString(" ") + " UNDER ATTACK !");
                     AttackDay = 5;
                 }
                 else if (Attacking && AttackDay == 0)

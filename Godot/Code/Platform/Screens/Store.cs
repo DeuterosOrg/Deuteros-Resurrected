@@ -42,33 +42,12 @@ namespace Deuteros.Code.Platform.Screens
 			TradStore = GetNode<Control>("TradStore");
 			MTX = GetNode<MTX>("MTX");
 
-			//TODO - This is messy, should have planned ahead for the MTX
-			//If the MTX is available and active, load it up and display it over the current screen
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
-			{
-				MTX.Visible = CurrentStore.AlternativeView;
-				TradStore.Visible = !CurrentStore.AlternativeView;
-
-				MTX.LoadScene(CurrentStore, SwitchStoreType_ButtonUp);
-
-				if (CurrentStore.AlternativeView)
-				{
-					MTX.UpdateState();
-				}
-				else
-				{
-					RefreshButtons();
-					DrawData();
-				}
-			}
-			else
-			{
-				MTX.Visible = false;
-				TradStore.Visible = true;
-
-				RefreshButtons();
-				DrawData();
-			}
+			// Bind even before discovery: inspecting captured hardware can unlock it while
+			// this screen is open. The installed local module controls access, not the unlock.
+			MTX.LoadScene(CurrentStore, SwitchStoreType_ButtonUp);
+			UpdateStoreView();
+			RefreshButtons();
+			DrawData();
 
 			base._Ready();
 		}
@@ -79,11 +58,7 @@ namespace Deuteros.Code.Platform.Screens
 
 			if (!clickedButton.ObjectData.Locked)
 			{
-				if (SelectedButton != null)
-					SelectedButton.Selected = false;
-
-				SelectedButton = clickedButton;
-				SelectedButton.Selected = true;
+				CurrentStore.SelectedRecipe = clickedButton.ObjectData.ItemType;
 
 				RefreshButtons();
 				DrawData();
@@ -94,44 +69,42 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			CurrentStore.AlternativeView = !CurrentStore.AlternativeView;
 
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
-			{
-				MTX.Visible = CurrentStore.AlternativeView;
-				TradStore.Visible = !CurrentStore.AlternativeView;
-			}
-			else
-			{
-				RefreshButtons();
-				DrawData();
-			}
+			UpdateStoreView();
+			RefreshButtons();
+			DrawData();
+		}
+
+		private bool CanUseMtx()
+		{
+			var planet = GameCore.SingletonInstance.GetCurrentPlanet();
+			return !SceneVariables.Contains(Enums.SceneVariables.Ground) && planet.Station.Built
+				&& !planet.ActiveMethanoid && planet.Station.MtxInstalled;
+		}
+
+		private void UpdateStoreView()
+		{
+			MTX.Visible = CurrentStore.AlternativeView && CanUseMtx();
+			TradStore.Visible = !MTX.Visible;
+			if (MTX.Visible) MTX.UpdateState();
 		}
 
 		protected override void ResearchFinished(Objects.ResearchItem researchItem)
 		{
-			Item selectedItem = null;
-
-			if (SelectedButton != null)
-				selectedItem = SelectedButton.ObjectData;
-
 			RefreshButtons();
-
-			if (selectedItem != null)
-			{
-				SelectedButton = Buttons.Single(T => T.ObjectData != null && T.ObjectData.ItemType == selectedItem.ItemType);
-				SelectedButton.Selected = true;
-			}
-
 			DrawData();
 		}
 
 		public void RefreshButtons()
 		{
 			Buttons = Utility.Buttons.CreateButtons<StoreButton, Item>(StoreButtonsNode,
-				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null && !CurrentStore.AlternativeView && T.Research.Researched && !T.AutoProduce).Select(T => T).OrderBy(T => T.Research.ResearchOrder).ToDictionary(obj => obj.Research.ResearchOrder),
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Production && T.BuildRequirements != null && T.Research != null && !CurrentStore.AlternativeView && T.Research.Researched && !T.AutoProduce).Select(T => T).OrderBy(T => T.Research.ResearchOrder).ToDictionary(obj => obj.Research.ResearchOrder),
 				this,
 				nameof(StoreButton_Clicked),
 				"/Code/Platform/StoreButton.cs",
 				"StoreButton");
+			SelectedButton = Buttons.FirstOrDefault(button => button.ObjectData?.ItemType == CurrentStore.SelectedRecipe);
+			if (SelectedButton != null)
+				SelectedButton.Selected = true;
 		}
 
 		// Called every update.
@@ -141,13 +114,13 @@ namespace Deuteros.Code.Platform.Screens
 
 		protected override void DayTick(uint previousDay, uint currentDay)
 		{
-			var currentPlanet = Deuteros.Code.GameCore.SingletonInstance.GetCurrentPlanet();
-			
-			if (CurrentStore.AlternativeView && currentPlanet.Station.MtxInstalled && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
+			if (CurrentStore.AlternativeView && CanUseMtx() && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
+				return; // The discovery bulletin replaces this screen.
 			}
 
+			UpdateStoreView();
 			DrawData();
 		}
 
@@ -156,6 +129,7 @@ namespace Deuteros.Code.Platform.Screens
 			int padlength = 1;
 
 			ResourceListLabel.Text = "";
+			BuildAmountLabel.Text = "";
 
 			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => !T.Locked && (T.ItemCategory == Enums.ItemCategory.item) == CurrentStore.AlternativeView))
 			{
@@ -194,17 +168,12 @@ namespace Deuteros.Code.Platform.Screens
 			if (SelectedButton != null)
 			{
 				var recipeText = "Enough supplies for {0} {1}s";
-				var maxCount = 200;
 				var recipeItem = SelectedButton.ObjectData as Item;
+				var maxCount = recipeItem.BuildRequirements
+					.Select(material => CurrentStore[material.ItemType] / material.ItemCount).DefaultIfEmpty(0).Min();
 
-				foreach (var material in recipeItem.BuildRequirements)
-				{
-					var maxProd = CurrentStore[material.ItemType] / material.ItemCount;
-					if (maxProd < maxCount)
-						maxCount = maxProd;
-				}
-
-				BuildAmountLabel.Text = string.Format(recipeText, maxCount, recipeItem.FullName);
+				BuildAmountLabel.Text = recipeItem.BuildRequirements.Count == 0
+					? "No materials required" : string.Format(recipeText, maxCount, recipeItem.FullName);
 			}
 		}
 	}

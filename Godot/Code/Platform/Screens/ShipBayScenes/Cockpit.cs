@@ -1,5 +1,6 @@
 using Deuteros.Code.Objects;
 using Deuteros.Code.Objects.Interfaces;
+using Deuteros.Code.Platform.Helpers;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -64,7 +65,9 @@ namespace Deuteros.Code.Platform.Screens.ShipBayScenes
 			{
 				PilotNameLabel.Text = CurrentShip.Pilot != null ? CurrentShip.Pilot.GetLevelString()+"\n"+CurrentShip.Pilot.Leader : "";
 				SpriteHolder.Visible = true;
-				AddACC.Visible = true;
+				var ptl = CurrentShip is InterStellarShip { DFCC: true };
+				AddACC.TextureNormal = SpriteManager.LoadImage(ShipBay.NavSpriteBasePath + (ptl ? "PTL.png" : "ACC.png"));
+				AddACC.Visible = !ptl || GameCore.SingletonInstance.GameData.GetItem(ItemTypes.prejudice_torpedo_launcher).Research.Researched;
 			}
 		}
 	}

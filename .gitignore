@@ -20,3 +20,7 @@ SourceMaterials/asset-pack/
 
 .vs/
 *.avi
+# Local validation and export output
+artifacts/
+.tools/
+__pycache__/

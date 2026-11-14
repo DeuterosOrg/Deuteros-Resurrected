@@ -1,0 +1,399 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Text;
+using Deuteros.Code.Objects;
+using Deuteros.Code.Objects.GameData;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using static Deuteros.Code.Enums;
+
+namespace Deuteros.Code.Utility
+{
+    // Versioned local saves. Only known model subtypes may be constructed from file data.
+    public sealed class SaveStorage
+    {
+        public const int SlotCount = 5;
+        public const int QuickSlot = SlotCount + 1;
+        public const int AutoSlot = QuickSlot + 1;
+        private const int MaxBytes = 16 * 1024 * 1024;
+        private readonly string directory;
+
+        public SaveStorage(string directory) => this.directory = directory;
+
+        public static bool IsSaveError(Exception error) => error is IOException || error is InvalidDataException || error is UnauthorizedAccessException
+            || error is JsonException || error is ArgumentException;
+
+        private sealed class Document
+        {
+            [JsonProperty(Required = Required.Always)] public int Version { get; set; }
+            [JsonProperty(Required = Required.Always)] public SaveFile Game { get; set; }
+        }
+
+        private sealed class ModelBinder : ISerializationBinder
+        {
+            private static readonly Type[] Types = { typeof(Planet), typeof(Earth), typeof(Shuttle), typeof(IOS),
+                typeof(SCG), typeof(EnemyFleet), typeof(Asteroid), typeof(UnknownItem) };
+            public Type BindToType(string assemblyName, string typeName)
+            {
+                if (assemblyName != null) throw new JsonSerializationException("Assembly names are not valid save types.");
+                return Types.SingleOrDefault(t => t.Name == typeName)
+                    ?? throw new JsonSerializationException("Unknown save type: " + typeName);
+            }
+            public void BindToName(Type serializedType, out string assemblyName, out string typeName)
+            {
+                if (!Types.Contains(serializedType)) throw new JsonSerializationException("Unsupported model type.");
+                assemblyName = null;
+                typeName = serializedType.Name;
+            }
+        }
+
+        private sealed class ModelContract : DefaultContractResolver
+        {
+            protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization serialization)
+            {
+                // Avoid computed getters which consult the running game (including ship travel times).
+                var properties = base.CreateProperties(type, serialization).Where(p => p.Writable).ToList();
+                if (type == typeof(BaseData))
+                    properties.RemoveAll(p => p.PropertyName == nameof(BaseData.ModuleFrameTexts)
+                        || p.PropertyName == nameof(BaseData.BulletinTexts) || p.PropertyType == typeof(Godot.Color));
+                var privateName = type == typeof(Staff) ? "ActionsTaken" : type == typeof(News) ? "NewsItems" : null;
+                if (privateName != null)
+                {
+                    var property = base.CreateProperty(type.GetProperty(privateName, BindingFlags.Instance | BindingFlags.NonPublic), serialization);
+                    property.Readable = property.Writable = true;
+                    property.Required = Required.Always;
+                    properties.Add(property);
+                }
+                foreach (var property in properties)
+                {
+                    // Infer existing paid progress when loading saves from before this marker.
+                    if (type == typeof(ProductionItem) && property.PropertyName == nameof(ProductionItem.MaterialsPaid))
+                        property.Required = Required.DisallowNull;
+                    // Version-1 saves written before engine damage have no flag; default healthy.
+                    else if (typeof(Ship).IsAssignableFrom(type) && property.PropertyName == nameof(Ship.EngineDamaged))
+                        property.Required = Required.DisallowNull;
+                    else if (typeof(InterStellarShip).IsAssignableFrom(type) && (property.PropertyName == nameof(InterStellarShip.AutomationSlot)
+                        || property.PropertyName == nameof(InterStellarShip.AsteroidActionTicks)))
+                        property.Required = Required.DisallowNull;
+                    // Original allocation starts at zero; do not replay losses when upgrading a save.
+                    else if (type == typeof(Staff) && (property.PropertyName == nameof(Staff.AttritionCountdown) || property.PropertyName == nameof(Staff.Warlord) || property.PropertyName == nameof(Staff.Pirate)))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(News) && (property.PropertyName == nameof(News.PendingBulletins)
+                        || property.PropertyName == nameof(News.MiningDumpLocation) || property.PropertyName == nameof(News.MiningDumpResource)))
+                        property.Required = Required.DisallowNull;
+                    // Old saves cannot establish whether an already captured colony remains captive.
+                    else if (typeof(Planet).IsAssignableFrom(type) && property.PropertyName == nameof(Planet.CaptiveBase))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(SpaceStation) && (property.PropertyName == nameof(SpaceStation.SdmCountdown) || property.PropertyName == nameof(SpaceStation.RefiningSlot)))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.SdmTimerRemainder) || property.PropertyName == nameof(SaveFile.RefiningPhase)))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(AlienTransmissions) && (property.PropertyName == nameof(AlienTransmissions.EnemySystems)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightSystems)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightCountdown)
+                        || property.PropertyName == nameof(AlienTransmissions.HyperlightPending)
+                        || property.PropertyName == nameof(AlienTransmissions.ColonyEventCountdown)))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(SaveFile) && (property.PropertyName == nameof(SaveFile.AlienTransmissions) || property.PropertyName == nameof(SaveFile.RogueCrew)))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(SaveFile) && property.PropertyName == nameof(SaveFile.Clock))
+                        property.Required = Required.DisallowNull;
+                    else if (type == typeof(SCG) && property.PropertyName == nameof(SCG.Flight))
+                        property.Required = Required.Default;
+                    else if (property.Required == Required.Default) property.Required = Required.AllowNull;
+                }
+                return properties;
+            }
+
+            protected override JsonObjectContract CreateObjectContract(Type type)
+            {
+                var contract = base.CreateObjectContract(type);
+                // Default creators let Json.NET register an object before reading children/$ref cycles.
+                if (type == typeof(Planet)) contract.DefaultCreator = () => new Planet(StellarBodies.none, 0);
+                if (type == typeof(Earth)) contract.DefaultCreator = () => new Earth(StellarBodies.earth, 0);
+                if (type == typeof(SpaceStation)) contract.DefaultCreator = () => new SpaceStation(StellarBodies.none);
+                if (type == typeof(Star)) contract.DefaultCreator = () => new Star(StellarBodies.none);
+                if (type == typeof(PlanetResource)) contract.DefaultCreator = () => new PlanetResource(new List<Material>());
+                if (type == typeof(ProductionItem)) contract.DefaultCreator = () => new ProductionItem(new Item { Research = new ResearchItem() });
+                if (type == typeof(Material)) contract.DefaultCreator = () => new Material(ItemTypes.none, 0);
+                if (type == typeof(UnknownItem)) contract.DefaultCreator = () => new UnknownItem(default);
+                return contract;
+            }
+        }
+
+        private static JsonSerializerSettings Settings() => new()
+        {
+            TypeNameHandling = TypeNameHandling.Auto,
+            SerializationBinder = new ModelBinder(),
+            ContractResolver = new ModelContract(),
+            PreserveReferencesHandling = PreserveReferencesHandling.Objects,
+            ObjectCreationHandling = ObjectCreationHandling.Replace,
+            MissingMemberHandling = MissingMemberHandling.Error,
+            MaxDepth = 100,
+        };
+
+        public static string Serialize(SaveFile save)
+        {
+            Validate(save);
+            return JsonConvert.SerializeObject(new Document { Version = 1, Game = save }, Settings());
+        }
+
+        public static SaveFile Deserialize(string json)
+        {
+            if (json == null || Encoding.UTF8.GetByteCount(json) > MaxBytes)
+                throw new InvalidDataException("Save file is too large.");
+            var document = JsonConvert.DeserializeObject<Document>(json, Settings());
+            if (document == null || document.Version != 1)
+                throw new InvalidDataException("Unsupported save version.");
+            // Older mining could overdraw a vein. Preserve inventory, restart only the spent vein.
+            if (document.Game?.BaseGameData?.Planets != null)
+                foreach (var planet in document.Game.BaseGameData.Planets.Values)
+                    if (planet?.PlanetResources?.Materials != null)
+                        foreach (var material in planet.PlanetResources.Materials)
+                            if (material != null && material.GroundAmount < 0)
+                            {
+                                material.GroundAmount = 0;
+                                if (material.SurveyTicks == 0) material.SurveyTicks = Material.KnownEmpty;
+                            }
+            if (document.Game != null && document.Game.Clock == null)
+            {
+                if (document.Game.EnemyBuildDay > uint.MaxValue)
+                    throw new InvalidDataException("Invalid save: legacy enemy deadline.");
+                document.Game.Clock = new GameClock { DateCentidays = (ulong)document.Game.CurrentDay * 100 };
+                document.Game.EnemyBuildDay *= 100;
+            }
+            Validate(document.Game);
+            var save = document.Game;
+            // Older SCGs omitted the original sixth mount. Retain every existing pod and its contents.
+            foreach (var ship in save.Ships.OfType<SCG>())
+                while (ship.Modules.Count < 6) ship.Modules.Add(new ShipModule());
+            ArtifactRecovery.RestoreLegacy(save);
+            // Original chart masks ($1C402). Repair known defaults, preserving edited charts and campaign state.
+            foreach (var (parent, oldSlots, slots) in new[] {
+                (StellarBodies.mars, new[] { 1, 8 }, new[] { 1, 6 }),
+                (StellarBodies.uranus, new[] { 1, 5, 6, 10 }, new[] { 2, 5, 6, 8, 10 }),
+                (StellarBodies.julius, new[] { 1, 4, 5, 9 }, new[] { 2, 4, 5, 9 }) })
+                if (save.BaseGameData.Planets.TryGetValue(parent, out var planet)
+                    && planet.MoonList != null && planet.MoonList.OrderBy(i => i).SequenceEqual(oldSlots))
+                    planet.MoonList = slots.ToList();
+            // Correct only the old default recipe. Paid orders retain their reservation and progress.
+            var starDroneRecipe = save.BaseGameData.ItemList.FirstOrDefault(i => i.ItemType == ItemTypes.star_drone)?.BuildRequirements;
+            var oldStarDroneRecipe = new[] { (ItemTypes.iron, 300), (ItemTypes.titanium, 200),
+                (ItemTypes.aluminium, 300), (ItemTypes.copper, 100), (ItemTypes.paladium, 90),
+                (ItemTypes.platinum, 80), (ItemTypes.silver, 95), (ItemTypes.gold, 50) };
+            if (starDroneRecipe != null && starDroneRecipe.All(r => r != null)
+                && starDroneRecipe.OrderBy(r => r.ItemType).Select(r => (r.ItemType, r.ItemCount)).SequenceEqual(oldStarDroneRecipe))
+                starDroneRecipe.Single(r => r.ItemType == ItemTypes.titanium).ItemCount = 300;
+            // Older campaigns completed the chassis without discovering Star Drone research.
+            if (Platform.Unlocker.DiscoverStarDrones(save) && !save.News.PendingBulletins.Contains(BulletinTypes.SCG_Drone))
+                save.News.PendingBulletins.Add(BulletinTypes.SCG_Drone);
+            InterStellarShip.EnsureAutomationSlots(save);
+            // Every legacy system was assigned at startup; a missing location means it was collected.
+            // Keep those assignments and held cargo instead of spawning replacement segments.
+            if (save.AlienTransmissions == null)
+            {
+                save.AlienTransmissions = new AlienTransmissions { AssignedStars = save.BaseGameData.Stars.Keys.ToList() };
+                if (save.AtWar) save.AlienTransmissions.Start();
+                if (save.BaseGameData.ItemList.Any(i => i.ItemType == ItemTypes.alien_artifact && i.Research.Researched
+                    && i.Research.ResearchPercentageComplete == 100)) save.AlienTransmissions.FinalRecovery();
+            }
+            // Definitions are supplied by this game version, rather than embedded executable/UI data.
+            save.BaseGameData.ModuleFrameTexts = CoreData.StaticGameData.ModuleFrameTexts;
+            save.BaseGameData.BulletinTexts = CoreData.StaticGameData.BulletinTexts;
+            foreach (var item in save.BaseGameData.ItemList.Where(i => string.IsNullOrWhiteSpace(i.ShortName)))
+                item.ShortName = CoreData.StaticGameData.ItemList.FirstOrDefault(i => i.ItemType == item.ItemType)?.ShortName;
+            save.TimeSkip = save.TimeSkipDay = false;
+            save.TimeSkipStart = 0;
+            return save;
+        }
+
+        public string SlotPath(int slot)
+        {
+            if (slot == QuickSlot) return Path.Combine(directory, "quick-save.json");
+            if (slot == AutoSlot) return Path.Combine(directory, "autosave.json");
+            if (slot < 1 || slot > SlotCount) throw new ArgumentOutOfRangeException(nameof(slot));
+            return Path.Combine(directory, $"slot-{slot}.json");
+        }
+
+        public bool Exists(int slot) => File.Exists(SlotPath(slot));
+
+        public SaveFile Read(int slot)
+        {
+            var path = SlotPath(slot);
+            if (new FileInfo(path).Length > MaxBytes) throw new InvalidDataException("Save file is too large.");
+            return Deserialize(File.ReadAllText(path));
+        }
+
+        public void Write(int slot, SaveFile save)
+        {
+            var path = SlotPath(slot);
+            var bytes = Encoding.UTF8.GetBytes(Serialize(save));
+            if (bytes.Length > MaxBytes) throw new InvalidDataException("Save file is too large.");
+            Directory.CreateDirectory(directory);
+            var temporary = path + "." + Guid.NewGuid().ToString("N") + ".tmp";
+            try
+            {
+                using (var stream = new FileStream(temporary, FileMode.CreateNew, FileAccess.Write, FileShare.None))
+                {
+                    stream.Write(bytes);
+                    stream.Flush(true);
+                }
+                if (File.Exists(path)) File.Replace(temporary, path, path + ".bak");
+                else File.Move(temporary, path);
+            }
+            finally { if (File.Exists(temporary)) File.Delete(temporary); }
+        }
+
+        public static void Validate(SaveFile save)
+        {
+            void Require(bool condition, string field)
+            {
+                if (!condition) throw new InvalidDataException("Invalid save: " + field + ".");
+            }
+            Require(save?.BaseGameData?.Planets != null && save.BaseGameData.Stars != null, "world");
+            Require(save.Clock != null && double.IsFinite(save.Clock.NormalElapsed)
+                && save.Clock.NormalElapsed >= 0 && save.Clock.NormalElapsed < GameClock.NormalIntervalSeconds
+                && save.Clock.PendingIncrement is 0 or 1 or 100
+                && save.Clock.DateCentidays >= (ulong)save.Clock.PendingIncrement
+                && save.Clock.DateCentidays <= (ulong)uint.MaxValue * 100, "clock");
+            Require(save.EnemyBuildDay <= (ulong)uint.MaxValue * 100 + 1000, "enemy deadline");
+            Require(save.RefiningPhase is 0 or 1, "refining phase");
+            Require(double.IsFinite(save.SdmTimerRemainder) && save.SdmTimerRemainder >= 0 && save.SdmTimerRemainder < 1, "SDM timer phase");
+            var data = save.BaseGameData;
+            Require(data.Planets.TryGetValue(StellarBodies.earth, out var earthPlanet) && earthPlanet is Earth, "Earth");
+            Require(data.Planets.Keys.OrderBy(k => k).SequenceEqual(CoreData.StaticGameData.Planets.Keys.OrderBy(k => k))
+                && data.Stars.Keys.OrderBy(k => k).SequenceEqual(CoreData.StaticGameData.Stars.Keys.OrderBy(k => k)), "world locations");
+            Require(data.Stars.All(p => p.Value != null && p.Value.StarId == p.Key), "stars");
+            if (save.AlienTransmissions is { } transmissions)
+            {
+                Require(transmissions.EnemySystems >= 0 && transmissions.EnemySystems <= data.Stars.Count
+                    && transmissions.HyperlightSystems >= 0 && transmissions.HyperlightSystems <= data.Stars.Count
+                    && transmissions.HyperlightCountdown >= 0
+                    && transmissions.HyperlightCountdown <= (transmissions.HyperlightSystems == 6 ? 40 : transmissions.HyperlightSystems == 7 ? 8 : 0)
+                    && transmissions.ColonyEventCountdown >= 0 && transmissions.ColonyEventCountdown <= 79, "research discovery state");
+                Require(transmissions.AssignedStars != null && transmissions.PendingLocations != null, "alien transmission lists");
+                Require(transmissions.Stage >= -1 && transmissions.Stage <= 13
+                    && transmissions.LastStage >= -1 && transmissions.LastStage <= transmissions.Stage, "alien transmission stages");
+                var maximumDelay = transmissions.Stage switch { -1 => 0, 0 => 10, 1 or 2 => 250, 3 => 80, 4 => 200, _ => 2 };
+                Require(transmissions.Countdown >= 0 && transmissions.Countdown <= maximumDelay
+                    && (!transmissions.Ready || (transmissions.Stage >= 0 && transmissions.Countdown == 0)), "alien transmission countdown");
+                var locationStage = transmissions.Stage >= 5 && transmissions.Stage <= 12;
+                Require(!locationStage || (!transmissions.Ready && transmissions.Countdown == 0)
+                    || transmissions.PendingLocations.Count > 0, "scheduled artifact notice");
+                var lastLocationStage = transmissions.LastStage >= 5 && transmissions.LastStage <= 12;
+                Require(lastLocationStage ? data.Planets.TryGetValue(transmissions.LastLocation, out var lastLocation)
+                    && lastLocation != null && lastLocation.ParentStar != StellarBodies.the_sun
+                    : transmissions.LastLocation == StellarBodies.none, "replayed artifact location");
+                Require(transmissions.AssignedStars.Contains(StellarBodies.the_sun)
+                    && transmissions.AssignedStars.Distinct().Count() == transmissions.AssignedStars.Count
+                    && transmissions.AssignedStars.All(data.Stars.ContainsKey), "assigned artifact systems");
+                Require(transmissions.PendingLocations.All(location => data.Planets.TryGetValue(location, out var planet)
+                        && planet != null && planet.ParentStar != StellarBodies.the_sun
+                        && transmissions.AssignedStars.Contains(planet.ParentStar))
+                    && transmissions.PendingLocations.Select(location => data.Planets[location].ParentStar).Distinct().Count()
+                        == transmissions.PendingLocations.Count, "pending artifact locations");
+            }
+            Require(save.EnemyStarCursor >= 0 && save.EnemyStarCursor < data.Stars.Count, "enemy scheduling cursor");
+            Require(data.Planets.ContainsKey(save.CurrentPlanet), "current planet");
+            Require(save.GameConfig != null && save.News != null && save.Unlocks != null && save.Ships != null, "game state");
+            Require(save.News.PendingBulletins != null && save.News.PendingBulletins.All(b => b != BulletinTypes.None
+                && Enum.IsDefined(typeof(BulletinTypes), b))
+                && save.News.PendingBulletins.Distinct().Count() == save.News.PendingBulletins.Count, "pending bulletins");
+            Require(save.News.MiningDumpLocation == StellarBodies.none
+                ? save.News.MiningDumpResource == ItemTypes.none
+                    && !save.News.PendingBulletins.Contains(BulletinTypes.Mining_Dump)
+                : data.Planets.ContainsKey(save.News.MiningDumpLocation)
+                    && save.News.MiningDumpResource >= ItemTypes.iron && save.News.MiningDumpResource <= ItemTypes.carbon,
+                "mining dump bulletin");
+            Require(data.ItemList != null && data.ItemList.All(i => i != null)
+                && data.ItemList.Select(i => i.ItemType).Distinct().Count() == data.ItemList.Count, "items");
+            Require(data.PersonNames?.Count > 0 && save.NextPersonIndex >= 0 && save.NextPersonIndex <= data.PersonNames.Count, "staff names");
+            Require(data.ResourceRate_Per_Derrick != null && data.ResourceLevels_Survey_Multiplier != null, "mining rules");
+            Require(data.ResourceRate_Per_Derrick.Values.All(rate => rate >= 0 && rate <= 255)
+                && data.ResourceLevels_Survey_Multiplier.Values.All(multiplier => multiplier >= 1 && multiplier <= 255), "mining rule ranges");
+            void CheckStaff(Staff team)
+            {
+                Require(team == null || !team.Warlord || team.CanBeWarlord, "Warlord rank");
+            }
+            void CheckFactory(Factory factory)
+            {
+                Require(factory?.ProductionQueue != null && factory.ProductionQueue.All(p => p?.Product != null
+                    && data.ItemList.Contains(p.Product)), "factory queue");
+                Require(factory.ProductionQueue.Count(p => p.Active) <= 1, "active production");
+                CheckStaff(factory.Builder);
+            }
+            void CheckResource(Deuteros.Code.Platform.Resource resource)
+            {
+                Require(resource?.Staff?.Length == 4 && resource.Stores?.Items != null
+                    && resource.Stores.MTX?.SendItems != null && resource.Stores.MTX.BalanceItems != null, "inventory");
+                foreach (var team in resource.Staff) CheckStaff(team);
+                Require(resource.Stores.Items.All(pair => Enum.IsDefined(typeof(ItemTypes), pair.Key) && pair.Value >= 0), "stock quantities");
+            }
+            foreach (var pair in data.Planets)
+            {
+                var planet = pair.Value;
+                Require(planet != null && planet.PlanetId == pair.Key && data.Stars.ContainsKey(planet.ParentStar), "planet identity");
+                CheckResource(planet.PlanetResources);
+                Require(planet.PlanetResources.Materials != null && planet.PlanetResources.Materials.All(m => m != null
+                    && data.ResourceRate_Per_Derrick.ContainsKey(m.MaterialType)
+                    && data.ResourceLevels_Survey_Multiplier.ContainsKey(m.MaterialType)), "deposits");
+                Require(planet.PlanetResources.Derricks >= 0, "derrick count");
+                Require(planet.PlanetResources.Materials.All(m => m.GroundAmount >= 0 && m.GroundAmount <= 32767
+                    && m.SurveyTicks >= Material.KnownEmpty
+                    && m.SurveyTicks <= 7 * data.ResourceLevels_Survey_Multiplier[m.MaterialType]), "deposit state");
+                Require(planet.Station != null && planet.Station.PlanetId == pair.Key, "station identity");
+                Require(planet.Station.RefiningSlot >= -1 && planet.Station.RefiningSlot < 160, "refining slot");
+                Require(planet.Station.SdmCountdown >= 0 && planet.Station.SdmCountdown <= 255, "SDM countdown");
+                CheckResource(planet.Station.Resources);
+                CheckFactory(planet.Station.Factory);
+            }
+            foreach (var system in data.Planets.Values.GroupBy(p => p.ParentStar))
+            {
+                var slots = system.Where(p => p.Station.RefiningSlot >= 0).Select(p => p.Station.RefiningSlot).ToList();
+                Require(slots.All(i => i < Math.Max(FuelRefining.Capacity(system.Key), system.Count()))
+                    && slots.Distinct().Count() == slots.Count, "station refining allocation");
+            }
+            var earth = (Earth)earthPlanet;
+            Require(earth.TrainingData != null, "training");
+            CheckFactory(earth.Factory);
+            CheckStaff(earth.ResearchStaff);
+            Require(earth.CurrentResearchItem == null || data.ItemList.Any(i => ReferenceEquals(i.Research, earth.CurrentResearchItem)), "current research");
+            Require(save.Ships.All(s => s != null) && save.Ships.Select(s => s.ShipID).Distinct().Count() == save.Ships.Count, "ship identities");
+            foreach (var ship in save.Ships)
+            {
+                Require(ship is Shuttle || ship is IOS || ship is SCG, "ship type");
+                Require(data.Planets.ContainsKey(ship.PlanetLocation), "ship location");
+                Require(ship.DestinationPlanetLocation == StellarBodies.none || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "ship destination");
+                // Enemy fleets intentionally have no cargo modules/ACC in the current model.
+                if (ship is EnemyFleet) continue;
+                Require((ship is Shuttle && ship.ShipType == Ship_Types.Shuttle)
+                    || (ship is IOS && ship.ShipType == Ship_Types.IOS)
+                    || (ship is SCG && ship.ShipType == Ship_Types.SCG), "hull type");
+                Require(Enum.IsDefined(typeof(Ship_States), ship.ShipState), "ship state");
+                Require(ship is not InterStellarShip vessel || vessel.AutomationSlot >= -1, "ship automation slot");
+                Require(ship is not InterStellarShip miner || miner.AsteroidActionTicks is >= -1 and <= 4, "asteroid action countdown");
+                Require(ship is not InterStellarShip || ship.ShipState != Ship_States.InTransit
+                    || data.Planets.ContainsKey(ship.DestinationPlanetLocation), "in-flight destination");
+                Require(ship is not SCG { Flight: not null } scg || scg.Flight.IsValid(scg, save), "interstellar flight");
+                Require(ship.Modules != null && ship.Modules.All(m => m != null && m.ItemCount >= 0), "ship modules");
+                CheckStaff(ship.Pilot);
+                foreach (var module in ship.Modules) CheckStaff(module.StaffStored);
+                Require(ship.ACC == null || (ReferenceEquals(ship, ship.ACC.Ship) && ship.ACC.SourceItems != null && ship.ACC.DestinationItems != null), "ACC owner");
+                if (ship.ACC != null)
+                    Require(ship.ACC.CurrentSource >= ItemTypes.iron && ship.ACC.CurrentSource <= ItemTypes.hed_fuel
+                        && ship.ACC.CurrentDestination >= ItemTypes.iron && ship.ACC.CurrentDestination <= ItemTypes.hed_fuel, "ACC cycle cursor");
+            }
+            Require(save.RogueCrew != null, "rogue state");
+            save.RogueCrew.Validate(save);
+            foreach (var pool in save.Ships.OfType<InterStellarShip>().Where(s => s is not EnemyFleet)
+                .GroupBy(s => (s.ShipType, s is SCG ? StellarBodies.none : s.StarLocation)))
+            {
+                var slots = pool.Where(s => s.AutomationSlot >= 0).Select(s => s.AutomationSlot).ToList();
+                Require(slots.Distinct().Count() == slots.Count, "ship automation allocation");
+            }
+        }
+    }
+}

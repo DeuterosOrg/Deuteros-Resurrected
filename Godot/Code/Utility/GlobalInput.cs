@@ -34,7 +34,7 @@ namespace Deuteros.Code.Utility
             {
                 Texture = CursorTexture,
                 MouseFilter = Control.MouseFilterEnum.Ignore,
-                ZIndex = 999999
+                ZIndex = (int)RenderingServer.CanvasItemZMax
             };
             _cursor.StretchMode = TextureRect.StretchModeEnum.Keep;
             AddChild(_cursor);
@@ -72,6 +72,15 @@ namespace Deuteros.Code.Utility
         public void Unlock()
         {
             IsLocked = false;
+        }
+
+        public override void _Input(InputEvent @event)
+        {
+            // Confining the drawn cursor must also protect controls behind the panel.
+            // Keep releases and right-click dismissal available.
+            if (IsLocked && @event is InputEventMouseButton mouse && mouse.Pressed
+                && mouse.ButtonIndex != MouseButton.Right && !LockRect.HasPoint(mouse.Position))
+                GetViewport().SetInputAsHandled();
         }
 
         private static Vector2 ClampToRect(Vector2 p, Rect2 r)

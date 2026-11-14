@@ -1,0 +1,669 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Deuteros.Code;
+using Deuteros.Code.Objects;
+using Deuteros.Code.Objects.ModuleTextFrame;
+using Deuteros.Code.Platform.Helpers;
+using Deuteros.Code.Platform.Screens;
+using Deuteros.Code.Utility;
+using Godot;
+using static Deuteros.Code.Enums;
+using GrapplePanel = Deuteros.Code.Platform.Screens.ModuleScenes.Grapple;
+
+namespace Deuteros.Tests
+{
+    public partial class RegressionRunner
+    {
+        public async Task RunUnknownObjectRegressions()
+        {
+            foreach (var type in new[] { UnknownItemTypes.AlienArtifact, UnknownItemTypes.CommsPod, UnknownItemTypes.Blazer })
+                await CheckAsync($"Captured {type} unloads once into its research programme", () => UnknownObjectResearch(type));
+            foreach (var type in new[] { UnknownItemTypes.CommsPod, UnknownItemTypes.Blazer })
+                CheckUi($"Capturing {type} preserves the system's unrelated artifact", () => GiftCapturePreservesArtifact(type));
+            CheckUi("An occupied grapple preserves both its cargo and the scanned object", OccupiedGrapplePreservesCargo);
+            CheckUi("Two ships cannot capture the same orbital artifact", ArtifactCapturedOnce);
+            foreach (var crew in new[] { "missing", "empty", "unqualified" })
+                CheckUi($"Grapple rejects {crew} crew without consuming the object", () => GrappleRequiresCaptain(crew));
+            CheckUi("A grapple accepts 250 tonnes and consumes that asteroid scan", () => AsteroidCaptureLimit(250));
+            CheckUi("A grapple rejects a 251 tonne asteroid without erasing an artifact", () => AsteroidCaptureLimit(251));
+            foreach (var spare in new[] { false, true })
+                await CheckAsync($"Methanoid comms gift preserves occupied grapple with spare={spare}", () => CommsGiftPreservesCargo(spare));
+            await CheckAsync("Researching the recovered fusion laser unlocks the drone programme once", FusionLaserResearchFollowup);
+            await CheckAsync("A Methanoid comms gift can be analysed researched built fitted and traded without unlock cheats", CommsGiftToTrade);
+            CheckUi("Repeated comms discoveries record the unlock once", RepeatedCommsDiscovery);
+            await CheckAsync("Research opens and selects a project without orphan controls", ResearchControlLifetime);
+            await CheckAsync("War warning grants a fusion prototype that normal analysis and research turn into drone technology", FusionGiftToDroneResearch);
+        }
+
+        private async Task ResearchControlLifetime()
+        {
+            InitializeUi();
+            var orphanCount = Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount);
+            var panel = OpenUi<Research>("res://Screens/Earth/Research.tscn", new List<SceneVariables> { SceneVariables.Ground });
+            try
+            {
+                Equal(orphanCount, Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount), "opening research creates no detached placeholder button");
+                var button = panel.Buttons.First(b => b.ObjectData != null && !b.ObjectData.Locked);
+                button.EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(button, panel.SelectedButton, "first selection uses the visible research control");
+            }
+            finally { panel.Free(); }
+            Equal(orphanCount, Performance.GetMonitor(Performance.Monitor.ObjectOrphanNodeCount), "closing research leaves no orphan controls");
+            await DrainStoppedAudio();
+        }
+
+        private IOS UnknownObjectShip()
+        {
+            var ship = NavigationShip();
+            ship.ShipState = Ship_States.UnDocked;
+            ship.Pilot = new Staff { Type = StaffType.Marines, Leader = "Salvage", Count = 10 };
+            ship.Pilot.AddAction(10);
+            foreach (var module in ship.Modules)
+            {
+                module.ModuleType = Module_Types.Tool;
+                module.ItemStored = ItemTypes.grapple;
+                module.ItemCount = 1;
+            }
+            Save.CurrentPlanet = StellarBodies.earth;
+            Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation = StellarBodies.earth;
+            Save.Ships.Add(ship);
+            return ship;
+        }
+
+        private void CaptureScannedObject(IOS ship, int module = 0)
+        {
+            var grapple = OpenUi<GrapplePanel>("res://PreFabs/ShipModuleWindows/Grapple.tscn");
+            try
+            {
+                grapple.Load(ship, ship.Modules[module]);
+                Press(grapple, "Enabled/Buttons/Grab");
+            }
+            finally { grapple.Free(); }
+        }
+
+        private async Task UnknownObjectResearch(UnknownItemTypes type)
+        {
+            InitializeUi();
+            var ship = UnknownObjectShip();
+            var item = type == UnknownItemTypes.AlienArtifact ? ItemTypes.alien_artifact
+                : type == UnknownItemTypes.CommsPod ? ItemTypes.commspod : ItemTypes.m__f__l;
+            var research = GameCore.SingletonInstance.GameData.GetItem(item).Research;
+            Equal(true, research.Locked, "research starts unavailable");
+            var found = type == UnknownItemTypes.AlienArtifact ? UnknownItem.ScanForItems(ship) : new UnknownItem(type);
+            ship.ItemScanResults = found;
+            CaptureScannedObject(ship);
+            Equal(found, ship.Modules[0].HeldItem, "captured object retained");
+            Equal<GrappleItem>(null, ship.ItemScanResults, "scan consumed");
+            Equal(true, research.Locked, "capture alone does not analyse the object");
+            if (type == UnknownItemTypes.AlienArtifact)
+            {
+                Equal(StellarBodies.none, Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "artifact removed from orbit once");
+                Equal<UnknownItem>(null, UnknownItem.ScanForItems(ship), "captured artifact cannot be scanned again");
+            }
+
+            ship.ShipState = Ship_States.Docked;
+            var tweens = GetTree().GetProcessedTweens().ToHashSet();
+            var bay = OpenEquippedBay(ship);
+            var window = bay.GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier");
+            try
+            {
+                Press(bay, "Buttons/ShipNav/Nav_Torso1");
+                Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso1/SpriteHolder/Buttons/ActivatePod");
+                Equal(true, window.IsVisibleInTree(), "analysis window opens");
+                await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
+                Equal<GrappleItem>(null, ship.Modules[0].HeldItem, "object removed for analysis");
+                Equal(false, research.Locked, "correct research programme unlocked");
+                Equal(false, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "analysis releases input");
+                if (type == UnknownItemTypes.AlienArtifact)
+                    Equal(12, research.ResearchPercentageComplete, "first artifact directly completes twelve percent");
+                if (type == UnknownItemTypes.CommsPod)
+                    Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.CommsPod), "comms unlock recorded once");
+                if (type == UnknownItemTypes.Blazer)
+                    Equal(true, GameCore.SingletonInstance.GameData.GetItem(ItemTypes.pulse_blaster_laser).Research.Locked, "distinct pulse weapon remains locked");
+                // A delayed duplicate close must not repeat the research reward or crash.
+                GameCore.LockScreen();
+                window.Closed(window.DataObject);
+                Equal(true, GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "duplicate close cannot release a newer input lock");
+                GameCore.UnLockScreen();
+                if (type == UnknownItemTypes.AlienArtifact)
+                    Equal(12, research.ResearchPercentageComplete, "repeat close cannot duplicate artifact credit");
+            }
+            finally
+            {
+                GameCore.UnLockScreen();
+                CloseDismantleBay(bay, tweens);
+            }
+        }
+
+        private void ArtifactDeliveryCompletion()
+        {
+            var core = GameCore.SingletonInstance;
+            var item = core.GameData.GetItem(ItemTypes.alien_artifact);
+            var research = item.Research;
+            var finished = 0;
+            void OnFinished(ResearchItem value) { if (value == research) finished++; }
+            core.ResearchFinished += OnFinished;
+            try
+            {
+                Equal(0, research.ResearchPercentageComplete, "new device has no recovered segments");
+                GameCore.Earth.CurrentResearchItem = research;
+                GameCore.Earth.ResearchStaff = new Staff { Count = 200, Leader = "Research", Type = StaffType.Research };
+                GameCore.Earth.ResearchStaff.AddAction(8);
+                var actionsProperty = typeof(Staff).GetProperty("ActionsTaken", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance);
+                var actions = (int)actionsProperty.GetValue(GameCore.Earth.ResearchStaff);
+                for (var segment = 1; segment <= 9; segment++)
+                {
+                    var expected = segment < 8 ? segment * 12 : 100;
+                    var scientists = GameCore.Earth.ResearchStaff;
+                    GameCore.Earth.ResearchStaff = null;
+                    core.TriggerAlienTechDiscovery(ItemTypes.alien_artifact);
+                    GameCore.Earth.ResearchStaff = scientists;
+                    Equal(expected, research.ResearchPercentageComplete, "completion after segment " + segment);
+                    Equal(expected, research.ResearchLimit, "saved delivery credit " + segment);
+                    Equal(segment >= 8, research.Researched, "completion gate " + segment);
+                    Equal(segment < 8, item.Locked, "item availability " + segment);
+                    if (segment == 1)
+                    {
+                        var staff = GameCore.Earth.ResearchStaff;
+                        GameCore.Earth.ResearchStaff = null;
+                        var screen = OpenUi<Research>("res://Screens/Earth/Research.tscn", new List<SceneVariables> { SceneVariables.Ground });
+                        try
+                        {
+                            Equal("Project is\n12% complete", screen.GetNode<Label>("Labels/InProgress/ProjectCompletionLabel").Text, "recovered progress visible without scientists");
+                            Equal("", screen.GetNode<Label>("Labels/InProgress/TeamWorkingLabel").Text, "no fictional scientist requirement");
+                        }
+                        finally { screen.Free(); GameCore.Earth.ResearchStaff = staff; }
+                    }
+                    var value = research.ResearchValue;
+                    for (var day = 0; day < 10; day++) Research.UpdateResearch(0, 1);
+                    Equal(expected, research.ResearchPercentageComplete, "scientists cannot create a segment");
+                    Equal(value, research.ResearchValue, "artifact does not consume scientist work");
+                    var loaded = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    var restored = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact).Research;
+                    Equal(expected, restored.ResearchPercentageComplete, "saved recovered segments");
+                    Equal(true, ReferenceEquals(((Earth)loaded.BaseGameData.Planets[StellarBodies.earth]).CurrentResearchItem, restored), "canonical research reference");
+                }
+                Equal(1, finished, "completion announced once despite ninth legacy segment");
+                Equal(actions, (int)actionsProperty.GetValue(GameCore.Earth.ResearchStaff), "no scientist promotion credit");
+            }
+            finally { core.ResearchFinished -= OnFinished; }
+        }
+
+        private void ArtifactDeliveryLegacySaves()
+        {
+            var ship = UnknownObjectShip();
+            ship.Modules[0].HeldItem = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            var baseline = SaveStorage.Serialize(Save);
+            for (var delivered = 0; delivered <= 9; delivered++)
+            {
+                var legacy = SaveStorage.Deserialize(baseline);
+                var item = legacy.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                item.Research.ResearchLimit = delivered * 11;
+                item.Research.ResearchPercentageComplete = delivered == 0 ? 1 : 7;
+                item.Research.Locked = delivered == 0;
+                var original = SaveStorage.Serialize(legacy);
+                var loaded = SaveStorage.Deserialize(original);
+                var recovered = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                var expected = delivered < 8 ? delivered * 12 : 100;
+                Equal(expected, recovered.Research.ResearchPercentageComplete, "legacy delivered count " + delivered);
+                Equal(expected, recovered.Research.ResearchLimit, "converted credit " + delivered);
+                Equal(delivered >= 8, recovered.Research.Researched, "legacy completion " + delivered);
+                Equal(delivered < 8, recovered.Locked, "legacy item lock " + delivered);
+                Equal(original, SaveStorage.Serialize(legacy), "input object preserved");
+                Equal(true, loaded.Ships.Single(s => s.ShipID == ship.ShipID).Modules[0].HeldItem is UnknownItem, "held artifact preserved");
+                Equal(StellarBodies.earth, loaded.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "legacy location preserved");
+                var once = SaveStorage.Serialize(loaded);
+                Equal(once, SaveStorage.Serialize(SaveStorage.Deserialize(once)), "conversion is idempotent");
+            }
+            foreach (var state in new[] { (0, 7, false), (11, 90, false), (22, -1, false), (42, 17, false), (55, 100, true) })
+            {
+                var edited = SaveStorage.Deserialize(baseline);
+                var item = edited.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+                item.Research.ResearchLimit = state.Item1;
+                item.Research.ResearchPercentageComplete = state.Item2;
+                item.Research.Researched = state.Item3;
+                var original = SaveStorage.Serialize(edited);
+                Equal(original, SaveStorage.Serialize(SaveStorage.Deserialize(original)), "nonstandard/completed state preserved");
+            }
+        }
+
+        private async Task ArtifactManufacture(bool automated, bool ground)
+        {
+            InitializeUi();
+            DisableFuelRefining();
+            var core = GameCore.SingletonInstance;
+            for (var i = 0; i < 8; i++) core.TriggerAlienTechDiscovery(ItemTypes.alien_artifact);
+            var item = core.GameData.GetItem(ItemTypes.alien_artifact);
+            Equal(true, item.BuildRequirements != null, "completed device has a manufacturing recipe");
+            Equal(0, item.BuildRequirements.Count, "original recipe consumes no materials");
+            Equal(true, item.OrbitOnly, "original factory mode is orbital");
+            Equal(2000, item.Mass, "original device mass");
+            GameCore.Earth.Station.Built = true;
+            GameCore.Earth.Station.BuildParts = 8;
+            var factory = ground ? GameCore.Earth.Factory : GameCore.Earth.Station.Factory;
+            factory.Ground = ground;
+            factory.AOC = automated;
+            factory.Builder = automated ? null : new Staff { Type = StaffType.Production, Count = 200, Leader = "Builder" };
+            var store = ground ? GameCore.Earth.PlanetResources.Stores : GameCore.Earth.Station.Resources.Stores;
+            foreach (var key in store.Items.Keys.ToArray()) store[key] = 0;
+            var screen = OpenMtxProduction(ground);
+            try
+            {
+                var button = screen.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.alien_artifact);
+                button.EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(ground ? 0 : 1, factory.ProductionQueue.Count, "factory eligibility enforced by real order control");
+                if (!ground)
+                {
+                    ProductionDays(1);
+                    Equal(0, store[ItemTypes.alien_artifact], "device needs production time");
+                    screen.DrawData();
+                    await InputFrames();
+                    await CaptureDisplayEvidence("artifact-manufacture-" + automated);
+                    var restored = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    var queue = restored.BaseGameData.Planets[StellarBodies.earth].Station.Factory.ProductionQueue;
+                    Equal(1, queue.Count, "in-progress manufacture survives serialization");
+                    Equal(true, ReferenceEquals(queue[0].Product, restored.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact)), "saved queue retains canonical device");
+                    core.GameData.ActiveSaveFile = restored;
+                    factory = GameCore.Earth.Station.Factory;
+                    store = GameCore.Earth.Station.Resources.Stores;
+                    ProductionDays(50);
+                    Equal(1, store[ItemTypes.alien_artifact], "manufacture yields one device");
+                    Equal(0, factory.ProductionQueue.Count, "one-time order completes");
+                }
+                else
+                {
+                    // A stale paid order must not bypass the ground restriction on its next tick.
+                    factory.ProductionQueue.Add(new ProductionItem(item) { Active = true, Production_Complete = 4, AOCOneTime = automated });
+                    core.GameData.ActiveSaveFile = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+                    factory = GameCore.Earth.Factory;
+                    store = GameCore.Earth.PlanetResources.Stores;
+                    ProductionDays(1);
+                    Equal(0, store[ItemTypes.alien_artifact], "legacy paid ground order cannot complete");
+                }
+                Equal(true, store.Items.Where(p => p.Key != ItemTypes.alien_artifact).All(p => p.Value == 0), "no fictional materials or stock credits");
+            }
+            finally { screen.Free(); }
+            if (!ground)
+            {
+                var stores = OpenMtxStores();
+                try
+                {
+                    stores.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.alien_artifact).EmitSignal(BaseButton.SignalName.Pressed);
+                    Equal("No materials required", stores.BuildAmountLabel.Text, "empty recipe is not displayed as zero buildable items");
+                    await InputFrames();
+                    await CaptureDisplayEvidence("artifact-recipe-" + automated);
+                }
+                finally { stores.Free(); }
+            }
+        }
+
+        private void ArtifactManufactureLegacySave()
+        {
+            var legacy = SaveStorage.Deserialize(SaveStorage.Serialize(Save));
+            var item = legacy.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+            item.FullName = "";
+            item.ShortName = null;
+            item.BuildRequirements = null;
+            item.OrbitOnly = false;
+            item.Research.Researched = true;
+            item.Research.ResearchPercentageComplete = item.Research.ResearchLimit = 100;
+            item.Research.ResearchOrder = 2;
+            item.Locked = false;
+            var loaded = SaveStorage.Deserialize(SaveStorage.Serialize(legacy));
+            var recovered = loaded.BaseGameData.ItemList.Single(i => i.ItemType == ItemTypes.alien_artifact);
+            Equal("Unknown", recovered.FullName, "original device name restored");
+            Equal("Unknown", recovered.ShortName, "stock label restored");
+            Equal(true, recovered.BuildRequirements != null && recovered.BuildRequirements.Count == 0, "missing legacy device recipe restored");
+            Equal(true, recovered.OrbitOnly, "legacy orbital manufacture gate restored");
+            Equal(100, recovered.Research.ResearchPercentageComplete, "completed progress preserved");
+            Equal(2, recovered.Research.ResearchOrder, "existing research order preserved");
+            Equal<List<BuildRequirement>>(null, item.BuildRequirements, "input save object untouched");
+        }
+
+        private void GiftCapturePreservesArtifact(UnknownItemTypes type)
+        {
+            var ship = UnknownObjectShip();
+            Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation = StellarBodies.the_moon;
+            var gift = new UnknownItem(type);
+            ship.ItemScanResults = gift;
+            CaptureScannedObject(ship);
+            Equal(gift, ship.Modules[0].HeldItem, "gift captured");
+            Equal(StellarBodies.the_moon, Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "unrelated artifact remains in orbit");
+        }
+
+        private void OccupiedGrapplePreservesCargo()
+        {
+            var ship = UnknownObjectShip();
+            var held = new UnknownItem(UnknownItemTypes.CommsPod);
+            var scanned = UnknownItem.ScanForItems(ship);
+            ship.Modules[0].HeldItem = held;
+            ship.ItemScanResults = scanned;
+            CaptureScannedObject(ship);
+            Equal(held, ship.Modules[0].HeldItem, "existing cargo preserved");
+            Equal(scanned, ship.ItemScanResults, "uncollected scan preserved");
+            Equal(StellarBodies.earth, Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "uncollected artifact remains");
+        }
+
+        private void AsteroidCaptureLimit(int mass)
+        {
+            var ship = UnknownObjectShip();
+            var asteroid = new Asteroid { GrappleItemType = GrappleItemTypes.Asteroid, Type = ItemTypes.iron, Mass = mass, MassName = "Small" };
+            ship.ItemScanResults = asteroid;
+            CaptureScannedObject(ship);
+            Equal<GrappleItem>(mass <= 250 ? asteroid : null, ship.Modules[0].HeldItem, "grapple capacity respected");
+            Equal<GrappleItem>(mass <= 250 ? null : asteroid, ship.ItemScanResults, "only captured scan consumed");
+            Equal(StellarBodies.earth, Save.BaseGameData.Stars[StellarBodies.the_sun].ArtifactLocation, "asteroid does not remove alien artifact");
+        }
+
+        private void ArtifactCapturedOnce()
+        {
+            var first = UnknownObjectShip();
+            var second = UnknownObjectShip();
+            first.ItemScanResults = UnknownItem.ScanForItems(first);
+            second.ItemScanResults = UnknownItem.ScanForItems(second);
+            CaptureScannedObject(first);
+            CaptureScannedObject(second);
+            Equal(true, first.Modules[0].HeldItem is UnknownItem, "first ship captures the artifact");
+            Equal<GrappleItem>(null, second.Modules[0].HeldItem, "stale scan cannot duplicate the artifact");
+        }
+
+        private void GrappleRequiresCaptain(string crew)
+        {
+            var ship = UnknownObjectShip();
+            if (crew == "missing") ship.Pilot = null;
+            else if (crew == "empty") ship.Pilot.Count = 0;
+            else ship.Pilot = new Staff { Type = StaffType.Marines, Count = 10 };
+            var found = UnknownItem.ScanForItems(ship);
+            ship.ItemScanResults = found;
+            var grapple = OpenUi<GrapplePanel>("res://PreFabs/ShipModuleWindows/Grapple.tscn");
+            try
+            {
+                grapple.Load(ship, ship.Modules[0]);
+                var disabled = grapple.GetNode<Control>("Disabled").Visible;
+                // Even a queued activation must recheck current crew capability.
+                Press(grapple, "Enabled/Buttons/Grab");
+                Equal<GrappleItem>(null, ship.Modules[0].HeldItem, "unqualified capture rejected");
+                Equal(found, ship.ItemScanResults, "object remains available");
+                Equal(true, disabled, "grapple controls unavailable");
+            }
+            finally { grapple.Free(); }
+        }
+
+        private async Task CommsGiftPreservesCargo(bool spare)
+        {
+            InitializeUi();
+            var ship = UnknownObjectShip();
+            ship.ShipState = Ship_States.Docked;
+            ship.Engine = true;
+            Save.Ships.Clear();
+            Save.Ships.Add(ship);
+            GameCore.SingletonInstance.ShipSelected = ship.ShipID;
+            GameCore.Earth.ActiveMethanoid = true;
+            GameCore.Earth.Station.Built = true;
+            var cargo = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            ship.Modules[0].HeldItem = cargo;
+            ship.Modules[2].ItemStored = ItemTypes.none;
+            if (!spare) ship.Modules[1].HeldItem = new Asteroid { GrappleItemType = GrappleItemTypes.Asteroid, Type = ItemTypes.iron, Mass = 100, MassName = "Small" };
+            var otherCargo = ship.Modules[1].HeldItem;
+            var messages = new[] { ModuleFrameText.Methanoid_Intro_With_Grapple, ModuleFrameText.Methanoid_Intro }
+                .Select(key => Save.BaseGameData.ModuleFrameTexts[key]).ToArray();
+            var originalLines = messages.Select(frame => frame.Lines).ToArray();
+            try
+            {
+                foreach (var frame in messages) frame.Lines = new List<Line>();
+                GameCore.SingletonInstance.ShipSelected = ship.ShipID;
+                GameCore.SingletonInstance.ChangeScene(Scenes.ShipInterior, new List<SceneVariables>());
+                await InputFrames();
+                Press(ActiveScreen<ShipInterior>(), "Modules/00");
+                await InputFrames();
+                Equal(cargo, ship.Modules[0].HeldItem, "gift never replaces carried artifact");
+                if (spare)
+                    Equal(UnknownItemTypes.CommsPod, ((UnknownItem)ship.Modules[1].HeldItem).ItemType, "gift uses empty grapple");
+                else
+                {
+                    Equal(otherCargo, ship.Modules[1].HeldItem, "all cargo retained when no space");
+                    Equal(false, ship.Modules.Any(m => m.HeldItem is UnknownItem u && u.ItemType == UnknownItemTypes.CommsPod), "gift waits for room");
+                }
+            }
+            finally
+            {
+                for (int i = 0; i < messages.Length; i++) messages[i].Lines = originalLines[i];
+                GameCore.Earth.ActiveMethanoid = false;
+            }
+        }
+
+        private async Task FusionLaserResearchFollowup()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            var research = core.GameData.GetItem(ItemTypes.m__f__l).Research;
+            research.Researched = true;
+            var text = Save.BaseGameData.BulletinTexts[BulletinTypes.Methanoid_Laser];
+            var originalText = text.BulletinText;
+            try
+            {
+                text.BulletinText = "Recovered fusion laser analysed.";
+                core.TriggerResearchFinished(research);
+                var bulletin = ActiveScreen<Bulletins>();
+                await FinishBulletin(bulletin);
+                Equal(false, core.GameData.GetItem(ItemTypes.d__f__c__c).Research.Locked, "fusion laser research unlocks drone computer");
+                Equal(false, core.GameData.GetItem(ItemTypes.ios_drone).Research.Locked, "fusion laser research unlocks drones");
+                core.TriggerResearchFinished(research);
+                Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.D_F_C_C), "repeat research event does not duplicate unlock");
+                Equal(bulletin, ActiveScreen<Bulletins>(), "repeat event does not reopen bulletin");
+                Equal(false, core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked, "repeat event does not restart typing");
+            }
+            finally { text.BulletinText = originalText; }
+        }
+
+        private void RepeatedCommsDiscovery()
+        {
+            GameCore.SingletonInstance.TriggerAlienTechDiscovery(ItemTypes.commspod);
+            GameCore.SingletonInstance.TriggerAlienTechDiscovery(ItemTypes.commspod);
+            Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.CommsPod), "one persistent comms unlock");
+            Equal(false, GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod).Research.Locked, "comms research available");
+        }
+
+        private async Task CommsGiftToTrade()
+        {
+            // Real Methanoid interaction grants into the spare grapple without replacing its neighbour.
+            await CommsGiftPreservesCargo(true);
+            GD.Print("COMMS PHASE: gift acquired");
+            var ship = (IOS)Save.Ships.Single();
+            // The starting ship already carries manufactured grapples; record that prerequisite.
+            // Comms discovery, research and production below still use the normal game path.
+            GameCore.SingletonInstance.GameData.GetItem(ItemTypes.grapple).Research.Researched = true;
+            var artifact = ship.Modules[0].HeldItem;
+            var comms = GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod);
+            Equal(true, comms.Locked && comms.Research.Locked, "gift has not bypassed research");
+            ship.ShipState = Ship_States.Docked;
+            var tweens = GetTree().GetProcessedTweens().ToHashSet();
+            var bay = OpenEquippedBay(ship);
+            try
+            {
+                Press(bay, "Buttons/ShipNav/Nav_Torso2");
+                Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso2/SpriteHolder/Buttons/ActivatePod");
+                await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
+                Equal<GrappleItem>(null, ship.Modules[1].HeldItem, "physical gift removed for analysis");
+                Equal(false, comms.Research.Locked, "analysis exposes research");
+                Equal(true, comms.Locked, "analysis does not permit immediate production");
+            }
+            finally { CloseDismantleBay(bay, tweens); }
+            GD.Print("COMMS PHASE: gift analysed");
+
+            GameCore.Earth.ResearchStaff = new Staff { Type = StaffType.Research, Leader = "Science", Count = 200 };
+            GameCore.Earth.ResearchStaff.AddAction(9);
+            var researchScene = GD.Load<PackedScene>("res://Screens/Earth/Research.tscn");
+            GD.Print("COMMS PHASE: research scene loaded");
+            var researchPanel = researchScene.Instantiate<Research>();
+            GD.Print("COMMS PHASE: research scene instantiated");
+            researchPanel.SceneVariables = new List<SceneVariables> { SceneVariables.Ground };
+            AddChild(researchPanel);
+            GD.Print("COMMS PHASE: research screen opened");
+            try
+            {
+                researchPanel.Buttons.Single(button => button.ObjectData?.ItemType == ItemTypes.commspod)
+                    .EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(comms.Research, GameCore.Earth.CurrentResearchItem, "real research control selects recovered technology");
+                GD.Print("COMMS PHASE: research selected");
+                for (uint day = 1; day <= 100 && !comms.Research.Researched; day++)
+                    Research.UpdateResearch(day - 1, day);
+                Equal(100, comms.Research.ResearchPercentageComplete, "normal research reaches completion");
+                Equal(false, comms.Locked, "completed research unlocks manufacturing");
+            }
+            finally { researchPanel.Free(); }
+            GD.Print("COMMS PHASE: research complete");
+
+            var factory = GameCore.Earth.Station.Factory;
+            factory.Builder = new Staff { Type = StaffType.Production, Leader = "Factory", Count = 200 };
+            factory.Builder.AddAction(12);
+            var stores = GameCore.Earth.Station.Resources.Stores;
+            stores.Items.Clear();
+            stores[ItemTypes.aluminium] = 2;
+            stores[ItemTypes.carbon] = stores[ItemTypes.copper] = stores[ItemTypes.gold] = 1;
+            var production = GD.Load<PackedScene>("res://Screens/Production.tscn").Instantiate<Production>();
+            production.SceneVariables = new List<SceneVariables> { SceneVariables.Orbit };
+            production.GetNode("SoundController").Free();
+            AddChild(production);
+            GD.Print("COMMS PHASE: production screen opened");
+            try
+            {
+                production.Buttons.Single(button => button.ObjectData?.ItemType == ItemTypes.commspod)
+                    .EmitSignal(BaseButton.SignalName.Pressed);
+                Equal(ItemTypes.commspod, factory.CurrentProductionItem()?.Product.ItemType ?? ItemTypes.none, "real production control starts comms pod");
+                foreach (var mineral in new[] { ItemTypes.aluminium, ItemTypes.carbon, ItemTypes.copper, ItemTypes.gold })
+                    Equal(0, stores[mineral], "exact recipe material charged: " + mineral);
+                for (uint day = 1; day <= 100 && stores[ItemTypes.commspod] == 0; day++)
+                    Production.UpdateProduction(day - 1, day);
+                Equal(1, stores[ItemTypes.commspod], "one manufactured pod in orbital stores");
+            }
+            finally { production.Free(); }
+            GD.Print("COMMS PHASE: production complete");
+
+            tweens = GetTree().GetProcessedTweens().ToHashSet();
+            bay = OpenEquippedBay(ship);
+            try
+            {
+                Press(bay, "Buttons/ShipNav/Nav_Torso2");
+                Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso2/SpriteHolder/Buttons/ActivatePod");
+                PressEquipmentNamed(bay, comms.ShortName);
+                Equal(ItemTypes.commspod, ship.Modules[1].ItemStored, "manufactured pod fitted through equipment control");
+                Equal(0, stores[ItemTypes.commspod], "fitting consumes stock");
+            }
+            finally
+            {
+                GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").Unlock();
+                CloseDismantleBay(bay, tweens);
+            }
+
+            ship.Modules[2].ModuleType = Module_Types.Supply;
+            GD.Print("COMMS PHASE: pod fitted");
+            ship.Modules[2].ItemStored = ItemTypes.iron;
+            ship.Modules[2].ItemCount = 123;
+            GameCore.Earth.ActiveMethanoid = true;
+            var messages = new[] { ModuleFrameText.Methanoid_TradeQuestion, ModuleFrameText.Methanoid_Trade1 }
+                .Select(key => Save.BaseGameData.ModuleFrameTexts[key]).ToArray();
+            var originalLines = messages.Select(frame => frame.Lines).ToArray();
+            try
+            {
+                foreach (var frame in messages) frame.Lines = new List<Line>();
+                GameCore.SingletonInstance.ShipSelected = ship.ShipID;
+                GameCore.SingletonInstance.ChangeScene(Scenes.ShipInterior, new List<SceneVariables>());
+                await InputFrames();
+                Press(ActiveScreen<ShipInterior>(), "Modules/01");
+                GD.Print("COMMS PHASE: trade activated");
+                await InputFrames();
+                var trade = OverlayManager.Instance.GetNode<Control>("GlobalOverlay/GameArea/Center/TradeDecision");
+                Press(trade, "Accept");
+                await InputFrames();
+                Equal(1, Save.MethanoidTradeCount, "first real trade interaction recorded");
+                Equal(ItemTypes.silica, ship.Modules[2].ItemStored, "trade exchanges offered iron");
+                Equal(123, ship.Modules[2].ItemCount, "trade preserves cargo quantity");
+                Equal(ItemTypes.commspod, ship.Modules[1].ItemStored, "comms equipment remains fitted");
+                Equal(artifact, ship.Modules[0].HeldItem, "unrelated artifact preserved throughout full flow");
+                Equal(false, GameCore.SingletonInstance.InfiniteResources, "no infinite resource mode used");
+            }
+            finally
+            {
+                for (int i = 0; i < messages.Length; i++) messages[i].Lines = originalLines[i];
+                GameCore.Earth.ActiveMethanoid = false;
+            }
+        }
+
+        private async Task FusionGiftToDroneResearch()
+        {
+            InitializeUi();
+            var core = GameCore.SingletonInstance;
+            var ship = UnknownObjectShip();
+            ship.ShipState = Ship_States.Docked;
+            ship.Engine = true;
+            ship.Modules[1].ItemStored = ItemTypes.commspod;
+            var cargo = new UnknownItem(UnknownItemTypes.AlienArtifact);
+            ship.Modules[0].HeldItem = cargo;
+            Save.Ships.Clear();
+            Save.Ships.Add(ship);
+            // Start at the existing war threshold; travel and the prior trades are fixture setup.
+            Save.MethanoidTradeCount = 16;
+            Save.CurrentDay = 100;
+            GameCore.Earth.ActiveMethanoid = true;
+            GameCore.Earth.Station.Built = true;
+            var warning = Save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Methanoid_War_Warning];
+            var warningLines = warning.Lines;
+            var bulletin = Save.BaseGameData.BulletinTexts[BulletinTypes.Methanoid_Laser];
+            var bulletinText = bulletin.BulletinText;
+            try
+            {
+                warning.Lines = new List<Line>();
+                bulletin.BulletinText = "Fusion laser analysed.";
+                core.ShipSelected = ship.ShipID;
+                core.ChangeScene(Scenes.ShipInterior, new List<SceneVariables>());
+                await InputFrames();
+                Press(ActiveScreen<ShipInterior>(), "Modules/01");
+                await InputFrames();
+                Equal(true, Save.AtWar, "real interaction declares war");
+                Equal(Save.CurrentDay, Save.WarDeclaredDay, "war declaration records current day");
+                Equal(UnknownItemTypes.Blazer, ((UnknownItem)ship.Modules[1].HeldItem).ItemType, "war warning supplies the physical prototype");
+                Equal(cargo, ship.Modules[0].HeldItem, "war gift preserves neighbouring artifact");
+                var research = core.GameData.GetItem(ItemTypes.m__f__l).Research;
+                Equal(true, research.Locked, "gift awaits analysis");
+                GameCore.Earth.ActiveMethanoid = false;
+                // Stage the return to a friendly dock after the trade interaction's takeoff.
+                ship.ShipState = Ship_States.Docked;
+                var tweens = GetTree().GetProcessedTweens().ToHashSet();
+                var bay = OpenEquippedBay(ship);
+                try
+                {
+                    Press(bay, "Buttons/ShipNav/Nav_Torso2");
+                    Press(bay, "ShipContainer/ScrollContainer2/HBoxContainer/Torso2/SpriteHolder/Buttons/ActivatePod");
+                    await ToSignal(GetTree().CreateTimer(5.1), SceneTreeTimer.SignalName.Timeout);
+                    Equal<GrappleItem>(null, ship.Modules[1].HeldItem, "prototype physically unloaded");
+                    Equal(false, research.Locked, "analysis exposes fusion research");
+                }
+                finally { CloseDismantleBay(bay, tweens); }
+
+                GameCore.Earth.ResearchStaff = new Staff { Type = StaffType.Research, Leader = "Science", Count = 200 };
+                GameCore.Earth.ResearchStaff.AddAction(9);
+                var panel = OpenUi<Research>("res://Screens/Earth/Research.tscn", new List<SceneVariables> { SceneVariables.Ground });
+                try
+                {
+                    panel.Buttons.Single(b => b.ObjectData?.ItemType == ItemTypes.m__f__l).EmitSignal(BaseButton.SignalName.Pressed);
+                    for (uint day = 1; day <= 100 && !research.Researched; day++)
+                        Research.UpdateResearch(day - 1, day);
+                    Equal(true, research.Researched, "normal research completes the recovered prototype");
+                }
+                finally { panel.Free(); }
+                await FinishBulletin(ActiveScreen<Bulletins>());
+                Equal(false, core.GameData.GetItem(ItemTypes.d__f__c__c).Research.Locked, "drone computer unlocked by completed research");
+                Equal(false, core.GameData.GetItem(ItemTypes.ios_drone).Research.Locked, "drone research available");
+                Equal(1, Save.Unlocks.Count(x => x == Game_Unlocks.D_F_C_C), "drone programme unlocked once");
+            }
+            finally
+            {
+                warning.Lines = warningLines;
+                bulletin.BulletinText = bulletinText;
+                GameCore.Earth.ActiveMethanoid = false;
+            }
+        }
+    }
+}

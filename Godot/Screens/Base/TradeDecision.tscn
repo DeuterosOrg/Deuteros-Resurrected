@@ -1,0 +1,62 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Theme" path="res://Themes/DefaultTheme.tres" id="1_theme"]
+
+[sub_resource type="StyleBoxFlat" id="panel"]
+bg_color = Color(0.270588, 0.270588, 0.270588, 1)
+border_width_left = 1
+border_width_top = 1
+border_width_right = 1
+border_width_bottom = 1
+border_color = Color(0.74, 0.69, 0.52, 1)
+
+[node name="TradeDecision" type="Panel"]
+custom_minimum_size = Vector2(272, 132)
+offset_right = 272.0
+offset_bottom = 132.0
+theme = ExtResource("1_theme")
+theme_override_styles/panel = SubResource("panel")
+
+[node name="Title" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 8.0
+offset_right = 262.0
+offset_bottom = 20.0
+theme_override_colors/font_color = Color(1, 1, 0, 1)
+theme_override_font_sizes/font_size = 8
+text = "METHANOID TRADE"
+
+[node name="Question" type="Label" parent="."]
+offset_left = 10.0
+offset_top = 24.0
+offset_right = 262.0
+offset_bottom = 44.0
+theme_override_font_sizes/font_size = 8
+text = "Exchange cargo?
+Amounts stay the same."
+
+[node name="Cargo" type="ScrollContainer" parent="."]
+offset_left = 10.0
+offset_top = 52.0
+offset_right = 262.0
+offset_bottom = 100.0
+
+[node name="Items" type="Label" parent="Cargo"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 8
+
+[node name="Accept" type="Button" parent="."]
+offset_left = 86.0
+offset_top = 106.0
+offset_right = 167.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 8
+text = "Accept"
+
+[node name="Decline" type="Button" parent="."]
+offset_left = 177.0
+offset_top = 106.0
+offset_right = 262.0
+offset_bottom = 125.0
+theme_override_font_sizes/font_size = 8
+text = "Decline"

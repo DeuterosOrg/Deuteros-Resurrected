@@ -1,0 +1,72 @@
+# Save files
+
+Open the disk icon in the left menu. Five manual slots and a separate Quick Save row are available. Saving to an occupied slot asks before replacing it; loading asks before replacing the current game. Loading returns to Master Control with time advancement stopped. In an early game with no stations, use the Earth icon to return to the ground screen.
+
+During gameplay, **F5** saves immediately to the separate Quick Save slot and displays “Quick saved.” It replaces only the previous quick save, retaining a backup. Settings → Controls can rebind the key; modal screens and text entry retain input ownership. The disk menu shows **Q** and its complete saved date once populated. Quick Load uses the normal confirmation; the five manual slots are unchanged.
+
+Files are stored in Godot's `user://saves` directory as `slot-1.json` through `slot-5.json`. The previous contents of an overwritten slot are retained as `slot-N.json.bak`. Quick Save uses `quick-save.json` and `quick-save.json.bak` with the same format and recovery procedure. Save files and backups belong to the player, not the source repository. To recover a backup, close the game, preserve the current file, and copy the `.bak` file to its matching `.json` filename.
+
+## Format and load boundary
+
+Version 1 stores the current world's planets, stocks, crews and experience, training, production/research progress, ships, cargo, ACC settings, news, unlocks, war state and enemy scheduling position. Shared item/research references and ACC-to-ship references are preserved. Text/palette definitions come from the game version; transient input locks and running fast-forward timers are not restored.
+
+The loader accepts only the known model subtypes. It rejects unknown versions/types, missing required fields, invalid references and selected invalid states before replacing the active world. This format is specific to this remake; it does not import original Amiga save files. Changes to persisted fields require a version/migration decision and regression coverage.
+
+A save is serialized and validated before disk replacement. Its temporary file is flushed, then moved into an empty slot or replaces an existing slot with a backup. A failed write leaves the previous slot intact. Native Windows replacement/backup behavior remains part of the Windows acceptance pass.
+
+## Saves from before the assembly stock fix
+
+Earlier builds left chassis and drives in stores when fitting them. New fitting deducts one part, and dismantling returns the installed parts subject to capacity. Existing saves contain no record of those historical deductions, so loading preserves their inventories; the fix does not reconstruct earlier spending. Record the originating build when comparing old-save stocks during acceptance.
+
+## Engine damage compatibility
+
+Version 1 now includes `EngineDamaged` for ships. Saves written before this field existed load with healthy drives (`false`); no damage is inferred from an old attack counter. Explicit null values remain invalid, and the existing required-field checks remain enforced. Damage and repairs survive save/load, including the remaining duration of a damaged journey. A damaged drive yields no usable spare when dismantled.
+
+This is backward reading compatibility in the updated game. Older builds reject the new field, so preserve a backup before moving a save between revisions.
+
+## DFCC fuel compatibility
+
+`Fuel` remains gauge units. A fitted DFCC now costs ten store units per gauge unit when loading, unloading or dismantling; ordinary ships remain 1:1. No new saved field or format version is needed. Already-loaded tanks retain their current amounts and range. Their later refunds use the corrected ratio, so a tank filled before the fix can return more stock than was originally paid. Historical spending is not reconstructed. New DFCC fitting first returns the old tank at its old rate, preventing that gain in new fitting cycles.
+
+## Verification
+
+The engine regressions cover private staff/news state, all ship subtypes, active research/production references, training, cargo, ACC ownership/cursors, corruption rejection, overwrite backups and failure preservation. Actual screen callbacks exercise save, overwrite/cancel, load/cancel, corrupt-file feedback advancing the restored game, and a mid-flight ship arriving on schedule. Mac pointer checks cover visible controls and loading; Windows gameplay and long progression still require acceptance.
+
+Day updates now run the simulation event before the display event. The simulation resolves planets from the active save each tick; loading does not leave old worlds subscribed. Existing UI-driven actions, such as choosing a manual production recipe, remain screen behavior. The fixed simulation order preserves this repository's previous order, rather than claiming a complete reconstruction of the original game's timing.
+
+## Staff attrition compatibility
+
+Version 1 now includes `Staff.AttritionCountdown`. Missing values from older saves default to zero, matching original team allocation; explicit null is invalid. Loading preserves member counts and applies no historical attrition. The next crossed 100-day boundary begins normal processing. Current saves retain each countdown and the global phase through the displayed clock, including teams inside cryopods. Older game builds reject this new field; retain pre-upgrade backups.
+
+## Self-destruct compatibility
+
+Version 1 now includes `SpaceStation.SdmCountdown` and `SaveFile.SdmTimerRemainder`. Older saves missing either field default it to zero; loading does not invent an armed station. Current saves preserve the countdown and subsecond phase, including the simulation skip bit. Explicit nulls, countdowns outside 0–255, non-finite phases and phases outside [0, 1) are invalid. Switch positions are screen state derived on entry, rather than a second saved source of truth. Older builds reject these new fields; preserve backups. See [gameplay limits](self-destruct-implementation.md).
+
+## Fractional clock and automation slots
+
+Version 1 now saves `Clock.DateCentidays`, `Clock.NormalElapsed` and `Clock.PendingIncrement`. `CurrentDay` remains the consumed-update counter, preserving existing training and travel timestamps. A legacy save without `Clock` derives its displayed date from `CurrentDay * 100` and scales its old whole-day `EnemyBuildDay` deadline by 100. New deadlines retain exact centidays. Loading never synthesizes catch-up updates or discards a saved pending increment; fast-forward still stops on load.
+
+The loader rejects explicit null clocks, missing required clock members, non-finite/out-of-range elapsed time, invalid pending increments and dates/deadlines outside the supported range before activating the save. Staff age at displayed calendar boundaries rather than consumed-update counts.
+
+Interstellar ships now save `AutomationSlot` for scan/mining phases. Missing legacy values allocate deterministically into free slots: IOS per star, SCG globally. Surviving ships keep their slot after another is removed or the collection reordered. Existing fleets above sixteen ships are preserved. Duplicate allocated slots within a pool and invalid negative/null values are rejected.
+
+Older builds reject these added fields. Preserve backups and record the originating revision when moving saves between builds. Cases 476–484/486/490–492 cover mixed timing, legacy migration, pending updates, slots, countdowns and malformed-state rejection.
+
+
+## Interstellar flights and Warlord
+
+Version 1 now permits nullable `SCG.Flight`. New cross-star departures save `Leg`, `Remaining`, `Phase`, `Fraction` and signed `ClockOffset`; local-only routes retain their existing path. The offset is relative to the absolute Sol clock, so ordinary/pending calendar increments are followed once without storing nine redundant star clocks. Hyperlight's transient zero private clock requires a negative offset. Initial star offsets come from the original table.
+
+Missing or null `Flight` on an already travelling legacy SCG retains its old countdown until that journey finishes. No phase, fuel expenditure, rank or loss is reconstructed on load. New saved flights preserve acceleration, Hyperlight, local approach or stranded countdown. Invalid route/state combinations, missing members, phases, fractions, remaining distance, fuel and clock offsets are rejected before activation; successful arrival clears the flight before saving.
+
+`Staff.Warlord` is an additive milestone separate from private `ActionsTaken`. Missing legacy values default to false; explicit null and milestones on non-marine/underqualified staff are invalid. Ordinary actions never infer Warlord. All crew locations, including factory/research assignments and cryopods, are checked. Promotion/news occurs on eligible Hyperlight arrival, not during load.
+
+Save-slot dates remain the global Sol calendar; a selected remote star or SCG can display its own later/private date. Older builds reject the added fields. Preserve backups and record save provenance. Cases 494–513 cover phase-by-phase and blocked-pending reload, legacy fallback, malformed state, crew transfers and rank-news uniqueness.
+
+## Rogue crew and prison containment
+
+Version 1 adds `SaveFile.RogueCrew` and `Staff.Pirate`. Missing legacy values initialize an inactive controller and ordinary staff; loading does not invent a mutiny. The controller saves its one-time occurrence, exact selected crew reference, route stage, pending Mutiny notice, prison discovery countdown/divider and temporary sabotage strength. Losing the selected crew clears its reference without allowing another takeover.
+
+A selected Pirate must be an eligible Warlord and occur in exactly one supported place: an SCG cockpit, an orbital roster, or a fitted SCG prison pod. Detached, duplicate or mismatched identities and invalid stage/countdown combinations are rejected before activation. Containment uses the existing module `StaffStored` reference, preserving the same team across transfers and reloads. Sabotage restoration rejoins withheld members without resurrecting casualties suffered by the active team.
+
+The half-second capture interaction is transient: leaving the scene keeps an already captured prisoner; stale callbacks cannot release it into another world. A full roster also retains the prisoner. Saves preserve containment, not an outstanding UI timer. Cases 525–572 cover legacy defaults, identity validation, loss, recovery, containment, saved story timing and interruption boundaries. Older builds reject these additive fields; use disposable copies for acceptance and retain pre-upgrade backups.

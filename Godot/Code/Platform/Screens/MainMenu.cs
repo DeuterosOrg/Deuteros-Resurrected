@@ -3,11 +3,52 @@ using Deuteros.Code.Platform.Base;
 using Godot;
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Deuteros.Code.Utility;
 
 namespace Deuteros.Code.Platform.Screens
 {
 	public partial class MainMenu : BaseSubScene
 	{
+		private AudioStreamPlayer menuClickSound;
+		private AudioStreamPlayer sdmAlarm;
+		private SpaceStation alarmStation;
+		private bool menuSoundBound;
+
+		public override void _EnterTree()
+		{
+			base._EnterTree();
+			if (menuSoundBound) return;
+			menuClickSound = GetNode<AudioStreamPlayer>("MenuClickSound");
+			sdmAlarm = GetNode<AudioStreamPlayer>("SdmAlarm");
+			// Bind before child _Ready navigation callbacks can change the clicked slot.
+			foreach (var path in new[] { "Top", "MainButtons" })
+				foreach (var button in GetNode(path).GetChildren().OfType<BaseButton>())
+					button.Pressed += () => PlayMenuClick(button);
+			var hold = GetNode<BaseButton>("Time/TimeBox/TimerHoldButton");
+			hold.ButtonDown += () => PlayMenuClick(hold);
+			menuSoundBound = true;
+		}
+
+		private void PlayMenuClick(BaseButton button)
+		{
+			if (button.Disabled || !button.IsVisibleInTree() || !button.CanProcess() || GlobalInput.UiLocked)
+				return;
+			if (button is SceneChangeButton sceneButton && sceneButton.TargetScene == Enums.Scenes.None
+				&& (sceneButton.ClickActions == null || sceneButton.ClickActions.Count == 0))
+				return;
+			menuClickSound.Play();
+		}
+
+		public override void _ExitTree()
+		{
+			menuClickSound.Stop();
+			sdmAlarm.Stop();
+			AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+			alarmStation = null;
+			base._ExitTree();
+		}
+
 		public Label HoverInfo { get; set; }
 		public Label Location { get; set; }
 		public Label Star { get; set; }
@@ -86,9 +127,44 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _Process(double delta)
 		{
-			if (Deuteros.Code.GameCore.HoverText != HoverInfo.Text)
+			UpdateSdmAlarm();
+			UpdateTimeAnimation();
+			var hoverText = GameCore.HoverTextIsStatus || Helpers.SettingsManager.Instance.GetSetting("gameplay/tooltips").AsBool()
+				? GameCore.HoverText : "";
+			if (hoverText != HoverInfo.Text)
 			{
-				HoverInfo.Text = Deuteros.Code.GameCore.HoverText;
+				HoverInfo.Text = hoverText;
+			}
+		}
+
+		private void UpdateSdmAlarm()
+		{
+			var core = GameCore.SingletonInstance;
+			var save = core.GameData.ActiveSaveFile;
+			var planet = core.GetCurrentPlanet();
+			var local = core.currentScene is not (Enums.Scenes.Overview or Enums.Scenes.News or Enums.Scenes.SaveScreen
+				or Enums.Scenes.Bulletins or Enums.Scenes.IntroScreen or Enums.Scenes.None
+				or Enums.Scenes.Earth_Ground or Enums.Scenes.Earth_Research or Enums.Scenes.Earth_Training);
+			if (planet.PlanetId == Enums.StellarBodies.earth && GameCore.Earth.GroundSelected) local = false;
+			if (core.currentScene == Enums.Scenes.ShipInterior)
+			{
+				// ShipSelected is cleared after entry; the live interior owns the viewed ship.
+				var ship = GetParent().GetChildren().OfType<ShipInterior>().LastOrDefault(s => !s.IsQueuedForDeletion())?.Ship;
+				local &= ship != null && save.Ships.Contains(ship) && ship.ShipState != Enums.Ship_States.InTransit;
+			}
+			if (!local || !planet.Station.Built || planet.Station.SdmCountdown == 0)
+			{
+				if (alarmStation != null) AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+				sdmAlarm.Stop();
+				alarmStation = null;
+				return;
+			}
+			if (!ReferenceEquals(alarmStation, planet.Station) || !sdmAlarm.Playing)
+			{
+				// The original alarm owns all four channels until leaving or defusing.
+				AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), true);
+				alarmStation = planet.Station;
+				sdmAlarm.Play();
 			}
 		}
 
@@ -100,10 +176,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void UpdateTime(uint previousDay, uint currentDay)
 		{
-			var newDay = (currentDay % 1000).ToString().PadLeft(3, '0');
-			var outputYear = (3100 + Math.Floor((decimal)(currentDay / 1000))) + " " + newDay + ".00";
-
-			Time.Text = outputYear;
+			Time.Text = GameClock.FormatAbsoluteDate(GameCore.SingletonInstance.DisplayClock);
 		}
 
 		public void UpdateAnimations()
@@ -112,7 +185,7 @@ namespace Deuteros.Code.Platform.Screens
 			EarthAnimation.Play("static");
 			NewsAnimation.Play("static");
 			SaveAnimation.Play("static");
-			TimeAnimation.Play("static");
+			UpdateTimeAnimation();
 			StockAnimation.Play("static");
 			DepositAnalysisAnimation.Play("static");
 
@@ -128,12 +201,20 @@ namespace Deuteros.Code.Platform.Screens
 				NewsAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.SaveScreen)
 				SaveAnimation.Play("animated");
-			else if (Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
-				TimeAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Store)
 				StockAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.ResourceMap)
 				DepositAnalysisAnimation.Play("animated");
+		}
+
+		private void UpdateTimeAnimation()
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+			var animation = save.TimeSkip || save.TimeSkipDay ? "animated" : "static";
+			// Clock changes can come from holds or simulation events, independently of menu clicks.
+			// Keep the current frame when unrelated menu state refreshes.
+			if (TimeAnimation.Animation.ToString() != animation)
+				TimeAnimation.Play(animation);
 		}
 
 		public void SetupMenus()
@@ -149,10 +230,12 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (menuButton == null || !menuButton.Enabled())
 				{
-					currentButton.SetButtonType(Enums.Menu_Buttons.Empty);
+					currentButton.SetButtonType(menuButton?.DisabledButtonType() ?? Enums.Menu_Buttons.Empty);
 					currentButton.HoverText = "";
 					currentButton.SceneVariables = new Godot.Collections.Array<Enums.SceneVariables>();
 					currentButton.TargetScene = Enums.Scenes.None;
+					currentButton.ClickActions = null;
+					currentButton.Disabled = true;
 				}
 				else
 				{
@@ -161,6 +244,7 @@ namespace Deuteros.Code.Platform.Screens
 					currentButton.SceneVariables = menuButton.SceneVariables;
 					currentButton.TargetScene = menuButton.SceneToLoad;
 					currentButton.ClickActions = menuButton.ClickActions;
+					currentButton.Disabled = false;
 				}
 
 				row++;
@@ -171,6 +255,11 @@ namespace Deuteros.Code.Platform.Screens
 					column = "B";
 				}
 			}
+		}
+
+		public void SetMethanoidIndicator(bool visible)
+		{
+			GetNode<TextureRect>("MethanoidIndicator").Visible = visible;
 		}
 	}
 }

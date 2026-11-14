@@ -28,7 +28,15 @@ namespace Deuteros.Code.Platform
 				else
 					currentFactory = currentPlanet.Station.Factory;
 
-				if (!currentFactory.AOC)
+				if (!currentFactory.Ground &&
+					((ObjectData.ItemType == Enums.ItemTypes.a__o__c && currentFactory.AOC)
+					|| (ObjectData.ItemType == Enums.ItemTypes.m__t__x && currentPlanet.Station.MtxInstalled) ||
+					 (ObjectData.ItemType == Enums.ItemTypes.s__d__m && currentPlanet.Station.SdmInstalled)))
+				{
+					HoverText = ObjectData.FullName + " - Installed";
+					AnimationState = Enums.SidePanel_Button_State_Animations.Static_Locked;
+				}
+				else if (!currentFactory.AOC)
 				{
 					var item = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.First(T => T.ItemType == ObjectData.ItemType);
 					if (currentFactory.Ground && item.OrbitOnly)

@@ -10,7 +10,18 @@ namespace Deuteros.Code.Objects
         public string Leader { get; set; }
         private int ActionsTaken { get; set; }
         public int Count { get; set; }
+        public int AttritionCountdown { get; set; }
         public Enums.StaffType Type { get; set; }
+        public bool Warlord { get; set; }
+        public bool Pirate { get; set; }
+        internal bool CanBeWarlord => Type == Enums.StaffType.Marines && ActionsTaken >= 40;
+
+        internal void PromoteWarlord()
+        {
+            if (Type != Enums.StaffType.Marines || GetLevel() != (int)Enums.StaffLevel_Marines.Admiral) return;
+            Warlord = true;
+            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(Leader.PadRight(9, ' ') + "New Rank:Warlord");
+        }
 
         public Staff()
         {
@@ -71,6 +82,8 @@ namespace Deuteros.Code.Objects
             }
             else if (Type == Enums.StaffType.Marines)
             {
+                if (Pirate) return (int)Enums.StaffLevel_Marines.Pirate;
+                if (Warlord) return (int)Enums.StaffLevel_Marines.Warlord;
                 if (ActionsTaken >= 10 && ActionsTaken < 40)
                     return (int)Enums.StaffLevel_Marines.Captain;
                 else if (ActionsTaken >= 40)
@@ -106,12 +119,7 @@ namespace Deuteros.Code.Objects
             }
             else if (Type == Enums.StaffType.Marines)
             {
-                if (ActionsTaken >= 10 && ActionsTaken < 30)
-                    return Enums.StaffLevel_Marines.Captain.ToScreenString();
-                else if (ActionsTaken >= 30)
-                    return Enums.StaffLevel_Marines.Admiral.ToScreenString();
-                else
-                    return Enums.StaffLevel_Marines.Pilot.ToScreenString();
+                return ((Enums.StaffLevel_Marines)GetLevel()).ToScreenString();
             }
 
             return "";

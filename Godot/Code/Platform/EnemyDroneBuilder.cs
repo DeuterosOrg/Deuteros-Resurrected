@@ -1,4 +1,4 @@
-﻿using Deuteros.Code.Objects;
+using Deuteros.Code.Objects;
 using Deuteros.Code.Objects.GameData;
 using Deuteros.Code.Objects.Interfaces;
 using Deuteros.Code.Platform.Screens.ModuleScenes;
@@ -16,9 +16,9 @@ namespace Deuteros.Code.Platform
     public class EnemyDroneBuilder
     {
 
-        //build frequencies based on star system (in reverse for some reason)
-        static uint[] BuildFrequencies = { 0x2bc, 0x3e8, 0x3b6, 0x384, 0x384, 0x320, 0x2bc, 0x2bc, 0x320 };
-        static int CurrentStar = 0;
+        // Original $38A42 is indexed by systems still containing hostile stations.
+        static readonly uint[] BuildFrequencies = { 0, 700, 1000, 950, 900, 900, 800, 700, 700, 800 };
+
 
         private static void ProcessEnemyFleets()
         {
@@ -33,10 +33,10 @@ namespace Deuteros.Code.Platform
 
             }
 
-            CurrentStar++;
-            if (CurrentStar == 9) CurrentStar = 0;
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            save.EnemyStarCursor = (save.EnemyStarCursor + 1) % save.BaseGameData.Stars.Count;
 
-            Star star2 = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Values.ToList()[CurrentStar];
+            Star star2 = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Values.ToList()[save.EnemyStarCursor];
             EnemyFleet enemyFleet2 = (EnemyFleet)GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.ShipType != Enums.Ship_Types.Shuttle && ((InterStellarShip)s).MethanoidOwned && ((InterStellarShip)s).StarLocation == star2.StarId);
 
             if (enemyFleet2 != null)
@@ -47,12 +47,14 @@ namespace Deuteros.Code.Platform
 
         public static void BuildDrones(uint previousDay, uint currentDay)
         {
-            if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar)
+            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+            if (save.AtWar)
             {
-                if (currentDay == GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay || GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay == 0)
+                if (save.Clock.DateCentidays >= save.EnemyBuildDay)
                 {
-                    var buildfrequency = BuildFrequencies[GameCore.SingletonInstance.GameData.ActiveSaveFile.StarSystemsCaptured];
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.EnemyBuildDay = currentDay + buildfrequency / 100;
+                    save.AlienTransmissions.SampleEnemySystems(save);
+                    var buildfrequency = BuildFrequencies[save.AlienTransmissions.EnemySystems];
+                    save.EnemyBuildDay = save.Clock.DateCentidays + buildfrequency;
 
                     foreach (var star in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars.Keys)
                     {

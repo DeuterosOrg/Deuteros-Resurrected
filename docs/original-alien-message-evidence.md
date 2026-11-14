@@ -1,0 +1,97 @@
+# Original alien transmission sequence
+
+Asana **1215691951441134 — Alien messages**, direct disk audit on 2026-10-02. The transmission scheduler, message table and capture triggers below are established from instructions; they are not an original-game playthrough or an implemented remake feature.
+
+## Reproduce
+
+Disk 1 SHA-256: `6ea0cc68d3af37203a885032eddf7c28e839e6abb59d8c9cd3792f1308bdec38`; RAM maps to disk offset `0x6E000 + address - 0x13000`. Disk 2 SHA-256: `99909db1e190be02e049084743af44f00e331be6bf2d97b4831ada5fe4c30b4a`. Its message block at `$26800` loads at RAM `$29540`; entries are big-endian word offsets relative to that block.
+
+Capstone 5.0.7 extracts and the decoded table are under ignored `artifacts/research/alien-messages/`. Decode each code entry separately: nearby data words can otherwise produce plausible false instructions. The parallel implementation's `sim/hydroid.gd` explicitly labels its random delays and fixed reveal locations as reconstructions; they are not used as the specification here.
+
+## Start and scheduling
+
+Both war transitions write **10** to byte `$1C37E`: `$7C04C` in the trade-threshold branch and `$7C2A0` in the other war cinematic. Both also set war state `$1BF32` to 2. The timer is decremented at `$23E0A` in the master simulation consumer. On reaching zero, it calls `$37E70`. Earlier discovery/event branches can defer this step; these are eligible consumed updates, not a measured number of seconds or an unconditional number of displayed days.
+
+`$37E70` first returns if suppression byte `$1EE16` is nonzero. Otherwise it displays the research department's introductory notification (message 13 initially, 14 subsequently), waits for acknowledgement, then calls the alien renderer `$3A410`. No independent inventory-wide comms-pod test appears in this handler. The encounter prerequisites and suppression behavior still need runtime acceptance.
+
+## Message stages
+
+Word `$1C380` selects message **stage + 24**. Renderer `$3A410` records it with the high bit set for News replay. At the end it loads the next delay from the byte table `$3A37C`:
+
+| Stage | Message entry | Content | Delay after display |
+| --- | ---: | --- | ---: |
+| 0–2 | 24–26, shared offset `$17F6` | Repeated language-learning transmission | 250, 250, 80 |
+| 3 | 27, `$18F3` | Introduction and observation of the war | 200 |
+| 4 | 28, `$1AC5` | Trust and request to recover the device | 0 |
+| 5–12 | 29–36, shared `$1CA3` | Segment location, inserted from `$1C382` | 0 |
+| 13 | 37, `$1DA4` | Final assembly/use instructions | 0 |
+
+The stage advances below 12; stages 12 and 13 remain at their current value. Zero stops automatic countdown scheduling. Text rendering also changes case through `$3A3A6` and selects the alien bitmap font table at `$3A098`; reproducing the words alone does not reproduce the cryptographic presentation.
+
+The glyph reader at `$1FC38–$1FC5E` computes `(character - 32) * 8`, reads the font pointer from `$1F99C`, then reads eight bitmap rows. `$3A098` is **font data, not executable callback code**. Its uppercase letters are readable capitals; lowercase letters are cryptographic symbols. The stage-0 mask is zero, stage 1 uses `$08945949`, and stage 2 onward use a freshly seeded mask at `$3A378`; spaces rotate the selected mask before subsequent character decisions. The contribution checkpoint did not use `deuteros-alien.ttf` or the alien themes; the isolated transmission branch now uses them. Sampling its vector outlines at the original 8×8 cell centres matches **90 of 91 glyphs** (characters 32–122), including every letter. Only `!` differs: the TTF adds a filled first row (`7070707070007000` versus original `0070707070007000`). This verifies shapes, not native rasterization or text layout. Font SHA-256: `2b91863c340652335f700e5dcfb5533daaa7366bb172d6c3e03d92b80382e4f8`; `font-correspondence.json` records the FontTools winding-number comparison.
+
+News replay at `$397EA` uses the recorded message and temporarily decrements/restores `$1C380` for rendering. It does not call the stage-advancement tail or reset the transmission timer. It does run the mask callback again: each space rotates the selected stored 32-bit word left once, and lowercase letters become capitals when bit 24 is set (byte bit 0 at the big-endian address). The initial body has 30 spaces, so stage 1 stores `$42251652` after its first display and `$90894594` after replay; the corresponding first lines change from `greetings HUMAN.` to `greetings human.`. Padding spaces must be retained.
+
+Location insertion uses the ordinary font. The callback adds the stage-selector offset to A5 on each entry: stage 5–12 first selects random-mask word `$3A378`, then selects zero word `$3A380` after insertion. The intervening glyph/location/audio routines do not modify A5. Therefore the location suffix uses a zero mask separately from the prefix; lower-case suffix letters remain encoded. Evidence: `location-and-glyph-registers.txt`, `stage-followup.txt` and `alien-renderer.txt`. The supplied font differs from the original exclamation mark as documented above; no font binary was changed.
+
+## Segment and final triggers
+
+Capture processing at `$35C06–$35C16` decrements the system's remaining hostile count and calls `$35C5C` when it reaches zero. If that system has no previously assigned artifact, the latter chooses and stores a location using the original per-system range/base tables, copies it to `$1C382`, and arms a **two-update** transmission countdown. It also sets a separate research-discovery flag. This is event-driven location assignment, not periodic selection from a fixed eight-planet list.
+
+The initializer at `$385B6` writes `$FF` to the Sun's artifact-location byte `$1C384`, disabling assignment there. This independently rules out the remake's initial Earth artifact.
+
+Artifact unloading at `$32C02–$32C44` selects descriptor `$19E54` and updates its completion byte at offset 2 directly. Deliveries produce **12, 24, 36, 48, 60, 72, 84, 100**. At the eighth delivery it selects stage 13, arms a two-update countdown and appends item ID 1 to the order list at `$19E12`. This is not an increased research ceiling followed by a separate scientist-driven completion step.
+
+## Device manufacture and activation
+
+The original device reuses item **ID 1**, zero-based index 0. Its 40-byte descriptor at `$19E54` begins `01 02 00 01`: item ID, factory mode, initial completion, required production rank. All sixteen material-cost words are zero; the final mass word is `$07D0` (2000). The item-name table entry `$101` reads **Unknown**, and tool label `$51` reads **Unknown Item**. Do not invent an additional item or recipe from the parallel reconstruction.
+
+Factory eligibility at `$24B60` and `$24ED0` checks completion, factory mode and staff rank. Mode 2 is set by the station initializer at `$20FE8`; Earth ground initialization sets mode 1 at `$20DB4`. The material check/debit at `$25034–$25072` accepts the zero recipe. Ordinary production completion reaches `$233EE–$233FA`, then stock increment `$240DC`; item 0 has no dedicated completion bypass. Thus a missing recipe must not be treated as proof that the finished device cannot be manufactured.
+
+The tool-action dispatcher `$34076–$340F6` requires a mounted tool word (`$8000` type bits) and dispatches item ID 1 through `$33F74` to **`$34F96`**. This handler requires ship state 3 and pilot rank at least **4 (Warlord)** through `$34014`. State 3 is written by ordinary arrival at `$312C2`, distinct from docking/docked states 4/5. The rank helper requires an assigned crew record unless override byte `$1BF36` is active. There is no hull-class test inside this activation handler; the upstream fitting selector provides that restriction.
+
+### Fitting restriction
+
+Selector `$32B7E–$32BDA` indexes the longword table at `$32B1E` by `(ship hull byte - 1) * 4`. It shifts each mask right, admitting an item only when its bit is set and descriptor completion is at least 100. The normal hull masks are:
+
+| Hull | Mask | Eligible zero-based item indices |
+| --- | --- | --- |
+| Shuttle (1) | `$02028022` | 1, 5, 15, 17, 25 |
+| IOS (2) | `$8A3A8222` | 1, 5, 9, 15, 17, 19, 20, 21, 25, 27, 31 |
+| SCG (3) | `$CA1A8023` | 0, 1, 5, 15, 17, 19, 20, 25, 27, 30, 31 |
+
+Thus item 0 (the completed device) is **SCG-only**. A.M.A. (21) is IOS-only and Prison Pod (30) SCG-only. Each starship list has eleven entries, matching the eleven visible selector rows. The remake previously shared one eleven-item list across hulls; simply adding the device would create twelve choices and an unreachable or out-of-range final row. Rendering and selection now share the original normal-hull eligibility rule, while old incorrectly fitted equipment remains removable.
+
+Selection `$32F44–$33016` returns existing equipment, requires replacement stock, debits it through `$2415C`, and writes the mounted item ID. Only Derrick (index 1) uses the multi-unit branch; item 0 follows the single-unit path. No device-specific mass check occurs in this selection block. Modified hull codes, broader mass behavior and visual acceptance remain separate checks. `tool-hull-eligibility.txt` and `tool-selection.txt` preserve the instruction extracts.
+
+Success jumps to `$38032`, which requires Disk 2 through `$3880A`, selects transition mode 4 and enters the loader at `$12800`. The actual Disk 2 overlay at raw `$5800` loads at `$20000`; its selector `$216F8` uses table `$214DE` to select the ending container at raw `$6E000`. Earlier `$21926/$21708` extracts were from Disk 1 and are superseded. The [ending follow-up](original-ending-evidence.md) confirms disk selection and decodes the container, artwork and commands; original runtime playback remains unverified. Normal game RAM-to-disk mapping must not be used for these overlays.
+
+Raw evidence: `transmitter-candidates.txt`, `transmitter-context.txt`, `manufacturing-eligibility.txt`, `production-completion.txt`, `activation-and-cost.txt`, `module-action-dispatch.txt`, `module-eligibility.txt`, and the `transition-*` / `ending-*` extracts in the reproduction directory. Only the named instruction boundaries are evidence; some exploratory extracts include adjacent data or truncated instructions.
+
+## Recovery correction
+
+Artifact unloading now credits completion directly using the original sequence, stops at 100, and announces completion once. Scientists neither advance it nor receive promotion credit. Research displays recovered progress without requiring a research team. Existing `ResearchLimit` stores recovered progress; no save field or format version was added. Loading ordinary legacy credits (multiples of 11 through 99) converts them once, caps the old ninth credit at completion, and preserves ships, cargo and artifact locations. Already completed and nonstandard edited research progress is left unchanged.
+
+Case **135** reproduced the real grapple unload leaving completion at 1%; it now reaches 12% and rejects duplicate close credit. **410** covers all eight increments, a ninth delivery, scientist independence, visible progress and save references; **411** covers legacy zero-through-nine credits, idempotence, retained cargo and edited-state preservation. Focused headless/native Mac checks and full **411-case Mac validation** pass at `d3f00ac`; Windows cases also pass in the full 421-case runner at `f5a9cbb`; package collection remains pending. This corrects recovery credit, not the entire campaign.
+
+## Manufacture correction
+
+Manufacture is restored at **`ef21e5ea9487ec66215472eff86acc5502ca8611`**: completing recovery exposes the original `Unknown` device recipe, with zero materials, mass 2000 and orbital-only production. Legacy saves acquire missing names/recipe and the orbital restriction without replacing research progress or queued item references. Stores identifies a zero-material recipe explicitly. Both manual and AOC controls enforce the factory restriction; pending AOC orders and loaded paid ground orders cannot bypass it.
+
+Cases **412–416** reproduce the missing recipe, misleading zero-supplies label, automated ground-order bypass and paid ground-order completion. All pass focused headless/native Mac checks; manual/AOC manufacture resumes from an actually loaded save. Sixteen existing production/MTX/SDM compatibility cases pass. Native screenshots were inspected for readable recipe/name rendering. The initial full run stopped at case 336, whose older expectation required a material-capacity label for every recipe. That specific expectation is corrected at `f5a9cbb`; the failed log is retained. Evidence is under `artifacts/validation/evidence/artifact-manufacture/`.
+
+## Fitting correction
+
+At **`f5a9cbb994b2f904426c0744856405328f243a16`**, normal-hull tool lists match the decoded table and retain original item order regardless of discovery order. The device and Prison Pod fit SCGs; Blaser and A.M.A. fit IOS hulls. Both starship lists stay within eleven rows. Equipment is classified by item identity, not editable saved indices or obsolete tool flags. Only Derricks stack; other equipment consumes one stock unit per fitting.
+
+Legacy incompatible equipment remains aboard until replaced or removed; an unavailable replacement changes neither cargo nor stock. Both highlight and replacement paths handle an item absent from the new list. Fitted labels now use the same item names as the selector, including `Unknown`.
+
+Cases **417–421** pass focused headless/native Mac validation, including all three hull lists and last rows, old A.M.A. removal, Blaser legacy flags, Derrick stacks, and recovery→manufacture→SCG fitting→save/load. Native screenshots were inspected. Existing DFCC fuel cases 296/300 now select the visible named control rather than calculating a row from the old list; all fuel/stock assertions remain. Full **421-case runners passed on both hosts**; Mac logs/package are audited, while Windows packaged smoke and collection await SSH access. Evidence: `artifacts/validation/evidence/tool-fitting/`.
+
+## Remake work still required
+
+The local contribution now includes capture-driven assignment, saved stage/countdown, notification/acknowledgement, alien rendering, replay and final recovery instructions. These passed the 435-case checkpoint and remain included in the audited 464-case Mac suite; Windows execution of the newer campaign changes remains pending. Device activation and the ending are unfinished. Modified-hull conversion and broader mass behavior also need original-path integration. These remaining rules cannot safely serve as acceptance fixtures for the final sequence.
+
+Implement the saved sequence together with deferred event delivery, capture-driven artifact assignment, direct completion credit and replay that preserves progression. Cover both war starts, competing discoveries, interruption, save/load, all eight recoveries and final instructions. Device activation also depends on the [Warlord promotion path](original-warlord-evidence.md). Resolve the existing clock integration decision before expressing eligible update counts as elapsed days. Verify cryptographic rendering and campaign progression in source and exported Windows builds; the task remains open.
+
+See the [integration design](alien-message-integration.md) for existing code paths, save compatibility and verification gates.

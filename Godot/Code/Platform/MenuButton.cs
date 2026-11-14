@@ -16,7 +16,8 @@ namespace Deuteros.Code.Platform
         public void SetButtonType(Enums.Menu_Buttons buttonType)
         {
             var MenuButtonImageTextureRect = GetNode<TextureRect>("Sprite");
-            MenuButtonImageTextureRect = SpriteManager.LoadImageToTextureRect("Sprites/Buttons/MainMenu/" + buttonType.ToString() + ".png", MenuButtonImageTextureRect);
+            var extension = buttonType == Enums.Menu_Buttons.GroundMaterials_Damaged || buttonType == Enums.Menu_Buttons.Store_Damaged ? ".tres" : ".png";
+            MenuButtonImageTextureRect = SpriteManager.LoadImageToTextureRect("Sprites/Buttons/MainMenu/" + buttonType.ToString() + extension, MenuButtonImageTextureRect);
         }
 
         public override void _Pressed()

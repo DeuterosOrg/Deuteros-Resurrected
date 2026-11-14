@@ -24,10 +24,18 @@ namespace Deuteros.Code.Platform.Helpers
         private readonly Dictionary<string, string> _volumeBuses = new Dictionary<string, string>();
         private readonly Dictionary<string, Variant> _defaults = new Dictionary<string, Variant>();
         private bool _focusMuted;
+        private bool _unfocused;
 
         public static SettingsManager Instance { get; private set; }
 
         public GameConfig Config { get; private set; }
+
+        public double CalendarSpeed => GetSetting("gameplay/game_speed").AsString() switch
+        {
+            "0.5x" => 0.5,
+            "2x" => 2,
+            _ => 1
+        };
 
         public string[] ResolutionOptions { get; private set; }
 
@@ -52,6 +60,9 @@ namespace Deuteros.Code.Platform.Helpers
                 if (InputMap.HasAction(action))
                     InputMap.ActionEraseEvents(action);
             }
+            Config?.Dispose();
+            Config = null;
+            Instance = null;
         }
 
         public override void _Notification(int what)
@@ -69,10 +80,15 @@ namespace Deuteros.Code.Platform.Helpers
         {
             var (section, key) = SplitKey(settingKey);
 
-            if (Config.HasValue(section, key))
-                return Config.GetValue(section, key);
-
-            return GetDefault(settingKey, fallback);
+            var defaultValue = GetDefault(settingKey, fallback);
+            var value = Config.GetValue(section, key, defaultValue);
+            if (defaultValue.VariantType != Variant.Type.Nil && value.VariantType != defaultValue.VariantType)
+                return defaultValue;
+            if (_volumeBuses.ContainsKey(settingKey))
+                return Math.Clamp(value.AsInt64(), 0, VolumeSteps);
+            if (settingKey == "display/scanlines")
+                return Math.Clamp(value.AsInt64(), 0, 10);
+            return value;
         }
 
         public Variant GetDefault(string settingKey, Variant fallback = default)
@@ -91,10 +107,7 @@ namespace Deuteros.Code.Platform.Helpers
             Config.SetValue(section, key, value, false);
         }
 
-        public void Save()
-        {
-            Config.Save();
-        }
+        public Godot.Error Save() => Config.Save();
 
         public void Revert()
         {
@@ -109,6 +122,11 @@ namespace Deuteros.Code.Platform.Helpers
                 "display/resolution" => ResolutionOptions,
                 "display/window_mode" => _windowModeOptions.ToArray(),
                 "display/frame_limit" => _frameLimitOptions.ToArray(),
+                "display/pixel_scaling" => new[] { "Integer", "Fit" },
+                "display/interface_scale" => new[] { "100%", "125%", "150%", "200%" },
+                "gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
+                "gameplay/game_speed" => new[] { "0.5x", "1x", "2x" },
+                "gameplay/event_alerts" => new[] { "Off", "On" },
                 _ => null
             };
         }
@@ -123,6 +141,8 @@ namespace Deuteros.Code.Platform.Helpers
                 ApplyAudio();
             else if (section == KeybindSection)
                 ApplyKeybinds();
+            else if (settingKey == "gameplay/auto_pause")
+                ApplyAutoPause();
         }
 
         public void ApplyAll()
@@ -130,13 +150,16 @@ namespace Deuteros.Code.Platform.Helpers
             ApplyDisplay();
             ApplyAudio();
             ApplyKeybinds();
+            ApplyAutoPause();
         }
 
         public void ApplyDisplay()
         {
+            Engine.MaxFps = ParseFrameLimit(GetSetting("display/frame_limit").AsString());
+            GameViewportContainer.Instance?.UpdateLayout();
+            if (DisplayServer.GetName() == "headless") return;
             DisplayServer.WindowSetMinSize(MinWindowSize);
             DisplayServer.WindowSetVsyncMode(GetSetting("display/vsync").AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
-            Engine.MaxFps = ParseFrameLimit(GetSetting("display/frame_limit").AsString());
 
             var mode = ParseWindowMode(GetSetting("display/window_mode").AsString());
             DisplayServer.WindowSetMode(mode);
@@ -234,11 +257,20 @@ namespace Deuteros.Code.Platform.Helpers
             _defaults["display/window_mode"] = WindowedMode;
             _defaults["display/vsync"] = true;
             _defaults["display/frame_limit"] = UnlimitedFrameLimit;
+            _defaults["display/pixel_scaling"] = "Integer";
+            _defaults["display/interface_scale"] = "100%";
+            _defaults["display/scanlines"] = 0;
 
             foreach (var volumeBus in _volumeBuses)
                 _defaults[volumeBus.Key] = 8;
 
             _defaults["audio/mute_unfocused"] = false;
+            _defaults["gameplay/tooltips"] = true;
+            _defaults["gameplay/auto_pause"] = false;
+            _defaults["gameplay/autosave"] = "Off";
+            _defaults["gameplay/confirm_launch"] = false;
+            _defaults["gameplay/game_speed"] = "1x";
+            _defaults["gameplay/event_alerts"] = "Off";
 
             foreach (var defaultKey in _defaultKeys)
                 _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
@@ -246,9 +278,14 @@ namespace Deuteros.Code.Platform.Helpers
 
         private void SetFocusMuted(bool unfocused)
         {
+            _unfocused = unfocused;
             _focusMuted = unfocused && GetSetting("audio/mute_unfocused").AsBool();
             ApplyAudio();
+            ApplyAutoPause();
         }
+
+        private void ApplyAutoPause() => OverlayManager.Instance?.SetFocusPaused(
+            _unfocused && GetSetting("gameplay/auto_pause").AsBool());
 
         private void ApplyBusVolume(string busName, int volume)
         {
@@ -266,6 +303,7 @@ namespace Deuteros.Code.Platform.Helpers
 
         private string[] BuildResolutionOptions()
         {
+            if (DisplayServer.GetName() == "headless") return _resolutionSizes.Select(FormatResolution).ToArray();
             var screen = DisplayServer.ScreenGetUsableRect(DisplayServer.WindowGetCurrentScreen()).Size;
             var options = _resolutionSizes.Where(size => size.X <= screen.X && size.Y <= screen.Y).Select(FormatResolution).ToList();
 
@@ -287,7 +325,7 @@ namespace Deuteros.Code.Platform.Helpers
 
         private static int ParseFrameLimit(string option)
         {
-            return int.TryParse(option, out var fps) ? fps : 0;
+            return int.TryParse(option, out var fps) ? Math.Max(0, fps) : 0;
         }
 
         private static DisplayServer.WindowMode ParseWindowMode(string option)

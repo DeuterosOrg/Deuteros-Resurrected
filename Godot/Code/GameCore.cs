@@ -1,4 +1,4 @@
-using Deuteros.Code.Platform.Helpers;
+﻿using Deuteros.Code.Platform.Helpers;
 using Deuteros.Code.Objects;
 using Godot;
 using System;
@@ -163,11 +163,19 @@ namespace Deuteros.Code
 					new Objects.MenuButton(Enums.Menu_Buttons.GroundMaterials, Enums.Scenes.GroundMaterials, true,
 					new Godot.Collections.Array<Enums.SceneVariables>() {
 						Enums.SceneVariables.Ground
-					}, null, () => GetCurrentPlanet().BaseBuildParts==2, "Resource"),
+					}, null, () => GetCurrentPlanet().BaseBuildParts == 2 && !GetCurrentPlanet().BaseDamaged, "Resource")
+					{
+						DisabledButtonType = () => GetCurrentPlanet().BaseBuildParts == 2 && GetCurrentPlanet().BaseDamaged
+							? Enums.Menu_Buttons.GroundMaterials_Damaged : Enums.Menu_Buttons.Empty
+					},
 					new Objects.MenuButton(Enums.Menu_Buttons.Store, Enums.Scenes.Store, true,
 					new Godot.Collections.Array<Enums.SceneVariables>() {
 						Enums.SceneVariables.Ground
-					}, null, () => GetCurrentPlanet().BaseBuildParts==2, "MiningStore")
+					}, null, () => GetCurrentPlanet().BaseBuildParts == 2 && !GetCurrentPlanet().BaseDamaged, "MiningStore")
+					{
+						DisabledButtonType = () => GetCurrentPlanet().BaseBuildParts == 2 && GetCurrentPlanet().BaseDamaged
+							? Enums.Menu_Buttons.Store_Damaged : Enums.Menu_Buttons.Empty
+					}
 				};
 			}
 		}
@@ -209,6 +217,10 @@ namespace Deuteros.Code
 		public Enums.Scenes currentScene;
 		public string CutscenePack { get; set; } = "title";
 
+		internal long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
+			? scg.AbsoluteClock
+			: 310000000L + (long)GameData.ActiveSaveFile.Clock.DateCentidays + InterstellarFlight.StarOffset(GetCurrentPlanet().ParentStar);
+
 		public static GameCore SingletonInstance
 		{
 			get
@@ -229,14 +241,32 @@ namespace Deuteros.Code
 
 		public CoreData GameData { get; set; }
 
-		public static string HoverText { get; set; }
+		private static string hoverText;
+		public static bool HoverTextIsStatus { get; private set; }
+		public static string HoverText
+		{
+			get => hoverText;
+			set
+			{
+				hoverText = value;
+				HoverTextIsStatus = false;
+			}
+		}
 
 		public Guid ShipSelected { get; set; }
+
+		public static void ShowStatusText(string text)
+		{
+			HoverText = text;
+			HoverTextIsStatus = true;
+		}
 
 		public GameConfig Config => SettingsManager.Instance.Config;
 
 		//Data stored in the GameCore is temporary
 		public delegate void DayPassedDelegate(uint previousDay, uint currentDay);
+		private event DayPassedDelegate SimulationDayPassed;
+		// Screen notification: the active world's simulation has finished this day.
 		public event DayPassedDelegate DayPassed;
 
 		public delegate void PlanetChangedDelegate(Objects.Interfaces.IPlanet newPlanet);
@@ -268,6 +298,7 @@ namespace Deuteros.Code
 		// Called when the node enters the scene tree for the first time.
 		public override void _Ready()
 		{
+			GetTree().AutoAcceptQuit = false;
 			// Assign instance when the node is ready
 			if (_instance == null)
 				_instance = this;
@@ -284,12 +315,18 @@ namespace Deuteros.Code
 
 			_screenLocker = GetNode<InputBlocker>("/root/Master/GameContainer/GameViewport/InputBlocker");
 
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Production.UpdateProduction;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.Research.UpdateResearch;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.AlienMessages.ProcessAlienMessages;
-			Deuteros.Code.GameCore.SingletonInstance.DayPassed += Code.Platform.Screens.MTX.UpdateMTX;
+			// Original order: extraction, MTX, factory/research work, attrition, ships, refining.
+			SimulationDayPassed += _unlocker.DayTick;
+			SimulationDayPassed += UpdatePlanets;
+			SimulationDayPassed += Code.Platform.Screens.MTX.UpdateMTX;
+			SimulationDayPassed += Code.Platform.Screens.Production.UpdateProduction;
+			SimulationDayPassed += Code.Platform.Screens.Research.UpdateResearch;
+			SimulationDayPassed += StaffAttrition.DayTick;
+			SimulationDayPassed += Code.Platform.Screens.ShipInterior.UpdateShips;
+			SimulationDayPassed += FuelRefining.DayTick;
+			SimulationDayPassed += Code.Platform.EnemyDroneBuilder.BuildDrones;
+			SimulationDayPassed += RogueCrew.DayTick;
+			SimulationDayPassed += SdmSystem.DayTick;
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
@@ -345,9 +382,110 @@ namespace Deuteros.Code
 				_menuScreen.Visible = visible;
 		}
 
+		public void HandleGameInput(InputEvent @event)
+		{
+			if (@event is InputEventKey key)
+			{
+				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				if (key.IsActionPressed("quick_save", false, true))
+				{
+					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
+					QuickSave();
+					return;
+				}
+				if (key.IsActionPressed("next_location", false, true))
+				{
+					var save = GameData.ActiveSaveFile;
+					var stations = save.BaseGameData.Planets.Values
+						.Where(p => !p.ActiveMethanoid && p.Station.Built && p.Station.BuildParts > 0)
+						.OrderBy(p => p.Station.StationOrdinal).ThenBy(p => p.PlanetId).ToList();
+					if (stations.Count == 0) return;
+					var index = stations.FindIndex(p => p.PlanetId == save.CurrentPlanet);
+					save.CurrentPlanet = stations[(index + 1) % stations.Count].PlanetId;
+					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
+					ChangeScene(Scenes.Station, new List<SceneVariables> { Enums.SceneVariables.Orbit });
+					return;
+				}
+				var fast = key.IsActionPressed("speed_up", false, true);
+				if (fast || key.IsActionPressed("slow_down", false, true))
+				{
+					var timer = _menuScreen?.TimeButton;
+					if (timer == null || timer.Disabled || !timer.IsVisibleInTree() || !timer.CanProcess()) return;
+					timer.GetViewport().SetInputAsHandled();
+					if (GameData.ActiveSaveFile.TimeSkip != fast)
+						timer.EmitSignal(BaseButton.SignalName.Pressed);
+					return;
+				}
+				var target = key.IsActionPressed("research", false, true) ? Scenes.Earth_Research
+					: key.IsActionPressed("production", false, true) ? Scenes.Production : Scenes.None;
+				if (target == Scenes.None || _menuScreen == null) return;
+				var button = _menuScreen.GetNode("MainButtons").GetChildren().OfType<Platform.MenuButton>()
+					.FirstOrDefault(b => b.TargetScene == target && !b.Disabled && b.IsVisibleInTree() && b.CanProcess());
+				if (button == null) return;
+				button.GetViewport().SetInputAsHandled();
+				button._Pressed();
+				button.EmitSignal(BaseButton.SignalName.Pressed);
+				return;
+			}
+			// The game viewport routes input after descendant screens, so their modal dismissals take priority.
+			if (@event is not InputEventMouseButton mouse || mouse.ButtonIndex != MouseButton.Right || !mouse.Pressed)
+				return;
+			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen || currentScene == Scenes.Overview)
+				return;
+			if (GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
+				return;
+			if (!GameData.ActiveSaveFile.BaseGameData.Planets.Values.Any(planet => planet.Station.BuildParts > 0 && !planet.ActiveMethanoid))
+				return;
+
+			GetViewport().SetInputAsHandled();
+			ChangeScene(Scenes.Overview, new List<SceneVariables>());
+		}
+
 		private void TriggerDay(uint previousDay, uint currentDay)
 		{
+			SimulationDayPassed?.Invoke(previousDay, currentDay);
 			DayPassed?.Invoke(previousDay, currentDay);
+			PublishPendingStory();
+			// Refresh repair-dependent services without replacing the current screen's header.
+			_menuScreen?.SetupMenus();
+		}
+
+		private bool StoryDisplayBlocked() => _screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+				|| GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen;
+
+		private void PublishPendingStory()
+		{
+			// Existing discoveries and modal owners keep priority; an undisplayed notice stays saved.
+			if (StoryDisplayBlocked()) return;
+			var save = GameData.ActiveSaveFile;
+			if (save.News.PendingBulletins.Count > 0)
+			{
+				ShowBulletin(save.News.PendingBulletins[0]);
+				return;
+			}
+			save.AlienTransmissions?.AdvanceResearch(save);
+			if (save.AlienTransmissions?.Advance() == true)
+			{
+				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+				_menuScreen.Location.Text = "News Bulletins";
+				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
+			}
+			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true) ShowBulletin(BulletinTypes.Hyperlight_Speed);
+			else if (save.News.PendingBulletins.Count > 0) ShowBulletin(save.News.PendingBulletins[0]);
+			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
+			else if (save.RogueCrew.PublishMutiny(save)) ShowBulletin(BulletinTypes.Mutiny);
+			else if (save.RogueCrew.AdvancePrisonDiscovery(save)) ShowBulletin(BulletinTypes.Rogue_Ship);
+		}
+
+		private void UpdatePlanets(uint previousDay, uint currentDay)
+		{
+			// Resolve the active world each day; training precedes Earth and local extraction.
+			var earth = Earth;
+			earth.TrainingData.ChildDayTick(previousDay, currentDay);
+			earth.DayTick(previousDay, currentDay);
+			foreach (Planet planet in GameData.ActiveSaveFile.BaseGameData.Planets.Values)
+				if (!ReferenceEquals(planet, earth)) planet.DayTick(previousDay, currentDay);
 		}
 
 		private void TriggerPlanetChange(Objects.Interfaces.IPlanet newPlanet)
@@ -372,6 +510,7 @@ namespace Deuteros.Code
 
 		public void TriggerShipCreated(IShip ship)
 		{
+			InterStellarShip.EnsureAutomationSlots(GameData.ActiveSaveFile);
 			ShipCreated?.Invoke(ship);
 		}
 
@@ -392,7 +531,31 @@ namespace Deuteros.Code
 		// Called every frame. 'delta' is the elapsed time since the previous frame.
 		public override void _Process(double delta)
 		{
-			UpdateTime();
+			// Original bulletin typing blocks the main-loop countdown consumer ($4057A).
+			if (currentScene != Scenes.Bulletins || !_screenLocker.Blocked)
+				SdmSystem.AdvanceTime(delta);
+			UpdateTime(delta);
+			UpdateAutosave(delta);
+		}
+
+		public void StationDestroyed(IPlanet planet)
+		{
+			if (_currentScreen is Overview overview)
+			{
+				overview.UpdateState();
+				return;
+			}
+			if (_currentScreen == null || GameData.ActiveSaveFile.CurrentPlanet != planet.PlanetId) return;
+			if (_currentScreen is ShipInterior interior && GameData.ActiveSaveFile.Ships.Contains(interior.Ship))
+			{
+				interior.UpdateState();
+				return;
+			}
+			if (currentScene == Scenes.Overview || currentScene == Scenes.News || currentScene == Scenes.SaveScreen
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+			// Exit now so the removed ship/station screen cannot observe the following DayPassed.
+			_currentScreen.GetParent().RemoveChild(_currentScreen);
+			ChangeScene(Scenes.Overview, new List<SceneVariables>());
 		}
 
 		public static void ShowError(BaseSubScene scene, string ErrorText)
@@ -404,21 +567,24 @@ namespace Deuteros.Code
 			errorLabel.Text = ErrorText;
 		}
 
-		private void UpdateTime()
+		private void UpdateTime(double delta)
 		{
-			if (GameData.ActiveSaveFile.TimeSkip || GameData.ActiveSaveFile.TimeSkipDay)
+			if (GetTree().Paused) return;
+			var save = GameData.ActiveSaveFile;
+			var speed = SettingsManager.Instance?.CalendarSpeed ?? 1;
+			var manual = save.TimeSkipDay || (save.TimeSkip && Time.GetTicksMsec() - save.TimeSkipStart >= 500 / speed);
+			if (manual) save.Clock.QueueManual();
+			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen) save.Clock.AdvanceNormal(delta * speed);
+			var manualConsumed = save.Clock.PendingIncrement == 100;
+			if ((!manual && StoryDisplayBlocked()) || !save.Clock.Consume()) return;
+			save.CurrentDay++;
+			TriggerDay(save.CurrentDay - 1, save.CurrentDay);
+			if (manualConsumed)
 			{
-				if (GameData.ActiveSaveFile.TimeSkipDay || Time.GetTicksMsec() - GameData.ActiveSaveFile.TimeSkipStart >= 500)
-				{
-					GameData.ActiveSaveFile.CurrentDay++;
-					TriggerDay(GameData.ActiveSaveFile.CurrentDay - 1, GameData.ActiveSaveFile.CurrentDay);
-
-					GameData.ActiveSaveFile.TimeSkipStart = Time.GetTicksMsec();
-					GameData.ActiveSaveFile.TimeSkipDay = false;
-
-					QueueRedraw();
-				}
+				save.TimeSkipStart = Time.GetTicksMsec();
+				save.TimeSkipDay = false;
 			}
+			QueueRedraw();
 		}
 
 		private void UpdateLocationText(bool orbit)
@@ -441,59 +607,31 @@ namespace Deuteros.Code
 			}
 		}
 
-		public void ShowBulletin(BulletinTypes bulletin)
+		public void ShowAlienTransmission()
 		{
+			var save = GameData.ActiveSaveFile;
+			if (save.AlienTransmissions?.LastStage is not >= 0) return;
+			ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
+			_menuScreen.Location.Text = "News Bulletins";
+			((Bulletins)_currentScreen).DisplayAlienTransmission(save, true);
+		}
+
+		public void ShowBulletin(BulletinTypes bulletin, bool replay = false)
+		{
+			var pending = GameData.ActiveSaveFile.News.PendingBulletins;
+			if (!replay && !pending.Contains(bulletin)) pending.Add(bulletin);
+			if (StoryDisplayBlocked()) return;
+			if (!replay)
+			{
+				bulletin = pending[0];
+				pending.RemoveAt(0);
+			}
 			GameCore.SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
 			_menuScreen.Location.Text = "News Bulletins";
 			((Bulletins)_currentScreen).DisplayBulletin(bulletin);
 			GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin = bulletin;
 		}
 
-		public void ShowAlienMessage()
-		{
-
-			SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
-			_menuScreen.Location.Text = "News Bulletins";
-			if (SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived < 6)
-			{
-				SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived++;
-                BulletinTypes bulletin =
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived == 1 ? BulletinTypes.Transmission1 : BulletinTypes.Transmission2;
-
-                BulletinTypes alienBulletinType = BulletinTypes.None;
-
-                switch (GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissionsReceived)
-                {
-                    case 1:
-                    case 2:
-                        alienBulletinType = BulletinTypes.AlienMessage1;
-                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 250;
-                        break;
-                    case 3:
-                        alienBulletinType = BulletinTypes.AlienMessage1;
-                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 80;
-                        break;
-                    case 4:
-                        alienBulletinType = BulletinTypes.AlienMessage2;
-                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay += 200;
-                        break;
-                    case 5:
-                        alienBulletinType = BulletinTypes.AlienMessage3;
-                        GameCore.SingletonInstance.GameData.ActiveSaveFile.NextAlienMessageDay = 0;
-                        break;
-                    case 6:
-                        alienBulletinType = BulletinTypes.AlienSegmentMessage;
-                        break;
-                    case 7:
-                        alienBulletinType = BulletinTypes.AlienAllSegmentsMessage;
-                        break;
-                }
-
-                ((Bulletins)_currentScreen).DisplayAlienMessage(bulletin,alienBulletinType);
-			}
-
-
-		}
 		public void ChangeScene(Enums.Scenes sceneToLoad, List<Enums.SceneVariables> sceneVariables)
 		{
 			currentScene = sceneToLoad;
@@ -544,10 +682,33 @@ namespace Deuteros.Code
 			}
 
 			ShipSelected = Guid.Empty;
+			_menuScreen?.DayTick(GameData.ActiveSaveFile.CurrentDay, GameData.ActiveSaveFile.CurrentDay);
 		}
 
 		public void UpdateMenuButtons(bool ground, bool orbit)
 		{
+			_menuScreen?.SetMethanoidIndicator(false);
+			// The interior stays open while the ship moves; entry flags describe the previous screen.
+			if (_currentScreen is ShipInterior interior)
+			{
+				var ship = interior.Ship;
+				GameData.ActiveSaveFile.CurrentPlanet = ship.PlanetLocation;
+				ground = ship is Shuttle shuttle && shuttle.OnGround;
+				orbit = !ground;
+				if (_menuScreen != null && ship.ShipState == Ship_States.InTransit)
+				{
+					_menuScreen.MenuButtons = OverviewMenuButtons;
+					_menuScreen.Star.Text = (ship is SCG scg ? scg.ClockStar : ship.StarLocation).ToScreenString(" ");
+					UpdateLocationText(orbit);
+					_menuScreen.SetupMenus();
+					return;
+				}
+				if (!ground && ship.ShipState == Ship_States.UnDocked)
+				{
+					var planet = GetCurrentPlanet();
+					_menuScreen?.SetMethanoidIndicator(planet.ActiveMethanoid && planet.Station.Built);
+				}
+			}
 			if (_menuScreen != null && _currentScreen.SceneFilePath.Contains("Overview") && !orbit)
 			{
 				_menuScreen.MenuButtons = OverviewMenuButtons;
@@ -570,15 +731,6 @@ namespace Deuteros.Code
 
 				UpdateLocationText(true);
 
-				//disable menus or ship interior while in transit
-				if (_currentScreen.GetType() == typeof(ShipInterior) && ((ShipInterior)_currentScreen).Ship.ShipType != Ship_Types.Shuttle)
-				{
-					if (((ShipInterior)_currentScreen).Ship.ShipState == Ship_States.InTransit)
-					{
-						_menuScreen.MenuButtons = OverviewMenuButtons;
-					}
-				}
-
 				_menuScreen.SetupMenus();
 				Earth.GroundSelected = false;
 			}
@@ -589,17 +741,16 @@ namespace Deuteros.Code
 				else
 					_menuScreen.MenuButtons = OverviewMenuButtons;
 
-				//disable menus or ship interior while in transit
-				if (_currentScreen.GetType() == typeof(ShipInterior) && ((ShipInterior)_currentScreen).Ship.ShipType != Ship_Types.Shuttle)
-				{
-					if (((ShipInterior)_currentScreen).Ship.ShipState == Ship_States.InTransit)
-					{
-						_menuScreen.MenuButtons = OverviewMenuButtons;
-					}
-				}
-
 				UpdateLocationText(orbit);
 				_menuScreen.Star.Text = GetCurrentPlanet().ParentStar.ToScreenString(" ");
+				_menuScreen.SetupMenus();
+			}
+
+			if (_menuScreen != null && orbit && !ground && SdmSystem.CanAccess(GameData.ActiveSaveFile, GetCurrentPlanet()))
+			{
+				_menuScreen.MenuButtons[3] = new Objects.MenuButton(Menu_Buttons.SDM, Scenes.SelfDestruct, true,
+					new Godot.Collections.Array<SceneVariables> { Enums.SceneVariables.Orbit }, null,
+					() => SdmSystem.CanAccess(GameData.ActiveSaveFile, GetCurrentPlanet()), "Self-destruct");
 				_menuScreen.SetupMenus();
 			}
 

@@ -23,3 +23,13 @@ theme_override_constants/line_separation = -1
 bbcode_enabled = true
 fit_content = true
 autowrap_mode = 0
+
+[node name="ViewTransmission" type="Button" parent="."]
+visible = false
+offset_left = 161.0
+offset_top = 181.0
+offset_right = 317.0
+offset_bottom = 198.0
+theme = ExtResource("8_2qqnl")
+disabled = true
+text = "View transmission"

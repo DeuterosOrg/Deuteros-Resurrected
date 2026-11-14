@@ -27,10 +27,14 @@ namespace Deuteros.Code.Platform.Helpers
                 GetViewport().SizeChanged -= UpdateLayout;
         }
 
-        private void UpdateLayout()
+        public void UpdateLayout()
         {
+            if (Material is ShaderMaterial scanlines)
+                scanlines.SetShaderParameter("intensity", (SettingsManager.Instance?.GetSetting("display/scanlines").AsInt32() ?? 0) / 20f);
             var area = GetViewportRect().Size;
-            var scale = Math.Max(1, (int)Math.Min(area.X / GameSize.X, area.Y / GameSize.Y));
+            var scale = Math.Max(1, Math.Min(area.X / GameSize.X, area.Y / GameSize.Y));
+            if (SettingsManager.Instance?.GetSetting("display/pixel_scaling").AsString() != "Fit")
+                scale = Mathf.Floor(scale);
 
             Size = GameSize;
             Scale = new Vector2(scale, scale);

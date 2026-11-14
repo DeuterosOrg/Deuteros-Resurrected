@@ -11,7 +11,7 @@ namespace Deuteros.Code.Objects
 	{
         public Enums.GrappleItemTypes GrappleItemType { get; set; }
 
-        public static List<Enums.ItemTypes> ResourceTypeList = new List<Enums.ItemTypes>() { Enums.ItemTypes.titanium, Enums.ItemTypes.aluminium, Enums.ItemTypes.carbon, ItemTypes.paladium, ItemTypes.platinum, ItemTypes.silver, ItemTypes.silica };
+        public static List<Enums.ItemTypes> ResourceTypeList = new List<Enums.ItemTypes>() { Enums.ItemTypes.titanium, Enums.ItemTypes.aluminium, Enums.ItemTypes.carbon, ItemTypes.copper, ItemTypes.paladium, ItemTypes.platinum, ItemTypes.silver, ItemTypes.silica };
 		public static List<int> ResourceMassList = new List<int>() { 50, 100, 250, 1000, 5000, 10000, 25000, 60000 };
 		public static List<int> ResourceClassList = new List<int>() { 1, 2, 3, 4, 5, 6, 7, 8 };
 		public static List<string> ResourceMassNameList = new List<string>() { "Small", "Small", "Small", "Medium", "Medium", "Large", "Large", "Large" };
@@ -23,41 +23,14 @@ namespace Deuteros.Code.Objects
 		public string MassName { get; set; }
 		public int DayCount { get; set; }
 
-		//TODO Temporary asteroid randomisation
-		public static Asteroid ScanAsteroids(Asteroid currentAsteroid)
+        public static Asteroid ScanAsteroids(InterStellarShip ship) =>
+            ship.AsteroidClockPhase(7) ? GenerateAsteroid() : ship.AsteroidScanResults;
+
+		public static Asteroid GenerateAsteroid(Random random = null)
 		{
-			if (currentAsteroid != null)
-			{
-				//Check if we should change the current asteroid
-				var asteroidChangeChance = Random.Shared.Next(0, 10-currentAsteroid.DayCount);
-
-				//It's a new one!
-				if (asteroidChangeChance == 0)
-					currentAsteroid = GenerateAsteroid();
-				else
-					currentAsteroid.DayCount++;
-
-				return currentAsteroid;
-			}
-			else
-			{
-				var asteroidChance = Random.Shared.Next(0, 5);
-
-				if (asteroidChance == 0)
-				{
-					return GenerateAsteroid();
-				}
-				else
-				{
-					return null;
-				}
-			}
-		}
-
-		public static Asteroid GenerateAsteroid()
-		{
-			var asteroidType = Random.Shared.Next(0, 6);
-			var asteroidSize = Random.Shared.Next(0, 6);
+			random ??= Random.Shared;
+			var asteroidType = random.Next(ResourceTypeList.Count);
+			var asteroidSize = random.Next(ResourceClassList.Count);
 
 			var newAsteroid = new Asteroid();
 			newAsteroid.Type = ResourceTypeList[asteroidType];

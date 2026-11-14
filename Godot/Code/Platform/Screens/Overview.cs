@@ -1,4 +1,5 @@
 using Deuteros.Code;
+using Deuteros.Code.Utility;
 using Deuteros.Code.Objects;
 using Deuteros.Code.Objects.GameData;
 using Deuteros.Code.Objects.Interfaces;
@@ -11,7 +12,6 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection.Emit;
 using System.Runtime.Intrinsics.X86;
 using System.Security;
 using System.Threading.Tasks;
@@ -25,6 +25,12 @@ public partial class Overview : BaseSubScene
 	List<TextureButton> StationButtons = new List<TextureButton>();
 	List<TextureButton> IOSButtons = new List<TextureButton>();
 	List<TextureButton> SCGButtons = new List<TextureButton>();
+	Dictionary<TextureButton, string> HoverTexts = new Dictionary<TextureButton, string>();
+	TextureButton HoveredButton;
+    private int page;
+    private HBoxContainer pages;
+    private Button previousPage, nextPage;
+    private Label pageNumber;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -46,15 +52,69 @@ public partial class Overview : BaseSubScene
 			}
 		}
 
+		foreach (var button in StationButtons.Concat(IOSButtons).Concat(SCGButtons))
+		{
+			button.MouseEntered += () =>
+			{
+				HoveredButton = button;
+				GameCore.HoverText = HoverTexts.GetValueOrDefault(button, "");
+			};
+			button.MouseExited += () =>
+			{
+				if (HoveredButton == button)
+				{
+					HoveredButton = null;
+					GameCore.HoverText = "";
+				}
+			};
+		}
+		foreach (var button in IOSButtons.Concat(SCGButtons))
+		{
+			button.AddChild(new Godot.Label
+			{
+				Name = "DroneCount",
+				OffsetLeft = 8,
+				OffsetTop = 3,
+				OffsetRight = 30,
+				OffsetBottom = 14,
+				HorizontalAlignment = HorizontalAlignment.Right,
+				MouseFilter = Control.MouseFilterEnum.Ignore
+			});
+		}
+
+        pages = new HBoxContainer { Name = "Pages", Position = new Vector2(64, 18),
+            Size = new Vector2(168, 16), Alignment = BoxContainer.AlignmentMode.Center };
+        previousPage = new Button { Name = "Previous", Text = "Prev", TooltipText = "Previous overview page" };
+        pageNumber = new Label { Name = "Page", MouseFilter = Control.MouseFilterEnum.Ignore };
+        nextPage = new Button { Name = "Next", Text = "Next", TooltipText = "Next overview page" };
+        foreach (var control in new Control[] { previousPage, pageNumber, nextPage })
+        {
+            control.AddThemeFontSizeOverride("font_size", 8);
+            pages.AddChild(control);
+        }
+        AddChild(pages);
+        previousPage.Pressed += () => ChangePage(-1);
+        nextPage.Pressed += () => ChangePage(1);
+
 		UpdateState();
 
 		base._Ready();
 	}
 
-	private void Overview_Pressed()
+	public override void _ExitTree()
 	{
-		throw new NotImplementedException();
+		if (HoveredButton != null)
+			GameCore.HoverText = "";
+		base._ExitTree();
 	}
+
+    private void ChangePage(int delta)
+    {
+        if (!IsInsideTree() || IsQueuedForDeletion() || GetTree().Paused || GlobalInput.UiLocked
+            || OverlayManager.Instance.IsOpen || GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked) return;
+        page += delta;
+        UpdateState();
+    }
 
 	private void Station_Pressed(int buttonPressed)
 	{
@@ -104,21 +164,41 @@ public partial class Overview : BaseSubScene
 		UpdateState();
 	}
 	
-	private void UpdateState()
+	public void UpdateState()
 	{
-		var stationList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Select(p => p.Station).Where(s => s.BuildParts > 0).OrderBy(s => s.StationOrdinal).ToList();
+		var stationList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station.BuildParts > 0)
+            .Select(p => p.Station).OrderBy(s => s.StationOrdinal).ThenBy(s => s.PlanetId).ToList();
 		var iosList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Where(T => T.ShipType == Ship_Types.IOS).ToList();
 		var scgList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Where(T => T.ShipType == Ship_Types.SCG).ToList();
+
+        var pageCount = Math.Max(1, (Math.Max(stationList.Count, Math.Max(iosList.Count, scgList.Count)) + 15) / 16);
+        page = Math.Clamp(page, 0, pageCount - 1);
+        pages.Visible = pageCount > 1;
+        foreach (var name in new[] { "Stations", "IOS", "SCG" })
+        {
+            var group = GetNode<Control>(name);
+            group.Position = new Vector2(group.Position.X, pages.Visible ? 38 : 25);
+            group.Size = new Vector2(group.Size.X, pages.Visible ? 140 : 152);
+            foreach (var column in group.GetChildren().Cast<VBoxContainer>())
+            {
+                column.Size = new Vector2(column.Size.X, pages.Visible ? 140 : 148);
+                column.AddThemeConstantOverride("separation", pages.Visible ? 1 : name == "Stations" ? 5 : 4);
+            }
+        }
+        pageNumber.Text = $"Page {page + 1}/{pageCount}";
+        previousPage.Disabled = page == 0;
+        nextPage.Disabled = page == pageCount - 1;
 
 		StationButtons.ForEach(T => T.Visible = false);
 		IOSButtons.ForEach(T => T.Visible = false);
 		SCGButtons.ForEach(T => T.Visible = false);
+		HoverTexts.Clear();
 
 		var stationCount = 0;
 		var iosCount = 0;
 		var scgCount = 0;
 
-		foreach (var station in stationList)
+		foreach (var station in stationList.Skip(page * 16).Take(16))
 		{
 			var curStationButton = StationButtons[((stationCount & 1) * 8)+(stationCount >> 1)];
 
@@ -127,6 +207,7 @@ public partial class Overview : BaseSubScene
 
 				curStationButton.Visible = true;
 				curStationButton.SetMeta("planetid",Variant.From<int>((Int32)station.PlanetId));
+				HoverTexts[curStationButton] = station.PlanetId.ToScreenString(" ");
 
 				if (!station.Built)
 					curStationButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Station_UnderConstruction.png");
@@ -139,12 +220,13 @@ public partial class Overview : BaseSubScene
 			}
 		}
 
-		foreach (InterStellarShip ios in iosList)
+		foreach (InterStellarShip ios in iosList.Skip(page * 16).Take(16))
 		{
 			var curIOSButton = IOSButtons[((iosCount & 1) * 8) + (iosCount >> 1)];
 
 			curIOSButton.Visible = true;
 			curIOSButton.SetMeta("shipid", ios.ShipID.ToString());
+			UpdateShipDetails(curIOSButton, ios);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[ios.PlanetLocation].ActiveMethanoid ||
                 GameCore.SingletonInstance.GameData.PlanetUnderAttack(ios.PlanetLocation)))
@@ -171,16 +253,17 @@ public partial class Overview : BaseSubScene
 			iosCount++;
 		}
 
-		foreach (InterStellarShip scg in scgList)
+		foreach (InterStellarShip scg in scgList.Skip(page * 16).Take(16))
 		{
 			var curSCGButton = SCGButtons[((scgCount & 1) * 8) + (scgCount >> 1)];
 
 			curSCGButton.Visible = true;
 			curSCGButton.SetMeta("shipid", scg.ShipID.ToString());
+			UpdateShipDetails(curSCGButton, scg);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[scg.PlanetLocation].ActiveMethanoid ||
                 GameCore.SingletonInstance.GameData.PlanetUnderAttack(scg.PlanetLocation)))
-				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderSttack.png");
+				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderAttack.png");
 			else if (scg.ShipState == Ship_States.Docking)
 				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_Docking.png");
 			else if (scg.ShipState == Ship_States.Launching)
@@ -202,5 +285,23 @@ public partial class Overview : BaseSubScene
 
 			scgCount++;
 		}
+
+		if (HoveredButton != null)
+		{
+			GameCore.HoverText = HoverTexts.GetValueOrDefault(HoveredButton, "");
+			if (!HoveredButton.Visible)
+				HoveredButton = null;
+		}
+	}
+
+	private void UpdateShipDetails(TextureButton button, InterStellarShip ship)
+	{
+		var location = ship.PlanetLocation.ToScreenString(" ");
+		if (ship.ShipState == Ship_States.InTransit)
+			location += " to " + ship.DestinationPlanetLocation.ToScreenString(" ");
+		HoverTexts[button] = ship.Name + ": " + location;
+		var count = button.GetNode<Godot.Label>("DroneCount");
+		count.Text = ship.DroneCount.ToString();
+		count.Visible = ship.DFCC;
 	}
 }

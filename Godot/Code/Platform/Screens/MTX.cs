@@ -51,8 +51,6 @@ namespace Deuteros.Code.Platform.Screens
 			SystemButtons = new List<Button>();
 			ResourceRows = new List<MTXRow>();
 
-			ScrollTween = new Tween();
-
 			SystemName = GetNode<Label>("Destination/SystemName");
 
 			RestoreButton = GetNode<Button>("Config/Buttons/Restore");
@@ -95,6 +93,10 @@ namespace Deuteros.Code.Platform.Screens
 			ResourceList = GetNode<ScrollContainer>("Config/ResourceList");
 
 			ResourceList.ScrollVertical = 0;
+			ResourceList.GetVScrollBar().ValueChanged += value =>
+			{
+				if (CurrentMTX != null) CurrentMTX.CurrentScroll = (int)Math.Ceiling(value / 8);
+			};
 
 			//Load the template row, then delete it
 			var originalResourceRow = GetNode<MTXRow>("Config/ResourceList/ResourceContainer/00");
@@ -117,6 +119,8 @@ namespace Deuteros.Code.Platform.Screens
 
 				ResourceContainer.AddChild(newItemRow);
 			}
+			TemplateResourceRow.Free();
+			TemplateResourceRow = null;
 
 			RestoreButton.Pressed += RestoreButton_Pressed;
 			SwitchStoreButton.Pressed += SwitchStoreButton_Pressed;
@@ -130,8 +134,6 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				systemButton.Pressed += () => SystemButton_Pressed(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[(Enums.StellarBodies)((int)systemButton.GetMeta("StarType"))].StarId);
 			}
-
-			ScrollTween.Finished += ScrollTween_Finished;
 
 			base._Ready();
 		}
@@ -184,17 +186,14 @@ namespace Deuteros.Code.Platform.Screens
 
 			var stationType = (Enums.StellarBodies)(int)stationButton.GetMeta("StationId");
 
-			if (stationType != Enums.StellarBodies.none)
+			var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+			if (planets.TryGetValue(stationType, out var selectedStation)
+				&& selectedStation.ParentStar == CurrentStarSystem
+				&& selectedStation.Station.Built && !selectedStation.ActiveMethanoid
+				&& selectedStation.Station.MtxInstalled
+				&& selectedStation.PlanetId != GameCore.SingletonInstance.GetCurrentPlanet().PlanetId)
 			{
-				var stationsInSystem = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(T => T.Value.ParentStar == CurrentStarSystem && T.Value.Station.Built && !T.Value.ActiveMethanoid).Select(T => T.Value).OrderBy(T => T.Station.StationOrdinal).ToList();
-
-				var selectedStation = stationsInSystem[stationButtonIndex];
-
-				if (selectedStation.PlanetId != GameCore.SingletonInstance.GetCurrentPlanet().PlanetId && selectedStation.Station.MtxInstalled)
-				{
-					if (CurrentMTX.Target != selectedStation.PlanetId)
-						CurrentMTX.Target = selectedStation.PlanetId;
-				}
+				CurrentMTX.Target = selectedStation.PlanetId;
 			}
 
 			UpdateState();
@@ -207,13 +206,13 @@ namespace Deuteros.Code.Platform.Screens
 			CurrentStore = currentStore;
 
 			CurrentMTX = CurrentStore.MTX;
+			CurrentMTX.CurrentScroll = Math.Clamp(CurrentMTX.CurrentScroll, 0, Math.Max(0, ResourceRows.Count - 15));
+			ResourceList.SetDeferred(ScrollContainer.PropertyName.ScrollVertical, CurrentMTX.CurrentScroll * 8);
 
 			InitialState = (Deuteros.Code.Objects.MTX)CurrentMTX.Clone();
 
-			if (CurrentMTX.Target == StellarBodies.none)
-				CurrentStarSystem = StellarBodies.the_sun;
-			else
-				CurrentStarSystem = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[CurrentMTX.Target].ParentStar;
+			CurrentStarSystem = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets
+				.TryGetValue(CurrentMTX.Target, out var target) ? target.ParentStar : StellarBodies.the_sun;
 
 			UpdateState();
 		}
@@ -221,8 +220,8 @@ namespace Deuteros.Code.Platform.Screens
 		//Triggered from gamecore
 		protected override void DayTick(uint previousDay, uint currentDay)
 		{
-			//Don't tick if the MTX is not even unlocked
-			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
+			// Captured hardware can be inspected before its discovery bulletin.
+			if (CurrentMTX != null && IsVisibleInTree())
 				UpdateState();
 		}
 
@@ -230,8 +229,6 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (CurrentStore.MTX.CurrentScroll + 15 < ResourceRows.Count)
 			{
-				CurrentStore.MTX.CurrentScroll++;
-
 				GameCore.LockScreen();
 
 				ScrollTween?.Kill();
@@ -246,8 +243,6 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (CurrentStore.MTX.CurrentScroll > 0)
 			{
-				CurrentStore.MTX.CurrentScroll--;
-
 				GameCore.LockScreen();
 
 				ScrollTween?.Kill();
@@ -374,35 +369,48 @@ namespace Deuteros.Code.Platform.Screens
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				var currentItemList = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => !T.Locked).OrderBy(T => T.ItemCategory != ItemCategory.resource).ToList();
+				if (currentItemList.Count == 0) return;
+				var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
 
 				foreach (var planet in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(T => T.Value.Station.Built && !T.Value.ActiveMethanoid && T.Value.Station.MtxInstalled))
 				{
 					var currentMTX = planet.Value.Station.Resources.Stores.MTX;
 					int index = 0;
 
-					//Check the target exists, and check we actually have a move to action
-					if (currentMTX.Target != StellarBodies.none && !(currentMTX.SendItems.Count == 0 && currentMTX.BalanceItems.Count == 0))
+					// Routes can outlive a station's capture, destruction or installed equipment.
+					if (currentMTX.Target != planet.Key
+						&& planets.TryGetValue(currentMTX.Target, out var targetPlanet)
+						&& targetPlanet.Station.Built && !targetPlanet.ActiveMethanoid && targetPlanet.Station.MtxInstalled
+						&& !(currentMTX.SendItems.Count == 0 && currentMTX.BalanceItems.Count == 0))
 					{
-						var targetStation = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[currentMTX.Target].Station;
+						var targetStation = targetPlanet.Station;
 						var currentStation = planet.Value.Station;
 
-						//If the currently selected item is not set to perform any actions, move to the next item to process it
-						//Keep looping until we find an active object
-						//The additional index change at the bototom of this foreach then moves to the next item - It's a quirk
-						while (!currentMTX.BalanceItems.Contains(currentMTX.CurrentItem) && !currentMTX.SendItems.Contains(currentMTX.CurrentItem))
+						// Saved configurations may contain only locked or removed items. Scan at most
+						// one cycle, keeping the usual one eligible item per station per day.
+						index = Math.Max(0, currentItemList.FindIndex(x => x.ItemType == currentMTX.CurrentItem));
+						var eligible = false;
+						for (var scanned = 0; scanned < currentItemList.Count; scanned++)
 						{
-							//Find next item in list, and wrap if necessary
-							index = currentItemList.FindIndex(x => x.ItemType == currentMTX.CurrentItem);
-							currentMTX.CurrentItem = ((index + 1) >= currentItemList.Count ? currentItemList[0] : currentItemList[index + 1]).ItemType;
+							var itemType = currentItemList[index].ItemType;
+							if (currentMTX.BalanceItems.Contains(itemType) || currentMTX.SendItems.Contains(itemType))
+							{
+								currentMTX.CurrentItem = itemType;
+								eligible = true;
+								break;
+							}
+							index = (index + 1) % currentItemList.Count;
 						}
+						if (!eligible) continue;
 
 						if (currentMTX.BalanceItems.Contains(currentMTX.CurrentItem))
 						{
 							if (targetStation.Resources.Stores[currentMTX.CurrentItem] != currentStation.Resources.Stores[currentMTX.CurrentItem])
 							{
-								var targetBalanceAmount = (targetStation.Resources.Stores[currentMTX.CurrentItem] + currentStation.Resources.Stores[currentMTX.CurrentItem] / 2);
-								targetStation.Resources.Stores[currentMTX.CurrentItem] = targetBalanceAmount;
-								currentStation.Resources.Stores[currentMTX.CurrentItem] = targetBalanceAmount;
+								var total = targetStation.Resources.Stores[currentMTX.CurrentItem] + currentStation.Resources.Stores[currentMTX.CurrentItem];
+								// Keep any indivisible remainder at the sending station.
+								targetStation.Resources.Stores[currentMTX.CurrentItem] = total / 2;
+								currentStation.Resources.Stores[currentMTX.CurrentItem] = total - total / 2;
 							}
 						}
 						else if(currentMTX.SendItems.Contains(currentMTX.CurrentItem))

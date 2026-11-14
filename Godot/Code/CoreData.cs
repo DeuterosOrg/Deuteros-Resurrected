@@ -58,11 +58,11 @@ namespace Deuteros.Code
 			newGameSave.Ships = new List<IShip>();
 			newGameSave.News = new News();
 			newGameSave.CurrentDay = 0;
+			newGameSave.Clock = new GameClock();
             newGameSave.AtWar = false;
             newGameSave.WarDeclaredDay = 0;
+            newGameSave.AlienTransmissions = new AlienTransmissions();
 			newGameSave.EnemyBuildDay = 0;
-            newGameSave.NextAlienMessageDay = 0;
-            newGameSave.AlienTransmissionsReceived = 0;
             newGameSave.GameConfig.ShuttleRefuelThreshold = 50;
 			newGameSave.GameConfig.IOSRefuelThreshold = 200;
 			newGameSave.NextPersonIndex = Random.Shared.Next(StaticGameData.PersonNames.Count() + 1);
@@ -589,98 +589,9 @@ namespace Deuteros.Code
 								" \r\n" +
 								"I'm So Clever !"));
 
-                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage1,
-								"greetings human.\r\n" +
-								"\r\n" +
-								"we are monitoring all of your\r\n" +
-								"transmissions in an attempt to\r\n" +
-								"understand your language\r\n" +
-								"\r\n" +
-								"this message shall be repeated\r\n" +
-								"until we are able to communicate\r\n" +
-								"fluently\r\n" +
-								"\r\n" +
-								"there is a subject of great\r\n" +
-								"importantance we must discuss\r\n" +
-								"with you"));
+							#endregion
 
-                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage2,
-								"greetings once again, human.\r\n" +
-								"allow us to us to introduce ourselves.\r\n" +
-								"we are a peaceful race, similar\r\n" +
-								"to yourselves from a  galaxy\r\n" +
-								"some 700000 parsecs distant..\r\n" +
-								"\r\n" +
-								"we have already made contact\r\n" +
-								"with a race in your galaxy and\r\n" +
-								"observe that you are both at\r\n" +
-								"war. this is to be expected.\r\n" +
-								"we too have found them to be\r\n" +
-								"dishonourable. this time  we\r\n" +
-								"must be certain before placing\r\n" +
-								"our TRUST in YOU.\r\n" +
-								"\r\n" +
-								"CONTACT will follow when\r\n" +
-								"observations are complete.\r\n"));
-
-                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienMessage3,
-								"GREETINGS, FRIEND.\r\n" +
-								"\r\n" +
-								"we BELIEVE we CAN TRUST YOU AND\r\n" +
-								"REQUEST your ASSISTANCE IN A\r\n" +
-								"project TO OUR MUTUAL BENEFIT.\r\n" +
-								"\r\n" +
-								"MANY land AGO, WE transmuted A\r\n" +
-								"gift TO the METHANOIDS. A GIFT\r\n" +
-								"OF great POWER AND imPORTANce.\r\n" +
-								"\r\n" +
-								"SADLY, THEY DISASSEMBLEd  it IN\r\n" +
-								"AN ATTEMPT to understand THE\r\n" +
-								"TECHnologY, A GRAVE MISTaKE.\r\n" +
-								"OUR SCANNERS tell US THAT THE\r\n" +
-								"segments ARE SCATTERED amomg 8\r\n" +
-								"STARS in your GALAXY. we shall\r\n" +
-								"INFORM you of their exact\r\n" +
-								"LOCATION as we DETEct them.\r\n"));
-
-                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienSegmentMessage,
-								"GREETINGS, FRIEND.\r\n" +
-								"\r\n" +
-								"we have confirmation from our\r\n" +
-								"scanners that one segment of\r\n" +
-								"our apparatus is\r\n" +
-								"lying in orbit around\r\n" +
-								"{0}\r\n" +
-								"\r\n" +
-								"please attempt to recover the\r\n" +
-								"segment and return it to any.\r\n" +
-								"of your factories.\r\n" +
-								"\r\n" +
-								"good luck.\r\n"));
-
-                StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.AlienAllSegmentsMessage,
-								"OUR COMPLIMENTS, FRIEND.\r\n" +
-								"\r\n" +
-								"YOU NOW HAVE  ALL SEGMENTS OF\r\n" +
-								"OUR TRANSMITTER.\r\n" +
-								"IF YOU WISH TO USE IT PLEASE\r\n" +
-								"FOLLOW THESE INSTRUCTIONS.\r\n" +
-								"\r\n" +
-								"1: CONSTRUCT THE TRANSMITTER\r\n" +
-								   "IN ANY OF YOUR FACTORIES\r\n" +
-								" \r\n" +
-								"2: FIT THIS TO ANY STARSHIP\r\n" +
-								   "IN YOUR FLEET\r\n" +
-								"\r\n" +
-								"3: ACTIVATE THE POD HOLDING\r\n" +
-								   "THE TRANSMITTER.\r\n" +
-								"   \r\n" +
-								"WE WILL DO THE REST.\r\n" +
-								"\r\n" +
-								"SEE YOU SOON,  HUMAN !.\r\n"));
-                    #endregion
-
-                    StaticGameData.Planets = new Dictionary<Enums.StellarBodies, Objects.Interfaces.IPlanet>();
+				StaticGameData.Planets = new Dictionary<Enums.StellarBodies, Objects.Interfaces.IPlanet>();
 				StaticGameData.Stars = new Dictionary<StellarBodies, Star>();
 				StaticGameData.ResourceLevels_Survey_Multiplier = new Dictionary<Enums.ItemTypes, int>();
 				StaticGameData.ResourceRate_Per_Derrick = new Dictionary<Enums.ItemTypes, int>();
@@ -713,17 +624,22 @@ namespace Deuteros.Code
 				#region Items
 
 				var unknownitem = new Item();
-				unknownitem.FullName = "";
+				unknownitem.FullName = "Unknown";
+				unknownitem.ShortName = "Unknown";
 				unknownitem.ItemCategory = Enums.ItemCategory.item;
 				unknownitem.ItemType = Enums.ItemTypes.alien_artifact;
 				unknownitem.Mass = 2000;
-				unknownitem.ToolPod = false;
+				unknownitem.ToolPod = true;
+				unknownitem.ToolPodSingular = true;
 				unknownitem.Locked = true;
+				unknownitem.OrbitOnly = true;
+				unknownitem.BuildRequirements = new List<BuildRequirement>();
 
 				unknownitem.Research = new ResearchItem(Enums.ItemTypes.alien_artifact, 1, 1);
 				unknownitem.Research.Researched = false;
 				unknownitem.Research.Locked = true;
 				unknownitem.Research.ResearchLimit = 0;
+				unknownitem.Research.ResearchPercentageComplete = 0;
 
                 StaticGameData.ItemList.Add(unknownitem);
 
@@ -879,6 +795,8 @@ namespace Deuteros.Code
 				pulseLaser.ItemCategory = Enums.ItemCategory.item;
 				pulseLaser.ItemType = Enums.ItemTypes.pulse_blaster_laser;
 				pulseLaser.Mass = 750;
+				pulseLaser.ToolPod = true;
+				pulseLaser.ToolPodSingular = true;
 
                 pulseLaser.Research = new ResearchItem(Enums.ItemTypes.pulse_blaster_laser, 10, 3);
 
@@ -932,6 +850,7 @@ namespace Deuteros.Code
 
 				var gChassis = new Item();
 				gChassis.FullName = "S.C.G. Chassis";
+				gChassis.ShortName = "SCG Chassis";
 				gChassis.ItemCategory = Enums.ItemCategory.item;
 				gChassis.ItemType = Enums.ItemTypes.g_chassis;
 				gChassis.Mass = 1685;
@@ -953,6 +872,7 @@ namespace Deuteros.Code
 
 				var starDrive = new Item();
 				starDrive.FullName = "S.C.G. Drive Unit";
+				starDrive.ShortName = "SCG Drive";
 				starDrive.ItemCategory = Enums.ItemCategory.item;
 				starDrive.ItemType = Enums.ItemTypes.star_drive;
 				starDrive.Mass = 265;
@@ -1131,6 +1051,7 @@ namespace Deuteros.Code
 				Hyperlight.Locked = true;
 				Hyperlight.OrbitOnly = true;
 				Hyperlight.BuildRequirements = null;
+				Hyperlight.Production = false;
 
 				StaticGameData.ItemList.Add(Hyperlight);
 
@@ -1270,7 +1191,7 @@ namespace Deuteros.Code
 				StarDrone.OrbitOnly = true;
 				StarDrone.BuildRequirements = new List<BuildRequirement>();
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.iron, 300));
-				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.titanium, 200));
+				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.titanium, 300));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.aluminium, 300));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.copper, 100));
 				StarDrone.BuildRequirements.Add(new BuildRequirement(Enums.ItemTypes.paladium, 90));
@@ -1687,7 +1608,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.silver, 1)
 						}
 					),
-					MoonList = new List<int> { 1, 8 },
+					MoonList = new List<int> { 1, 6 },
 					PlanetColor = PlanetColor.red,
 					PlanetStyle = PlanetStyle.whirl
 				});
@@ -2069,7 +1990,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.silica, 1)
 						}
 					),
-					MoonList = new List<int> { 1, 5, 6, 10 },
+					MoonList = new List<int> { 2, 5, 6, 8, 10 },
 					PlanetColor = PlanetColor.green,
 					PlanetStyle = PlanetStyle.whirl
 				});
@@ -3061,7 +2982,7 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.gold, 1),
 						}
 					),
-					MoonList = new List<int> { 1, 4, 5, 9 },
+					MoonList = new List<int> { 2, 4, 5, 9 },
 					PlanetColor = PlanetColor.white,
 					PlanetStyle = PlanetStyle.moon
 				});
@@ -4257,20 +4178,6 @@ namespace Deuteros.Code
                 starCounts.Add(StellarBodies.procyon, 10);
                 starCounts.Add(StellarBodies.tau_ceti, 16);
 
-				//first alien artifact is always in orbit of earth
-                StaticGameData.Stars[StellarBodies.the_sun].ArtifactLocation = Enums.StellarBodies.earth;
-
-                //setup random alien artifact locations on all stars except the sun
-                foreach (var s in StaticGameData.Stars.Values)
-                {
-                    if (s.StarId != StellarBodies.the_sun)
-                    {
-                        var planets = StaticGameData.Planets.Values.Where(p => p.ParentStar == s.StarId).ToList();
-                        var p = planets[Random.Shared.Next(planets.Count - 1)];
-                        s.ArtifactLocation = p.PlanetId;
-                    }
-                }
-
                 //setup random methanoid locations on all stars
                 //except the sun
                 foreach (var s in StaticGameData.Stars.Values)
@@ -4282,11 +4189,17 @@ namespace Deuteros.Code
 						{
 							var p = planets[Random.Shared.Next(planets.Count - 1)];
 							p.ActiveMethanoid = true;
+                            p.Station.RefiningSlot = FuelRefining.Capacity(s.StarId) - 1 - i;
 							planets.Remove(p);
 						}
 
                     }
 				}
+
+                var solStations = new[] { StellarBodies.uranus, StellarBodies.titania, StellarBodies.neptune,
+                    StellarBodies.triton, StellarBodies.pluto, StellarBodies.jupiter };
+                for (var i = 0; i < solStations.Length; i++)
+                    StaticGameData.Planets[solStations[i]].Station.RefiningSlot = 10 + i;
 
                 //set up all methanoid owned planets
                 foreach (IPlanet p in StaticGameData.Planets.Values)

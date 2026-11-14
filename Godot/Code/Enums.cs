@@ -322,7 +322,8 @@ namespace Deuteros.Code
             None,
             Station,
             IntroScreen,
-            Cutscene
+            Cutscene = 17,
+            SelfDestruct = 18
         }
 
         //Variables to pass to scenes to notify them of button types
@@ -366,7 +367,9 @@ namespace Deuteros.Code
         {
             Pilot = 1,
             Captain = 2,
-            Admiral = 3
+            Admiral = 3,
+            Warlord = 4,
+            Pirate = 5
         }
 
         public enum Game_Unlocks
@@ -435,7 +438,9 @@ namespace Deuteros.Code
             Station_Left = 1100,
             Station_Right = 1200,
             Store = 1300,
-            Training = 1400
+            Training = 1400,
+            GroundMaterials_Damaged = 1500,
+            Store_Damaged = 1600
         }
 
         public enum BulletinTypes
@@ -461,12 +466,12 @@ namespace Deuteros.Code
             Meteor_Strike,
             Sonic_Weapon,
             Eureka,
-            AlienMessage1,
-            AlienMessage2,
-            AlienMessage3,
-            AlienSegmentMessage,
-            AlienAllSegmentsMessage,
-			None
+            AlienMessage1 = 21,
+            AlienMessage2 = 22,
+            AlienMessage3 = 23,
+            AlienSegmentMessage = 24,
+            AlienAllSegmentsMessage = 25,
+            None = 26
 		}
 
 		public enum ModuleFrameText

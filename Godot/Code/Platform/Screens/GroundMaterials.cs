@@ -69,7 +69,7 @@ namespace Deuteros.Code.Platform.Screens
 
             foreach (var mineral in currentPlanet.PlanetResources.Materials)
             {
-                var mineralText = mineral.SurveyTicks > 0 ? "SURVEY" : mineral.GroundAmount.ToString();
+                var mineralText = mineral.IsSurveying ? "SURVEY" : mineral.GroundAmount.ToString();
 
                 MaterialNames.Text += mineral.MaterialType.ToString() + "\n";
                 MaterialAmounts.Text += mineralText + "\n";

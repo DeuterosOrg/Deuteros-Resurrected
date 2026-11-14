@@ -39,8 +39,6 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public override void _Ready()
 		{
-			GetNode<Node2D>("Window").GetNode<Label>("Background/Number").Text = "1";
-
 			MineButton = GetNode<TextureButton>("Buttons/Mine");
 
 			PodTypeHeaders = GetNode<Control>("Labels/PodTypeHeaders");
@@ -65,14 +63,19 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 		{
 			Ship = ship;
 			ShipModule = shipModule;
+			GetNode<Label>("Window/Background/Number").Text = (ship.Modules.IndexOf(shipModule) + 1).ToString();
 			
 			UpdateState();
 		}
 
+        private bool CanMine() => RogueCrew.CanCommand(Ship) && Ship.Modules.Contains(ShipModule)
+            && Ship is InterStellarShip ship
+            && ship.ShipState == Ship_States.UnDocked && ship.PlanetLocation == StellarBodies.asteroids
+            && ship.Fuel > 0 && ship.AsteroidScanResults != null && ship.AsteroidScanResults.Class >= 6;
+
 		private void MineButton_Pressed()
 		{
-			var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
-            if (Ship.ShipState == Ship_States.UnDocked && scanResults != null && scanResults.Class >= 6)
+            if (CanMine())
 			{
 				Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
 				Ship.Dock();
@@ -102,6 +105,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			AsteroidSprite.Visible = false;
 			
 			MineButton.Visible = false;
+            MineButton.Disabled = !CanMine();
 
 			//In transit, undocked anywhere but Asteroids and docking/launching the screen is the same
 			if (Ship.ShipState == Ship_States.InTransit || Ship.ShipState == Ship_States.Launching || Ship.ShipState == Ship_States.Docking || (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation != StellarBodies.asteroids))
@@ -152,25 +156,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		#region statics
 
-		//TODO Not sure if we need the Asteroid?  Pending investigation
-		public static int Mine(Asteroid asteroid, ShipModule shipModule)
-		{
-			var minedAmount = 0;
-
-			//There is a 1/20 chance for an instant mine, but only on the first day
-			if (shipModule.LastMinedDay + 1 == GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay && Random.Shared.Next(0, 20) == 10)
-			{
-				return Random.Shared.Next(16, 36);
-			}
-			//Otherwise it is a 5 day mining cycle
-			else if (GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - shipModule.LastMinedDay  == 5)
-			{
-				shipModule.LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-				return Random.Shared.Next(16, 36);
-			}
-
-			return minedAmount;
-		}
+        // Original mining runs on every consumed update whose slot matches the clock bits.
+        public static int Mine(InterStellarShip ship, Random random = null) =>
+            ship.AsteroidClockPhase(3) ? (random ?? Random.Shared).Next(12, 44) : 0;
 
 		#endregion
 	}

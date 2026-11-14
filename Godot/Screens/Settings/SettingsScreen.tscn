@@ -223,18 +223,21 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Pixel Scaling"
 SettingKey = "display/pixel_scaling"
+Description = "Integer keeps whole-size pixels. Fit fills available space while preserving the game shape."
 
 [node name="ScanlinesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("slider")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Scanlines"
 SettingKey = "display/scanlines"
+Description = "Darkens horizontal bands across the game image. Zero turns the effect off."
 
 [node name="InterfaceScaleRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Interface Scale"
 SettingKey = "display/interface_scale"
+Description = "Enlarges the settings interface up to the selected size, limited to fit the window. Game pixels use Pixel Scaling."
 
 [node name="VSyncRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DisplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
@@ -378,36 +381,42 @@ unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Game Speed"
 SettingKey = "gameplay/game_speed"
+Description = "Changes natural calendar time and continuous fast-forward. A date click still advances one day. Combat, animations and autosave intervals keep their normal pace."
 
 [node name="AutoPauseRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Auto Pause"
 SettingKey = "gameplay/auto_pause"
+Description = "Pauses the game while the app is unfocused. Returning resumes play unless another screen is keeping it paused."
 
 [node name="EventAlertsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Event Alerts"
 SettingKey = "gameplay/event_alerts"
+Description = "Shows new News reports in the status line until you hover another control. The latest report replaces the previous one. News history and story bulletins are always retained."
 
 [node name="AutosaveRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("cycle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Autosave"
 SettingKey = "gameplay/autosave"
+Description = "Saves to a separate Autosave slot after the chosen minutes of active play. Pauses, dialogs and the Save / Load screen do not count. Loading starts a fresh interval."
 
 [node name="TooltipsRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Tooltips"
 SettingKey = "gameplay/tooltips"
+Description = "Shows hover help for game controls, items and locations. Save confirmations remain visible."
 
 [node name="ConfirmLaunchRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/GameplayList" instance=ExtResource("toggle")]
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Confirm Launch"
 SettingKey = "gameplay/confirm_launch"
+Description = "Asks before manual takeoff, undocking or engaging a course. Cancel or Escape keeps the ship where it is. Automatic routes continue without prompts."
 
 [node name="ModernList" type="VBoxContainer" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin"]
 unique_name_in_owner = true
@@ -434,7 +443,7 @@ theme_override_constants/separation = 8
 unique_name_in_owner = true
 layout_mode = 2
 LabelText = "Infinite Resources"
-Description = "Turns GameCore.InfiniteResources on or off. Not saved; resets when the game restarts."
+Description = "Unlimited materials for this session. Resets when the game restarts."
 
 [node name="SkipToShuttlesRow" parent="Margin/Layout/Body/MainColumn/SettingsPanel/SettingsVBox/SettingsScroll/ListMargin/DebugList" instance=ExtResource("action")]
 unique_name_in_owner = true
@@ -656,11 +665,13 @@ layout_mode = 2
 theme_override_constants/separation = 18
 
 [node name="ConfirmTitle" type="Label" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"HeaderLabel"
 text = "Unsaved Changes"
 
 [node name="ConfirmMessage" type="Label" parent="ConfirmOverlay/ConfirmCenter/ConfirmPanel/ConfirmVBox"]
+unique_name_in_owner = true
 layout_mode = 2
 theme_type_variation = &"DescLabel"
 text = "Apply your changes before closing, or discard them?"

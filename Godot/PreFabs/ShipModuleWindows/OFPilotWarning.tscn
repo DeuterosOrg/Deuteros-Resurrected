@@ -1,0 +1,75 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="PackedScene" path="res://PreFabs/UI/Window.tscn" id="1_window"]
+[ext_resource type="Theme" path="res://Themes/GreenFont5.tres" id="2_green"]
+[ext_resource type="Theme" path="res://Themes/DarkBiegeFont5.tres" id="3_beige"]
+[ext_resource type="Theme" path="res://Themes/RedFont5.tres" id="4_red"]
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_dismiss"]
+
+[node name="OFPilotWarning" type="Node2D"]
+
+[node name="Window" parent="." instance=ExtResource("1_window")]
+
+[node name="Labels" type="Control" parent="."]
+offset_left = 69.0
+offset_top = 28.0
+offset_right = 299.0
+offset_bottom = 138.0
+mouse_filter = 2
+
+[node name="PodType" type="Label" parent="Labels"]
+offset_left = 5.0
+offset_top = 8.0
+offset_right = 189.0
+offset_bottom = 16.0
+text = "Pod Type: TOOL MOUNTING"
+
+[node name="Contents" type="Label" parent="Labels"]
+offset_left = 5.0
+offset_top = 20.0
+offset_right = 189.0
+offset_bottom = 28.0
+text = "Contents:"
+
+[node name="ToolType" type="Label" parent="Labels"]
+offset_left = 5.0
+offset_top = 37.0
+offset_right = 225.0
+offset_bottom = 45.0
+theme = ExtResource("2_green")
+text = "Orbital Factory Section"
+
+[node name="Warning" type="Label" parent="Labels"]
+offset_left = 82.0
+offset_top = 63.0
+offset_right = 146.0
+offset_bottom = 71.0
+theme = ExtResource("4_red")
+text = "WARNING:"
+
+[node name="WarningBody" type="RichTextLabel" parent="Labels"]
+offset_left = 82.0
+offset_top = 72.0
+offset_right = 228.0
+offset_bottom = 105.0
+mouse_filter = 2
+theme = ExtResource("3_beige")
+bbcode_enabled = true
+text = "A [color=yellow]Crew[/color] Is Required
+To Operate This
+Equipment And Must
+Be Ranked [color=yellow]Pilot[/color]"
+autowrap_mode = 0
+
+[node name="Dismiss" type="Button" parent="."]
+offset_left = 64.0
+offset_top = 23.0
+offset_right = 304.0
+offset_bottom = 143.0
+focus_mode = 0
+theme_override_styles/normal = SubResource("StyleBoxEmpty_dismiss")
+theme_override_styles/hover = SubResource("StyleBoxEmpty_dismiss")
+theme_override_styles/pressed = SubResource("StyleBoxEmpty_dismiss")
+theme_override_styles/focus = SubResource("StyleBoxEmpty_dismiss")
+flat = true
