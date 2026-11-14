@@ -17,6 +17,7 @@ script = ExtResource("5_gvcon")
 handle_input_locally = false
 canvas_item_default_texture_filter = 0
 size = Vector2i(320, 200)
+render_target_update_mode = 4
 
 [node name="MainScene" type="Node2D" parent="GameContainer/GameViewport"]
 
