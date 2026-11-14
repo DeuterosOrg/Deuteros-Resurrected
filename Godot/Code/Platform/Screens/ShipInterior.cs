@@ -20,6 +20,12 @@ namespace Deuteros.Code.Platform.Screens
 	{
 		public const string SpriteBasePath = "res://Sprites//SceneSprites//Ships//Interior//";
 
+		#region tradeVars
+		private bool moduleInteractionInProgress;
+		private Control tradeDecision;
+		private TaskCompletionSource<bool?> pendingTrade;
+		#endregion
+
 		public IShip Ship { get; set; }
 		public IPlanet CurrentPlanet { get; set; }
 		private bool sceneReady;
@@ -32,6 +38,7 @@ namespace Deuteros.Code.Platform.Screens
 		Control ACC { get; set; }
 		Control GrappleHolder { get; set; }
 		Control AMAHolder { get; set; }
+		Control SupplyPods { get; set; }
 
 		TextureRect LandingBlank { get; set; }
 		TextureRect EngineControls { get; set; }
@@ -169,10 +176,12 @@ namespace Deuteros.Code.Platform.Screens
         {
             var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
             arrivalTimeSkip = save.TimeSkip;
+
             // Projection follows the current mode, including controls and simulation-triggered stops.
             var projection = Ship is SCG scg ? scg.ProjectedArrival()
                 : (Updates: Ship.TravelTimeRemain(), ArrivalOffset: (long?)InterstellarFlight.StarOffset(save.BaseGameData.Planets[Ship.PlanetLocation].ParentStar));
             var remaining = (long)Math.Max(0, projection.Updates);
+
             ETA.Text = projection.ArrivalOffset == null ? "ETA:\nUnavailable" : "ETA:\n" + GameClock.FormatAbsoluteDate(
                 310000000L + (long)save.Clock.DateCentidays + projection.ArrivalOffset.Value + remaining * (arrivalTimeSkip ? 100 : 1));
         }
@@ -238,15 +247,19 @@ namespace Deuteros.Code.Platform.Screens
 		private async Task HandleModulePress(int modulePressed)
 		{
             if (RejectShipCommand() || modulePressed < 0 || modulePressed >= Ship.Modules.Count) return;
+
             var mounted = Ship.Modules[modulePressed];
             // The original item action precedes the remake's generic DFCC interception.
-            if (Ship.ShipState != Ship_States.Docked && mounted.ModuleType == Module_Types.Tool
-                && mounted.ItemStored == ItemTypes.alien_artifact)
+
+            if (Ship.ShipState != Ship_States.Docked && mounted.ModuleType == Module_Types.Tool && mounted.ItemStored == ItemTypes.alien_artifact)
             {
-                if (Ship.ShipState != Ship_States.UnDocked) return;
+                if (Ship.ShipState != Ship_States.UnDocked)
+					return;
+
                 if (Ship.Pilot == null || Ship.Pilot.GetLevel() < 4)
                 {
                     var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
+
                     if (warning != null)
                     {
                         warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
@@ -255,7 +268,9 @@ namespace Deuteros.Code.Platform.Screens
                         warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
                     }
                 }
-                else OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false);
+                else 
+					OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false);
+
                 return;
             }
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
@@ -434,6 +449,7 @@ namespace Deuteros.Code.Platform.Screens
 				var combatAvailable = Ship.ShipState == Ship_States.UnDocked && GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar &&
 					(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].ActiveMethanoid ||
 						GameCore.SingletonInstance.GameData.PlanetUnderAttack(Ship.PlanetLocation));
+
 				if (Ship.ShipState == Ship_States.UnDocked && Ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)Ship).DFCC
 					&& (mounted.ItemStored == ItemTypes.d__f__c__c || combatAvailable))
 				{
@@ -481,7 +497,6 @@ namespace Deuteros.Code.Platform.Screens
 				}
 				else if (Ship.Modules[modulePressed].ModuleType == Module_Types.Tool)
 				{
-
 					if ((Ship.ShipType != Ship_Types.Shuttle || (Ship.ShipType == Ship_Types.Shuttle && !((Shuttle)Ship).OnGround)) && Ship.ShipState == Ship_States.UnDocked  && Ship.Modules[modulePressed].ItemStored == ItemTypes.of_frame && CurrentPlanet.Station.Built == false && Ship.PlanetLocation!=StellarBodies.asteroids)
 					{
 						if (Ship.Pilot == null || Ship.Pilot.Count <= 0)
@@ -559,9 +574,12 @@ namespace Deuteros.Code.Platform.Screens
 
         private async Task ShowBattleFrame(InterStellarShip player, EnemyFleet enemy, IPlanet stationOwner, Action onCompleted)
         {
+
             var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/Battle.tscn").Instantiate<Battle>();
+
             Window.AddChild(frame);
             var battle = frame.DoBattle(player, enemy, onCompleted);
+
             if (stationOwner != null)
             {
                 var station = stationOwner.Station;
@@ -572,8 +590,15 @@ namespace Deuteros.Code.Platform.Screens
                         station.Resources.Stores[ItemTypes.ios_drone] += enemy.DroneCount;
                 };
             }
-            try { await battle; }
-            finally { if (IsInstanceValid(frame)) frame.QueueFree(); }
+            try 
+			{ 
+				await battle; 
+			}
+            finally 
+			{ 
+				if (IsInstanceValid(frame))
+					frame.QueueFree(); 
+			}
         }
 
 		private void ShowDroneTrasferFrame(InterStellarShip player)
@@ -583,25 +608,33 @@ namespace Deuteros.Code.Platform.Screens
 			Window.AddChild(FleetTransfers);
 
 			FleetTransfers.TransferDrones(player);
-
 		}
 
 		private async Task ShowModuleTextFrame(TextFrame newTextFrame, List<string> dynamicProperties, int windowNumber)
 		{
 			var core = GameCore.SingletonInstance;
+
 			GameCore.LockScreen();
+			
 			var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn").Instantiate<ModuleTextFrame>();
+			
 			ModuleTextFrame = frame;
 			Window.AddChild(frame);
+			
 			try
 			{
 				await frame.PlayText(newTextFrame, dynamicProperties, windowNumber);
 			}
 			finally
 			{
-				if (IsInstanceValid(frame)) frame.QueueFree();
-				if (ModuleTextFrame == frame) ModuleTextFrame = null;
-				if (IsInstanceValid(core) && core.IsInsideTree()) GameCore.UnLockScreen();
+				if (IsInstanceValid(frame))
+					frame.QueueFree();
+
+				if (ModuleTextFrame == frame)
+					ModuleTextFrame = null;
+
+				if (IsInstanceValid(core) && core.IsInsideTree())
+					GameCore.UnLockScreen();
 			}
 		}
 
@@ -1053,7 +1086,6 @@ namespace Deuteros.Code.Platform.Screens
 				GameCore.SingletonInstance.UpdateMenuButtons(false, false);
 		}
 
-
         private Texture2D LocationTexture(bool small)
         {
             var body = CurrentPlanet.IsMoon ? CurrentPlanet.MoonParentPlanetId : CurrentPlanet.PlanetId;
@@ -1225,6 +1257,160 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				UpdateState();
 			}
+		}
+
+		private void SupplyPods_Pressed()
+		{
+			if (RejectShipCommand())
+				return;
+
+			var core = GameCore.SingletonInstance;
+
+			if (!IsInsideTree() || IsQueuedForDeletion() || moduleInteractionInProgress ||
+				GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked ||
+				core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
+				return;
+
+			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/SupplyPods.tscn")) as Control;
+
+			if (dialog == null)
+				return;
+
+			SupplyPods = dialog;
+			GameCore.HoverText = "";
+
+			var ship = Ship;
+			var rows = dialog.GetNode<VBoxContainer>("Rows");
+
+			for (var index = 0; index < ship.Modules.Count; index++)
+			{
+				var slot = index;
+				var module = ship.Modules[slot];
+				var item = module.ItemStored;
+				var count = module.ItemCount;
+				var row = new HBoxContainer { Name = "Pod" + slot };
+
+				rows.AddChild(row);
+
+				var description = module.ModuleType == Module_Types.Supply
+					? (count > 0 ? count + " " + item.ToScreenString(" ") : "Empty")
+					: module.ModuleType.ToString();
+				var label = new Label { Name = "Cargo", Text = $"{slot + 1}: {description}", SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+
+				row.AddChild(label);
+
+				var ditch = new Button
+				{
+					Name = "Ditch",
+					Text = "Ditch",
+					CustomMinimumSize = new Vector2(52, 16),
+					Disabled = module.ModuleType != Module_Types.Supply || count <= 0
+				};
+
+				row.AddChild(ditch);
+
+				ditch.Pressed += () =>
+				{
+					if (RejectShipCommand(dialog) || ditch.Disabled || SupplyPods != dialog || dialog.IsQueuedForDeletion() ||
+						!OverlayManager.Instance.IsOpen || !IsInsideTree() || IsQueuedForDeletion() ||
+						!core.GameData.ActiveSaveFile.Ships.Contains(ship) || slot >= ship.Modules.Count ||
+						ship.Modules[slot] != module || module.ModuleType != Module_Types.Supply ||
+						module.ItemStored != item || module.ItemCount != count)
+						return;
+
+					// Original handler $33F40 retains pod kind and discards type/quantity.
+					// No store transfer, journey change or mining-cycle reset occurs here.
+					ditch.Disabled = true;
+					module.ItemStored = ItemTypes.none;
+					module.ItemCount = 0;
+					label.Text = $"{slot + 1}: Empty";
+					UpdateState();
+				};
+			}
+
+			dialog.GetNode<Button>("Close").Pressed += OverlayManager.Instance.CloseOverlay;
+			dialog.TreeExiting += () => { if (SupplyPods == dialog) SupplyPods = null; };
+		}
+
+		private async void ShipInterior_Pressed(int modulePressed)
+		{
+			if (moduleInteractionInProgress || OverlayManager.Instance.IsOpen || IsQueuedForDeletion())
+				return;
+
+			moduleInteractionInProgress = true;
+
+			try
+			{
+				await HandleModulePress(modulePressed);
+			}
+			catch (OperationCanceledException)
+			{
+				/* The owning scene left during its text/decision. */
+			}
+			finally
+			{
+				moduleInteractionInProgress = false;
+			}
+		}
+
+		private async Task<bool?> AskTradeDecision(Dictionary<ShipModule, Enums.ItemTypes> offered, Dictionary<ShipModule, Enums.ItemTypes> received, Dictionary<ShipModule, int> counts)
+		{
+			// Typing precedes the pause; simulation or scene replacement can invalidate an offer.
+			bool OfferIsCurrent() => IsInsideTree() && !IsQueuedForDeletion()
+				&& Ship.ShipState == Enums.Ship_States.Docked && Ship.PlanetLocation == CurrentPlanet.PlanetId
+				&& CurrentPlanet.ActiveMethanoid && !GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar
+				&& GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Contains(Ship)
+				&& offered.All(pair => Ship.Modules.Contains(pair.Key)
+					&& pair.Key.ModuleType == Enums.Module_Types.Supply
+					&& pair.Key.ItemStored == pair.Value && pair.Key.ItemCount == counts[pair.Key]);
+
+			if (!OfferIsCurrent()) return null;
+
+			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/TradeDecision.tscn")) as Control;
+
+			if (dialog == null)
+				return null;
+
+			tradeDecision = dialog;
+
+			var completion = new TaskCompletionSource<bool?>();
+			pendingTrade = completion;
+			dialog.GetNode<Label>("Cargo/Items").Text = string.Join("\n", offered.Select(pair =>
+				$"{pair.Key.ItemCount} {pair.Value.ToScreenString()}  >  {received[pair.Key].ToScreenString()}"));
+
+			void Decide(bool accept)
+			{
+				// Resolve before closing: retained/repeated signals cannot settle twice.
+				if (completion.TrySetResult(accept)) OverlayManager.Instance.CloseOverlay();
+			}
+
+			dialog.GetNode<Button>("Accept").Pressed += () => Decide(true);
+			dialog.GetNode<Button>("Decline").Pressed += () => Decide(false);
+			dialog.TreeExiting += () => completion.TrySetResult(null);
+
+			try
+			{
+				var decision = await completion.Task;
+				return decision.HasValue && OfferIsCurrent() ? decision : null;
+			}
+			finally
+			{
+				if (pendingTrade == completion) pendingTrade = null;
+				if (tradeDecision == dialog) tradeDecision = null;
+			}
+		}
+
+		public override void _ExitTree()
+		{
+			if (SupplyPods != null && IsInstanceValid(SupplyPods) && SupplyPods.IsInsideTree())
+				OverlayManager.Instance.CloseOverlay();
+
+			if (tradeDecision != null && IsInstanceValid(tradeDecision) && tradeDecision.IsInsideTree())
+				OverlayManager.Instance.CloseOverlay();
+
+			pendingTrade?.TrySetResult(null);
+
+			base._ExitTree();
 		}
 
 		#region Statics

@@ -3,7 +3,7 @@
 [ext_resource type="Texture2D" uid="uid://c3tf6fmf0k8f1" path="res://Sprites/UI/Settings/close.png" id="close"]
 [ext_resource type="PackedScene" path="res://Screens/Settings/Rows/CycleSettingRow.tscn" id="cycle"]
 [ext_resource type="PackedScene" path="res://Screens/Settings/Rows/KeybindSettingRow.tscn" id="key"]
-[ext_resource type="Script" path="res://Code/Platform/UI/SettingsScreen.cs" id="script"]
+[ext_resource type="Script" path="res://Code/Platform/UI/Settings/SettingsScreen.cs" id="script"]
 [ext_resource type="PackedScene" path="res://Screens/Settings/Rows/SliderSettingRow.tscn" id="slider"]
 [ext_resource type="Theme" uid="uid://dnrdiqvleuxl8" path="res://Themes/Settings.tres" id="theme"]
 [ext_resource type="PackedScene" uid="uid://cfnf3wvjahts4" path="res://Screens/Settings/Rows/ToggleSettingRow.tscn" id="toggle"]

@@ -211,6 +211,7 @@ namespace Deuteros.Code
 		private InputBlocker _screenLocker;
 		private int _lockCount;
 		public Enums.Scenes currentScene;
+		private bool quitRequested;
 
 		internal long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
 			? scg.AbsoluteClock
@@ -333,53 +334,80 @@ namespace Deuteros.Code
 			if (@event is InputEventKey key)
 			{
 				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+
 				if (key.IsActionPressed("quick_save", false, true))
 				{
 					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
 					QuickSave();
+
 					return;
 				}
+
 				if (key.IsActionPressed("next_location", false, true))
 				{
 					var save = GameData.ActiveSaveFile;
 					var stations = save.BaseGameData.Planets.Values
 						.Where(p => !p.ActiveMethanoid && p.Station.Built && p.Station.BuildParts > 0)
 						.OrderBy(p => p.Station.StationOrdinal).ThenBy(p => p.PlanetId).ToList();
-					if (stations.Count == 0) return;
+
+					if (stations.Count == 0)
+						return;
+
 					var index = stations.FindIndex(p => p.PlanetId == save.CurrentPlanet);
+
 					save.CurrentPlanet = stations[(index + 1) % stations.Count].PlanetId;
 					GetNode<SubViewport>("GameContainer/GameViewport").SetInputAsHandled();
 					ChangeScene(Scenes.Station, new List<SceneVariables> { Enums.SceneVariables.Orbit });
+
 					return;
 				}
+
 				var fast = key.IsActionPressed("speed_up", false, true);
+
 				if (fast || key.IsActionPressed("slow_down", false, true))
 				{
 					var timer = _menuScreen?.TimeButton;
-					if (timer == null || timer.Disabled || !timer.IsVisibleInTree() || !timer.CanProcess()) return;
+
+					if (timer == null || timer.Disabled || !timer.IsVisibleInTree() || !timer.CanProcess())
+						return;
+
 					timer.GetViewport().SetInputAsHandled();
+
 					if (GameData.ActiveSaveFile.TimeSkip != fast)
 						timer.EmitSignal(BaseButton.SignalName.Pressed);
+
 					return;
 				}
+
 				var target = key.IsActionPressed("research", false, true) ? Scenes.Earth_Research
 					: key.IsActionPressed("production", false, true) ? Scenes.Production : Scenes.None;
-				if (target == Scenes.None || _menuScreen == null) return;
+
+				if (target == Scenes.None || _menuScreen == null)
+					return;
+
 				var button = _menuScreen.GetNode("MainButtons").GetChildren().OfType<Platform.MenuButton>()
 					.FirstOrDefault(b => b.TargetScene == target && !b.Disabled && b.IsVisibleInTree() && b.CanProcess());
-				if (button == null) return;
+
+				if (button == null)
+					return;
+
 				button.GetViewport().SetInputAsHandled();
 				button._Pressed();
 				button.EmitSignal(BaseButton.SignalName.Pressed);
+
 				return;
 			}
+
 			// The game viewport routes input after descendant screens, so their modal dismissals take priority.
 			if (@event is not InputEventMouseButton mouse || mouse.ButtonIndex != MouseButton.Right || !mouse.Pressed)
 				return;
+
 			if (_screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen || currentScene == Scenes.Overview)
 				return;
+
 			if (GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
 				return;
+
 			if (!GameData.ActiveSaveFile.BaseGameData.Planets.Values.Any(planet => planet.Station.BuildParts > 0 && !planet.ActiveMethanoid))
 				return;
 
@@ -403,25 +431,35 @@ namespace Deuteros.Code
 		private void PublishPendingStory()
 		{
 			// Existing discoveries and modal owners keep priority; an undisplayed notice stays saved.
-			if (StoryDisplayBlocked()) return;
+			if (StoryDisplayBlocked())
+				return;
+
 			var save = GameData.ActiveSaveFile;
+
 			if (save.News.PendingBulletins.Count > 0)
 			{
 				ShowBulletin(save.News.PendingBulletins[0]);
 				return;
 			}
+
 			save.AlienTransmissions?.AdvanceResearch(save);
+
 			if (save.AlienTransmissions?.Advance() == true)
 			{
 				ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
 				_menuScreen.Location.Text = "News Bulletins";
 				((Bulletins)_currentScreen).DisplayTransmissionNotice(save);
 			}
-			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true) ShowBulletin(BulletinTypes.Hyperlight_Speed);
-			else if (save.News.PendingBulletins.Count > 0) ShowBulletin(save.News.PendingBulletins[0]);
-			else if (save.AlienTransmissions?.DiscoverScg(save) == true) ShowBulletin(BulletinTypes.Sol_Cleared);
-			else if (save.RogueCrew.PublishMutiny(save)) ShowBulletin(BulletinTypes.Mutiny);
-			else if (save.RogueCrew.AdvancePrisonDiscovery(save)) ShowBulletin(BulletinTypes.Rogue_Ship);
+			else if (save.AlienTransmissions?.DiscoverHyperlight(save) == true)
+				ShowBulletin(BulletinTypes.Hyperlight_Speed);
+			else if (save.News.PendingBulletins.Count > 0)
+				ShowBulletin(save.News.PendingBulletins[0]);
+			else if (save.AlienTransmissions?.DiscoverScg(save) == true)
+				ShowBulletin(BulletinTypes.Sol_Cleared);
+			else if (save.RogueCrew.PublishMutiny(save))
+				ShowBulletin(BulletinTypes.Mutiny);
+			else if (save.RogueCrew.AdvancePrisonDiscovery(save))
+				ShowBulletin(BulletinTypes.Rogue_Ship);
 		}
 
 		private void UpdatePlanets(uint previousDay, uint currentDay)
@@ -431,7 +469,8 @@ namespace Deuteros.Code
 			earth.TrainingData.ChildDayTick(previousDay, currentDay);
 			earth.DayTick(previousDay, currentDay);
 			foreach (Planet planet in GameData.ActiveSaveFile.BaseGameData.Planets.Values)
-				if (!ReferenceEquals(planet, earth)) planet.DayTick(previousDay, currentDay);
+				if (!ReferenceEquals(planet, earth))
+					planet.DayTick(previousDay, currentDay);
 		}
 
 		private void TriggerPlanetChange(Objects.Interfaces.IPlanet newPlanet)
@@ -745,5 +784,144 @@ namespace Deuteros.Code
 				SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Enums.StellarBodies.earth] = value;
 			}
 		}
+
+		public override void _Notification(int what)
+		{
+			if (what == NotificationWMCloseRequest) RequestQuit();
+		}
+
+		public void RequestQuit(int exitCode = 0)
+		{
+			if (quitRequested) return;
+			quitRequested = true;
+			// Window-close notifications can arrive during input dispatch.
+			CallDeferred(nameof(FinishQuit), exitCode);
+		}
+
+		private async void FinishQuit(int exitCode)
+		{
+			var tree = GetTree();
+			SetProcess(false);
+			SetProcessInput(false);
+			tree.Paused = true;
+			Platform.Helpers.OverlayManager.Instance?.CloseForShutdown();
+			// Scene exit cancels typing and stops background players. Do this
+			// while the mixer and managed runtime are still available.
+			foreach (var scene in GetNode("GameContainer/GameViewport/MainScene").GetChildren()) scene.Free();
+			_currentScreen = null;
+			_menuScreen = null;
+
+			// Godot 4.2 defers stopped playback disposal to its audio mixer.
+			// Wait for observed mixes, rather than an arbitrary frame count.
+			var deadline = Time.GetTicksMsec() + 2000;
+			var previousMixAge = AudioServer.GetTimeSinceLastMix();
+			var observedMixes = 0;
+
+			while (observedMixes < 2 && Time.GetTicksMsec() < deadline)
+			{
+				await ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+				var mixAge = AudioServer.GetTimeSinceLastMix();
+				if (mixAge < previousMixAge) observedMixes++;
+				previousMixAge = mixAge;
+			}
+
+			if (observedMixes < 2)
+			{
+				GD.PushError("Audio mixer did not finish shutdown within two seconds.");
+				if (exitCode == 0) exitCode = 1;
+			}
+
+			if (OS.IsDebugBuild())
+			{
+				// The audio wait above also advances beyond the input frame.
+				// A native-only replacement releases Godot 4.2.2's debug input
+				// cache before C# bindings are torn down (upstream #92201).
+				using var inputCleanup = GD.Load<GDScript>("res://Code/Utility/ShutdownInput.gd").New().AsGodotObject();
+				inputCleanup.Call("release_managed_events", tree.Root);
+			}
+
+			// Godot 4.2's shutdown tracker skips wrappers whose weak targets
+			// were cleared while their native-resource finalizers are pending.
+			// Drain those finalizers while the engine and bindings still exist.
+			// This collection runs only on exit, after scene/audio release.
+			System.GC.Collect();
+			System.GC.WaitForPendingFinalizers();
+			tree.Quit(exitCode);
+		}
+
+		#region saves
+		public SaveStorage Storage { get; set; } = new SaveStorage(ProjectSettings.GlobalizePath("user://saves"));
+		private SaveFile autosaveWorld;
+		private int autosaveInterval;
+		private double autosaveElapsed;
+
+		private void UpdateAutosave(double delta)
+		{
+			var interval = Platform.Helpers.SettingsManager.Instance.GetSetting("gameplay/autosave").AsString() switch
+			{
+				"5 minutes" => 300,
+				"10 minutes" => 600,
+				"15 minutes" => 900,
+				_ => 0
+			};
+
+			var save = GameData.ActiveSaveFile;
+
+			if (autosaveWorld != save || autosaveInterval != interval)
+			{
+				autosaveWorld = save;
+				autosaveInterval = interval;
+				autosaveElapsed = 0;
+			}
+
+			if (interval == 0 || !double.IsFinite(delta) || delta <= 0 || StoryDisplayBlocked() || currentScene == Scenes.SaveScreen)
+				return;
+
+			autosaveElapsed += delta;
+
+			if (autosaveElapsed < interval)
+				return;
+
+			autosaveElapsed = 0;
+
+			try
+			{
+				Storage.Write(SaveStorage.AutoSlot, save);
+				ShowStatusText("Autosaved.");
+			}
+			catch (Exception error) when (SaveStorage.IsSaveError(error))
+			{
+				ShowError(_currentScreen as Platform.Base.BaseSubScene, "Autosave failed; previous save kept.");
+			}
+		}
+
+		private void QuickSave()
+		{
+			try
+			{
+				Storage.Write(SaveStorage.QuickSlot, GameData.ActiveSaveFile);
+				if (_currentScreen is Platform.Screens.SaveScreen screen) screen.RefreshSlots();
+				ShowStatusText("Quick saved.");
+			}
+			catch (Exception error) when (SaveStorage.IsSaveError(error))
+			{
+				ShowError(_currentScreen as Platform.Base.BaseSubScene, "Quick save failed; previous save kept.");
+			}
+		}
+
+		public void LoadSavedGame(SaveFile save)
+		{
+			// Parse and validate the entire file before calling this world-switch boundary.
+			SaveStorage.Validate(save);
+			save.TimeSkip = save.TimeSkipDay = false;
+			save.TimeSkipStart = 0;
+			GameData.ActiveSaveFile = save;
+			HoverText = "";
+			// Recreate the current view so it cannot retain references into the old world.
+			ChangeScene(Scenes.Overview, new List<SceneVariables>());
+			_menuScreen.DayTick(save.CurrentDay, save.CurrentDay);
+			_menuScreen.UpdateAnimations();
+		}
+		#endregion
 	}
 }
