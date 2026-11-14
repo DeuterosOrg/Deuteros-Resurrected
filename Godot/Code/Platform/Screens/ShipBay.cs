@@ -192,7 +192,8 @@ namespace Deuteros.Code.Platform.Screens
 
             ScreenState = GetScreenState();
 
-			ScrollToScreen();
+			//Jump straight to the saved section when entering, no scroll animation
+			ScrollToScreen(false);
 
 			UpdateState();
 
@@ -531,13 +532,10 @@ namespace Deuteros.Code.Platform.Screens
 			GameCore.UnLockScreen();
 		}
 
-		private void ScrollToScreen()
+		private void ScrollToScreen(bool animate = true)
 		{
 			//TODO - Does not work backwards
 			int targetScrollX = ScreenState * ScreenWidth;
-
-			// Smooth scrolling
-			var tween = GetTree().CreateTween();
 
 			// Bounce distances
 			float bounce1 = 20f;
@@ -552,6 +550,16 @@ namespace Deuteros.Code.Platform.Screens
 
 			// Get current scroll position
 			float current = ScrollContainer.ScrollHorizontal;
+
+			//Already there or no animation wanted - set it directly, otherwise the bounce below still runs
+			if (!animate || Mathf.IsEqualApprox(current, target))
+			{
+				ScrollContainer.ScrollHorizontal = (int)target;
+				return;
+			}
+
+			// Smooth scrolling
+			var tween = GetTree().CreateTween();
 
 			// Direction: +1 if scrolling forward (increasing), -1 if backward
 			int direction = (target > current) ? 1 : -1;
