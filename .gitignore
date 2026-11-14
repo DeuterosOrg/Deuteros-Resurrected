@@ -15,6 +15,9 @@ export_credentials.cfg
 data_*/
 mono_crash.*.json
 
+# Import folders
+SourceMaterials/asset-pack/
+
 .vs/
 *.avi
 # Local validation and export output

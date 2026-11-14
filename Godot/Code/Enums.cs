@@ -322,7 +322,8 @@ namespace Deuteros.Code
             None,
             Station,
             IntroScreen,
-            SelfDestruct
+            Cutscene = 17,
+            SelfDestruct = 18
         }
 
         //Variables to pass to scenes to notify them of button types
@@ -465,7 +466,12 @@ namespace Deuteros.Code
             Meteor_Strike,
             Sonic_Weapon,
             Eureka,
-			None
+            AlienMessage1 = 21,
+            AlienMessage2 = 22,
+            AlienMessage3 = 23,
+            AlienSegmentMessage = 24,
+            AlienAllSegmentsMessage = 25,
+            None = 26
 		}
 
 		public enum ModuleFrameText
