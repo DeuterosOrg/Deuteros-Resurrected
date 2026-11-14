@@ -1,42 +1,23 @@
 name: Bug report
-description: Something in the remake is broken.
-labels: [bug]
+description: Something in the remake is broken, or it differs from the original game.
 body:
   - type: input
     id: build
     attributes:
       label: Build or commit
-      description: Release version (e.g. v0.2.0) or commit SHA.
-    validations:
-      required: true
+      description: Release version or commit SHA, if you have one.
   - type: dropdown
     id: platform
     attributes:
       label: Platform
       options: [Windows, macOS, Linux, Other]
-    validations:
-      required: true
   - type: textarea
-    id: steps
+    id: what
     attributes:
-      label: Steps to reproduce
-      description: Starting game state and the exact actions.
-      placeholder: |
-        1. New game, research the shuttle
-        2. Open the ship bay
-        3. ...
-    validations:
-      required: true
+      label: What happened
+      description: Starting game state, the steps, and what you expected.
   - type: textarea
-    id: expected
+    id: fidelity
     attributes:
-      label: Expected
-    validations:
-      required: true
-  - type: textarea
-    id: actual
-    attributes:
-      label: Actual
-      description: Include screenshots, recordings or log output if you have them.
-    validations:
-      required: true
+      label: Original-game difference (optional)
+      description: If this is a fidelity gap, what the original does and any evidence (manual, emulator, decoded routine). Mark anything you're assuming.

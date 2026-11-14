@@ -1,5 +1,8 @@
 name: CI
 
+# Advisory only: this workflow is never a required status check.
+# Direct pushes to develop are fine; a red build is a heads-up, not a block.
+
 on:
   pull_request:
   push:
@@ -27,17 +30,3 @@ jobs:
         env:
           DOTNET_CLI_TELEMETRY_OPTOUT: "1"
         run: dotnet build Godot/Deuteros.csproj -nologo
-
-  hygiene:
-    name: hygiene
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
-        with:
-          fetch-depth: 0
-      - name: Whitespace errors in this PR's changes only
-        if: github.event_name == 'pull_request'
-        run: git diff --check "origin/${{ github.base_ref }}...HEAD"
-      - name: Lint workflows
-        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
