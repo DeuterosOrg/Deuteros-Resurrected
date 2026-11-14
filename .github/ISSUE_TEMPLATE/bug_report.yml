@@ -1,0 +1,23 @@
+name: Bug report
+description: Something in the remake is broken, or it differs from the original game.
+body:
+  - type: input
+    id: build
+    attributes:
+      label: Build or commit
+      description: Release version or commit SHA, if you have one.
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      options: [Windows, macOS, Linux, Other]
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: Starting game state, the steps, and what you expected.
+  - type: textarea
+    id: fidelity
+    attributes:
+      label: Original-game difference (optional)
+      description: If this is a fidelity gap, what the original does and any evidence (manual, emulator, decoded routine). Mark anything you're assuming.
