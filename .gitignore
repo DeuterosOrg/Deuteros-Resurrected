@@ -15,9 +15,8 @@ export_credentials.cfg
 data_*/
 mono_crash.*.json
 
+# Space for the asset pack
+SourceMaterials/asset-pack/
+
 .vs/
 *.avi
-# Local validation and export output
-artifacts/
-.tools/
-__pycache__/
