@@ -59,7 +59,6 @@ namespace Deuteros.Code.Platform.Screens
 			MasterControlButton.Pressed += UpdateAnimations;
 			NewsButton.Pressed += UpdateAnimations;
 			SaveButton.Pressed += UpdateAnimations;
-			TimeButton.Pressed += UpdateAnimations;
 			StockButton.Pressed += UpdateAnimations;
 			DepositAnalysisButton.Pressed += UpdateAnimations;
 
@@ -90,6 +89,13 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				HoverInfo.Text = Deuteros.Code.GameCore.HoverText;
 			}
+
+			//TimeSkip is changed from several places, so the time animation follows it here
+			var timeAnimation = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip ? "animated" : "static";
+			if (TimeAnimation.Animation.ToString() != timeAnimation)
+			{
+				TimeAnimation.Play(timeAnimation);
+			}
 		}
 
 		//Triggered from gamecore
@@ -112,7 +118,6 @@ namespace Deuteros.Code.Platform.Screens
 			EarthAnimation.Play("static");
 			NewsAnimation.Play("static");
 			SaveAnimation.Play("static");
-			TimeAnimation.Play("static");
 			StockAnimation.Play("static");
 			DepositAnalysisAnimation.Play("static");
 
@@ -128,8 +133,6 @@ namespace Deuteros.Code.Platform.Screens
 				NewsAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.SaveScreen)
 				SaveAnimation.Play("animated");
-			else if (Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
-				TimeAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.Store)
 				StockAnimation.Play("animated");
 			else if (GameCore.SingletonInstance.currentScene == Enums.Scenes.ResourceMap)
