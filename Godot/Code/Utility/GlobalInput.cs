@@ -8,103 +8,111 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Utility
 {
-    using Godot;
+	using Godot;
 
-    public partial class GlobalInput : CanvasLayer
-    {
-        [Export] public Texture2D CursorTexture;
-        [Export] public Vector2 Hotspot = Vector2.Zero;
-        public static bool UiLocked { get; private set; }
-        private static Viewport _viewport;
-        private TextureRect _cursor;
+	public partial class GlobalInput : CanvasLayer
+	{
+		[Export] public Texture2D CursorTexture;
+		[Export] public Vector2 Hotspot = Vector2.Zero;
+		public static bool UiLocked { get; private set; }
+		private static Viewport _viewport;
+		private TextureRect _cursor;
 
-        // Lock state
-        public bool IsLocked { get; private set; }
-        public Rect2 LockRect { get; private set; }
+		// Lock state
+		public bool IsLocked { get; private set; }
+		public Rect2 LockRect { get; private set; }
 
-        private bool _mouseInsideWindow = true;
+		private bool _mouseInsideWindow = true;
 
-        public Vector2 DisplayPos { get; private set; }
+		public Vector2 DisplayPos { get; private set; }
 
-        public override void _Ready()
-        {
-            _viewport = GetViewport();
+		public override void _Ready()
+		{
+			_viewport = GetViewport();
 
-            _cursor = new TextureRect
-            {
-                Texture = CursorTexture,
-                MouseFilter = Control.MouseFilterEnum.Ignore,
-                ZIndex = 999999
-            };
-            _cursor.StretchMode = TextureRect.StretchModeEnum.Keep;
-            AddChild(_cursor);
+			_cursor = new TextureRect
+			{
+				Texture = CursorTexture,
+				MouseFilter = Control.MouseFilterEnum.Ignore,
+				ZIndex = (int)RenderingServer.CanvasItemZMax
+			};
+			_cursor.StretchMode = TextureRect.StretchModeEnum.Keep;
+			AddChild(_cursor);
 
-            // Show graphic cursor; do not capture or confine
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
+			// Show graphic cursor; do not capture or confine
+			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
-            UiLocked = false;
-        }
+			UiLocked = false;
+		}
 
-        public override void _ExitTree()
-        {
-            Input.MouseMode = Input.MouseModeEnum.Visible;
-        }
+		public override void _ExitTree()
+		{
+			Input.MouseMode = Input.MouseModeEnum.Visible;
+		}
 
-        public override void _Process(double delta)
-        {
-            var osPos = GetViewport().GetMousePosition(); // real mouse pos in window coords
-            DisplayPos = IsLocked ? ClampToRect(osPos, LockRect) : osPos;
+		public override void _Process(double delta)
+		{
+			var osPos = GetViewport().GetMousePosition(); // real mouse pos in window coords
 
-            _cursor.Position = DisplayPos - Hotspot;
-            _cursor.Visible = true;
-        }
+			DisplayPos = IsLocked ? ClampToRect(osPos, LockRect) : osPos;
 
-        public void LockToRect(Rect2 rectInViewportCoords)
-        {
-            LockRect = rectInViewportCoords;
-            IsLocked = true;
+			_cursor.Position = DisplayPos - Hotspot;
+			_cursor.Visible = true;
+		}
 
-            // Immediately clamp current display position
-            DisplayPos = ClampToRect(GetViewport().GetMousePosition(), LockRect);
-            _cursor.Position = DisplayPos - Hotspot;
-        }
+		public void LockToRect(Rect2 rectInViewportCoords)
+		{
+			LockRect = rectInViewportCoords;
+			IsLocked = true;
 
-        public void Unlock()
-        {
-            IsLocked = false;
-        }
+			// Immediately clamp current display position
+			DisplayPos = ClampToRect(GetViewport().GetMousePosition(), LockRect);
+			_cursor.Position = DisplayPos - Hotspot;
+		}
 
-        private static Vector2 ClampToRect(Vector2 p, Rect2 r)
-        {
-            // Clamp to inclusive edges
-            var min = r.Position;
-            var max = r.Position + r.Size;
-            return new Vector2(
-                Mathf.Clamp(p.X, min.X, max.X),
-                Mathf.Clamp(p.Y, min.Y, max.Y)
-            );
-        }
+		public void Unlock()
+		{
+			IsLocked = false;
+		}
 
-        public static void LockUi()
-        {
-            UiLocked = true;
+		public override void _Input(InputEvent @event)
+		{
+			// Confining the drawn cursor must also protect controls behind the panel.
+			// Keep releases and right-click dismissal available.
+			if (IsLocked && @event is InputEventMouseButton mouse && mouse.Pressed
+				&& mouse.ButtonIndex != MouseButton.Right && !LockRect.HasPoint(mouse.Position))
+				GetViewport().SetInputAsHandled();
+		}
 
-            // Hide & disable the mouse cursor
-            Input.MouseMode = Input.MouseModeEnum.Hidden;
+		private static Vector2 ClampToRect(Vector2 p, Rect2 r)
+		{
+			// Clamp to inclusive edges
+			var min = r.Position;
+			var max = r.Position + r.Size;
 
-            // Disable ALL Control (UI) input: mouse + keyboard
-            _viewport.GuiDisableInput = true;
-        }
+			return new Vector2(Mathf.Clamp(p.X, min.X, max.X), Mathf.Clamp(p.Y, min.Y, max.Y));
+		}
 
-        public static void UnlockUi()
-        {
-            UiLocked = false;
+		public static void LockUi()
+		{
+			UiLocked = true;
 
-            // Restore mouse cursor
-            Input.MouseMode = Input.MouseModeEnum.Visible;
+			// Hide & disable the mouse cursor
+			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
-            // Re-enable UI input
-            _viewport.GuiDisableInput = false;
-        }
-    }
+			// Disable ALL Control (UI) input: mouse + keyboard
+			_viewport.GuiDisableInput = true;
+		}
+
+		public static void UnlockUi()
+		{
+			UiLocked = false;
+
+			// Restore mouse cursor
+			Input.MouseMode = Input.MouseModeEnum.Visible;
+
+			// Re-enable UI input
+			_viewport.GuiDisableInput = false;
+		}
+	}
 }

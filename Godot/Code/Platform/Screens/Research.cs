@@ -57,8 +57,8 @@ namespace Deuteros.Code.Platform.Screens
 			ResearchedNode = GetNode<Node2D>("Labels/Researched");
 
 			ResearchImageTextureRect = GetNode<TextureRect>("Sprites/ResearchImage");
-
-			SelectedButton = new ResearchButton();
+			ResearchImageTextureRect.ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize;
+			ResearchImageTextureRect.StretchMode = TextureRect.StretchModeEnum.Keep;
 
 			Buttons = Utility.Buttons.CreateButtons<ResearchButton, ResearchItem>(GetNode<GridContainer>("ResearchButtonGrid"),
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Research != null).Select(T => T.Research).OrderBy(T => T.Index).ToDictionary(obj => obj.Index),
@@ -86,11 +86,14 @@ namespace Deuteros.Code.Platform.Screens
 
 			if (!clickedButton.ObjectData.Locked)
 			{
-				SelectedButton.Selected = false;
+				if (SelectedButton != null)
+					SelectedButton.Selected = false;
+
 				SelectedButton = clickedButton;
 				SelectedButton.Selected = true;
 
 				var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);
+
 				earth.CurrentResearchItem = SelectedButton.ObjectData;
 
 				DrawData(false);
@@ -165,7 +168,15 @@ namespace Deuteros.Code.Platform.Screens
 					ResearchedNode.Visible = true;
 
 					ResearchImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + researchItem.Research.ItemType.ToString() + ".png", ResearchImageTextureRect);
-					MassLabel.Text = "Mass " + "".PadRight(researchItem.Mass.ToString().Length, ' ') + "t.";
+
+					if (researchItem.BuildRequirements == null)
+					{
+						ItemNotesLabel.Text = "Research complete";
+
+						return;
+					}
+
+					MassLabel.Text = "Mass     t.";
 					MassDataLabel.Text = researchItem.Mass.ToString();
 					TeamWorkingLabel.Text = "";
 					ProjectCompletionLabel.Text = "";
@@ -174,7 +185,12 @@ namespace Deuteros.Code.Platform.Screens
 					ItemNotesLabel.Text = "This item may\nbe produced";
 					ItemNotesDataLabel.Text = researchItem.OrbitOnly ? "In Orbit Only" : "by any factory";
 				}
-				
+
+				else if (researchItem.ItemType == Enums.ItemTypes.alien_artifact)
+				{
+					InProgressNode.Visible = true;
+					ProjectCompletionLabel.Text = "Project is\n" + researchItem.Research.ResearchPercentageComplete.ToString().PadLeft(2, ' ') + "% complete";
+				}
 				else if (GameCore.Earth.ResearchStaff == null || GameCore.Earth.ResearchStaff.GetLevel()<researchItem.Research.TechLevel)
 				{
 					InProgressNode.Visible = true;
@@ -217,7 +233,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (currentItem != null)
 			{
 				//If the item is researched, return 100
-				if (currentItem.Researched)
+				if (currentItem.Researched || currentItem.ItemType == Enums.ItemTypes.alien_artifact)
 					return;
 
 				var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);
@@ -237,6 +253,7 @@ namespace Deuteros.Code.Platform.Screens
 					if ((currentItem.ResearchValue + v) > 255)
 					{
 						currentItem.ResearchValue = (currentItem.ResearchValue + v) & 0xFF; // Overflow wraparound
+
 						if (currentItem.ResearchPercentageComplete < 100)
 						{
 							currentItem.ResearchPercentageComplete += 11;
@@ -244,7 +261,7 @@ namespace Deuteros.Code.Platform.Screens
 							if (currentItem.ResearchPercentageComplete > currentItem.ResearchLimit)
 								currentItem.ResearchPercentageComplete = currentItem.ResearchLimit;
 
-                            if (currentItem.ResearchPercentageComplete > 100)
+							if (currentItem.ResearchPercentageComplete > 100)
 								currentItem.ResearchPercentageComplete = 100;
 						}
 					}

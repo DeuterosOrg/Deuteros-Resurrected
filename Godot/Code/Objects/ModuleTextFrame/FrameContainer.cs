@@ -10,8 +10,8 @@ namespace Deuteros.Code.Objects.ModuleTextFrame
 	{
 		private List<TextFrame> TextFrames { get; set; }
 
-		public FrameContainer() 
-		{ 
+		public FrameContainer()
+		{
 			TextFrames = new List<TextFrame>();
 		}
 

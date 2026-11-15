@@ -35,6 +35,10 @@ window/main_scene="res://Screens/Master.tscn"
 
 project/assembly_name="Deuteros"
 
+[editor]
+
+export/convert_text_resources_to_binary=false
+
 [filesystem]
 
 import/blender/enabled=false
@@ -42,7 +46,7 @@ import/blender/enabled=false
 [gui]
 
 theme/custom="res://Themes/DefaultTheme.tres"
-theme/custom_font="res://Themes/WhiteFont5.tres"
+theme/custom_font="res://Fonts/deuteros.ttf"
 theme/default_font_antialiasing=0
 
 [input]

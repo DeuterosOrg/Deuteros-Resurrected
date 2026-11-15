@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Objects
 {
-    public class IOS : InterStellarShip, IShip
-    {
-        public IOS()
-        {
-            ShipID = Guid.NewGuid();
-        }
-    }
+	public class IOS : InterStellarShip, IShip
+	{
+		public IOS()
+		{
+			ShipID = Guid.NewGuid();
+		}
+	}
 }

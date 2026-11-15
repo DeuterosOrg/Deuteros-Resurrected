@@ -6,305 +6,352 @@ using System.Linq;
 
 namespace Deuteros.Code.Platform.Helpers
 {
-    public partial class SettingsManager : Node
-    {
-        public const int VolumeSteps = 10;
-        public const string KeybindSection = "keybinds";
-        public const string WindowedMode = "Windowed";
-        public const string BorderlessMode = "Borderless";
-        public const string FullscreenMode = "Fullscreen";
-        public const string UnlimitedFrameLimit = "Unlimited";
+	public partial class SettingsManager : Node
+	{
+		public const int VolumeSteps = 10;
+		public const string KeybindSection = "keybinds";
+		public const string WindowedMode = "Windowed";
+		public const string BorderlessMode = "Borderless";
+		public const string FullscreenMode = "Fullscreen";
+		public const string UnlimitedFrameLimit = "Unlimited";
 
-        public static readonly Vector2I MinWindowSize = new Vector2I(1280, 720);
+		public static readonly Vector2I MinWindowSize = new Vector2I(1280, 720);
 
-        private readonly List<string> _windowModeOptions = new List<string>();
-        private readonly List<string> _frameLimitOptions = new List<string>();
-        private readonly Dictionary<string, Key> _defaultKeys = new Dictionary<string, Key>();
-        private readonly List<Vector2I> _resolutionSizes = new List<Vector2I>();
-        private readonly Dictionary<string, string> _volumeBuses = new Dictionary<string, string>();
-        private readonly Dictionary<string, Variant> _defaults = new Dictionary<string, Variant>();
-        private bool _focusMuted;
+		private readonly List<string> _windowModeOptions = new List<string>();
+		private readonly List<string> _frameLimitOptions = new List<string>();
+		private readonly Dictionary<string, Key> _defaultKeys = new Dictionary<string, Key>();
+		private readonly List<Vector2I> _resolutionSizes = new List<Vector2I>();
+		private readonly Dictionary<string, string> _volumeBuses = new Dictionary<string, string>();
+		private readonly Dictionary<string, Variant> _defaults = new Dictionary<string, Variant>();
+		private bool _focusMuted;
+		private bool _unfocused;
 
-        public static SettingsManager Instance { get; private set; }
+		public static SettingsManager Instance { get; private set; }
 
-        public GameConfig Config { get; private set; }
+		public GameConfig Config { get; private set; }
 
-        public string[] ResolutionOptions { get; private set; }
+		public double CalendarSpeed => GetSetting("gameplay/game_speed").AsString() switch
+		{
+			"0.5x" => 0.5,
+			"2x" => 2,
+			_ => 1
+		};
 
-        public override void _Ready()
-        {
-            Instance = this;
-            ProcessMode = ProcessModeEnum.Always;
+		public string[] ResolutionOptions { get; private set; }
 
-            BuildOptionLists();
-            BuildVolumeBuses();
+		public override void _Ready()
+		{
+			Instance = this;
+			ProcessMode = ProcessModeEnum.Always;
 
-            Config = new GameConfig();
-            ResolutionOptions = BuildResolutionOptions();
-            BuildDefaults();
-            ApplyAll();
-        }
+			BuildOptionLists();
+			BuildVolumeBuses();
 
-        public override void _ExitTree()
-        {
-            foreach (var action in _defaultKeys.Keys)
-            {
-                if (InputMap.HasAction(action))
-                    InputMap.ActionEraseEvents(action);
-            }
-        }
+			Config = new GameConfig();
+			ResolutionOptions = BuildResolutionOptions();
+			BuildDefaults();
+			ApplyAll();
+		}
 
-        public override void _Notification(int what)
-        {
-            if (Config == null)
-                return;
+		public override void _ExitTree()
+		{
+			foreach (var action in _defaultKeys.Keys)
+			{
+				if (InputMap.HasAction(action))
+					InputMap.ActionEraseEvents(action);
+			}
 
-            if (what == NotificationApplicationFocusOut)
-                SetFocusMuted(true);
-            else if (what == NotificationApplicationFocusIn)
-                SetFocusMuted(false);
-        }
+			Config?.Dispose();
+			Config = null;
+			Instance = null;
+		}
 
-        public Variant GetSetting(string settingKey, Variant fallback = default)
-        {
-            var (section, key) = SplitKey(settingKey);
+		public override void _Notification(int what)
+		{
+			if (Config == null)
+				return;
 
-            if (Config.HasValue(section, key))
-                return Config.GetValue(section, key);
+			if (what == NotificationApplicationFocusOut)
+				SetFocusMuted(true);
+			else if (what == NotificationApplicationFocusIn)
+				SetFocusMuted(false);
+		}
 
-            return GetDefault(settingKey, fallback);
-        }
+		public Variant GetSetting(string settingKey, Variant fallback = default)
+		{
+			var (section, key) = SplitKey(settingKey);
 
-        public Variant GetDefault(string settingKey, Variant fallback = default)
-        {
-            return _defaults.TryGetValue(settingKey, out var value) ? value : fallback;
-        }
+			var defaultValue = GetDefault(settingKey, fallback);
+			var value = Config.GetValue(section, key, defaultValue);
 
-        public bool HasDefault(string settingKey)
-        {
-            return _defaults.ContainsKey(settingKey);
-        }
+			if (defaultValue.VariantType != Variant.Type.Nil && value.VariantType != defaultValue.VariantType)
+				return defaultValue;
 
-        public void SetSetting(string settingKey, Variant value)
-        {
-            var (section, key) = SplitKey(settingKey);
-            Config.SetValue(section, key, value, false);
-        }
+			if (_volumeBuses.ContainsKey(settingKey))
+				return Math.Clamp(value.AsInt64(), 0, VolumeSteps);
 
-        public void Save()
-        {
-            Config.Save();
-        }
+			if (settingKey == "display/scanlines")
+				return Math.Clamp(value.AsInt64(), 0, 10);
 
-        public void Revert()
-        {
-            Config.Load();
-            ApplyAll();
-        }
+			return value;
+		}
 
-        public string[] GetOptions(string settingKey)
-        {
-            return settingKey switch
-            {
-                "display/resolution" => ResolutionOptions,
-                "display/window_mode" => _windowModeOptions.ToArray(),
-                "display/frame_limit" => _frameLimitOptions.ToArray(),
-                _ => null
-            };
-        }
+		public Variant GetDefault(string settingKey, Variant fallback = default)
+		{
+			return _defaults.TryGetValue(settingKey, out var value) ? value : fallback;
+		}
 
-        public void Apply(string settingKey)
-        {
-            var (section, _) = SplitKey(settingKey);
+		public bool HasDefault(string settingKey)
+		{
+			return _defaults.ContainsKey(settingKey);
+		}
 
-            if (section == "display")
-                ApplyDisplay();
-            else if (section == "audio")
-                ApplyAudio();
-            else if (section == KeybindSection)
-                ApplyKeybinds();
-        }
+		public void SetSetting(string settingKey, Variant value)
+		{
+			var (section, key) = SplitKey(settingKey);
+			Config.SetValue(section, key, value, false);
+		}
 
-        public void ApplyAll()
-        {
-            ApplyDisplay();
-            ApplyAudio();
-            ApplyKeybinds();
-        }
+		public Godot.Error Save() => Config.Save();
 
-        public void ApplyDisplay()
-        {
-            DisplayServer.WindowSetMinSize(MinWindowSize);
-            DisplayServer.WindowSetVsyncMode(GetSetting("display/vsync").AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
-            Engine.MaxFps = ParseFrameLimit(GetSetting("display/frame_limit").AsString());
+		public void Revert()
+		{
+			Config.Load();
+			ApplyAll();
+		}
 
-            var mode = ParseWindowMode(GetSetting("display/window_mode").AsString());
-            DisplayServer.WindowSetMode(mode);
+		public string[] GetOptions(string settingKey)
+		{
+			return settingKey switch
+			{
+				"display/resolution" => ResolutionOptions,
+				"display/window_mode" => _windowModeOptions.ToArray(),
+				"display/frame_limit" => _frameLimitOptions.ToArray(),
+				"display/pixel_scaling" => new[] { "Integer", "Fit" },
+				"display/interface_scale" => new[] { "100%", "125%", "150%", "200%" },
+				"gameplay/autosave" => new[] { "Off", "5 minutes", "10 minutes", "15 minutes" },
+				"gameplay/game_speed" => new[] { "0.5x", "1x", "2x" },
+				"gameplay/event_alerts" => new[] { "Off", "On" },
+				_ => null
+			};
+		}
 
-            if (mode != DisplayServer.WindowMode.Windowed)
-                return;
+		public void Apply(string settingKey)
+		{
+			var (section, _) = SplitKey(settingKey);
 
-            var size = ParseResolution(GetSetting("display/resolution").AsString());
+			if (section == "display")
+				ApplyDisplay();
+			else if (section == "audio")
+				ApplyAudio();
+			else if (section == KeybindSection)
+				ApplyKeybinds();
+			else if (settingKey == "gameplay/auto_pause")
+				ApplyAutoPause();
+		}
 
-            if (DisplayServer.WindowGetSize() == size)
-                return;
+		public void ApplyAll()
+		{
+			ApplyDisplay();
+			ApplyAudio();
+			ApplyKeybinds();
+			ApplyAutoPause();
+		}
 
-            DisplayServer.WindowSetSize(size);
+		public void ApplyDisplay()
+		{
+			Engine.MaxFps = ParseFrameLimit(GetSetting("display/frame_limit").AsString());
+			GameViewportContainer.Instance?.UpdateLayout();
 
-            var screen = DisplayServer.ScreenGetUsableRect(DisplayServer.WindowGetCurrentScreen());
-            DisplayServer.WindowSetPosition(screen.Position + (screen.Size - size) / 2);
-        }
+			DisplayServer.WindowSetMinSize(MinWindowSize);
+			DisplayServer.WindowSetVsyncMode(GetSetting("display/vsync").AsBool() ? DisplayServer.VSyncMode.Enabled : DisplayServer.VSyncMode.Disabled);
 
-        public void ApplyAudio()
-        {
-            foreach (var volumeBus in _volumeBuses)
-                ApplyBusVolume(volumeBus.Value, GetSetting(volumeBus.Key).AsInt32());
-        }
+			var mode = ParseWindowMode(GetSetting("display/window_mode").AsString());
 
-        public void ApplyKeybinds()
-        {
-            foreach (var action in _defaultKeys.Keys)
-            {
-                if (!InputMap.HasAction(action))
-                    continue;
+			DisplayServer.WindowSetMode(mode);
 
-                InputMap.ActionEraseEvents(action);
+			if (mode != DisplayServer.WindowMode.Windowed)
+				return;
 
-                var key = (Key)GetSetting(KeybindSection + "/" + action).AsInt64();
+			var size = ParseResolution(GetSetting("display/resolution").AsString());
 
-                if (key == Key.None)
-                    continue;
+			if (DisplayServer.WindowGetSize() == size)
+				return;
 
-                var newEvent = new InputEventKey();
-                newEvent.Keycode = key;
-                newEvent.Device = -1;
-                InputMap.ActionAddEvent(action, newEvent);
-            }
-        }
+			DisplayServer.WindowSetSize(size);
 
-        public static string FormatResolution(Vector2I size)
-        {
-            return $"{size.X} x {size.Y}";
-        }
+			var screen = DisplayServer.ScreenGetUsableRect(DisplayServer.WindowGetCurrentScreen());
 
-        private void BuildOptionLists()
-        {
-            _windowModeOptions.Add(WindowedMode);
-            _windowModeOptions.Add(BorderlessMode);
-            _windowModeOptions.Add(FullscreenMode);
+			DisplayServer.WindowSetPosition(screen.Position + (screen.Size - size) / 2);
+		}
 
-            _frameLimitOptions.Add("30");
-            _frameLimitOptions.Add("60");
-            _frameLimitOptions.Add("120");
-            _frameLimitOptions.Add("144");
-            _frameLimitOptions.Add(UnlimitedFrameLimit);
+		public void ApplyAudio()
+		{
+			foreach (var volumeBus in _volumeBuses)
+				ApplyBusVolume(volumeBus.Value, GetSetting(volumeBus.Key).AsInt32());
+		}
 
-            _defaultKeys["pause"] = Key.P;
-            _defaultKeys["speed_up"] = Key.Equal;
-            _defaultKeys["slow_down"] = Key.Minus;
-            _defaultKeys["next_location"] = Key.Tab;
-            _defaultKeys["research"] = Key.R;
-            _defaultKeys["production"] = Key.F;
-            _defaultKeys["quick_save"] = Key.F5;
+		public void ApplyKeybinds()
+		{
+			foreach (var action in _defaultKeys.Keys)
+			{
+				if (!InputMap.HasAction(action))
+					continue;
 
-            _resolutionSizes.Add(new Vector2I(1280, 720));
-            _resolutionSizes.Add(new Vector2I(1280, 800));
-            _resolutionSizes.Add(new Vector2I(1366, 768));
-            _resolutionSizes.Add(new Vector2I(1440, 900));
-            _resolutionSizes.Add(new Vector2I(1600, 900));
-            _resolutionSizes.Add(new Vector2I(1680, 1050));
-            _resolutionSizes.Add(new Vector2I(1920, 1080));
-            _resolutionSizes.Add(new Vector2I(1920, 1200));
-            _resolutionSizes.Add(new Vector2I(2560, 1440));
-            _resolutionSizes.Add(new Vector2I(2560, 1600));
-            _resolutionSizes.Add(new Vector2I(3840, 2160));
-        }
+				InputMap.ActionEraseEvents(action);
 
-        private void BuildVolumeBuses()
-        {
-            _volumeBuses["audio/master_volume"] = "Master";
-            _volumeBuses["audio/music_volume"] = "Music";
-            _volumeBuses["audio/effects_volume"] = "Effects";
-            _volumeBuses["audio/interface_volume"] = "Interface";
-        }
+				var key = (Key)GetSetting(KeybindSection + "/" + action).AsInt64();
 
-        private void BuildDefaults()
-        {
-            _defaults["display/resolution"] = FormatResolution(MinWindowSize);
-            _defaults["display/window_mode"] = WindowedMode;
-            _defaults["display/vsync"] = true;
-            _defaults["display/frame_limit"] = UnlimitedFrameLimit;
+				if (key == Key.None)
+					continue;
 
-            foreach (var volumeBus in _volumeBuses)
-                _defaults[volumeBus.Key] = 8;
+				var newEvent = new InputEventKey();
 
-            _defaults["audio/mute_unfocused"] = false;
+				newEvent.Keycode = key;
+				newEvent.Device = -1;
+				InputMap.ActionAddEvent(action, newEvent);
+			}
+		}
 
-            foreach (var defaultKey in _defaultKeys)
-                _defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
-        }
+		public static string FormatResolution(Vector2I size)
+		{
+			return $"{size.X} x {size.Y}";
+		}
 
-        private void SetFocusMuted(bool unfocused)
-        {
-            _focusMuted = unfocused && GetSetting("audio/mute_unfocused").AsBool();
-            ApplyAudio();
-        }
+		private void BuildOptionLists()
+		{
+			_windowModeOptions.Add(WindowedMode);
+			_windowModeOptions.Add(BorderlessMode);
+			_windowModeOptions.Add(FullscreenMode);
 
-        private void ApplyBusVolume(string busName, int volume)
-        {
-            var bus = AudioServer.GetBusIndex(busName);
+			_frameLimitOptions.Add("30");
+			_frameLimitOptions.Add("60");
+			_frameLimitOptions.Add("120");
+			_frameLimitOptions.Add("144");
+			_frameLimitOptions.Add(UnlimitedFrameLimit);
 
-            if (bus < 0)
-                return;
+			_defaultKeys["pause"] = Key.P;
+			_defaultKeys["speed_up"] = Key.Equal;
+			_defaultKeys["slow_down"] = Key.Minus;
+			_defaultKeys["next_location"] = Key.Tab;
+			_defaultKeys["research"] = Key.R;
+			_defaultKeys["production"] = Key.F;
+			_defaultKeys["quick_save"] = Key.F5;
 
-            var muted = volume <= 0 || (bus == 0 && _focusMuted);
-            AudioServer.SetBusMute(bus, muted);
+			_resolutionSizes.Add(new Vector2I(1280, 720));
+			_resolutionSizes.Add(new Vector2I(1280, 800));
+			_resolutionSizes.Add(new Vector2I(1366, 768));
+			_resolutionSizes.Add(new Vector2I(1440, 900));
+			_resolutionSizes.Add(new Vector2I(1600, 900));
+			_resolutionSizes.Add(new Vector2I(1680, 1050));
+			_resolutionSizes.Add(new Vector2I(1920, 1080));
+			_resolutionSizes.Add(new Vector2I(1920, 1200));
+			_resolutionSizes.Add(new Vector2I(2560, 1440));
+			_resolutionSizes.Add(new Vector2I(2560, 1600));
+			_resolutionSizes.Add(new Vector2I(3840, 2160));
+		}
 
-            if (volume > 0)
-                AudioServer.SetBusVolumeDb(bus, Mathf.LinearToDb(Math.Min(volume, VolumeSteps) / (float)VolumeSteps));
-        }
+		private void BuildVolumeBuses()
+		{
+			_volumeBuses["audio/master_volume"] = "Master";
+			_volumeBuses["audio/music_volume"] = "Music";
+			_volumeBuses["audio/effects_volume"] = "Effects";
+			_volumeBuses["audio/interface_volume"] = "Interface";
+		}
 
-        private string[] BuildResolutionOptions()
-        {
-            var screen = DisplayServer.ScreenGetUsableRect(DisplayServer.WindowGetCurrentScreen()).Size;
-            var options = _resolutionSizes.Where(size => size.X <= screen.X && size.Y <= screen.Y).Select(FormatResolution).ToList();
+		private void BuildDefaults()
+		{
+			_defaults["display/resolution"] = FormatResolution(MinWindowSize);
+			_defaults["display/window_mode"] = WindowedMode;
+			_defaults["display/vsync"] = true;
+			_defaults["display/frame_limit"] = UnlimitedFrameLimit;
+			_defaults["display/pixel_scaling"] = "Integer";
+			_defaults["display/interface_scale"] = "100%";
+			_defaults["display/scanlines"] = 0;
 
-            if (options.Count == 0)
-                options.Add(FormatResolution(MinWindowSize));
+			foreach (var volumeBus in _volumeBuses)
+				_defaults[volumeBus.Key] = 8;
 
-            return options.ToArray();
-        }
+			_defaults["audio/mute_unfocused"] = false;
+			_defaults["gameplay/tooltips"] = true;
+			_defaults["gameplay/auto_pause"] = false;
+			_defaults["gameplay/autosave"] = "Off";
+			_defaults["gameplay/confirm_launch"] = false;
+			_defaults["gameplay/game_speed"] = "1x";
+			_defaults["gameplay/event_alerts"] = "Off";
 
-        private static Vector2I ParseResolution(string option)
-        {
-            var parts = option.Split('x');
+			foreach (var defaultKey in _defaultKeys)
+				_defaults[KeybindSection + "/" + defaultKey.Key] = (long)defaultKey.Value;
+		}
 
-            if (parts.Length != 2 || !int.TryParse(parts[0].Trim(), out var width) || !int.TryParse(parts[1].Trim(), out var height))
-                return MinWindowSize;
+		private void SetFocusMuted(bool unfocused)
+		{
+			_unfocused = unfocused;
+			_focusMuted = unfocused && GetSetting("audio/mute_unfocused").AsBool();
+			ApplyAudio();
+			ApplyAutoPause();
+		}
 
-            return new Vector2I(Math.Max(width, MinWindowSize.X), Math.Max(height, MinWindowSize.Y));
-        }
+		private void ApplyAutoPause() => OverlayManager.Instance?.SetFocusPaused(
+			_unfocused && GetSetting("gameplay/auto_pause").AsBool());
 
-        private static int ParseFrameLimit(string option)
-        {
-            return int.TryParse(option, out var fps) ? fps : 0;
-        }
+		private void ApplyBusVolume(string busName, int volume)
+		{
+			var bus = AudioServer.GetBusIndex(busName);
 
-        private static DisplayServer.WindowMode ParseWindowMode(string option)
-        {
-            if (option == BorderlessMode)
-                return DisplayServer.WindowMode.Fullscreen;
+			if (bus < 0)
+				return;
 
-            if (option == FullscreenMode)
-                return DisplayServer.WindowMode.ExclusiveFullscreen;
+			var muted = volume <= 0 || (bus == 0 && _focusMuted);
 
-            return DisplayServer.WindowMode.Windowed;
-        }
+			AudioServer.SetBusMute(bus, muted);
 
-        private static (string Section, string Key) SplitKey(string settingKey)
-        {
-            var slash = settingKey.IndexOf('/');
-            return slash < 0 ? ("general", settingKey) : (settingKey.Substring(0, slash), settingKey.Substring(slash + 1));
-        }
-    }
+			if (volume > 0)
+				AudioServer.SetBusVolumeDb(bus, Mathf.LinearToDb(Math.Min(volume, VolumeSteps) / (float)VolumeSteps));
+		}
+
+		private string[] BuildResolutionOptions()
+		{
+			var screen = DisplayServer.ScreenGetUsableRect(DisplayServer.WindowGetCurrentScreen()).Size;
+			var options = _resolutionSizes.Where(size => size.X <= screen.X && size.Y <= screen.Y).Select(FormatResolution).ToList();
+
+			if (options.Count == 0)
+				options.Add(FormatResolution(MinWindowSize));
+
+			return options.ToArray();
+		}
+
+		private static Vector2I ParseResolution(string option)
+		{
+			var parts = option.Split('x');
+
+			if (parts.Length != 2 || !int.TryParse(parts[0].Trim(), out var width) || !int.TryParse(parts[1].Trim(), out var height))
+				return MinWindowSize;
+
+			return new Vector2I(Math.Max(width, MinWindowSize.X), Math.Max(height, MinWindowSize.Y));
+		}
+
+		private static int ParseFrameLimit(string option)
+		{
+			return int.TryParse(option, out var fps) ? Math.Max(0, fps) : 0;
+		}
+
+		private static DisplayServer.WindowMode ParseWindowMode(string option)
+		{
+			if (option == BorderlessMode)
+				return DisplayServer.WindowMode.Fullscreen;
+
+			if (option == FullscreenMode)
+				return DisplayServer.WindowMode.ExclusiveFullscreen;
+
+			return DisplayServer.WindowMode.Windowed;
+		}
+
+		private static (string Section, string Key) SplitKey(string settingKey)
+		{
+			var slash = settingKey.IndexOf('/');
+
+			return slash < 0 ? ("general", settingKey) : (settingKey.Substring(0, slash), settingKey.Substring(slash + 1));
+		}
+	}
 }

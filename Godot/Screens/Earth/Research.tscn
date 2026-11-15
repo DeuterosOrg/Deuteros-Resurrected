@@ -30,10 +30,10 @@ SoundToPlay = 4
 [node name="Sprites" type="Node2D" parent="."]
 
 [node name="ResearchImage" type="TextureRect" parent="Sprites"]
-offset_left = 180.0
-offset_top = 49.0
-offset_right = 248.0
-offset_bottom = 117.0
+offset_left = 208.0
+offset_top = 68.0
+offset_right = 256.0
+offset_bottom = 114.0
 
 [node name="ButtonsImage" type="TextureRect" parent="Sprites"]
 offset_left = 272.0

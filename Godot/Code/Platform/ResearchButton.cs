@@ -20,6 +20,7 @@ namespace Deuteros.Code.Platform
 				if (ObjectData.ItemType != Enums.ItemTypes.none)
 				{
 					var item = GameCore.SingletonInstance.GameData.GetItem(ObjectData.ItemType);
+
 					HoverText = (item.Research.Locked) ? "" : item.FullName;
 				}
 

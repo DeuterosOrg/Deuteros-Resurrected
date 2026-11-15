@@ -7,11 +7,10 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Platform
 {
-	internal class Unlocker
+	public class Unlocker
 	{
 		public Unlocker()
 		{
-			GameCore.SingletonInstance.DayPassed += SingletonInstance_DayPassed;
 			GameCore.SingletonInstance.ProductionFinished += SingletonInstance_ProductionFinished;
 			GameCore.SingletonInstance.ResearchFinished += SingletonInstance_ResearchFinished;
 			GameCore.SingletonInstance.ShipCreated += SingletonInstance_ShipCreated;
@@ -23,22 +22,30 @@ namespace Deuteros.Code.Platform
 		{
 			switch (techType)
 			{
-                case Enums.ItemTypes.alien_artifact:
+				case Enums.ItemTypes.alien_artifact:
 					var researchitem = GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.alien_artifact).Research;
-                    researchitem.Locked = false;
-                    researchitem.ResearchLimit += 11;
-                    break;
 
-                case Enums.ItemTypes.commspod:
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.CommsPod);
-                    GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.commspod).Research.Locked = false;
+					if (ArtifactRecovery.Deliver(GameCore.SingletonInstance.GameData.ActiveSaveFile))
+						GameCore.SingletonInstance.TriggerResearchFinished(researchitem);
+
 					break;
 
-                case Enums.ItemTypes.pulse_blaster_laser:
-                    GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.pulse_blaster_laser).Research.Locked = false;
-                    break;
+				case Enums.ItemTypes.commspod:
+					if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.CommsPod))
+						GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.CommsPod);
 
-                case Enums.ItemTypes.m__t__x:
+					GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.commspod).Research.Locked = false;
+					break;
+
+				case Enums.ItemTypes.pulse_blaster_laser:
+					GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.pulse_blaster_laser).Research.Locked = false;
+					break;
+
+				case Enums.ItemTypes.m__f__l:
+					GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.m__f__l).Research.Locked = false;
+					break;
+
+				case Enums.ItemTypes.m__t__x:
 					GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.Matter_Transmitter);
 					GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.Mass_Tranceiver);
 					GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.m__t__x).Research.Locked = false;
@@ -52,7 +59,7 @@ namespace Deuteros.Code.Platform
 			}
 		}
 
-		private void SingletonInstance_DayPassed(uint previousDay, uint currentDay)
+		public void DayTick(uint previousDay, uint currentDay)
 		{
 			if (
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount < 16 &&
@@ -66,7 +73,6 @@ namespace Deuteros.Code.Platform
 				GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.ios_drone).Research.Locked = false;
 			}
 		}
-
 
 		private void SingletonInstance_StationPiecePlaced(Enums.StellarBodies stellarBody)
 		{
@@ -98,7 +104,11 @@ namespace Deuteros.Code.Platform
 
 		private void SingletonInstance_ResearchFinished(Objects.ResearchItem researchItem)
 		{
-			if (researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser)
+			if (researchItem.ItemType == Enums.ItemTypes.g_chassis && DiscoverStarDrones(GameCore.SingletonInstance.GameData.ActiveSaveFile))
+				GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.SCG_Drone);
+
+			if ((researchItem.ItemType == Enums.ItemTypes.m__f__l || researchItem.ItemType == Enums.ItemTypes.pulse_blaster_laser) &&
+				!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.D_F_C_C))
 			{
 				GameCore.SingletonInstance.ShowBulletin(Enums.BulletinTypes.Methanoid_Laser);
 				GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Add(Enums.Game_Unlocks.D_F_C_C);
@@ -106,9 +116,25 @@ namespace Deuteros.Code.Platform
 				GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.ios_drone).Research.Locked = false;
 			}
 
-        }
+		}
 
-        private void SingletonInstance_ProductionFinished(Objects.Factory factory)
+		public static bool DiscoverStarDrones(Objects.GameData.SaveFile save)
+		{
+			// Original $23734 -> $37760 discovers the drone on chassis research completion.
+			if (!save.BaseGameData.ItemList.Any(i => i.ItemType == Enums.ItemTypes.g_chassis && i.Research?.Researched == true))
+				return false;
+
+			var research = save.BaseGameData.ItemList.FirstOrDefault(i => i.ItemType == Enums.ItemTypes.star_drone)?.Research;
+
+			if (research is not { Locked: true, Researched: false })
+				return false;
+
+			research.Locked = false;
+
+			return true;
+		}
+
+		private void SingletonInstance_ProductionFinished(Objects.Factory factory)
 		{
 			if (factory.CurrentProductionItem().Product.ItemType == Enums.ItemTypes.i_chassis && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.IOS_Attachments))
 			{

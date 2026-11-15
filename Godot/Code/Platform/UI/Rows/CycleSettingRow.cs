@@ -1,93 +1,105 @@
 using Godot;
 
-namespace Deuteros.Code.UI.Rows;
-
-[Tool]
-public partial class CycleSettingRow : SettingRow
+namespace Deuteros.Code.Platform.UI.Rows
 {
-    private string[] _options = { "Value" };
-    private int _selectedIndex;
+	[Tool]
+	public partial class CycleSettingRow : SettingRow
+	{
+		private string[] _options = { "Value" };
+		private int _selectedIndex;
 
-    [Export]
-    public string[] Options
-    {
-        get => _options;
-        set
-        {
-            _options = value ?? System.Array.Empty<string>();
-            if (IsNodeReady()) ApplyValue();
-        }
-    }
+		[Export]
+		public string[] Options
+		{
+			get => _options;
+			set
+			{
+				_options = value ?? System.Array.Empty<string>();
 
-    [Export]
-    public int SelectedIndex
-    {
-        get => _selectedIndex;
-        set
-        {
-            _selectedIndex = value;
-            if (IsNodeReady()) ApplyValue();
-        }
-    }
+				if (IsNodeReady())
+					ApplyValue();
+			}
+		}
 
-    public Button PrevButton { get; private set; }
-    public Label ValueLabel { get; private set; }
-    public Button NextButton { get; private set; }
+		[Export]
+		public int SelectedIndex
+		{
+			get => _selectedIndex;
+			set
+			{
+				_selectedIndex = value;
 
-    public override Variant SettingValue
-    {
-        get => SelectedOption;
-        set => SelectedIndex = System.Array.IndexOf(_options, value.AsString());
-    }
+				if (IsNodeReady())
+					ApplyValue();
+			}
+		}
 
-    private string SelectedOption => _selectedIndex >= 0 && _selectedIndex < _options.Length ? _options[_selectedIndex] : "";
+		public Button PrevButton { get; private set; }
+		public Label ValueLabel { get; private set; }
+		public Button NextButton { get; private set; }
 
-    public override string FormatValue(Variant value)
-    {
-        return value.AsString();
-    }
+		public override Variant SettingValue
+		{
+			get => SelectedOption;
+			set => SelectedIndex = System.Array.IndexOf(_options, value.AsString());
+		}
 
-    public override bool StepValue(int direction)
-    {
-        if (_options.Length == 0) return false;
-        StepSelection(direction);
-        return true;
-    }
+		private string SelectedOption => _selectedIndex >= 0 && _selectedIndex < _options.Length ? _options[_selectedIndex] : "";
 
-    public override void _Ready()
-    {
-        base._Ready();
+		public override string FormatValue(Variant value)
+		{
+			return value.AsString();
+		}
 
-        PrevButton = GetNode<Button>("%PrevButton");
-        ValueLabel = GetNode<Label>("%ValueLabel");
-        NextButton = GetNode<Button>("%NextButton");
+		public override bool StepValue(int direction)
+		{
+			if (_options.Length == 0)
+				return false;
 
-        ApplyValue();
+			StepSelection(direction);
 
-        if (Engine.IsEditorHint()) return;
-        PrevButton.Pressed += OnPrevButtonPressed;
-        NextButton.Pressed += OnNextButtonPressed;
-    }
+			return true;
+		}
 
-    private void OnPrevButtonPressed()
-    {
-        StepSelection(-1);
-    }
+		public override void _Ready()
+		{
+			base._Ready();
 
-    private void OnNextButtonPressed()
-    {
-        StepSelection(1);
-    }
+			PrevButton = GetNode<Button>("%PrevButton");
+			ValueLabel = GetNode<Label>("%ValueLabel");
+			NextButton = GetNode<Button>("%NextButton");
 
-    private void StepSelection(int step)
-    {
-        if (_options.Length == 0) return;
-        SelectedIndex = ((_selectedIndex + step) % _options.Length + _options.Length) % _options.Length;
-        NotifyValueChanged();
-    }
+			ApplyValue();
 
-    private void ApplyValue()
-    {
-        ValueLabel.Text = SelectedOption;
-    }
+			if (Engine.IsEditorHint())
+				return;
+
+			PrevButton.Pressed += OnPrevButtonPressed;
+			NextButton.Pressed += OnNextButtonPressed;
+		}
+
+		private void OnPrevButtonPressed()
+		{
+			StepSelection(-1);
+		}
+
+		private void OnNextButtonPressed()
+		{
+			StepSelection(1);
+		}
+
+		private void StepSelection(int step)
+		{
+			if (_options.Length == 0)
+				return;
+
+			SelectedIndex = ((_selectedIndex + step) % _options.Length + _options.Length) % _options.Length;
+			NotifyValueChanged();
+		}
+
+		private void ApplyValue()
+		{
+			ValueLabel.Text = SelectedOption;
+		}
+	}
 }

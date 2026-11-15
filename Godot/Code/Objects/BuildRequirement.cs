@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Objects
 {
-    public class BuildRequirement
-    {
-        public Enums.ItemTypes ItemType { get; set; }
-        public int ItemCount { get; set; }
+	public class BuildRequirement
+	{
+		public Enums.ItemTypes ItemType { get; set; }
+		public int ItemCount { get; set; }
 
-        public BuildRequirement(Enums.ItemTypes itemType,  int itemCount)
-        {
-            ItemType = itemType;
-            ItemCount = itemCount;
-        }
-    }
+		public BuildRequirement(Enums.ItemTypes itemType,  int itemCount)
+		{
+			ItemType = itemType;
+			ItemCount = itemCount;
+		}
+	}
 }

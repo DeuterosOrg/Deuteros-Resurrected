@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://du6cxq2xabkyu"]
+[gd_scene load_steps=24 format=3 uid="uid://du6cxq2xabkyu"]
 
 [ext_resource type="Script" path="res://Code/Platform/Screens/ShipBay.cs" id="1_ka4jh"]
 [ext_resource type="Texture2D" uid="uid://c75qloyqqj1ad" path="res://Sprites/Scenes/ShipBay.png" id="2_2703a"]
@@ -21,12 +21,16 @@
 [ext_resource type="Texture2D" uid="uid://yt7ht1f0rxff" path="res://Sprites/SceneSprites/Ships/FuelGauge_Plus.png" id="19_iifyq"]
 [ext_resource type="PackedScene" uid="uid://drqcefeqnqfsw" path="res://PreFabs/UI/DynamicWindow.tscn" id="21_m37m8"]
 [ext_resource type="PackedScene" uid="uid://dlpf322m5s804" path="res://PreFabs/Buttons/RepeatingButton.tscn" id="22_ykcnk"]
+[ext_resource type="PackedScene" path="res://PreFabs/Sound/BackGround.tscn" id="23_ambience"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_10r56"]
 bg_color = Color(0, 0, 0, 1)
 
 [node name="ShipBay" type="Node2D"]
 script = ExtResource("1_ka4jh")
+
+[node name="SoundController" parent="." instance=ExtResource("23_ambience")]
+SoundToPlay = 5
 
 [node name="ShipBay_Empty" type="TextureRect" parent="."]
 offset_left = 48.0
@@ -69,6 +73,7 @@ offset_left = 32.0
 offset_top = -36.0
 offset_right = 224.0
 offset_bottom = -20.0
+mouse_filter = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 0
@@ -817,15 +822,6 @@ offset_right = 122.0
 offset_bottom = -15.0
 flat = true
 
-[node name="StaffList" parent="." instance=ExtResource("16_87g0b")]
-visible = false
-offset_left = 160.0
-offset_top = 52.0
-offset_right = 240.0
-offset_bottom = 168.0
-ShowDividers = false
-ShowBackground = true
-
 [node name="Fuel" type="Control" parent="."]
 layout_mode = 3
 anchors_preset = 0
@@ -938,3 +934,32 @@ offset_top = 54.0
 offset_right = 170.0
 offset_bottom = 70.0
 text = "Sequence Complete."
+
+[node name="StaffList" parent="." instance=ExtResource("16_87g0b")]
+visible = false
+offset_left = 160.0
+offset_top = 52.0
+offset_right = 240.0
+offset_bottom = 168.0
+ShowDividers = false
+ShowBackground = true
+
+[node name="PrisonHelp" type="Label" parent="StaffList"]
+visible = false
+layout_mode = 0
+offset_left = -64.0
+offset_top = -22.0
+offset_right = 144.0
+offset_bottom = -2.0
+mouse_filter = 2
+theme_override_font_sizes/font_size = 8
+horizontal_alignment = 1
+
+[node name="PrisonEquipment" type="Button" parent="StaffList"]
+visible = false
+layout_mode = 0
+offset_top = 116.0
+offset_right = 80.0
+offset_bottom = 132.0
+theme_override_font_sizes/font_size = 8
+text = "Equipment"

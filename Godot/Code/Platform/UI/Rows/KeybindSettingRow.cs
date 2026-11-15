@@ -1,126 +1,134 @@
 using Godot;
 
-namespace Deuteros.Code.UI.Rows;
-
-[Tool]
-public partial class KeybindSettingRow : SettingRow
+namespace Deuteros.Code.Platform.UI.Rows
 {
-    private static KeybindSettingRow _listeningRow;
+	[Tool]
+	public partial class KeybindSettingRow : SettingRow
+	{
+		private static KeybindSettingRow _listeningRow;
 
-    private StringName _action = new StringName();
-    private string _keyText = "Key";
-    private Key _key = Key.None;
+		private StringName _action = new StringName();
+		private string _keyText = "Key";
+		private Key _key = Key.None;
 
-    [Export]
-    public StringName Action
-    {
-        get => _action;
-        set => _action = value;
-    }
+		[Export]
+		public StringName Action
+		{
+			get => _action;
+			set => _action = value;
+		}
 
-    [Export]
-    public string KeyText
-    {
-        get => _keyText;
-        set
-        {
-            _keyText = value;
-            if (IsNodeReady()) ApplyKeyText();
-        }
-    }
+		[Export]
+		public string KeyText
+		{
+			get => _keyText;
+			set
+			{
+				_keyText = value;
 
-    public Label KeyLabel { get; private set; }
-    public Button RebindButton { get; private set; }
+				if (IsNodeReady())
+					ApplyKeyText();
+			}
+		}
 
-    public override Variant SettingValue
-    {
-        get => (long)_key;
-        set
-        {
-            _key = (Key)value.AsInt64();
-            KeyText = FormatValue(value);
-        }
-    }
+		public Label KeyLabel { get; private set; }
+		public Button RebindButton { get; private set; }
 
-    public override string FormatValue(Variant value)
-    {
-        var key = (Key)value.AsInt64();
-        return key == Key.None ? "" : OS.GetKeycodeString(key);
-    }
+		public override Variant SettingValue
+		{
+			get => (long)_key;
+			set
+			{
+				_key = (Key)value.AsInt64();
+				KeyText = FormatValue(value);
+			}
+		}
 
-    public override bool StepValue(int direction)
-    {
-        return false;
-    }
+		public override string FormatValue(Variant value)
+		{
+			var key = (Key)value.AsInt64();
 
-    public override void _Ready()
-    {
-        base._Ready();
+			return key == Key.None ? "" : OS.GetKeycodeString(key);
+		}
 
-        KeyLabel = GetNode<Label>("%KeyLabel");
-        RebindButton = GetNode<Button>("%RebindButton");
+		public override bool StepValue(int direction)
+		{
+			return false;
+		}
 
-        ApplyKeyText();
-        SetProcessInput(false);
+		public override void _Ready()
+		{
+			base._Ready();
 
-        if (Engine.IsEditorHint()) return;
-        RebindButton.Toggled += OnRebindButtonToggled;
-    }
+			KeyLabel = GetNode<Label>("%KeyLabel");
+			RebindButton = GetNode<Button>("%RebindButton");
 
-    public override void _ExitTree()
-    {
-        if (_listeningRow == this)
-            _listeningRow = null;
-    }
+			ApplyKeyText();
+			SetProcessInput(false);
 
-    public override void _Input(InputEvent @event)
-    {
-        if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo) return;
+			if (Engine.IsEditorHint())
+				return;
 
-        GetViewport().SetInputAsHandled();
+			RebindButton.Toggled += OnRebindButtonToggled;
+		}
 
-        if (keyEvent.IsActionPressed("ui_cancel"))
-        {
-            StopListening();
-            return;
-        }
+		public override void _ExitTree()
+		{
+			if (_listeningRow == this)
+				_listeningRow = null;
+		}
 
-        _key = keyEvent.Keycode != Key.None ? keyEvent.Keycode : keyEvent.PhysicalKeycode;
-        _keyText = FormatValue((long)_key);
-        StopListening();
-        NotifyValueChanged();
-    }
+		public override void _Input(InputEvent @event)
+		{
+			if (@event is not InputEventKey keyEvent || !keyEvent.Pressed || keyEvent.Echo)
+				return;
 
-    private void OnRebindButtonToggled(bool toggledOn)
-    {
-        if (toggledOn)
-            StartListening();
-        else
-            StopListening();
-    }
+			GetViewport().SetInputAsHandled();
 
-    private void StartListening()
-    {
-        if (_listeningRow != null && _listeningRow != this)
-            _listeningRow.StopListening();
+			if (keyEvent.IsActionPressed("ui_cancel"))
+			{
+				StopListening();
 
-        _listeningRow = this;
-        KeyLabel.Text = "...";
-        SetProcessInput(true);
-    }
+				return;
+			}
 
-    private void StopListening()
-    {
-        if (_listeningRow == this)
-            _listeningRow = null;
+			_key = keyEvent.Keycode != Key.None ? keyEvent.Keycode : keyEvent.PhysicalKeycode;
+			_keyText = FormatValue((long)_key);
+			StopListening();
+			NotifyValueChanged();
+		}
 
-        SetProcessInput(false);
-        RebindButton.SetPressedNoSignal(false);
-        ApplyKeyText();
-    }
+		private void OnRebindButtonToggled(bool toggledOn)
+		{
+			if (toggledOn)
+				StartListening();
+			else
+				StopListening();
+		}
 
-    private void ApplyKeyText()
-    {
-        KeyLabel.Text = _keyText;
-    }
+		private void StartListening()
+		{
+			if (_listeningRow != null && _listeningRow != this)
+				_listeningRow.StopListening();
+
+			_listeningRow = this;
+			KeyLabel.Text = "...";
+			SetProcessInput(true);
+		}
+
+		private void StopListening()
+		{
+			if (_listeningRow == this)
+				_listeningRow = null;
+
+			SetProcessInput(false);
+			RebindButton.SetPressedNoSignal(false);
+			ApplyKeyText();
+		}
+
+		private void ApplyKeyText()
+		{
+			KeyLabel.Text = _keyText;
+		}
+	}
 }

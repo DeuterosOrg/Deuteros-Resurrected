@@ -13,6 +13,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 
 [node name="Background" type="TextureRect" parent="Images"]
 offset_left = 56.0
@@ -34,6 +35,7 @@ layout_mode = 3
 anchors_preset = 0
 offset_right = 40.0
 offset_bottom = 40.0
+mouse_filter = 2
 
 [node name="00" type="Label" parent="NewsLines"]
 layout_mode = 0

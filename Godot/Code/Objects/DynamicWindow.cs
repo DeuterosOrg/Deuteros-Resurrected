@@ -31,6 +31,7 @@ namespace Deuteros.Code.Objects
 			if (ContentWidth != 0 && ContentHeight != 0)
 			{
 				var contentWindow = GetNode<Control>("Window");
+
 				contentWindow.Size = new Vector2(ContentWidth, ContentHeight + 8);
 			}
 

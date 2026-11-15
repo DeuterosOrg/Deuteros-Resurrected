@@ -22,5 +22,5 @@ public partial class Error : Node2D
 	public override void _Process(double delta)
 	{
 	}
-		
+
 }

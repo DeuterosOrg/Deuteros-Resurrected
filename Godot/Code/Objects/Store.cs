@@ -6,37 +6,38 @@ using static Deuteros.Code.Enums;
 
 namespace Deuteros.Code.Objects
 {
-    [Serializable]
-    public partial class Store
-    {
-        public Dictionary<ItemTypes, int> Items { get; set; }
+	[Serializable]
+	public partial class Store
+	{
+		public Dictionary<ItemTypes, int> Items { get; set; }
 		//Display Mineral list or alt(Could be items or MTX)
-        public bool AlternativeView { get; set; }
+		public bool AlternativeView { get; set; }
+		public ItemTypes SelectedRecipe { get; set; }
 		public Objects.MTX MTX { get; set; }
 
 		public Store()
-        {
-            Items = new Dictionary<ItemTypes, int>();
-            MTX = new Objects.MTX();
-        }
+		{
+			Items = new Dictionary<ItemTypes, int>();
+			MTX = new Objects.MTX();
+		}
 
-        public int this[ItemTypes itemType]
-        {
-            get
-            {
-                //TODO DEBUG
-                if (GameCore.SingletonInstance.InfiniteResources)
-                    return 50000;
+		public int this[ItemTypes itemType]
+		{
+			get
+			{
+				//TODO DEBUG
+				if (GameCore.SingletonInstance.InfiniteResources)
+					return 50000;
 
-                return Items.ContainsKey(itemType) ? Items[itemType] : 0;
-            }
-            set 
-            {
-                if (Items.ContainsKey(itemType))
-                    Items[itemType] = value;
-                else
-                    Items.Add(itemType, value);
-            }
-        }
-    }
+				return Items.ContainsKey(itemType) ? Items[itemType] : 0;
+			}
+			set
+			{
+				if (Items.ContainsKey(itemType))
+					Items[itemType] = value;
+				else
+					Items.Add(itemType, value);
+			}
+		}
+	}
 }

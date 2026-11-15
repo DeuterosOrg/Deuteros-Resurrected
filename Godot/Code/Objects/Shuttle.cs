@@ -9,40 +9,41 @@ using static Deuteros.Code.Enums;
 
 namespace Deuteros.Code.Objects
 {
-    public class Shuttle : Ship, IShip
-    {
-        public bool OnGround { get; set; }
-        
-        public Shuttle()
-        {
-            ShipID = Guid.NewGuid();
-            Name = "Shuttle Craft";
-        }
+	public class Shuttle : Ship, IShip
+	{
+		public bool OnGround { get; set; }
 
-        public override int TravelTimeRemain()
-        {
-            if (ShipState == Enums.Ship_States.Landing)
-                return 2 - (int)(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartTravelDay);
-            else if (ShipState == Enums.Ship_States.TakingOff)
-                return 5 - (int)(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartTravelDay);
-            else
-                return 0;
-        }
+		public Shuttle()
+		{
+			ShipID = Guid.NewGuid();
+			Name = "Shuttle Craft";
+		}
 
-        public void CompleteRepairs()
-        {
-            if ( ShipState == Enums.Ship_States.CrewRepairing)
-            {
-                if (GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartRepairDay >= 2)
-                {
-                    Modules[0].ItemStored = ItemTypes.none;
-                    Modules[0].ItemCount = 0;
-                    GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].BaseDamaged = false;
+		public override int TravelTimeRemain()
+		{
+			if (ShipState == Enums.Ship_States.Landing)
+				return 2 - (int)(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartTravelDay);
+			else if (ShipState == Enums.Ship_States.TakingOff)
+				return 5 - (int)(GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartTravelDay);
+			else
+				return 0;
+		}
 
-                    ShipState = Enums.Ship_States.Docked;
-                }
-            }
+		public void CompleteRepairs()
+		{
+			if ( ShipState == Enums.Ship_States.CrewRepairing)
+			{
+				if (GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay - StartRepairDay >= 2)
+				{
+					Modules[0].ItemStored = ItemTypes.none;
+					Modules[0].ItemCount = 0;
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].BaseDamaged = false;
+					GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[PlanetLocation].CaptiveBase = false;
 
-        }
-    }
+					ShipState = Enums.Ship_States.Docked;
+				}
+			}
+
+		}
+	}
 }

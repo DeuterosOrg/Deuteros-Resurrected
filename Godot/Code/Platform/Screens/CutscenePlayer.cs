@@ -182,6 +182,7 @@ void fragment() {
 
 			music = new AudioStreamPlayer { Bus = "Music" };
 			AddChild(music);
+
 			for (int i = 0; i < sfx.Length; i++)
 			{
 				sfx[i] = new AudioStreamPlayer { Bus = "Effects" };
@@ -194,6 +195,7 @@ void fragment() {
 		public override void _ExitTree()
 		{
 			base._ExitTree();
+
 			if (IsInstanceValid(GameCore.SingletonInstance))
 				GameCore.SingletonInstance.SetPlayfieldMenuVisible(true);
 		}
@@ -205,7 +207,9 @@ void fragment() {
 
 			// Catch up, but never more than 32 ticks in one render frame.
 			accum += delta;
+
 			int n = 0;
+
 			while (accum >= Tick && n < 32)
 			{
 				accum -= Tick;
@@ -214,15 +218,19 @@ void fragment() {
 				if (!string.IsNullOrEmpty(cue.StaticPng))
 				{
 					stillTicks--;
+
 					if (stillTicks <= 0)
 					{
 						Finish();
+
 						return;
 					}
+
 					continue;
 				}
 
 				TickFrame();
+
 				if (closed)
 					return;
 			}
@@ -234,7 +242,9 @@ void fragment() {
 		{
 			if (pack == "title" || pack == "credits")
 				goBackToTitle = true;
+
 			PlayPack(packName);
+
 			return true;
 		}
 
@@ -242,10 +252,12 @@ void fragment() {
 		{
 			if (ev is not InputEventMouseButton mouse || !mouse.Pressed)
 				return;
+
 			if (mouse.ButtonIndex != MouseButton.Left && mouse.ButtonIndex != MouseButton.Right)
 				return;
 
 			GetViewport().SetInputAsHandled();
+
 			if (cue == null || !string.IsNullOrEmpty(cue.StaticPng) || !clicksOn)
 				return;
 
@@ -262,6 +274,7 @@ void fragment() {
 				}
 				else
 					Finish();
+
 				return;
 			}
 
@@ -276,10 +289,12 @@ void fragment() {
 			pack = name;
 			accum = 0;
 			cue = LoadCue(name);
+
 			if (cue == null)
 			{
 				GD.PushError("Cutscene pack '" + name + "' is missing.");
 				Callable.From(Finish).CallDeferred();
+
 				return;
 			}
 
@@ -289,6 +304,7 @@ void fragment() {
 				still.Texture = GD.Load<Texture2D>("res://Sprites/Cutscenes/" + pack + "/" + cue.StaticPng);
 				still.Visible = true;
 				stillTicks = Math.Max(1, cue.Blanks);
+
 				return;
 			}
 
@@ -325,6 +341,7 @@ void fragment() {
 
 			foreach (Node child in stage.GetChildren())
 				child.Free();
+
 			textMats.Clear();
 			actors.Clear();
 			cellTextures.Clear();
@@ -341,17 +358,20 @@ void fragment() {
 				var slot = new Node2D();
 				// Band sits behind the sprite and is only shown while restoring a frozen picture.
 				var band = new ColorRect();
+
 				band.Size = new Vector2(ScreenW, 0);
 				band.Visible = false;
 				band.MouseFilter = Control.MouseFilterEnum.Ignore;
 
 				var sprite = new Sprite2D();
+
 				sprite.Centered = false;
 				sprite.Visible = false;
 				sprite.TextureFilter = CanvasItem.TextureFilterEnum.Nearest;
 				sprite.Material = copyMat;
 
 				var text = new Node2D();
+
 				text.Visible = false;
 
 				slot.AddChild(band);
@@ -388,9 +408,11 @@ void fragment() {
 			for (int i = 0; i < frames.Count; i++)
 			{
 				var rect = frames[i];
+
 				if (rect == null || rect.Length < 4)
 				{
 					cellTextures.Add(null);
+
 					continue;
 				}
 
@@ -400,6 +422,7 @@ void fragment() {
 					Region = new Rect2(rect[0], rect[1], rect[2], rect[3]),
 					FilterClip = true
 				};
+
 				cellTextures.Add(cell);
 			}
 		}
@@ -411,6 +434,7 @@ void fragment() {
 				return null;
 
 			long key = g;
+
 			if (glyphTextures.TryGetValue(key, out var cached))
 				return cached;
 
@@ -420,7 +444,9 @@ void fragment() {
 				Region = new Rect2(fontRect[0] + (g % 16) * 8, fontRect[1] + (g / 16) * 8, 8, 8),
 				FilterClip = true
 			};
+
 			glyphTextures[key] = cell;
+
 			return cell;
 		}
 
@@ -433,18 +459,23 @@ void fragment() {
 			{
 				goBackToTitle = false;
 				PlayPack("title");
+
 				return;
 			}
+
 			if (!string.IsNullOrEmpty(cue?.Next))
 			{
 				PlayPack(cue.Next);
+
 				return;
 			}
+
 			if (closed)
 				return;
 
 			closed = true;
 			StopAudio();
+
 			Callable.From(() =>
 			{
 				if (IsInstanceValid(GameCore.SingletonInstance))
@@ -456,11 +487,14 @@ void fragment() {
 		{
 			var path = "res://Cutscenes/" + name + ".json";
 			using var file = FileAccess.Open(path, FileAccess.ModeFlags.Read);
+
 			if (file == null)
 			{
 				GD.PushError("Cannot read " + path);
+
 				return null;
 			}
+
 			return JsonConvert.DeserializeObject<CueFile>(file.GetAsText());
 		}
 
@@ -587,6 +621,754 @@ void fragment() {
 			[JsonProperty("y")] public int Y { get; set; }
 			[JsonProperty("p")] public int P { get; set; }
 			[JsonProperty("s")] public string S { get; set; }
+		}
+
+		// Start the pack's music. An empty name leaves the pack silent.
+		// The stream loops; cue timing does not follow the stream, it follows the sync clock.
+		void StartMusic(string name)
+		{
+			if (string.IsNullOrEmpty(name))
+				return;
+
+			var stream = GD.Load<AudioStream>("res://Sounds/Cutscenes/" + name);
+
+			if (stream == null)
+			{
+				GD.PushError("Missing cutscene music " + name);
+
+				return;
+			}
+
+			if (stream is AudioStreamOggVorbis ogg)
+				ogg.Loop = true;
+
+			music.Stream = stream;
+			music.Play();
+		}
+
+		// Play a sample on the channels selected by the mask, or stop those channels.
+		// Bit 0 is channel 0, bit 1 is channel 1, and so on. A mask of zero does nothing.
+		// Slot zero, or no sample name, stops the selected channels instead of playing.
+		void PlaySfx(int slot, int mask, string wav)
+		{
+			if (mask == 0)
+				return;
+
+			if (slot == 0 || string.IsNullOrEmpty(wav))
+			{
+				for (int ch = 0; ch < 4; ch++)
+				{
+					if ((mask & (1 << ch)) != 0)
+						sfx[ch].Stop();
+				}
+
+				return;
+			}
+
+			string path = "res://Sounds/Cutscenes/" + pack + "/" + wav;
+
+			if (!sfxCache.TryGetValue(path, out var stream))
+			{
+				stream = GD.Load<AudioStream>(path);
+				sfxCache[path] = stream;
+			}
+
+			if (stream == null)
+				return;
+
+			for (int ch = 0; ch < 4; ch++)
+			{
+				if ((mask & (1 << ch)) == 0)
+					continue;
+
+				sfx[ch].Stop();
+				sfx[ch].Stream = stream;
+				sfx[ch].Play();
+			}
+		}
+
+		void StopAudio()
+		{
+			music?.Stop();
+
+			foreach (var player in sfx)
+				player?.Stop();
+		}
+		void HidePic(Actor actor)
+		{
+			actor.Band.Visible = false;
+			actor.Sprite.Visible = false;
+			actor.Text.Visible = false;
+		}
+
+		// Show whatever this actor's picture value currently means.
+		// Idle actors and hidden actors draw nothing, even if a frame number is still stored.
+		void DrawActor(Actor actor)
+		{
+			ushort word = actor.Image;
+
+			if ((actor.Mode & 0xFF) == 0 || word == Hide)
+			{
+				HidePic(actor);
+
+				return;
+			}
+
+			if (word == ShowText)
+			{
+				actor.Band.Visible = false;
+				actor.Sprite.Visible = false;
+				DrawText(actor, (int)actor.Extra);
+
+				return;
+			}
+
+			actor.Text.Visible = false;
+
+			// Restore is the picture value with this bit set. Redraw the frozen cell,
+			// on a full-width band of the background colour, at the actor's current row.
+			bool restore = (word & 0x2000) != 0;
+
+			if (restore)
+			{
+				if (snapFrame < 0 || snapFrame >= cellTextures.Count || cellTextures[snapFrame] == null)
+				{
+					HidePic(actor);
+
+					return;
+				}
+
+				var snap = cellTextures[snapFrame];
+
+				actor.Band.Position = new Vector2(0, actor.Y);
+				actor.Band.Size = new Vector2(ScreenW, snapRows > 0 ? snapRows : snap.Region.Size.Y);
+				actor.Band.Color = palette[0];
+				actor.Band.Visible = true;
+				actor.Sprite.Material = copyMat;
+				actor.Sprite.Texture = snap;
+				actor.Sprite.Position = new Vector2(snapX, actor.Y);
+				actor.Sprite.Visible = true;
+
+				return;
+			}
+
+			// Freeze has both top bits set. Cut has only the top bit, and leaves pen 0 transparent.
+			bool freeze = (word & 0xC000) == Freeze;
+			bool cut = (word & 0x8000) != 0 && (word & 0x4000) == 0;
+			// Cut and freeze keep the frame number in the low byte. A plain picture is the number itself.
+			int index = (word & 0x8000) != 0 ? word & 0xFF : word;
+
+			if (index < 0 || index >= cellTextures.Count || cellTextures[index] == null)
+			{
+				HidePic(actor);
+
+				return;
+			}
+
+			var cell = cellTextures[index];
+			int px = actor.X * 16;
+			int py = actor.Y;
+
+			actor.Band.Visible = false;
+			actor.Sprite.Material = cut ? cutMat : copyMat;
+			actor.Sprite.Texture = cell;
+			actor.Sprite.Position = new Vector2(px, py);
+			actor.Sprite.Visible = true;
+
+			// Remember this cell, then switch the actor to Restore so the next tick
+			// redraws the frozen picture instead of playing a new frame.
+			if (freeze)
+			{
+				snapFrame = index;
+				snapX = px;
+				snapRows = (int)cell.Region.Size.Y;
+				actor.Image = Restore;
+			}
+		}
+
+		// Build the sprites for one text block. Rebuilding is skipped when this actor
+		// is already showing that same block.
+		// The cursor starts at the origin. "at" places it, "mark" remembers a margin,
+		// and a new line drops eight pixels and returns to that margin.
+		// Characters start at space. Only the first 112 have glyphs, in rows of 16,
+		// but every character still advances the cursor.
+		// Glyphs in the block share one material, so the foreground and background
+		// pens that end up showing are the last ones the block set.
+		void DrawText(Actor actor, int id)
+		{
+			if (cue.Texts == null || id < 0 || id >= cue.Texts.Count || fontRect == null || fontRect.Length < 4)
+			{
+				actor.Text.Visible = false;
+
+				return;
+			}
+
+			actor.Text.Visible = true;
+
+			if (actor.DrawnText == id)
+				return;
+
+			actor.DrawnText = id;
+
+			foreach (Node child in actor.Text.GetChildren())
+				child.Free();
+
+			var mat = new ShaderMaterial { Shader = shader };
+
+			mat.SetShaderParameter("transparent_zero", false);
+			mat.SetShaderParameter("is_glyph", true);
+			mat.SetShaderParameter("palette", palette);
+			textMats.Add(mat);
+
+			int cx = 0, cy = 0, lx = 0, ly = 0;
+
+			foreach (var op in cue.Texts[id])
+			{
+				switch (op.Op)
+				{
+					case "at":
+						cx = op.X;
+						cy = op.Y;
+						break;
+					case "fg":
+						mat.SetShaderParameter("glyph_fg", op.P & 0xF);
+						break;
+					case "bg":
+						mat.SetShaderParameter("glyph_bg", op.P & 0xF);
+						break;
+					case "mark":
+						lx = cx;
+						ly = cy;
+						break;
+					case "nl":
+						ly += 8;
+						cx = lx;
+						cy = ly;
+						break;
+					case "str":
+						if (string.IsNullOrEmpty(op.S))
+							break;
+
+						foreach (char ch in op.S)
+						{
+							int g = ch - 0x20;
+
+							if (g >= 0 && g < 112)
+							{
+								var cell = GlyphTexture(g);
+
+								if (cell == null)
+									continue;
+
+								var glyph = new Sprite2D();
+
+								glyph.Centered = false;
+								glyph.Texture = cell;
+								glyph.Position = new Vector2(cx, cy);
+								glyph.TextureFilter = CanvasItem.TextureFilterEnum.Nearest;
+								glyph.Material = mat;
+								actor.Text.AddChild(glyph);
+							}
+
+							cx += fontAdvance;
+						}
+
+						break;
+				}
+			}
+		}
+
+		// Copy palette index into the 16 pens. RGB values in the pack are 0..255.
+		// The new colours are pushed to the sprites at the end of the tick.
+		void LoadPalette(int index)
+		{
+			if (cue?.Palettes == null || index < 0 || index >= cue.Palettes.Count)
+				return;
+
+			paletteDirty = true;
+
+			var record = cue.Palettes[index];
+
+			for (int c = 0; c < 16 && c < record.Count; c++)
+			{
+				var rgb = record[c];
+
+				palette[c] = new Color(rgb[0] / 255f, rgb[1] / 255f, rgb[2] / 255f, 1f);
+			}
+		}
+
+		// One step of the colour cycle. The pack supplies four pairs; each tick
+		// uses the next pair, wrapping around, and writes it into pens 10 and 11.
+		void CycleCopper()
+		{
+			if (copperOn == 0 || cue?.Copper == null || cue.Copper.Count < 4)
+				return;
+
+			copperIdx++;
+
+			var pair = cue.Copper[copperIdx & 3];
+
+			if (pair == null || pair.Count < 2)
+				return;
+
+			palette[10] = new Color(pair[0][0] / 255f, pair[0][1] / 255f, pair[0][2] / 255f, 1f);
+			palette[11] = new Color(pair[1][0] / 255f, pair[1][1] / 255f, pair[1][2] / 255f, 1f);
+			paletteDirty = true;
+		}
+
+		// Push the current pens to everything that samples them.
+		void ApplyPalette()
+		{
+			paletteDirty = false;
+			backdrop.Color = palette[0];
+			copyMat.SetShaderParameter("palette", palette);
+			cutMat.SetShaderParameter("palette", palette);
+
+			for (int i = 0; i < textMats.Count; i++)
+				textMats[i].SetShaderParameter("palette", palette);
+
+			for (int i = 0; i < actors.Count; i++)
+			{
+				if (actors[i].Band.Visible)
+					actors[i].Band.Color = palette[0];
+			}
+		}
+
+		// One tick of a scripted pack.
+		// Actors only step every packHold ticks. Drawing happens on those same steps.
+		// The colour cycle, the music clock, and the frame counters advance every tick,
+		// so a slow script still animates and stays in time with the song.
+		void TickFrame()
+		{
+			if (hold <= 0)
+			{
+				for (int i = 0; i < actors.Count; i++)
+					StepActor(actors[i]);
+
+				hold = packHold;
+
+				for (int i = 0; i < actors.Count; i++)
+					DrawActor(actors[i]);
+			}
+
+			hold--;
+			CycleCopper();
+			MusicTick();
+			tick++;
+			clock = (clock + 4) & 0xFFFF;
+
+			if (paletteDirty)
+				ApplyPalette();
+
+			// End on a step boundary. The title stays up while idle; every other pack
+			// ends once every actor has stopped, or as soon as one of them exits.
+			if (hold <= 0 && (exiting || (cue.Selector != 0 && AllIdle())))
+				Finish();
+		}
+
+		// Start the sync clock just before the first pattern, at the default tempo of 6 ticks per row.
+		void ResetMusic()
+		{
+			musicSequence = cue?.Module?.Sequence;
+			musicPatterns = cue?.Module?.Patterns;
+			musicOk = musicSequence != null && musicSequence.Count > 0 && musicPatterns != null;
+			musicPos = 0;
+			musicRow = 0x40;
+			musicSpeed = 6;
+			musicDiv = 0;
+			musicSeq = -1;
+			musicAt = 0;
+			musicPat = 0;
+			musicHave = false;
+		}
+
+		// Advance the sync clock by one tick. Scripts read this clock before it advances,
+		// so a cue sees the position from the previous tick.
+		void MusicTick()
+		{
+			if (!musicOk)
+				return;
+
+			musicDiv++;
+
+			if (musicSpeed > musicDiv)
+				return;
+
+			musicDiv = 0;
+			musicRow++;
+
+			// Row 64 means "between patterns". Crossing it loads the next one and restarts at row 1.
+			if (musicRow == 0x41)
+				MusicNextPattern();
+
+			if (!musicHave || musicAt >= 64)
+				return;
+
+			string key = musicAt.ToString();
+
+			musicAt++;
+
+			if (musicPat < 0 || musicPat >= musicPatterns.Count)
+				return;
+
+			if (!musicPatterns[musicPat].TryGetValue(key, out var effects) || effects == null)
+				return;
+
+			for (int i = 0; i < effects.Count; i++)
+			{
+				var eff = effects[i];
+
+				if (eff == null || eff.Length < 2)
+					continue;
+
+				int kind = eff[0];
+				int param = eff[1];
+
+				// End this pattern: park the row so the next advance loads the following pattern.
+				if (kind == 4)
+					musicRow = 0x40;
+				// Jump in the sequence. The position is stored one step early, and the row is
+				// parked, so the next advance lands on the requested slot.
+				else if (kind == 5)
+				{
+					musicPos = (uint)(param - 1);
+					musicSeq = param - 1;
+					musicRow = 0x40;
+				}
+				// Change how many ticks make up one row.
+				else if (kind == 8)
+					musicSpeed = (ushort)param;
+			}
+		}
+
+		// Step to the next sequence slot and start its pattern at row 1.
+		// Running off the end wraps back to the first slot.
+		void MusicNextPattern()
+		{
+			while (true)
+			{
+				musicPos++;
+
+				if (musicPos > (uint)musicSequence.Count)
+				{
+					musicPos = 0;
+					musicSeq = -1;
+
+					continue;
+				}
+
+				musicRow = 1;
+				musicSeq++;
+
+				if (musicSeq >= 0 && musicSeq < musicSequence.Count)
+				{
+					musicHave = true;
+					musicPat = musicSequence[musicSeq];
+				}
+				else
+				{
+					musicHave = false;
+					musicPat = 0;
+				}
+
+				musicAt = 0;
+
+				return;
+			}
+		}
+
+		// True when the sequence slot matches and the row has moved past rowAbove.
+		// Slots are counted from zero. Rows are counted from 1.
+		bool CueMatches(ushort pos, ushort rowAbove)
+		{
+			if (!musicOk)
+				return false;
+
+			ushort ready = (ushort)((musicPos - 1) & 0xFFFF);
+
+			return ready == pos && musicRow > rowAbove;
+		}
+
+		// True when no actor is in the middle of a wait, a slide, a cue, or a click.
+		bool AllIdle()
+		{
+			for (int i = 0; i < actors.Count; i++)
+			{
+				if ((actors[i].Mode & 0xFF) != 0)
+					return false;
+			}
+
+			return true;
+		}
+
+		// Run this actor until it reaches something that takes time, or it stops.
+		// Commands that don't wait are chained on the same step.
+		// The cap stops a list that never waits from spinning inside one tick.
+		void StepActor(Actor actor)
+		{
+			for (int n = 0; n < 32; n++)
+			{
+				if (!actor.Active)
+					return;
+
+				int mode = actor.Mode & 0xFF;
+
+				if (mode == Waiting)
+				{
+					// A count of zero means the delay is over and the list continues.
+					// Otherwise this step uses up one count.
+					if (actor.Param == 0)
+					{
+						RunOps(actor);
+
+						continue;
+					}
+
+					actor.Param--;
+
+					return;
+				}
+
+				if (mode == Sliding)
+				{
+					// Low byte counts down between moves. At zero, reload it from the
+					// high half, move vertically, and use up one remaining move.
+					ushort delay = (ushort)(actor.Extra & 0xFFFF);
+
+					if ((delay & 0xFF) != 0)
+					{
+						actor.Extra = (actor.Extra & 0xFFFF0000) | (ushort)(delay - 1);
+
+						return;
+					}
+
+					actor.Extra = (actor.Extra & 0xFFFF0000) | (actor.Extra >> 16);
+					actor.Y += (short)actor.ParamHi;
+
+					if (actor.Param == 0)
+					{
+						RunOps(actor);
+
+						continue;
+					}
+
+					actor.Param--;
+
+					return;
+				}
+
+				if (mode == Cueing)
+				{
+					// Extra distinguishes a music cue from a plain frame-count cue.
+					bool hit = actor.Extra != 0
+						? CueMatches(actor.Param, actor.ParamHi)
+						: tick >= actor.Param;
+
+					if (hit)
+					{
+						RunOps(actor);
+
+						continue;
+					}
+
+					return;
+				}
+
+				if (mode == WaitClick)
+				{
+					// Resumes once a click was recorded and click handling has since been turned off.
+					if (!clicksOn && click != 0)
+					{
+						RunOps(actor);
+
+						continue;
+					}
+
+					return;
+				}
+
+				StopActor(actor);
+
+				return;
+			}
+
+			StopActor(actor);
+		}
+
+		// Run commands until one of them waits or the actor stops.
+		// The cap is the same guard as StepActor, for a long run of instant commands.
+		void RunOps(Actor actor)
+		{
+			for (int n = 0; n < 200; n++)
+			{
+				if (!actor.Active || actor.Pc < 0 || actor.Pc >= actor.Commands.Count)
+				{
+					StopActor(actor);
+
+					return;
+				}
+
+				var cmd = actor.Commands[actor.Pc];
+
+				actor.Pc = cmd.Next ?? (actor.Pc + 1);
+
+				switch (cmd.Op)
+				{
+					case "end":
+						// This actor is finished. The pack keeps going.
+						StopActor(actor);
+
+						return;
+					case "exit":
+						// This actor is finished, and the pack ends on the next step boundary.
+						exiting = true;
+						StopActor(actor);
+
+						return;
+					case "hide":
+						actor.Image = Hide;
+						break;
+					case "restore":
+						actor.Image = Restore;
+						break;
+					case "image":
+						// Opaque frame. No flag bits are set, so the stored value is the frame number.
+						actor.Image = (ushort)(cmd.F & 0xFF);
+						break;
+					case "cut":
+						// Same frame, but pen 0 is transparent.
+						actor.Image = (ushort)(Cut | (cmd.F & 0xFF));
+						break;
+					case "freeze":
+						// Draw the frame once, then keep redrawing that frozen picture.
+						actor.Image = (ushort)(Freeze | (cmd.F & 0xFF));
+						break;
+					case "at":
+						// x is a 16-pixel column. y is a pixel row.
+						actor.X = (short)cmd.X;
+						actor.Y = (short)cmd.Y;
+						break;
+					case "dx":
+						actor.X += (short)cmd.Dx;
+						break;
+					case "dy":
+						actor.Y += (short)cmd.Dy;
+						break;
+					case "wait":
+						// Pause for N script steps. The step that issues the wait counts as the first.
+						// Zero does not pause.
+						actor.Mode = Waiting;
+						actor.Param = (ushort)cmd.N;
+
+						return;
+					case "palette":
+						LoadPalette(cmd.P);
+						break;
+					case "cue":
+						// With a song position: wait until that slot is playing and the row has passed.
+						// Without one: wait until the pack's frame counter reaches N.
+						actor.Mode = Cueing;
+
+						if (cmd.Pos.HasValue)
+						{
+							actor.Param = (ushort)cmd.Pos.Value;
+							actor.ParamHi = (ushort)(cmd.Row ?? 0);
+							actor.Extra = 1;
+						}
+						else
+						{
+							actor.Param = (ushort)cmd.N;
+							actor.Extra = 0;
+						}
+
+						return;
+					case "slide":
+						// Move by dy pixels, N times. delay counts down between moves and
+						// is reloaded after each one. Both countdowns start on this same step.
+						actor.Mode = Sliding;
+						actor.Param = (ushort)cmd.N;
+						actor.ParamHi = (ushort)(short)cmd.Dy;
+						actor.Extra = ((uint)(ushort)cmd.Reload << 16) | (ushort)cmd.Delay;
+
+						return;
+					case "loop":
+						actor.Pc = cmd.To;
+						break;
+					case "wait_rand":
+						// Pause for a random number of steps, trimmed by the mask.
+						actor.Mode = Waiting;
+						actor.Param = (ushort)(NextRand() & cmd.Mask);
+
+						return;
+					case "sfx":
+						PlaySfx(cmd.Slot, cmd.Mask, cmd.Wav);
+						break;
+					case "call":
+						actor.Ret = cmd.Ret;
+						actor.Pc = cmd.To;
+						break;
+					case "ret":
+						actor.Pc = actor.Ret;
+						break;
+					case "copper":
+						// Turn the palette colour cycle on or off.
+						copperOn = cmd.Flag & 0xFF;
+						break;
+					case "text":
+						actor.Extra = (uint)cmd.Id;
+						actor.Image = ShowText;
+						break;
+					case "switch":
+						// Jump to one of the listed commands. The low four bits of a random word choose which.
+						int pick = NextRand() & 0xF;
+
+						if (cmd.Targets != null && pick < cmd.Targets.Count)
+							actor.Pc = cmd.Targets[pick];
+						else
+							StopActor(actor);
+
+						break;
+					case "clicks":
+						clicksOn = cmd.Arm;
+						break;
+					case "wait_button":
+						actor.Mode = WaitClick;
+						actor.Param = (ushort)cmd.Param;
+
+						return;
+					default:
+						StopActor(actor);
+
+						return;
+				}
+			}
+
+			StopActor(actor);
+		}
+
+		static void StopActor(Actor actor)
+		{
+			actor.Mode = 0;
+			actor.Active = false;
+		}
+
+		// Next word from this pack's random table.
+		// The index mixes the running state with the frame counter, stays on an even
+		// byte, and stays inside the first 16384 bytes. That word is then increased
+		// by 14 and added into the running state. The increased word is the result.
+		// A missing table reads as zero, so the result is 14.
+		ushort NextRand()
+		{
+			int index = (rng + (ushort)clock) & 0x3FFE;
+			ushort word = 0;
+
+			if (rngBank != null && index + 2 <= rngBank.Length)
+				word = (ushort)((rngBank[index] << 8) | rngBank[index + 1]);
+
+			word += 14;
+			rng += word;
+
+			return word;
 		}
 	}
 }

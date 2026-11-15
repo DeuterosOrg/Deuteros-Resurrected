@@ -29,7 +29,7 @@ namespace Deuteros.Code.Objects.ModuleTextFrame
 		public string GetText(List<string> dynamicValues)
 		{
 			if (TextColor != Colors.White)
-				return $"[color={(int)TextColor.R:X2}{(int)TextColor.G:X2}{(int)TextColor.B:X2}]" + string.Format(Text, dynamicValues.ToArray()) + "[/color]" + "\r\n";
+				return $"[color=#{TextColor.ToHtml(false)}]" + string.Format(Text, dynamicValues.ToArray()) + "[/color]" + "\r\n";
 			else
 				return string.Format(Text, dynamicValues.ToArray()) + "\r\n";
 		}

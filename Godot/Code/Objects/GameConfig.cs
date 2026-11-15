@@ -1,51 +1,66 @@
-﻿using Godot;
+using Godot;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Deuteros.Code.Objects
 {
-	public partial class GameConfig
+	public partial class GameConfig : IDisposable
 	{
-		private const string ConfigPath = "user://settings.cfg";
-		private readonly ConfigFile _config = new ConfigFile();
+		private string FilePath { get; set; }
+		private readonly ConfigFile config = new();
 
-		public GameConfig()
+		public GameConfig(string path = "user://settings.cfg")
 		{
+			FilePath = path;
 			Load();
 		}
 
 		public void Load()
 		{
-			_config.Clear();
+			config.Clear();
 
-			if (FileAccess.FileExists(ConfigPath))
-				_config.Load(ConfigPath);
+			if (FileAccess.FileExists(FilePath))
+				config.Load(FilePath);
+
+			// Convert the earlier preferences in memory; Apply remains the only disk write.
+			if (!HasValue("audio", "master_volume") && (HasValue("audio", "enabled") || HasValue("audio", "volume")))
+				config.SetValue("audio", "master_volume", SoundEnabled ? (int)Math.Round(Volume / 10.0, MidpointRounding.AwayFromZero) : 0);
+
+			if (!HasValue("display", "resolution") && HasValue("display", "scale"))
+				config.SetValue("display", "resolution", $"{Math.Max(1280, 320 * WindowScale)} x {Math.Max(720, 200 * WindowScale)}");
+
+			if (!HasValue("display", "window_mode") && HasValue("display", "fullscreen"))
+				config.SetValue("display", "window_mode", Fullscreen ? "Borderless" : "Windowed");
 		}
 
-		public void Save()
+		public Godot.Error Save() => config.Save(FilePath);
+		public Godot.Error SetValue(string section, string key, Variant value, bool save = true)
 		{
-			_config.Save(ConfigPath);
-		}
+			config.SetValue(section, key, value);
 
-		public void SetValue(string section, string key, Variant value, bool save = true)
+			return save ? Save() : Godot.Error.Ok;
+		}
+		public Variant GetValue(string section, string key, Variant fallback = default) => config.GetValue(section, key, fallback);
+		public bool HasValue(string section, string key) => config.HasSectionKey(section, key);
+
+		private int ReadInt(string section, string key, int fallback)
 		{
-			_config.SetValue(section, key, value);
+			var value = GetValue(section, key, fallback);
 
-			if (save)
-				Save();
+			return value.VariantType == Variant.Type.Int ? (int)value : fallback;
 		}
-
-		public Variant GetValue(string section, string key, Variant @default = default)
+		private bool ReadBool(string section, string key, bool fallback)
 		{
-			return _config.GetValue(section, key, @default);
+			var value = GetValue(section, key, fallback);
+
+			return value.VariantType == Variant.Type.Bool ? (bool)value : fallback;
 		}
 
-		public bool HasValue(string section, string key)
-		{
-			return _config.HasSectionKey(section, key);
-		}
+		// Legacy keys are read only during migration and remain type checked.
+		private bool SoundEnabled => ReadBool("audio", "enabled", true);
+		public int Volume => Math.Clamp(ReadInt("audio", "volume", 100), 0, 100);
+		private int WindowScale => Math.Clamp(ReadInt("display", "scale", 3), 2, 4);
+		public bool Fullscreen => ReadBool("display", "fullscreen", false);
+
+		public void Dispose() => config.Dispose();
 	}
 }

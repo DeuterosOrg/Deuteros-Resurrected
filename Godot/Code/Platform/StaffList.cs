@@ -102,11 +102,12 @@ namespace Deuteros.Code.Platform
 				var staffName = GetNode<Label>("Staff/Labels2/Staff" + interfaceI + "Name");
 				var staffCount = GetNode<Label>("Staff/Labels2/Staff" + interfaceI + "Count");
 
-				if (CurrentStaff[i] != null)    
+				if (CurrentStaff[i] != null)
 				{
 					staffBackground.Visible = true;
 					staffName.Text = CurrentStaff[i].GetLevelString(true)+"\n"+CurrentStaff[i].Leader;
 					staffCount.Text = CurrentStaff[i].Count.ToString();
+
 					if (CurrentStaff[i].Type == StaffType.Marines)
 						staffBackground.Color = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red;
 					else if (CurrentStaff[i].Type == StaffType.Production)

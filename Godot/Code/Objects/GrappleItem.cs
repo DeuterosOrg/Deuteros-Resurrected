@@ -6,8 +6,8 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Objects
 {
-    public interface GrappleItem
-    {
-        public Enums.GrappleItemTypes GrappleItemType { get; set; }
-    }
+	public interface GrappleItem
+	{
+		public Enums.GrappleItemTypes GrappleItemType { get; set; }
+	}
 }

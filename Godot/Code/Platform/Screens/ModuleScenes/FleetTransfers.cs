@@ -1,5 +1,5 @@
 using Deuteros.Code.Objects;
-using Deuteros.Code.Objects.Battle;
+using Deuteros.Code.Platform.Screens;
 using Deuteros.Code.Platform.Base;
 using Godot;
 using System.Threading;
@@ -43,6 +43,8 @@ public partial class FleetTransfers : BaseSubScene
 
 	private void updatePoolLabels()
 	{
+		TransferButton1.Disabled = TransferButton2.Disabled = !RogueCrew.CanCommand(_player);
+
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
 
 		int drones = 0;
@@ -53,20 +55,25 @@ public partial class FleetTransfers : BaseSubScene
 		}
 		else if (_player is SCG)
 		{
-			drones = p.Station.Resources.Stores[Enums.ItemTypes.ios_drone];
+			drones = p.Station.Resources.Stores[Enums.ItemTypes.star_drone];
 		}
 
 		OrbitalDronePoolLabel.Text = " Orbital\n  Drone\n  Pool\n  " + drones;
 		FleetDronePoolLabel.Text = "\n Fleet\n Drones\n  " + _player.DroneCount;
 
 		int Level = (_player.Pilot == null ? 0 : _player.Pilot.GetLevel()) + 4;
+
 		PowerLabel.Text = "\n Fleet\n Power\n  " + _player.DroneCount * Level;
 	}
 	private void Transfer1_Pressed()
 	{
+		if (!RogueCrew.CanCommand(_player))
+			return;
+
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
 
 		Enums.ItemTypes droneType = Enums.ItemTypes.ios_drone;
+
 		if (_player is IOS)
 		{
 			droneType = Enums.ItemTypes.ios_drone;
@@ -86,10 +93,15 @@ public partial class FleetTransfers : BaseSubScene
 
 	private void Transfer2_Pressed()
 	{
+		if (!RogueCrew.CanCommand(_player))
+			return;
+
 		var p = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[_player.PlanetLocation];
+
 		if (_player.DroneCount > 0)
 		{
 			_player.DroneCount--;
+
 			if (_player is IOS)
 			{
 				p.Station.Resources.Stores[Enums.ItemTypes.ios_drone]++;
@@ -98,13 +110,15 @@ public partial class FleetTransfers : BaseSubScene
 			{
 				p.Station.Resources.Stores[Enums.ItemTypes.star_drone]++;
 			}
+
 			updatePoolLabels();
 		}
 	}
 
-
 	public override void _Process(double delta)
 	{
+		if (_player != null)
+			updatePoolLabels();
 	}
 
 	public void TransferDrones(InterStellarShip player)

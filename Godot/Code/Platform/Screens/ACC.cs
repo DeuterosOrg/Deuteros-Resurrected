@@ -84,6 +84,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ClearButton_Pressed()
 		{
+			if (!Objects.RogueCrew.CanCommand(CurrentACC?.Ship))
+				return;
+
 			CurrentACC.CycleMode = false;
 			CurrentACC.Active = false;
 			CurrentACC.CycleMode = false;
@@ -92,18 +95,24 @@ namespace Deuteros.Code.Platform.Screens
 			CurrentACC.SourceItems = new List<ItemTypes>();
 			CurrentACC.CurrentSource = ItemTypes.iron;
 			CurrentACC.CurrentDestination = ItemTypes.iron;
+			UpdateState();
 		}
 
 		private void CycleButton_Pressed()
 		{
-			CurrentACC.Activate();
-			CurrentACC.CycleMode = true;
+			if (!Objects.RogueCrew.CanCommand(CurrentACC?.Ship))
+				return;
+
+			CurrentACC.Activate(completeCycle: true);
 
 			DisplayShipInterior();
 		}
 
 		private void DisengageButton_Pressed()
 		{
+			if (!Objects.RogueCrew.CanCommand(CurrentACC?.Ship))
+				return;
+
 			CurrentACC.Active = false;
 			CurrentACC.CycleMode = false;
 
@@ -112,6 +121,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void EngageButton_Pressed()
 		{
+			if (!Objects.RogueCrew.CanCommand(CurrentACC?.Ship))
+				return;
+
 			CurrentACC.Activate();
 
 			DisplayShipInterior();
@@ -119,6 +131,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ChangeItem(bool source, ItemTypes itemType)
 		{
+			if (!Objects.RogueCrew.CanCommand(CurrentACC?.Ship))
+				return;
+
 			if (source)
 			{
 				if (CurrentACC.SourceItems.Contains(itemType))
@@ -139,7 +154,7 @@ namespace Deuteros.Code.Platform.Screens
 					CurrentACC.DestinationItems.Remove(itemType);
 				}
 				else
-				{ 
+				{
 					CurrentACC.DestinationItems.Add(itemType);
 					CurrentACC.CurrentDestination = itemType;
 				}
@@ -160,6 +175,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void UpdateState()
 		{
+			var disabled = !Objects.RogueCrew.CanCommand(CurrentACC?.Ship);
+
+			EngageButton.Disabled = DisengageButton.Disabled = CycleButton.Disabled = ClearButton.Disabled = disabled;
+			SourceButtons.ForEach(button => button.Disabled = disabled);
+			DestinationButtons.ForEach(button => button.Disabled = disabled);
 			HEDBlank.Visible = !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Game_Unlocks.Interstellar_Travel);
 
 			SourceCycleButtons.ForEach(T => T.Modulate = new Color(T.Modulate, 0f));
@@ -185,7 +205,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (CurrentACC.SourceItems.Contains(ResourceTypeList[i]))
 					SourceButtons[i].TextureNormal = SpriteManager.LoadImage(NavSpriteBasePath + "GreenDiamond.png");
-				else 
+				else
 					SourceButtons[i].TextureNormal = SpriteManager.LoadImage(NavSpriteBasePath + "Cross.png");
 
 				if (CurrentACC.DestinationItems.Contains(ResourceTypeList[i]))

@@ -11,6 +11,8 @@ namespace Deuteros.Code.Platform.Screens
 		public AudioStream ButtonSound { get; set; }
 		public AudioStream DoorSound { get; set; }
 		private AudioStreamPlayer DoorButtonSound { get; set; }
+		private AudioStreamPlayer DoorSoundPlayer;
+		private readonly HashSet<AnimatedSprite2D> _movingDoors = new();
 
 		private CanvasModulate _modulateNode;
 		private bool _isDimmed = false;
@@ -30,9 +32,20 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _ExitTree()
 		{
+			foreach (var door in _movingDoors)
+			{
+				door.Stop();
+				GameCore.UnLockScreen();
+			}
+
+			_movingDoors.Clear();
+			DoorButtonSound?.Stop();
+			DoorSoundPlayer?.Stop();
 			base._ExitTree();
+
 			if (_modulateNode != null)
 				_modulateNode.Color = new Color(1, 1, 1);
+
 			_isDimmed = false;
 		}
 
@@ -43,11 +56,13 @@ namespace Deuteros.Code.Platform.Screens
 
 			// Use an existing CanvasModulate in the scene if present, otherwise create one
 			_modulateNode = GetNodeOrNull<CanvasModulate>("CanvasModulate");
+
 			if (_modulateNode == null)
 			{
 				_modulateNode = new CanvasModulate();
 				AddChild(_modulateNode);
 			}
+
 			_modulateNode.Color = new Color(1, 1, 1);
 
 			var researchButtonDown = GetNode<RepeatingButton>("Doors/Research/MinusButton/ResearchMinusButton");
@@ -90,51 +105,31 @@ namespace Deuteros.Code.Platform.Screens
 
 			MarinesDoorAnimation = GetNode<Node2D>("Doors/Marines/TrainingDoors").GetNode<AnimatedSprite2D>("DoorAnimation");
 
-			ResearchDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
-			ProductionDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
-			MarinesDoorAnimation.AnimationFinished += DoorAnimation_AnimationFinished;
+			ResearchDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(ResearchDoorAnimation);
+			ProductionDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(ProductionDoorAnimation);
+			MarinesDoorAnimation.AnimationFinished += () => DoorAnimation_AnimationFinished(MarinesDoorAnimation);
 
-			if (GameCore.Earth.TrainingData.ResearcherLocked && ResearchDoorAnimation.Animation != Closed_Animation_Name)
-				ResearchDoorAnimation.Play(Closed_Animation_Name);
-			else if (ResearchDoorAnimation.Animation != Open_Animation_Name)
-				ResearchDoorAnimation.Play(Open_Animation_Name);
-
-			if (GameCore.Earth.TrainingData.ProductionLocked && ProductionDoorAnimation.Animation != Closed_Animation_Name)
-				ProductionDoorAnimation.Play(Closed_Animation_Name);
-			else if (ProductionDoorAnimation.Animation != Open_Animation_Name)
-				ProductionDoorAnimation.Play(Open_Animation_Name);
-
-			if (GameCore.Earth.TrainingData.MarinesLocked && MarinesDoorAnimation.Animation != Closed_Animation_Name)
-				MarinesDoorAnimation.Play(Closed_Animation_Name);
-			else if (MarinesDoorAnimation.Animation != Open_Animation_Name)
-				MarinesDoorAnimation.Play(Open_Animation_Name);
+			ResearchDoorAnimation.Animation = GameCore.Earth.TrainingData.ResearcherLocked ? Closed_Animation_Name : Open_Animation_Name;
+			ProductionDoorAnimation.Animation = GameCore.Earth.TrainingData.ProductionLocked ? Closed_Animation_Name : Open_Animation_Name;
+			MarinesDoorAnimation.Animation = GameCore.Earth.TrainingData.MarinesLocked ? Closed_Animation_Name : Open_Animation_Name;
 
 			ButtonSound = (AudioStream)ResourceLoader.Load("res://Sounds/Button/sTrainingRoom_Button.wav");
 			DoorSound = (AudioStream)ResourceLoader.Load("res://Sounds/Button/sTrainingRoom_Door.wav");
 
 			DoorButtonSound = this.GetNode<AudioStreamPlayer>("SoundPlayer");
 			DoorButtonSound.Stream = ButtonSound;
+			DoorSoundPlayer = GetNode<AudioStreamPlayer>("DoorSoundPlayer");
+			DoorSoundPlayer.Stream = DoorSound;
 
 			DrawData();
 		}
 
-		private void DoorAnimation_AnimationFinished()
+		private void DoorAnimation_AnimationFinished(AnimatedSprite2D door)
 		{
-			if (ResearchDoorAnimation.Animation == Close_Animation_Name)
-				ResearchDoorAnimation.Animation = Closed_Animation_Name;
-			else if (ResearchDoorAnimation.Animation == Opening_Animation_Name)
-				ResearchDoorAnimation.Animation = Open_Animation_Name;
+			if (!_movingDoors.Remove(door))
+				return;
 
-			if (ProductionDoorAnimation.Animation == Close_Animation_Name)
-				ProductionDoorAnimation.Animation = Closed_Animation_Name;
-			else if (ProductionDoorAnimation.Animation == Opening_Animation_Name)
-				ProductionDoorAnimation.Animation = Open_Animation_Name;
-
-			if (MarinesDoorAnimation.Animation == Close_Animation_Name)
-				MarinesDoorAnimation.Animation = Closed_Animation_Name;
-			else if (MarinesDoorAnimation.Animation == Opening_Animation_Name)
-				MarinesDoorAnimation.Animation = Open_Animation_Name;
-
+			door.Animation = door.Animation == Close_Animation_Name ? Closed_Animation_Name : Open_Animation_Name;
 			GameCore.UnLockScreen();
 		}
 
@@ -149,49 +144,40 @@ namespace Deuteros.Code.Platform.Screens
 			DrawData();
 		}
 
+		private int RemainingTrainees => (GameCore.Earth.TrainingData.AvailableTrainees - (GameCore.Earth.TrainingData.ResearcherTrainingCount + GameCore.Earth.TrainingData.ProductionTrainingCount + GameCore.Earth.TrainingData.MarinesTrainingCount));
+
 		public async void DrawData()
 		{
-			if (!GameCore.Earth.TrainingData.ResearcherLocked && ResearchDoorAnimation.Animation == Closed_Animation_Name)
-			{
-				GameCore.LockScreen();
-				ResearchDoorAnimation.Play(Opening_Animation_Name);
-			}
-			else if (GameCore.Earth.TrainingData.ResearcherLocked && ResearchDoorAnimation.Animation == Open_Animation_Name)
-			{
-				GameCore.LockScreen();
-				ResearchDoorAnimation.Play(Close_Animation_Name);
-			}
+			var moving = UpdateDoor(ResearchDoorAnimation, GameCore.Earth.TrainingData.ResearcherLocked);
 
-			if (!GameCore.Earth.TrainingData.ProductionLocked && ProductionDoorAnimation.Animation == Closed_Animation_Name)
-			{
-				GameCore.LockScreen();
-				ProductionDoorAnimation.Play(Opening_Animation_Name);
-			}
-			else if (GameCore.Earth.TrainingData.ProductionLocked && ProductionDoorAnimation.Animation == Open_Animation_Name)
-			{
-				GameCore.LockScreen();
-				ProductionDoorAnimation.Play(Close_Animation_Name);
-			}
+			moving |= UpdateDoor(ProductionDoorAnimation, GameCore.Earth.TrainingData.ProductionLocked);
+			moving |= UpdateDoor(MarinesDoorAnimation, GameCore.Earth.TrainingData.MarinesLocked);
 
-			if (!GameCore.Earth.TrainingData.MarinesLocked && MarinesDoorAnimation.Animation == Closed_Animation_Name)
-			{
-				GameCore.LockScreen();
-				MarinesDoorAnimation.Play(Opening_Animation_Name);
-			}
-			else if (GameCore.Earth.TrainingData.MarinesLocked && MarinesDoorAnimation.Animation == Open_Animation_Name)
-			{
-				GameCore.LockScreen();
-				MarinesDoorAnimation.Play(Close_Animation_Name);
-			}
+			// Original $2E4FE dispatches one cue for the simultaneous door transitions.
+			if (moving)
+				DoorSoundPlayer.Play();
 
 			ProductionButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.ProductionLocked);
 			MarinesButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.MarinesLocked);
 			ResearchButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.ResearcherLocked);
 
-			GetNode<Label>("TraineeCountLabel").Text = (GameCore.Earth.TrainingData.AvailableTrainees - (GameCore.Earth.TrainingData.ResearcherTrainingCount + GameCore.Earth.TrainingData.ProductionTrainingCount + GameCore.Earth.TrainingData.MarinesTrainingCount)).ToString();
+			GetNode<Label>("TraineeCountLabel").Text = RemainingTrainees.ToString();
 			GetNode<Label>("Doors/Research/ResearchTrainingCountLabel").Text = GameCore.Earth.TrainingData.ResearcherTrainingCount.ToString();
 			GetNode<Label>("Doors/Production/ProductionTrainingCountLabel").Text = GameCore.Earth.TrainingData.ProductionTrainingCount.ToString();
 			GetNode<Label>("Doors/Marines/MarinesTrainingCountLabel").Text = GameCore.Earth.TrainingData.MarinesTrainingCount.ToString();
+		}
+
+		private bool UpdateDoor(AnimatedSprite2D door, bool locked)
+		{
+			if (door.Animation != (locked ? Open_Animation_Name : Closed_Animation_Name))
+				return false;
+
+			if (_movingDoors.Add(door))
+				GameCore.LockScreen();
+
+			door.Play(locked ? Close_Animation_Name : Opening_Animation_Name);
+
+			return true;
 		}
 
 		public void ResearchMinusButton_Pressed()
@@ -211,7 +197,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);
 
-			if (!GameCore.Earth.TrainingData.ResearcherLocked && GameCore.Earth.TrainingData.ResearcherTrainingMax > GameCore.Earth.TrainingData.ResearcherTrainingCount &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.ResearcherLocked && GameCore.Earth.TrainingData.ResearcherTrainingMax > GameCore.Earth.TrainingData.ResearcherTrainingCount &&
 			(
 				earth.ResearchStaff == null
 				||
@@ -242,7 +228,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void ProductionPlusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.ProductionLocked &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.ProductionLocked &&
 				GameCore.Earth.TrainingData.ProductionTrainingCount < GameCore.Earth.TrainingData.ProductionTrainingMax &&
 				(GameCore.Earth.Factory.Builder == null ? 0 : GameCore.Earth.Factory.Builder.Count) + GameCore.Earth.TrainingData.ProductionTrainingCount < GameCore.Earth.TrainingData.ProductionMaxCount)
 			{
@@ -257,8 +243,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void MarinesMinusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.MarinesLocked &&
-				GameCore.Earth.TrainingData.MarinesTrainingCount > 0)
+			if (!GameCore.Earth.TrainingData.MarinesLocked && GameCore.Earth.TrainingData.MarinesTrainingCount > 0)
 			{
 				GameCore.Earth.TrainingData.MarinesTrainingCount--;
 			}
@@ -271,7 +256,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void MarinesPlusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.MarinesLocked &&
+			if (RemainingTrainees > 0 && !GameCore.Earth.TrainingData.MarinesLocked &&
 				GameCore.Earth.TrainingData.MarinesTrainingMax > GameCore.Earth.TrainingData.MarinesTrainingCount)
 			{
 				GameCore.Earth.TrainingData.MarinesTrainingCount++;
@@ -288,8 +273,10 @@ namespace Deuteros.Code.Platform.Screens
 			DoorButtonSound.Play();
 			_isDimmed = !_isDimmed;
 			_modulateNode.Color = _isDimmed ? new Color(0.5f, 0.5f, 0.5f) : new Color(1, 1, 1);
+
 			// Compensate UI so text/buttons stay at full brightness
 			var ui = GetNode<Node2D>("Doors");
+
 			if (ui != null)
 				ui.Modulate = _isDimmed ? new Color(2f, 2f, 2f) : new Color(1f, 1f, 1f);
 		}
