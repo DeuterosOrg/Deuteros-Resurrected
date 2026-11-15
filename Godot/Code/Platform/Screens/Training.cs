@@ -37,12 +37,15 @@ namespace Deuteros.Code.Platform.Screens
 				door.Stop();
 				GameCore.UnLockScreen();
 			}
+
 			_movingDoors.Clear();
 			DoorButtonSound?.Stop();
 			DoorSoundPlayer?.Stop();
 			base._ExitTree();
+
 			if (_modulateNode != null)
 				_modulateNode.Color = new Color(1, 1, 1);
+
 			_isDimmed = false;
 		}
 
@@ -53,11 +56,13 @@ namespace Deuteros.Code.Platform.Screens
 
 			// Use an existing CanvasModulate in the scene if present, otherwise create one
 			_modulateNode = GetNodeOrNull<CanvasModulate>("CanvasModulate");
+
 			if (_modulateNode == null)
 			{
 				_modulateNode = new CanvasModulate();
 				AddChild(_modulateNode);
 			}
+
 			_modulateNode.Color = new Color(1, 1, 1);
 
 			var researchButtonDown = GetNode<RepeatingButton>("Doors/Research/MinusButton/ResearchMinusButton");
@@ -121,7 +126,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void DoorAnimation_AnimationFinished(AnimatedSprite2D door)
 		{
-			if (!_movingDoors.Remove(door)) return;
+			if (!_movingDoors.Remove(door))
+				return;
+
 			door.Animation = door.Animation == Close_Animation_Name ? Closed_Animation_Name : Open_Animation_Name;
 			GameCore.UnLockScreen();
 		}
@@ -142,10 +149,13 @@ namespace Deuteros.Code.Platform.Screens
 		public async void DrawData()
 		{
 			var moving = UpdateDoor(ResearchDoorAnimation, GameCore.Earth.TrainingData.ResearcherLocked);
+
 			moving |= UpdateDoor(ProductionDoorAnimation, GameCore.Earth.TrainingData.ProductionLocked);
 			moving |= UpdateDoor(MarinesDoorAnimation, GameCore.Earth.TrainingData.MarinesLocked);
+
 			// Original $2E4FE dispatches one cue for the simultaneous door transitions.
-			if (moving) DoorSoundPlayer.Play();
+			if (moving)
+				DoorSoundPlayer.Play();
 
 			ProductionButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.ProductionLocked);
 			MarinesButtons.ForEach(T => T.Disabled = GameCore.Earth.TrainingData.MarinesLocked);
@@ -159,9 +169,14 @@ namespace Deuteros.Code.Platform.Screens
 
 		private bool UpdateDoor(AnimatedSprite2D door, bool locked)
 		{
-			if (door.Animation != (locked ? Open_Animation_Name : Closed_Animation_Name)) return false;
-			if (_movingDoors.Add(door)) GameCore.LockScreen();
+			if (door.Animation != (locked ? Open_Animation_Name : Closed_Animation_Name))
+				return false;
+
+			if (_movingDoors.Add(door))
+				GameCore.LockScreen();
+
 			door.Play(locked ? Close_Animation_Name : Opening_Animation_Name);
+
 			return true;
 		}
 
@@ -228,8 +243,7 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void MarinesMinusButton_Pressed()
 		{
-			if (!GameCore.Earth.TrainingData.MarinesLocked &&
-				GameCore.Earth.TrainingData.MarinesTrainingCount > 0)
+			if (!GameCore.Earth.TrainingData.MarinesLocked && GameCore.Earth.TrainingData.MarinesTrainingCount > 0)
 			{
 				GameCore.Earth.TrainingData.MarinesTrainingCount--;
 			}
@@ -259,8 +273,10 @@ namespace Deuteros.Code.Platform.Screens
 			DoorButtonSound.Play();
 			_isDimmed = !_isDimmed;
 			_modulateNode.Color = _isDimmed ? new Color(0.5f, 0.5f, 0.5f) : new Color(1, 1, 1);
+
 			// Compensate UI so text/buttons stay at full brightness
 			var ui = GetNode<Node2D>("Doors");
+
 			if (ui != null)
 				ui.Modulate = _isDimmed ? new Color(2f, 2f, 2f) : new Color(1f, 1f, 1f);
 		}

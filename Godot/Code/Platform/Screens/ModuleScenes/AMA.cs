@@ -64,18 +64,18 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			Ship = ship;
 			ShipModule = shipModule;
 			GetNode<Label>("Window/Background/Number").Text = (ship.Modules.IndexOf(shipModule) + 1).ToString();
-			
+
 			UpdateState();
 		}
 
-        private bool CanMine() => RogueCrew.CanCommand(Ship) && Ship.Modules.Contains(ShipModule)
-            && Ship is InterStellarShip ship
-            && ship.ShipState == Ship_States.UnDocked && ship.PlanetLocation == StellarBodies.asteroids
-            && ship.Fuel > 0 && ship.AsteroidScanResults != null && ship.AsteroidScanResults.Class >= 6;
+		private bool CanMine() => RogueCrew.CanCommand(Ship) && Ship.Modules.Contains(ShipModule)
+			&& Ship is InterStellarShip ship
+			&& ship.ShipState == Ship_States.UnDocked && ship.PlanetLocation == StellarBodies.asteroids
+			&& ship.Fuel > 0 && ship.AsteroidScanResults != null && ship.AsteroidScanResults.Class >= 6;
 
 		private void MineButton_Pressed()
 		{
-            if (CanMine())
+			if (CanMine())
 			{
 				Ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a).LastMinedDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
 				Ship.Dock();
@@ -101,11 +101,11 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			Searching.Visible = false;
 			SearchingNone.Visible = false;
 			SearchingFound.Visible = false;
-			
+
 			AsteroidSprite.Visible = false;
-			
+
 			MineButton.Visible = false;
-            MineButton.Disabled = !CanMine();
+			MineButton.Disabled = !CanMine();
 
 			//In transit, undocked anywhere but Asteroids and docking/launching the screen is the same
 			if (Ship.ShipState == Ship_States.InTransit || Ship.ShipState == Ship_States.Launching || Ship.ShipState == Ship_States.Docking || (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation != StellarBodies.asteroids))
@@ -124,7 +124,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			{
 				if (((InterStellarShip)Ship).AsteroidScanResults != null && (((InterStellarShip)Ship).AsteroidScanResults is Asteroid))
 
-                {
+				{
 					var currentAsteroid = (Asteroid)((InterStellarShip)Ship).AsteroidScanResults;
 
 					Searching.Visible = true;
@@ -156,9 +156,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		#region statics
 
-        // Original mining runs on every consumed update whose slot matches the clock bits.
-        public static int Mine(InterStellarShip ship, Random random = null) =>
-            ship.AsteroidClockPhase(3) ? (random ?? Random.Shared).Next(12, 44) : 0;
+		// Original mining runs on every consumed update whose slot matches the clock bits.
+		public static int Mine(InterStellarShip ship, Random random = null) =>
+			ship.AsteroidClockPhase(3) ? (random ?? Random.Shared).Next(12, 44) : 0;
 
 		#endregion
 	}

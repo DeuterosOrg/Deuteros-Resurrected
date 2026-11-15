@@ -86,11 +86,14 @@ namespace Deuteros.Code.Platform.Screens
 
 			if (!clickedButton.ObjectData.Locked)
 			{
-				if (SelectedButton != null) SelectedButton.Selected = false;
+				if (SelectedButton != null)
+					SelectedButton.Selected = false;
+
 				SelectedButton = clickedButton;
 				SelectedButton.Selected = true;
 
 				var earth = GameCore.GetPlanet<Earth>(Enums.StellarBodies.earth);
+
 				earth.CurrentResearchItem = SelectedButton.ObjectData;
 
 				DrawData(false);
@@ -165,11 +168,14 @@ namespace Deuteros.Code.Platform.Screens
 					ResearchedNode.Visible = true;
 
 					ResearchImageTextureRect = SpriteManager.LoadImageToTextureRect(ResearchSpriteBasePath + researchItem.Research.ItemType.ToString() + ".png", ResearchImageTextureRect);
+
 					if (researchItem.BuildRequirements == null)
 					{
 						ItemNotesLabel.Text = "Research complete";
+
 						return;
 					}
+
 					MassLabel.Text = "Mass     t.";
 					MassDataLabel.Text = researchItem.Mass.ToString();
 					TeamWorkingLabel.Text = "";
@@ -179,7 +185,7 @@ namespace Deuteros.Code.Platform.Screens
 					ItemNotesLabel.Text = "This item may\nbe produced";
 					ItemNotesDataLabel.Text = researchItem.OrbitOnly ? "In Orbit Only" : "by any factory";
 				}
-				
+
 				else if (researchItem.ItemType == Enums.ItemTypes.alien_artifact)
 				{
 					InProgressNode.Visible = true;
@@ -247,6 +253,7 @@ namespace Deuteros.Code.Platform.Screens
 					if ((currentItem.ResearchValue + v) > 255)
 					{
 						currentItem.ResearchValue = (currentItem.ResearchValue + v) & 0xFF; // Overflow wraparound
+
 						if (currentItem.ResearchPercentageComplete < 100)
 						{
 							currentItem.ResearchPercentageComplete += 11;
@@ -254,7 +261,7 @@ namespace Deuteros.Code.Platform.Screens
 							if (currentItem.ResearchPercentageComplete > currentItem.ResearchLimit)
 								currentItem.ResearchPercentageComplete = currentItem.ResearchLimit;
 
-                            if (currentItem.ResearchPercentageComplete > 100)
+							if (currentItem.ResearchPercentageComplete > 100)
 								currentItem.ResearchPercentageComplete = 100;
 						}
 					}

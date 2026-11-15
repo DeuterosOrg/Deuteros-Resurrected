@@ -65,10 +65,11 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				StationButtons.Add(GetNode<TextureButton>("Destination/StationButtons/" + i.ToString().PadLeft(2, '0')));
 				StationButtons[i].SetMeta("StationId", (int)StellarBodies.none);
+
 				var itemIndex = i;
+
 				StationButtons[i].Pressed += () => StationButton_Pressed(itemIndex);
 			}
-
 
 			SystemButtons.Add(GetNode<Button>("Destination/SystemButtons/The_Sun"));
 			SystemButtons.Last().SetMeta("StarType", (int)Enums.StellarBodies.the_sun);
@@ -93,13 +94,16 @@ namespace Deuteros.Code.Platform.Screens
 			ResourceList = GetNode<ScrollContainer>("Config/ResourceList");
 
 			ResourceList.ScrollVertical = 0;
+
 			ResourceList.GetVScrollBar().ValueChanged += value =>
 			{
-				if (CurrentMTX != null) CurrentMTX.CurrentScroll = (int)Math.Ceiling(value / 8);
+				if (CurrentMTX != null)
+					CurrentMTX.CurrentScroll = (int)Math.Ceiling(value / 8);
 			};
 
 			//Load the template row, then delete it
 			var originalResourceRow = GetNode<MTXRow>("Config/ResourceList/ResourceContainer/00");
+
 			TemplateResourceRow = (MTXRow)originalResourceRow.Duplicate();
 			originalResourceRow.GetParent().RemoveChild(originalResourceRow);
 			originalResourceRow.QueueFree();
@@ -107,6 +111,7 @@ namespace Deuteros.Code.Platform.Screens
 			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => !T.Locked).OrderBy(T => T.ItemCategory != ItemCategory.resource))
 			{
 				var newItemRow = (MTXRow)TemplateResourceRow.Duplicate();
+
 				newItemRow.Load(item.ItemType);
 				newItemRow.RowName.Text = item.ShortName;
 				newItemRow.Count.Text = "0";
@@ -119,6 +124,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				ResourceContainer.AddChild(newItemRow);
 			}
+
 			TemplateResourceRow.Free();
 			TemplateResourceRow = null;
 
@@ -187,6 +193,7 @@ namespace Deuteros.Code.Platform.Screens
 			var stationType = (Enums.StellarBodies)(int)stationButton.GetMeta("StationId");
 
 			var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
+
 			if (planets.TryGetValue(stationType, out var selectedStation)
 				&& selectedStation.ParentStar == CurrentStarSystem
 				&& selectedStation.Station.Built && !selectedStation.ActiveMethanoid
@@ -301,6 +308,7 @@ namespace Deuteros.Code.Platform.Screens
 		private void RestoreButton_Pressed()
 		{
 			var scrollStore = CurrentMTX.CurrentScroll;
+
 			CurrentMTX = (Deuteros.Code.Objects.MTX)InitialState.Clone();
 			CurrentMTX.CurrentScroll = scrollStore;
 			CurrentStore.MTX = CurrentMTX;
@@ -331,6 +339,7 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					stationButton.SetMeta("StationId", (int)StellarBodies.none);
 					stationButton.TextureNormal = null;
+
 					continue;
 				}
 
@@ -369,7 +378,10 @@ namespace Deuteros.Code.Platform.Screens
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				var currentItemList = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.Where(T => !T.Locked).OrderBy(T => T.ItemCategory != ItemCategory.resource).ToList();
-				if (currentItemList.Count == 0) return;
+
+				if (currentItemList.Count == 0)
+					return;
+
 				var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
 
 				foreach (var planet in GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Where(T => T.Value.Station.Built && !T.Value.ActiveMethanoid && T.Value.Station.MtxInstalled))
@@ -389,25 +401,32 @@ namespace Deuteros.Code.Platform.Screens
 						// Saved configurations may contain only locked or removed items. Scan at most
 						// one cycle, keeping the usual one eligible item per station per day.
 						index = Math.Max(0, currentItemList.FindIndex(x => x.ItemType == currentMTX.CurrentItem));
+
 						var eligible = false;
+
 						for (var scanned = 0; scanned < currentItemList.Count; scanned++)
 						{
 							var itemType = currentItemList[index].ItemType;
+
 							if (currentMTX.BalanceItems.Contains(itemType) || currentMTX.SendItems.Contains(itemType))
 							{
 								currentMTX.CurrentItem = itemType;
 								eligible = true;
 								break;
 							}
+
 							index = (index + 1) % currentItemList.Count;
 						}
-						if (!eligible) continue;
+
+						if (!eligible)
+							continue;
 
 						if (currentMTX.BalanceItems.Contains(currentMTX.CurrentItem))
 						{
 							if (targetStation.Resources.Stores[currentMTX.CurrentItem] != currentStation.Resources.Stores[currentMTX.CurrentItem])
 							{
 								var total = targetStation.Resources.Stores[currentMTX.CurrentItem] + currentStation.Resources.Stores[currentMTX.CurrentItem];
+
 								// Keep any indivisible remainder at the sending station.
 								targetStation.Resources.Stores[currentMTX.CurrentItem] = total / 2;
 								currentStation.Resources.Stores[currentMTX.CurrentItem] = total - total / 2;
@@ -419,6 +438,7 @@ namespace Deuteros.Code.Platform.Screens
 							{
 								var spaceAvailable = 50000 - targetStation.Resources.Stores[currentMTX.CurrentItem];
 								var transferAmount = spaceAvailable > currentStation.Resources.Stores[currentMTX.CurrentItem] ? currentStation.Resources.Stores[currentMTX.CurrentItem] : spaceAvailable;
+
 								targetStation.Resources.Stores[currentMTX.CurrentItem] += transferAmount;
 								currentStation.Resources.Stores[currentMTX.CurrentItem] -= transferAmount;
 							}

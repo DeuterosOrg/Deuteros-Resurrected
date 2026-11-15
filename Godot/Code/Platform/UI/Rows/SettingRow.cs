@@ -1,64 +1,67 @@
 using Godot;
 
-namespace Deuteros.Code.UI.Rows;
-
-[Tool]
-public abstract partial class SettingRow : HBoxContainer
+namespace Deuteros.Code.Platform.UI.Rows
 {
-    [Signal]
-    public delegate void ValueChangedEventHandler();
+	[Tool]
+	public abstract partial class SettingRow : HBoxContainer
+	{
+		[Signal]
+		public delegate void ValueChangedEventHandler();
 
-    private string _labelText = "Setting";
-    private string _settingKey = "";
-    private string _description = "";
+		private string _labelText = "Setting";
+		private string _settingKey = "";
+		private string _description = "";
 
-    [Export]
-    public string LabelText
-    {
-        get => _labelText;
-        set
-        {
-            _labelText = value;
-            if (IsNodeReady()) ApplyLabelText();
-        }
-    }
+		[Export]
+		public string LabelText
+		{
+			get => _labelText;
+			set
+			{
+				_labelText = value;
 
-    [Export]
-    public string SettingKey
-    {
-        get => _settingKey;
-        set => _settingKey = value;
-    }
+				if (IsNodeReady())
+					ApplyLabelText();
+			}
+		}
 
-    [Export(PropertyHint.MultilineText)]
-    public string Description
-    {
-        get => _description;
-        set => _description = value;
-    }
+		[Export]
+		public string SettingKey
+		{
+			get => _settingKey;
+			set => _settingKey = value;
+		}
 
-    public Button LabelButton { get; private set; }
+		[Export(PropertyHint.MultilineText)]
+		public string Description
+		{
+			get => _description;
+			set => _description = value;
+		}
 
-    public abstract Variant SettingValue { get; set; }
+		public Button LabelButton { get; private set; }
 
-    public abstract string FormatValue(Variant value);
+		public abstract Variant SettingValue { get; set; }
 
-    public abstract bool StepValue(int direction);
+		public abstract string FormatValue(Variant value);
 
-    public override void _Ready()
-    {
-        LabelButton = GetNode<Button>("%LabelButton");
+		public abstract bool StepValue(int direction);
 
-        ApplyLabelText();
-    }
+		public override void _Ready()
+		{
+			LabelButton = GetNode<Button>("%LabelButton");
 
-    protected void NotifyValueChanged()
-    {
-        EmitSignal(SignalName.ValueChanged);
-    }
+			ApplyLabelText();
+		}
 
-    private void ApplyLabelText()
-    {
-        LabelButton.Text = _labelText;
-    }
+		protected void NotifyValueChanged()
+		{
+			EmitSignal(SignalName.ValueChanged);
+		}
+
+		private void ApplyLabelText()
+		{
+			LabelButton.Text = _labelText;
+		}
+	}
 }

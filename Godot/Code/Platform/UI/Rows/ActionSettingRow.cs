@@ -1,52 +1,55 @@
 using Godot;
 
-namespace Deuteros.Code.UI.Rows;
-
-[Tool]
-public partial class ActionSettingRow : SettingRow
+namespace Deuteros.Code.Platform.UI.Rows
 {
-    private string _actionText = "Run";
+	[Tool]
+	public partial class ActionSettingRow : SettingRow
+	{
+		private string _actionText = "Run";
 
-    [Export]
-    public string ActionText
-    {
-        get => _actionText;
-        set
-        {
-            _actionText = value;
-            if (IsNodeReady()) ApplyActionText();
-        }
-    }
+		[Export]
+		public string ActionText
+		{
+			get => _actionText;
+			set
+			{
+				_actionText = value;
 
-    public Button ActionButton { get; private set; }
+				if (IsNodeReady())
+					ApplyActionText();
+			}
+		}
 
-    public override Variant SettingValue
-    {
-        get => "";
-        set { }
-    }
+		public Button ActionButton { get; private set; }
 
-    public override string FormatValue(Variant value)
-    {
-        return "";
-    }
+		public override Variant SettingValue
+		{
+			get => "";
+			set { }
+		}
 
-    public override bool StepValue(int direction)
-    {
-        return false;
-    }
+		public override string FormatValue(Variant value)
+		{
+			return "";
+		}
 
-    public override void _Ready()
-    {
-        base._Ready();
+		public override bool StepValue(int direction)
+		{
+			return false;
+		}
 
-        ActionButton = GetNode<Button>("%ActionButton");
+		public override void _Ready()
+		{
+			base._Ready();
 
-        ApplyActionText();
-    }
+			ActionButton = GetNode<Button>("%ActionButton");
 
-    private void ApplyActionText()
-    {
-        ActionButton.Text = _actionText;
-    }
+			ApplyActionText();
+		}
+
+		private void ApplyActionText()
+		{
+			ActionButton.Text = _actionText;
+		}
+	}
 }

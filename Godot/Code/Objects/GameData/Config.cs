@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Deuteros.Code.Objects.GameData
 {
-    [Serializable]
-    public class Config
-    {
-        public int ShuttleRefuelThreshold { get; set; }
-        public int IOSRefuelThreshold { get; set; }
+	[Serializable]
+	public class Config
+	{
+		public int ShuttleRefuelThreshold { get; set; }
+		public int IOSRefuelThreshold { get; set; }
 
-    }
+	}
 }

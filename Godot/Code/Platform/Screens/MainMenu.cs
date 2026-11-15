@@ -18,14 +18,20 @@ namespace Deuteros.Code.Platform.Screens
 		public override void _EnterTree()
 		{
 			base._EnterTree();
-			if (menuSoundBound) return;
+
+			if (menuSoundBound)
+				return;
+
 			menuClickSound = GetNode<AudioStreamPlayer>("MenuClickSound");
 			sdmAlarm = GetNode<AudioStreamPlayer>("SdmAlarm");
+
 			// Bind before child _Ready navigation callbacks can change the clicked slot.
 			foreach (var path in new[] { "Top", "MainButtons" })
 				foreach (var button in GetNode(path).GetChildren().OfType<BaseButton>())
 					button.Pressed += () => PlayMenuClick(button);
+
 			var hold = GetNode<BaseButton>("Time/TimeBox/TimerHoldButton");
+
 			hold.ButtonDown += () => PlayMenuClick(hold);
 			menuSoundBound = true;
 		}
@@ -34,9 +40,11 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			if (button.Disabled || !button.IsVisibleInTree() || !button.CanProcess() || GlobalInput.UiLocked)
 				return;
+
 			if (button is SceneChangeButton sceneButton && sceneButton.TargetScene == Enums.Scenes.None
 				&& (sceneButton.ClickActions == null || sceneButton.ClickActions.Count == 0))
 				return;
+
 			menuClickSound.Play();
 		}
 
@@ -62,9 +70,9 @@ namespace Deuteros.Code.Platform.Screens
 		public TimerSwitchButton TimeButton { get; set; }
 		public SceneChangeButton StockButton { get; set; }
 		public SceneChangeButton DepositAnalysisButton { get; set; }
-		
+
 		public AnimatedSprite2D EarthAnimation { get; set; }
-        public AnimatedSprite2D MasterControlAnimation { get; set; }
+		public AnimatedSprite2D MasterControlAnimation { get; set; }
 		public AnimatedSprite2D NewsAnimation { get; set; }
 		public AnimatedSprite2D SaveAnimation { get; set; }
 		public AnimatedSprite2D TimeAnimation { get; set; }
@@ -89,7 +97,7 @@ namespace Deuteros.Code.Platform.Screens
 			DepositAnalysisButton = GetNode<SceneChangeButton>("Top/DepositAnalysis");
 
 			EarthAnimation = GetNode<AnimatedSprite2D>("Top/Earth/EarthAnimation");
-            MasterControlAnimation = GetNode<AnimatedSprite2D>("Top/MasterControl/MasterControlAnimation");
+			MasterControlAnimation = GetNode<AnimatedSprite2D>("Top/MasterControl/MasterControlAnimation");
 			NewsAnimation = GetNode<AnimatedSprite2D>("Top/News/NewsAnimation");
 			SaveAnimation = GetNode<AnimatedSprite2D>("Top/Save/SaveAnimation");
 			TimeAnimation = GetNode<AnimatedSprite2D>("Top/Time/TimeAnimation");
@@ -129,8 +137,10 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			UpdateSdmAlarm();
 			UpdateTimeAnimation();
+
 			var hoverText = GameCore.HoverTextIsStatus || Helpers.SettingsManager.Instance.GetSetting("gameplay/tooltips").AsBool()
 				? GameCore.HoverText : "";
+
 			if (hoverText != HoverInfo.Text)
 			{
 				HoverInfo.Text = hoverText;
@@ -145,20 +155,29 @@ namespace Deuteros.Code.Platform.Screens
 			var local = core.currentScene is not (Enums.Scenes.Overview or Enums.Scenes.News or Enums.Scenes.SaveScreen
 				or Enums.Scenes.Bulletins or Enums.Scenes.IntroScreen or Enums.Scenes.None
 				or Enums.Scenes.Earth_Ground or Enums.Scenes.Earth_Research or Enums.Scenes.Earth_Training);
-			if (planet.PlanetId == Enums.StellarBodies.earth && GameCore.Earth.GroundSelected) local = false;
+
+			if (planet.PlanetId == Enums.StellarBodies.earth && GameCore.Earth.GroundSelected)
+				local = false;
+
 			if (core.currentScene == Enums.Scenes.ShipInterior)
 			{
 				// ShipSelected is cleared after entry; the live interior owns the viewed ship.
 				var ship = GetParent().GetChildren().OfType<ShipInterior>().LastOrDefault(s => !s.IsQueuedForDeletion())?.Ship;
+
 				local &= ship != null && save.Ships.Contains(ship) && ship.ShipState != Enums.Ship_States.InTransit;
 			}
+
 			if (!local || !planet.Station.Built || planet.Station.SdmCountdown == 0)
 			{
-				if (alarmStation != null) AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+				if (alarmStation != null)
+					AudioServer.SetBusMute(AudioServer.GetBusIndex("Game"), false);
+
 				sdmAlarm.Stop();
 				alarmStation = null;
+
 				return;
 			}
+
 			if (!ReferenceEquals(alarmStation, planet.Station) || !sdmAlarm.Playing)
 			{
 				// The original alarm owns all four channels until leaving or defusing.
@@ -171,7 +190,7 @@ namespace Deuteros.Code.Platform.Screens
 		//Triggered from gamecore
 		public void DayTick(uint previousDay, uint currentDay)
 		{
-            UpdateTime(previousDay, currentDay);
+			UpdateTime(previousDay, currentDay);
 		}
 
 		private void UpdateTime(uint previousDay, uint currentDay)
@@ -211,6 +230,7 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
 			var animation = save.TimeSkip || save.TimeSkipDay ? "animated" : "static";
+
 			// Clock changes can come from holds or simulation events, independently of menu clicks.
 			// Keep the current frame when unrelated menu state refreshes.
 			if (TimeAnimation.Animation.ToString() != animation)

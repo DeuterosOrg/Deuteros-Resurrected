@@ -29,8 +29,8 @@ namespace Deuteros.Code.Platform.Screens
 		public IShip Ship { get; set; }
 		public IPlanet CurrentPlanet { get; set; }
 		private bool sceneReady;
-        private bool arrivalTimeSkip;
-        private double accPulseTime;
+		private bool arrivalTimeSkip;
+		private double accPulseTime;
 
 		Control TextLayout { get; set; }
 		Control StarMap { get; set; }
@@ -100,7 +100,9 @@ namespace Deuteros.Code.Platform.Screens
 			for (int i = 0; i < 6; i++)
 			{
 				Modules[i] = GetNode<TextureButton>("Modules/" + i.ToString().PadLeft(2, '0'));
+
 				var modulePressed = i;
+
 				Modules[i].Pressed += () => ShipInterior_Pressed(modulePressed);
 				Modules[i].Visible = false;
 			}
@@ -120,8 +122,10 @@ namespace Deuteros.Code.Platform.Screens
 			PilotCount = GetNode<Label>("TextLayout/PilotCount");
 			EngineStatusValue = GetNode<Label>("TextLayout/EngineStatusValue");
 			ACCStatus = GetNode<Label>("TextLayout/ACCStatus");
+
 			for (int i = 0; i < CargoValues.Length; i++)
 				CargoValues[i] = GetNode<Label>("TextLayout/CargoValue" + (i + 1));
+
 			CourseText = GetNode<Label>("TextLayout/CourseText");
 			CourseValue = GetNode<Label>("TextLayout/CourseValue");
 			ETA = GetNode<Label>("TextLayout/ETA");
@@ -137,7 +141,8 @@ namespace Deuteros.Code.Platform.Screens
 			Land.Pressed += Land_Pressed;
 			GetNode<Button>("Service").Pressed += Service_Pressed;
 
-			foreach (var cargoValue in CargoValues) cargoValue.Text = "";
+			foreach (var cargoValue in CargoValues)
+				cargoValue.Text = "";
 
 			UpdateState();
 
@@ -145,46 +150,66 @@ namespace Deuteros.Code.Platform.Screens
 			sceneReady = true;
 		}
 
-        public override void _Process(double delta)
-        {
-            if (!sceneReady) return;
-            accPulseTime = (accPulseTime + delta) % 0.4;
-            if (OpenACC.Visible) OpenACC.TextureNormal = AccLampTexture();
-            if (arrivalTimeSkip != GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
-                UpdateArrivalDate();
-        }
+		public override void _Process(double delta)
+		{
+			if (!sceneReady)
+				return;
 
-        private Texture2D AccLampTexture()
-        {
-            // Original palette 14 cycles F00/E00/A00/500 every five PAL interrupts,
-            // independently of ACC mode. Palette 13 (the highlight) stays unchanged.
-            var red = (int)(accPulseTime * 10) switch { 0 => 255, 1 => 238, 2 => 170, _ => 85 };
-            var path = SpriteBasePath + "Ship_Component_ACC.png";
-            var key = path + ":pulse:" + red;
-            if (SpriteManager.ImageCache.TryGetValue(key, out var cached)) return cached;
-            using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
-            for (var y = 0; y < image.GetHeight(); y++)
-                for (var x = 0; x < image.GetWidth(); x++)
-                    if (image.GetPixel(x, y).ToHtml() == "a00000ff")
-                        image.SetPixel(x, y, new Color(red / 255f, 0, 0));
-            var texture = ImageTexture.CreateFromImage(image);
-            SpriteManager.ImageCache[key] = texture;
-            return texture;
-        }
+			accPulseTime = (accPulseTime + delta) % 0.4;
 
-        private void UpdateArrivalDate()
-        {
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            arrivalTimeSkip = save.TimeSkip;
+			if (OpenACC.Visible)
+				OpenACC.TextureNormal = AccLampTexture();
 
-            // Projection follows the current mode, including controls and simulation-triggered stops.
-            var projection = Ship is SCG scg ? scg.ProjectedArrival()
-                : (Updates: Ship.TravelTimeRemain(), ArrivalOffset: (long?)InterstellarFlight.StarOffset(save.BaseGameData.Planets[Ship.PlanetLocation].ParentStar));
-            var remaining = (long)Math.Max(0, projection.Updates);
+			if (arrivalTimeSkip != GameCore.SingletonInstance.GameData.ActiveSaveFile.TimeSkip)
+				UpdateArrivalDate();
+		}
 
-            ETA.Text = projection.ArrivalOffset == null ? "ETA:\nUnavailable" : "ETA:\n" + GameClock.FormatAbsoluteDate(
-                310000000L + (long)save.Clock.DateCentidays + projection.ArrivalOffset.Value + remaining * (arrivalTimeSkip ? 100 : 1));
-        }
+		private Texture2D AccLampTexture()
+		{
+			// Original palette 14 cycles F00/E00/A00/500 every five PAL interrupts,
+			// independently of ACC mode. Palette 13 (the highlight) stays unchanged.
+			var red = (int)(accPulseTime * 10) switch
+			{
+				0 => 255,
+				1 => 238,
+				2 => 170,
+				_ => 85
+			};
+
+			var path = SpriteBasePath + "Ship_Component_ACC.png";
+			var key = path + ":pulse:" + red;
+
+			if (SpriteManager.ImageCache.TryGetValue(key, out var cached))
+				return cached;
+
+			using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
+
+			for (var y = 0; y < image.GetHeight(); y++)
+				for (var x = 0; x < image.GetWidth(); x++)
+					if (image.GetPixel(x, y).ToHtml() == "a00000ff")
+						image.SetPixel(x, y, new Color(red / 255f, 0, 0));
+
+			var texture = ImageTexture.CreateFromImage(image);
+
+			SpriteManager.ImageCache[key] = texture;
+
+			return texture;
+		}
+
+		private void UpdateArrivalDate()
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			arrivalTimeSkip = save.TimeSkip;
+
+			// Projection follows the current mode, including controls and simulation-triggered stops.
+			var projection = Ship is SCG scg ? scg.ProjectedArrival()
+				: (Updates: Ship.TravelTimeRemain(), ArrivalOffset: (long?)InterstellarFlight.StarOffset(save.BaseGameData.Planets[Ship.PlanetLocation].ParentStar));
+			var remaining = (long)Math.Max(0, projection.Updates);
+
+			ETA.Text = projection.ArrivalOffset == null ? "ETA:\nUnavailable" : "ETA:\n" + GameClock.FormatAbsoluteDate(
+				310000000L + (long)save.Clock.DateCentidays + projection.ArrivalOffset.Value + remaining * (arrivalTimeSkip ? 100 : 1));
+		}
 
 		private void tradeItems(Dictionary<ShipModule,Enums.ItemTypes> olditemlist, Dictionary<ShipModule, Enums.ItemTypes> newitemlist)
 		{
@@ -246,33 +271,35 @@ namespace Deuteros.Code.Platform.Screens
 
 		private async Task HandleModulePress(int modulePressed)
 		{
-            if (RejectShipCommand() || modulePressed < 0 || modulePressed >= Ship.Modules.Count) return;
+			if (RejectShipCommand() || modulePressed < 0 || modulePressed >= Ship.Modules.Count)
+				return;
 
-            var mounted = Ship.Modules[modulePressed];
-            // The original item action precedes the remake's generic DFCC interception.
+			var mounted = Ship.Modules[modulePressed];
+			// The original item action precedes the remake's generic DFCC interception.
 
-            if (Ship.ShipState != Ship_States.Docked && mounted.ModuleType == Module_Types.Tool && mounted.ItemStored == ItemTypes.alien_artifact)
-            {
-                if (Ship.ShipState != Ship_States.UnDocked)
+			if (Ship.ShipState != Ship_States.Docked && mounted.ModuleType == Module_Types.Tool && mounted.ItemStored == ItemTypes.alien_artifact)
+			{
+				if (Ship.ShipState != Ship_States.UnDocked)
 					return;
 
-                if (Ship.Pilot == null || Ship.Pilot.GetLevel() < 4)
-                {
-                    var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
+				if (Ship.Pilot == null || Ship.Pilot.GetLevel() < 4)
+				{
+					var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
 
-                    if (warning != null)
-                    {
-                        warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
-                        warning.GetNode<Label>("Labels/ToolType").Text = "Unknown";
-                        warning.GetNode<RichTextLabel>("Labels/WarningBody").Text = "A [color=yellow]Crew[/color] Is Required\nTo Operate This\nEquipment And Must\nBe Ranked [color=yellow]Warlord[/color]";
-                        warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
-                    }
-                }
-                else 
+					if (warning != null)
+					{
+						warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
+						warning.GetNode<Label>("Labels/ToolType").Text = "Unknown";
+						warning.GetNode<RichTextLabel>("Labels/WarningBody").Text = "A [color=yellow]Crew[/color] Is Required\nTo Operate This\nEquipment And Must\nBe Ranked [color=yellow]Warlord[/color]";
+						warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
+					}
+				}
+				else
 					OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/Ending.tscn"), false);
 
-                return;
-            }
+				return;
+			}
+
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation != StellarBodies.asteroids)
 			{
 				var sceneVariables = new List<SceneVariables>();
@@ -282,7 +309,8 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (Ship.Modules[modulePressed].ItemStored == ItemTypes.r_frame && CurrentPlanet.BaseBuildParts < 2 && Ship.Pilot?.Count > 0 && Ship.ShipType == Ship_Types.Shuttle && ((Shuttle)Ship).OnGround)
 					{
-						if (Ship.Pilot != null) Ship.Pilot.AddAction();
+						if (Ship.Pilot != null)
+							Ship.Pilot.AddAction();
 
 						CurrentPlanet.BaseBuildParts++;
 
@@ -329,36 +357,40 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					if (CurrentPlanet.ActiveMethanoid)
 					{
-						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar) return;
+						if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar)
+							return;
+
 						if (Ship.Modules.Any<ShipModule>(m => m.ItemStored == ItemTypes.commspod))
 						{
 							if (GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount >= 16)
 							{
 								await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_War_Warning], new List<string>(), (modulePressed + 1));
+
 								var commpodModule = Ship.Modules.First<ShipModule>(m => m.ItemStored == ItemTypes.commspod);
+
 								commpodModule.ItemStored = ItemTypes.grapple;
-                                commpodModule.HeldItem = new UnknownItem(UnknownItemTypes.Blazer);
-                                GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
-                                GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-                                GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
-                            }
-                            else
+								commpodModule.HeldItem = new UnknownItem(UnknownItemTypes.Blazer);
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
+							}
+							else
 							{
 								var itemlist = new Dictionary<ShipModule,Enums.ItemTypes>();
-                                var newitemlist = new Dictionary<ShipModule, Enums.ItemTypes>();
-                                var offeredCounts = new Dictionary<ShipModule, int>();
+								var newitemlist = new Dictionary<ShipModule, Enums.ItemTypes>();
+								var offeredCounts = new Dictionary<ShipModule, int>();
 
-                                // Original $7BE6C scans three positions, including non-supply pods.
-                                foreach (ShipModule m in Ship.Modules.Take(3))
+								// Original $7BE6C scans three positions, including non-supply pods.
+								foreach (ShipModule m in Ship.Modules.Take(3))
 								{
 									if (m.ModuleType == Module_Types.Supply && m.ItemCount > 0
 										&& m.ItemStored >= ItemTypes.iron && m.ItemStored <= ItemTypes.hed_fuel)
 									{
 										itemlist[m] = m.ItemStored;
 										newitemlist[m] = m.ItemStored;
-                                        offeredCounts[m] = m.ItemCount;
-                                    }
-                                }
+										offeredCounts[m] = m.ItemCount;
+									}
+								}
 
 								//calculate list of new items
 								this.tradeItems(itemlist, newitemlist);
@@ -372,37 +404,45 @@ namespace Deuteros.Code.Platform.Screens
 								{
 									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_TradeQuestion], new List<string>(), (modulePressed + 1));
 
-                                    var decision = await AskTradeDecision(itemlist, newitemlist, offeredCounts);
-                                    if (decision == null || !IsInsideTree() || IsQueuedForDeletion()) return;
+									var decision = await AskTradeDecision(itemlist, newitemlist, offeredCounts);
 
-                                    if (!decision.Value)
-                                    {
-                                        var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-                                        save.MethanoidTradeCount = Math.Max(0, save.MethanoidTradeCount - 1);
-                                        await ShowModuleTextFrame(save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Methanoid_No_Trade], new List<string>(), modulePressed + 1);
-                                    }
-                                    else
-                                    {
+									if (decision == null || !IsInsideTree() || IsQueuedForDeletion())
+										return;
 
-                                        List<string> p = new List<string>
-                                        {
-                                            newitemlist.Values.First().ToScreenString(),
-                                            itemlist.Values.First().ToScreenString()
-                                        };
+									if (!decision.Value)
+									{
+										var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
 
-                                        // Commit together before response playback can be interrupted.
-                                        foreach (var module in newitemlist.Keys) module.ItemStored = newitemlist[module];
-                                        Ship.Fuel = 250; // Original accepted-trade gift, in gauge units.
-                                        GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
-                                        var response = ModuleFrameText.Methanoid_Trade1;
-                                        if (itemlist.Count > 1)
-                                        {
-                                            p.Add(newitemlist.Values.ElementAt(1).ToScreenString());
-                                            p.Add(itemlist.Values.ElementAt(1).ToScreenString());
-                                            response = ModuleFrameText.Methanoid_Trade2;
-                                        }
-                                        await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[response], p, modulePressed + 1);
-                                    }
+										save.MethanoidTradeCount = Math.Max(0, save.MethanoidTradeCount - 1);
+										await ShowModuleTextFrame(save.BaseGameData.ModuleFrameTexts[ModuleFrameText.Methanoid_No_Trade], new List<string>(), modulePressed + 1);
+									}
+									else
+									{
+
+										List<string> p = new List<string>
+										{
+											newitemlist.Values.First().ToScreenString(),
+											itemlist.Values.First().ToScreenString()
+										};
+
+										// Commit together before response playback can be interrupted.
+										foreach (var module in newitemlist.Keys)
+											module.ItemStored = newitemlist[module];
+
+										Ship.Fuel = 250; // Original accepted-trade gift, in gauge units.
+										GameCore.SingletonInstance.GameData.ActiveSaveFile.MethanoidTradeCount++;
+
+										var response = ModuleFrameText.Methanoid_Trade1;
+
+										if (itemlist.Count > 1)
+										{
+											p.Add(newitemlist.Values.ElementAt(1).ToScreenString());
+											p.Add(itemlist.Values.ElementAt(1).ToScreenString());
+											response = ModuleFrameText.Methanoid_Trade2;
+										}
+
+										await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[response], p, modulePressed + 1);
+									}
 
 								}
 							}
@@ -412,6 +452,7 @@ namespace Deuteros.Code.Platform.Screens
 							if (GameCore.SingletonInstance.GameData.GetItem(ItemTypes.commspod).Locked)
 							{
 								var emptyGrapple = Ship.Modules.FirstOrDefault(m => m.ItemStored == ItemTypes.grapple && m.HeldItem == null);
+
 								if (emptyGrapple != null)
 								{
 									await ShowModuleTextFrame(GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ModuleFrameTexts[Enums.ModuleFrameText.Methanoid_Intro_With_Grapple], new List<string>(), (modulePressed + 1));
@@ -426,6 +467,7 @@ namespace Deuteros.Code.Platform.Screens
 							}
 
 						}
+
 						Ship.TakeOff();
 
 						UpdateState();
@@ -456,11 +498,12 @@ namespace Deuteros.Code.Platform.Screens
 					if (combatAvailable)
 					{
 
-                        var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-                        var battlePlanet = save.BaseGameData.Planets[Ship.PlanetLocation];
-                        var stationBattle = battlePlanet.ActiveMethanoid;
-                        EnemyFleet enemyShip;
-                        if (stationBattle)
+						var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+						var battlePlanet = save.BaseGameData.Planets[Ship.PlanetLocation];
+						var stationBattle = battlePlanet.ActiveMethanoid;
+						EnemyFleet enemyShip;
+
+						if (stationBattle)
 						{
 							enemyShip = new EnemyFleet();
 
@@ -473,19 +516,28 @@ namespace Deuteros.Code.Platform.Screens
 							enemyShip = (EnemyFleet)GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.PlanetLocation == Ship.PlanetLocation && s.ShipType != Ship_Types.Shuttle && ((InterStellarShip)s).MethanoidOwned);
 						}
 
-                        void FinishBattle()
-                        {
-                            if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)) return;
-                            if (!stationBattle && !enemyShip.Attacking) enemyShip.CancelAttack(Ship.PlanetLocation);
-                            if (((InterStellarShip)Ship).DroneCount == 0 && save.Ships.Remove(Ship)) save.News.AddShipLoss(Ship);
-                            if (IsInstanceValid(this) && IsInsideTree() && !IsQueuedForDeletion()
-                                && GameCore.SingletonInstance.currentScene == Scenes.ShipInterior)
-                                DayTick(save.CurrentDay, save.CurrentDay);
-                        }
-                        await ShowBattleFrame((InterStellarShip)Ship, enemyShip, stationBattle ? battlePlanet : null, FinishBattle);
-                        if (!IsInstanceValid(this) || !IsInsideTree() || IsQueuedForDeletion()
-                            || !ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)
-                            || !save.Ships.Contains(Ship)) return;
+						void FinishBattle()
+						{
+							if (!ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile))
+								return;
+
+							if (!stationBattle && !enemyShip.Attacking)
+								enemyShip.CancelAttack(Ship.PlanetLocation);
+
+							if (((InterStellarShip)Ship).DroneCount == 0 && save.Ships.Remove(Ship))
+								save.News.AddShipLoss(Ship);
+
+							if (IsInstanceValid(this) && IsInsideTree() && !IsQueuedForDeletion()
+								&& GameCore.SingletonInstance.currentScene == Scenes.ShipInterior)
+								DayTick(save.CurrentDay, save.CurrentDay);
+						}
+
+						await ShowBattleFrame((InterStellarShip)Ship, enemyShip, stationBattle ? battlePlanet : null, FinishBattle);
+
+						if (!IsInstanceValid(this) || !IsInsideTree() || IsQueuedForDeletion()
+							|| !ReferenceEquals(save, GameCore.SingletonInstance.GameData.ActiveSaveFile)
+							|| !save.Ships.Contains(Ship))
+							return;
 
 						UpdateState();
 					}
@@ -504,19 +556,21 @@ namespace Deuteros.Code.Platform.Screens
 							if (!OverlayManager.Instance.IsOpen)
 							{
 								var warning = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/OFPilotWarning.tscn"), false);
+
 								warning.GetNode<Label>("Window/Background/Number").Text = (modulePressed + 1).ToString();
 								warning.GetNode<Button>("Dismiss").Pressed += OverlayManager.Instance.CloseOverlay;
 							}
+
 							return;
 						}
 
 						Ship.Pilot.AddAction();
 
 						if (CurrentPlanet.Station.BuildParts == 0)
-                        {
-                            FuelRefining.ClaimPlayerSlot(GameCore.SingletonInstance.GameData.ActiveSaveFile, CurrentPlanet);
+						{
+							FuelRefining.ClaimPlayerSlot(GameCore.SingletonInstance.GameData.ActiveSaveFile, CurrentPlanet);
 							CurrentPlanet.Station.StationOrdinal = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station != null).MaxBy(p => p.Station.StationOrdinal).Station.StationOrdinal + 1;
-                        }
+						}
 
 						CurrentPlanet.Station.BuildParts++;
 
@@ -541,7 +595,7 @@ namespace Deuteros.Code.Platform.Screens
 
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar = true;
 							GameCore.SingletonInstance.GameData.ActiveSaveFile.WarDeclaredDay = GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentDay;
-                                GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
+								GameCore.SingletonInstance.GameData.ActiveSaveFile.AlienTransmissions.Start();
 						}
 
 						UpdateState();
@@ -572,34 +626,37 @@ namespace Deuteros.Code.Platform.Screens
 			}
 		}
 
-        private async Task ShowBattleFrame(InterStellarShip player, EnemyFleet enemy, IPlanet stationOwner, Action onCompleted)
-        {
+		private async Task ShowBattleFrame(InterStellarShip player, EnemyFleet enemy, IPlanet stationOwner, Action onCompleted)
+		{
 
-            var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/Battle.tscn").Instantiate<Battle>();
+			var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/Battle.tscn").Instantiate<Battle>();
 
-            Window.AddChild(frame);
-            var battle = frame.DoBattle(player, enemy, onCompleted);
+			Window.AddChild(frame);
 
-            if (stationOwner != null)
-            {
-                var station = stationOwner.Station;
-                // DoBattle registers its result settlement first. Return the reservation on normal or cancelled exit.
-                frame.TreeExiting += () =>
-                {
-                    if (stationOwner.ActiveMethanoid && ReferenceEquals(stationOwner.Station, station))
-                        station.Resources.Stores[ItemTypes.ios_drone] += enemy.DroneCount;
-                };
-            }
-            try 
-			{ 
-				await battle; 
+			var battle = frame.DoBattle(player, enemy, onCompleted);
+
+			if (stationOwner != null)
+			{
+				var station = stationOwner.Station;
+
+				// DoBattle registers its result settlement first. Return the reservation on normal or cancelled exit.
+				frame.TreeExiting += () =>
+				{
+					if (stationOwner.ActiveMethanoid && ReferenceEquals(stationOwner.Station, station))
+						station.Resources.Stores[ItemTypes.ios_drone] += enemy.DroneCount;
+				};
 			}
-            finally 
-			{ 
+
+			try
+			{
+				await battle;
+			}
+			finally
+			{
 				if (IsInstanceValid(frame))
-					frame.QueueFree(); 
+					frame.QueueFree();
 			}
-        }
+		}
 
 		private void ShowDroneTrasferFrame(InterStellarShip player)
 		{
@@ -615,12 +672,12 @@ namespace Deuteros.Code.Platform.Screens
 			var core = GameCore.SingletonInstance;
 
 			GameCore.LockScreen();
-			
+
 			var frame = GD.Load<PackedScene>("res://PreFabs/ShipModuleWindows/ModuleTextFrame.tscn").Instantiate<ModuleTextFrame>();
-			
+
 			ModuleTextFrame = frame;
 			Window.AddChild(frame);
-			
+
 			try
 			{
 				await frame.PlayText(newTextFrame, dynamicProperties, windowNumber);
@@ -657,50 +714,72 @@ namespace Deuteros.Code.Platform.Screens
 			*/
 		}
 
-        private bool CanService
-        {
-            get
-            {
-                if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids) return false;
-                var planet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
-                return !planet.ActiveMethanoid && (Ship is Shuttle { OnGround: true }
-                    ? planet.PlanetId == StellarBodies.earth || planet.BaseBuildParts == 2 : planet.Station.Built);
-            }
-        }
+		private bool CanService
+		{
+			get
+			{
+				if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids)
+					return false;
 
-        private void Service_Pressed()
-        {
-            if (RejectShipCommand() || !CanService) return;
-            var core = GameCore.SingletonInstance;
-            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
-                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
-            var ground = Ship is Shuttle { OnGround: true };
-            core.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
-            core.ShipSelected = Ship.ShipID;
-            if (ground) CurrentPlanet.ShuttleState = 0;
-            else if (Ship is Shuttle) CurrentPlanet.Station.ShuttleState = 0;
-            else CurrentPlanet.Station.StarShipState = 0;
-            core.ChangeScene(Scenes.ShipBay, new List<SceneVariables>
-            {
-                ground ? Enums.SceneVariables.Ground : Enums.SceneVariables.Orbit,
-                Ship is Shuttle ? Enums.SceneVariables.Shuttle : Enums.SceneVariables.Ship
-            });
-        }
+				var planet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
 
-        private bool InBattle => Window.GetChildren().OfType<Battle>().Any();
+				return !planet.ActiveMethanoid && (Ship is Shuttle { OnGround: true }
+					? planet.PlanetId == StellarBodies.earth || planet.BaseBuildParts == 2 : planet.Station.Built);
+			}
+		}
 
-        private bool RejectShipCommand(Node owningOverlay = null)
-        {
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (!IsInsideTree() || IsQueuedForDeletion() || InBattle) return true;
-            if (OverlayManager.Instance.IsOpen && !OverlayManager.Instance.IsShowing(owningOverlay)) return true;
-            return save.RogueCrew.RejectCommand(save, Ship);
-        }
+		private void Service_Pressed()
+		{
+			if (RejectShipCommand() || !CanService)
+				return;
+
+			var core = GameCore.SingletonInstance;
+
+			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+				|| core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
+				return;
+
+			var ground = Ship is Shuttle { OnGround: true };
+
+			core.GameData.ActiveSaveFile.CurrentPlanet = Ship.PlanetLocation;
+			core.ShipSelected = Ship.ShipID;
+
+			if (ground)
+				CurrentPlanet.ShuttleState = 0;
+			else if (Ship is Shuttle)
+				CurrentPlanet.Station.ShuttleState = 0;
+			else
+				CurrentPlanet.Station.StarShipState = 0;
+
+			core.ChangeScene(Scenes.ShipBay, new List<SceneVariables>
+			{
+				ground ? Enums.SceneVariables.Ground : Enums.SceneVariables.Orbit,
+				Ship is Shuttle ? Enums.SceneVariables.Shuttle : Enums.SceneVariables.Ship
+			});
+		}
+
+		private bool InBattle => Window.GetChildren().OfType<Battle>().Any();
+
+		private bool RejectShipCommand(Node owningOverlay = null)
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			if (!IsInsideTree() || IsQueuedForDeletion() || InBattle)
+				return true;
+
+			if (OverlayManager.Instance.IsOpen && !OverlayManager.Instance.IsShowing(owningOverlay))
+				return true;
+
+			return save.RogueCrew.RejectCommand(save, Ship);
+		}
 
 		private void RenameShip_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			var core = GameCore.SingletonInstance;
+
 			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked ||
 				core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked || OverlayManager.Instance.IsOpen)
 				return;
@@ -708,6 +787,7 @@ namespace Deuteros.Code.Platform.Screens
 			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/RenameShip.tscn"));
 			var nameEdit = dialog.GetNode<LineEdit>("NameEdit");
 			var validation = dialog.GetNode<Label>("Validation");
+
 			// Validate on submission rather than truncating names from existing saves when opening.
 			nameEdit.Text = Ship.Name;
 			nameEdit.GrabFocus();
@@ -716,14 +796,19 @@ namespace Deuteros.Code.Platform.Screens
 
 			void ConfirmName()
 			{
-                if (RejectShipCommand(dialog)) return;
+				if (RejectShipCommand(dialog))
+					return;
+
 				var name = nameEdit.Text.Trim();
+
 				if (name.Length == 0 || name.Length > 24 || name.Any(char.IsControl))
 				{
 					validation.Text = "Use 1 to 24 characters.";
 					nameEdit.GrabFocus();
+
 					return;
 				}
+
 				Ship.Name = name;
 				UpdateState();
 				OverlayManager.Instance.CloseOverlay();
@@ -736,64 +821,83 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void Land_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			Ship.Land();
 			UpdateState();
 		}
 
 		private void TakeOff_Pressed()
 		{
-            ConfirmDeparture("Launch", () =>
-            {
-                Ship.TakeOff();
-                UpdateState();
-            });
+			ConfirmDeparture("Launch", () =>
+			{
+				Ship.TakeOff();
+				UpdateState();
+			});
 		}
 
-        private void ConfirmDeparture(string command, Action depart)
-        {
-            if (RejectShipCommand()) return;
-            var core = GameCore.SingletonInstance;
-            if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
-                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
-            if (!SettingsManager.Instance.GetSetting("gameplay/confirm_launch").AsBool())
-            {
-                depart();
-                return;
-            }
+		private void ConfirmDeparture(string command, Action depart)
+		{
+			if (RejectShipCommand())
+				return;
 
-            var save = core.GameData.ActiveSaveFile;
-            var ship = Ship;
-            var route = (ship.ShipState, ship.PlanetLocation, ship.StarLocation,
-                ship.DestinationPlanetLocation, ship.DestinationStarLocation);
-            var overlays = OverlayManager.Instance;
-            var dialog = overlays.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/ConfirmLaunch.tscn"));
-            dialog.GetNode<Label>("Message").Text = command + "?\n" + ship.Name;
-            dialog.GetNode<Button>("Cancel").Pressed += overlays.CloseOverlay;
-            dialog.GetNode<Button>("Cancel").GrabFocus();
-            dialog.GetNode<Button>("Confirm").Pressed += () =>
-            {
-                if (!overlays.IsShowing(dialog)) return;
-                overlays.CloseOverlay();
-                if (!IsInstanceValid(this) || !ReferenceEquals(save, core.GameData.ActiveSaveFile) || !ReferenceEquals(ship, Ship)
-                    || !save.Ships.Contains(ship) || route != (ship.ShipState, ship.PlanetLocation, ship.StarLocation,
-                        ship.DestinationPlanetLocation, ship.DestinationStarLocation) || RejectShipCommand()) return;
-                depart();
-            };
-        }
+			var core = GameCore.SingletonInstance;
+
+			if (GlobalInput.UiLocked || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+				|| core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
+				return;
+
+			if (!SettingsManager.Instance.GetSetting("gameplay/confirm_launch").AsBool())
+			{
+				depart();
+
+				return;
+			}
+
+			var save = core.GameData.ActiveSaveFile;
+			var ship = Ship;
+			var route = (ship.ShipState, ship.PlanetLocation, ship.StarLocation, ship.DestinationPlanetLocation, ship.DestinationStarLocation);
+			var overlays = OverlayManager.Instance;
+			var dialog = overlays.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/ConfirmLaunch.tscn"));
+
+			dialog.GetNode<Label>("Message").Text = command + "?\n" + ship.Name;
+			dialog.GetNode<Button>("Cancel").Pressed += overlays.CloseOverlay;
+			dialog.GetNode<Button>("Cancel").GrabFocus();
+
+			dialog.GetNode<Button>("Confirm").Pressed += () =>
+			{
+				if (!overlays.IsShowing(dialog))
+					return;
+
+				overlays.CloseOverlay();
+
+				if (!IsInstanceValid(this) || !ReferenceEquals(save, core.GameData.ActiveSaveFile) || !ReferenceEquals(ship, Ship)
+					|| !save.Ships.Contains(ship) || route != (ship.ShipState, ship.PlanetLocation, ship.StarLocation,
+						ship.DestinationPlanetLocation, ship.DestinationStarLocation) || RejectShipCommand())
+					return;
+
+				depart();
+			};
+		}
 
 		private void Dock_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			if (Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
+
 			Ship.Dock();
 			UpdateState();
 		}
 
 		private void SmallLocation_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			Ship.LocationView = !Ship.LocationView;
 
 			UpdateState();
@@ -801,27 +905,35 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void DisengageEngine_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			Ship.DisengageEngine();
 			UpdateState();
 		}
 
 		private void EngageEngine_Pressed()
 		{
-            ConfirmDeparture("Engage engines", () =>
-            {
-                if (Ship.EngageEngine()) CurrentPlanet = null;
-                UpdateState();
-            });
+			ConfirmDeparture("Engage engines", () =>
+			{
+				if (Ship.EngageEngine())
+					CurrentPlanet = null;
+
+				UpdateState();
+			});
 		}
 
-        private bool CanSetCourse => Ship is not SCG { Flight: not null }
-            && RogueCrew.CanCommand(Ship);
+		private bool CanSetCourse => Ship is not SCG { Flight: not null }
+			&& RogueCrew.CanCommand(Ship);
 
 		private void SetCourse_Pressed()
 		{
-            if (RejectShipCommand()) return;
-            if (!CanSetCourse) return;
+			if (RejectShipCommand())
+				return;
+
+			if (!CanSetCourse)
+				return;
+
 			DestinationStarMap = GD.Load<PackedScene>("res://PreFabs/StarMap.tscn").Instantiate<StarMap>();
 			DestinationStarMap.ShowResources = false;
 
@@ -830,6 +942,7 @@ namespace Deuteros.Code.Platform.Screens
 			DestinationStarMap.LoadMap(Ship.DestinationPlanetLocation);
 
 			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+
 			cursor.LockToRect(StarMap.GetGlobalRect());
 
 			UpdateState();
@@ -837,7 +950,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ACC_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			ACCScreen = GD.Load<PackedScene>("res://PreFabs/ACC.tscn").Instantiate<ACC>();
 			ACCScreen.SetACC(Ship.ACC);
 			ACCScreen.CloseWindow = CloseACC;
@@ -847,12 +962,13 @@ namespace Deuteros.Code.Platform.Screens
 			ACCScreen.UpdateState();
 
 			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
+
 			cursor.LockToRect(ACC.GetGlobalRect());
 
 			UpdateState();
 		}
 
-		internal void UpdateState()
+		public void UpdateState()
 		{
 			if (Ship.ShipState != Ship_States.InTransit)
 				CurrentPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation];
@@ -884,10 +1000,10 @@ namespace Deuteros.Code.Platform.Screens
 				else
 					Status.Text = "Docked Above\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Stranded })
-                Status.Text = "Stranded At\n" + Ship.DestinationStarLocation.ToScreenString(" ");
-            else if (Ship is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Local })
-                Status.Text = (Ship.EngineEngaged ? "Approaching\n" : "Drifting To\n") + Ship.DestinationPlanetLocation.ToScreenString(" ");
-            else if (Ship.ShipState == Ship_States.InTransit)
+				Status.Text = "Stranded At\n" + Ship.DestinationStarLocation.ToScreenString(" ");
+			else if (Ship is SCG { Flight.Leg: InterstellarFlight.FlightLeg.Local })
+				Status.Text = (Ship.EngineEngaged ? "Approaching\n" : "Drifting To\n") + Ship.DestinationPlanetLocation.ToScreenString(" ");
+			else if (Ship.ShipState == Ship_States.InTransit)
 				if (Ship.EngineEngaged)
 					Status.Text = "In Transit To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 				else
@@ -895,13 +1011,14 @@ namespace Deuteros.Code.Platform.Screens
 			else if (Ship.ShipState == Ship_States.Docking)
 				Status.Text = "Docking With\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship is InterStellarShip && Ship.PlanetLocation == StellarBodies.asteroids)
-                Status.Text = (Ship.FallingCount > 0 ? "Stranded At\n" : "Scanning\n") + Ship.PlanetLocation.ToScreenString(" ");
+				Status.Text = (Ship.FallingCount > 0 ? "Stranded At\n" : "Scanning\n") + Ship.PlanetLocation.ToScreenString(" ");
 			else if (Ship.Fuel == 0)
 				Status.Text = "Falling To\n" + Ship.PlanetLocation.ToScreenString(" ");
 			else
 				Status.Text = "Orbitting\n" + Ship.PlanetLocation.ToScreenString(" ");
 
 			FuelValue.Text = Ship.Fuel.ToString();
+
 			if (Ship.Fuel > 0)
 				FuelValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Yellow);
 			else
@@ -924,13 +1041,13 @@ namespace Deuteros.Code.Platform.Screens
 				EngageEngine.Visible = true;
 				DisengageEngine.Visible = true;
 
-                if (Ship.EngineDamaged)
-                {
-                    EngineStatusValue.Text = "Damaged !";
-                    EngineStatusValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
-                }
-                else if (Ship.ShipState is Ship_States.Docking or Ship_States.Launching or Ship_States.Landing or Ship_States.TakingOff
-                    || (Ship.ShipState == Ship_States.InTransit && Ship.EngineEngaged))
+				if (Ship.EngineDamaged)
+				{
+					EngineStatusValue.Text = "Damaged !";
+					EngineStatusValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Red);
+				}
+				else if (Ship.ShipState is Ship_States.Docking or Ship_States.Launching or Ship_States.Landing or Ship_States.TakingOff
+					|| (Ship.ShipState == Ship_States.InTransit && Ship.EngineEngaged))
 				{
 					EngineStatusValue.Text = "Engaged";
 					EngineStatusValue.AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Green);
@@ -945,7 +1062,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.ACC != null)
 			{
 				OpenACC.Visible = true;
-                OpenACC.TextureNormal = AccLampTexture();
+				OpenACC.TextureNormal = AccLampTexture();
 
 				if (Ship.ACC.CycleMode)
 					ACCStatus.Text = "A.C.C Is \nFinishing";
@@ -972,6 +1089,7 @@ namespace Deuteros.Code.Platform.Screens
 				else if (Ship.Modules[i].ModuleType == Module_Types.Supply)
 				{
 					CargoValues[i].AddThemeColorOverride("font_color", GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Beige);
+
 					if (Ship.Modules[i].ItemCount > 0)
 						CargoValues[i].Text = Ship.Modules[i].ItemCount + " " + Ship.Modules[i].ItemStored.ToScreenString(" ");
 					else
@@ -1016,7 +1134,7 @@ namespace Deuteros.Code.Platform.Screens
 				CourseValue.Text = Ship.PlanetLocation.ToScreenString(" ") + " To\n" + Ship.DestinationPlanetLocation.ToScreenString(" ");
 			}
 
-            UpdateArrivalDate();
+			UpdateArrivalDate();
 
 			if (Ship.ShipType == Ship_Types.Shuttle)
 			{
@@ -1073,79 +1191,96 @@ namespace Deuteros.Code.Platform.Screens
 			else
 				SmallLocation.TextureNormal = null;
 
-            SetCourse.Disabled = !CanSetCourse;
-            var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
-            GetNode<Button>("Service").Disabled = rogue || !CanService;
-            GetNode<Button>("TextLayout/RenameShip").Disabled = GetNode<Button>("TextLayout/CargoActions").Disabled = rogue;
-            OpenACC.Disabled = EngageEngine.Disabled = Dock.Disabled = TakeOff.Disabled = Land.Disabled = rogue;
-            foreach (var button in Modules) button.Disabled = rogue;
-            DisengageEngine.Disabled = rogue || Ship is SCG { Flight: not null } flying && flying.Flight.Leg != InterstellarFlight.FlightLeg.Local;
+			SetCourse.Disabled = !CanSetCourse;
+
+			var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
+
+			GetNode<Button>("Service").Disabled = rogue || !CanService;
+			GetNode<Button>("TextLayout/RenameShip").Disabled = GetNode<Button>("TextLayout/CargoActions").Disabled = rogue;
+			OpenACC.Disabled = EngageEngine.Disabled = Dock.Disabled = TakeOff.Disabled = Land.Disabled = rogue;
+
+			foreach (var button in Modules)
+				button.Disabled = rogue;
+
+			DisengageEngine.Disabled = rogue || Ship is SCG { Flight: not null } flying && flying.Flight.Leg != InterstellarFlight.FlightLeg.Local;
 			SetCourse.Visible = Ship.ShipType != Ship_Types.Shuttle;
 
 			if (sceneReady)
 				GameCore.SingletonInstance.UpdateMenuButtons(false, false);
 		}
 
-        private Texture2D LocationTexture(bool small)
-        {
-            var body = CurrentPlanet.IsMoon ? CurrentPlanet.MoonParentPlanetId : CurrentPlanet.PlanetId;
-            if (!small && body == StellarBodies.asteroids)
-                return SpriteManager.LoadImage("res://Sprites/Scenes/Ship_View_Asteroids.png");
-            // Original $353F5 parent-group table and $410DC RGB4 rows; see the palette evidence.
-            var palette = body switch
-            {
-                StellarBodies.mars or StellarBodies.cercops or StellarBodies.epsilon => (0x0500, 0x0800, 0x0A00),
-                StellarBodies.uranus or StellarBodies.mycenae or StellarBodies.zargun => (0x0050, 0x0080, 0x00A0),
-                StellarBodies.neptune or StellarBodies.atlantic or StellarBodies.cainozoic => (0x0005, 0x0008, 0x000A),
-                StellarBodies.jupiter or StellarBodies.chiron or StellarBodies.tyre or StellarBodies.lithos
-                    or StellarBodies.radius or StellarBodies.cambrian or StellarBodies.gamma => (0x0860, 0x0A80, 0x0CA0),
-                StellarBodies.venus or StellarBodies.saturn or StellarBodies.jericho or StellarBodies.burah
-                    or StellarBodies.titanes or StellarBodies.paleozoic => (0x0A80, 0x0CA0, 0x0FD0),
-                StellarBodies.earth or StellarBodies.cerberus or StellarBodies.thebes or StellarBodies.mari
-                    or StellarBodies.romulus or StellarBodies.remus or StellarBodies.sulfurum or StellarBodies.beta => (0x0048, 0x008A, 0x0AFF),
-                StellarBodies.crete or StellarBodies.helios or StellarBodies.alpha or StellarBodies.zeta => (0x0FFF, 0x0684, 0x0462),
-                StellarBodies.julius => (0x0ACE, 0x0468, 0x068A),
-                _ => (0x0AAA, 0x0CCC, 0x0EEE)
-            };
-            var station = CurrentPlanet.Station.BuildParts > 0;
-            var path = small
-                ? SpriteBasePath + "SmallLocation_Planet_White" + (station ? "_Station" : "") + ".png"
-                : "res://Sprites/Scenes/Ship_View_" + (station ? "Station" : "Planet") + ".png";
-            var key = path + ":" + palette;
-            if (SpriteManager.ImageCache.TryGetValue(key, out var cached)) return cached;
-            // Headless Godot returns a shared image; mutate and dispose only our copy.
-            using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
-            var first = small ? "aaaaaa" : "004080";
-            var second = small ? "cccccc" : "0080a0";
-            var third = small ? "eeeeee" : "a0e0e0";
-            for (var y = 0; y < image.GetHeight(); y++)
-                for (var x = 0; x < image.GetWidth(); x++)
-                {
-                    var color = image.GetPixel(x, y);
-                    var hex = color.ToHtml(false);
-                    var rgb4 = hex == first ? palette.Item1 : hex == second ? palette.Item2 : hex == third ? palette.Item3 : -1;
-                    if (rgb4 >= 0)
-                        image.SetPixel(x, y, new Color(((rgb4 >> 8) & 15) / 15f, ((rgb4 >> 4) & 15) / 15f, (rgb4 & 15) / 15f, color.A));
-                }
-            var texture = ImageTexture.CreateFromImage(image);
-            SpriteManager.ImageCache[key] = texture;
-            return texture;
-        }
+		private Texture2D LocationTexture(bool small)
+		{
+			var body = CurrentPlanet.IsMoon ? CurrentPlanet.MoonParentPlanetId : CurrentPlanet.PlanetId;
+
+			if (!small && body == StellarBodies.asteroids)
+				return SpriteManager.LoadImage("res://Sprites/Scenes/Ship_View_Asteroids.png");
+
+			// Original $353F5 parent-group table and $410DC RGB4 rows; see the palette evidence.
+			var palette = body switch
+			{
+				StellarBodies.mars or StellarBodies.cercops or StellarBodies.epsilon => (0x0500, 0x0800, 0x0A00),
+				StellarBodies.uranus or StellarBodies.mycenae or StellarBodies.zargun => (0x0050, 0x0080, 0x00A0),
+				StellarBodies.neptune or StellarBodies.atlantic or StellarBodies.cainozoic => (0x0005, 0x0008, 0x000A),
+				StellarBodies.jupiter or StellarBodies.chiron or StellarBodies.tyre or StellarBodies.lithos
+					or StellarBodies.radius or StellarBodies.cambrian or StellarBodies.gamma => (0x0860, 0x0A80, 0x0CA0),
+				StellarBodies.venus or StellarBodies.saturn or StellarBodies.jericho or StellarBodies.burah
+					or StellarBodies.titanes or StellarBodies.paleozoic => (0x0A80, 0x0CA0, 0x0FD0),
+				StellarBodies.earth or StellarBodies.cerberus or StellarBodies.thebes or StellarBodies.mari
+					or StellarBodies.romulus or StellarBodies.remus or StellarBodies.sulfurum or StellarBodies.beta => (0x0048, 0x008A, 0x0AFF),
+				StellarBodies.crete or StellarBodies.helios or StellarBodies.alpha or StellarBodies.zeta => (0x0FFF, 0x0684, 0x0462),
+				StellarBodies.julius => (0x0ACE, 0x0468, 0x068A),
+				_ => (0x0AAA, 0x0CCC, 0x0EEE)
+			};
+			var station = CurrentPlanet.Station.BuildParts > 0;
+			var path = small
+				? SpriteBasePath + "SmallLocation_Planet_White" + (station ? "_Station" : "") + ".png"
+				: "res://Sprites/Scenes/Ship_View_" + (station ? "Station" : "Planet") + ".png";
+			var key = path + ":" + palette;
+
+			if (SpriteManager.ImageCache.TryGetValue(key, out var cached))
+				return cached;
+
+			using var image = (Image)SpriteManager.LoadImage(path).GetImage().Duplicate();
+			var first = small ? "aaaaaa" : "004080";
+			var second = small ? "cccccc" : "0080a0";
+			var third = small ? "eeeeee" : "a0e0e0";
+
+			for (var y = 0; y < image.GetHeight(); y++)
+				for (var x = 0; x < image.GetWidth(); x++)
+				{
+					var color = image.GetPixel(x, y);
+					var hex = color.ToHtml(false);
+					var rgb4 = hex == first ? palette.Item1 : hex == second ? palette.Item2 : hex == third ? palette.Item3 : -1;
+
+					if (rgb4 >= 0)
+						image.SetPixel(x, y, new Color(((rgb4 >> 8) & 15) / 15f, ((rgb4 >> 4) & 15) / 15f, (rgb4 & 15) / 15f, color.A));
+				}
+
+			var texture = ImageTexture.CreateFromImage(image);
+
+			SpriteManager.ImageCache[key] = texture;
+
+			return texture;
+		}
 
 		public override void _Input(InputEvent @event)
 		{
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
-                if (InBattle)
-                {
-                    GetViewport().SetInputAsHandled();
-                    return;
-                }
+				if (InBattle)
+				{
+					GetViewport().SetInputAsHandled();
+
+					return;
+				}
+
 				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
 
 				if (cursor.IsLocked)
 				{
 					var courseRejected = false;
+
 					//We were locked into the star map, let's read the new destination
 					if (DestinationStarMap != null && DestinationStarMap.Visible == true)
 					{
@@ -1176,7 +1311,7 @@ namespace Deuteros.Code.Platform.Screens
 						DestinationStarMap.QueueFree();
 						DestinationStarMap = null;
 
-					} 
+					}
 					//We has the ACC open - No need to do anything, just close it
 					else if (ACCScreen != null && ACCScreen.Visible == true)
 					{
@@ -1188,7 +1323,9 @@ namespace Deuteros.Code.Platform.Screens
 					GetViewport().SetInputAsHandled();
 
 					UpdateState();
-					if (courseRejected) GameCore.ShowError(this, "Interstellar\ntravel needs\nan SCG.");
+
+					if (courseRejected)
+						GameCore.ShowError(this, "Interstellar\ntravel needs\nan SCG.");
 				}
 				//Catch right-clicks for windows without cursor lock
 				else
@@ -1232,7 +1369,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		public void CloseACC()
 		{
-			if (ACCScreen == null) return;
+			if (ACCScreen == null)
+				return;
+
 			ACCScreen.Visible = false;
 			ACC.RemoveChild(ACCScreen);
 			ACCScreen.QueueFree();
@@ -1329,7 +1468,12 @@ namespace Deuteros.Code.Platform.Screens
 			}
 
 			dialog.GetNode<Button>("Close").Pressed += OverlayManager.Instance.CloseOverlay;
-			dialog.TreeExiting += () => { if (SupplyPods == dialog) SupplyPods = null; };
+
+			dialog.TreeExiting += () =>
+			{
+				if (SupplyPods == dialog)
+					SupplyPods = null;
+			};
 		}
 
 		private async void ShipInterior_Pressed(int modulePressed)
@@ -1364,7 +1508,8 @@ namespace Deuteros.Code.Platform.Screens
 					&& pair.Key.ModuleType == Enums.Module_Types.Supply
 					&& pair.Key.ItemStored == pair.Value && pair.Key.ItemCount == counts[pair.Key]);
 
-			if (!OfferIsCurrent()) return null;
+			if (!OfferIsCurrent())
+				return null;
 
 			var dialog = OverlayManager.Instance.ShowOverlay(GD.Load<PackedScene>("res://Screens/Base/TradeDecision.tscn")) as Control;
 
@@ -1374,6 +1519,7 @@ namespace Deuteros.Code.Platform.Screens
 			tradeDecision = dialog;
 
 			var completion = new TaskCompletionSource<bool?>();
+
 			pendingTrade = completion;
 			dialog.GetNode<Label>("Cargo/Items").Text = string.Join("\n", offered.Select(pair =>
 				$"{pair.Key.ItemCount} {pair.Value.ToScreenString()}  >  {received[pair.Key].ToScreenString()}"));
@@ -1381,7 +1527,8 @@ namespace Deuteros.Code.Platform.Screens
 			void Decide(bool accept)
 			{
 				// Resolve before closing: retained/repeated signals cannot settle twice.
-				if (completion.TrySetResult(accept)) OverlayManager.Instance.CloseOverlay();
+				if (completion.TrySetResult(accept))
+					OverlayManager.Instance.CloseOverlay();
 			}
 
 			dialog.GetNode<Button>("Accept").Pressed += () => Decide(true);
@@ -1391,12 +1538,16 @@ namespace Deuteros.Code.Platform.Screens
 			try
 			{
 				var decision = await completion.Task;
+
 				return decision.HasValue && OfferIsCurrent() ? decision : null;
 			}
 			finally
 			{
-				if (pendingTrade == completion) pendingTrade = null;
-				if (tradeDecision == dialog) tradeDecision = null;
+				if (pendingTrade == completion)
+					pendingTrade = null;
+
+				if (tradeDecision == dialog)
+					tradeDecision = null;
 			}
 		}
 
@@ -1417,23 +1568,30 @@ namespace Deuteros.Code.Platform.Screens
 
 		public static void UpdateShips(uint previousDay, uint currentDay)
 		{
-            if (currentDay <= previousDay) return;
-            InterStellarShip.EnsureAutomationSlots(GameCore.SingletonInstance.GameData.ActiveSaveFile);
-            var flightLosses = new HashSet<Guid>();
+			if (currentDay <= previousDay)
+				return;
+
+			InterStellarShip.EnsureAutomationSlots(GameCore.SingletonInstance.GameData.ActiveSaveFile);
+
+			var flightLosses = new HashSet<Guid>();
 
 			foreach (var ship in GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships)
 			{
-                var asteroidActivity = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
-                    && ship.ShipState is Ship_States.Docked or Ship_States.UnDocked or Ship_States.Docking or Ship_States.Launching;
-                if (asteroidActivity && !((InterStellarShip)ship).AdvanceAsteroidActivity(previousDay, currentDay)) continue;
+				var asteroidActivity = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids
+					&& ship.ShipState is Ship_States.Docked or Ship_States.UnDocked or Ship_States.Docking or Ship_States.Launching;
+
+				if (asteroidActivity && !((InterStellarShip)ship).AdvanceAsteroidActivity(previousDay, currentDay))
+					continue;
+
 				if (ship.ShipType != Ship_Types.Shuttle)
 				{
 
-                    if (ship.ShipState == Ship_States.UnDocked && ((InterStellarShip)ship).IsInDanger())
+					if (ship.ShipState == Ship_States.UnDocked && ((InterStellarShip)ship).IsInDanger())
 					{
 						((InterStellarShip)ship).AttackedCount++;
-                        if (((InterStellarShip)ship).AttackedCount == 1)
-                            GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(ship.Name + " UNDER ATTACK !");
+
+						if (((InterStellarShip)ship).AttackedCount == 1)
+							GameCore.SingletonInstance.GameData.ActiveSaveFile.News.AddNews(ship.Name + " UNDER ATTACK !");
 					}
 					else
 					{
@@ -1444,7 +1602,9 @@ namespace Deuteros.Code.Platform.Screens
 
 				if (!asteroidActivity && (ship.ShipState == Enums.Ship_States.Launching || ship.ShipState == Enums.Ship_States.Landing || ship.ShipState == Enums.Ship_States.TakingOff || ship.ShipState == Enums.Ship_States.Docking || ship.ShipState == Enums.Ship_States.InTransit) && ship.Fuel > 0)
 				{
-					if (ship is not SCG { Flight: not null }) ship.Fuel--;
+					if (ship is not SCG { Flight: not null })
+						ship.Fuel--;
+
 					ship.FallingCount = 0;
 				}
 				else if (!asteroidActivity && ship.Fuel == 0 && ship.ShipState == Ship_States.UnDocked)
@@ -1483,15 +1643,22 @@ namespace Deuteros.Code.Platform.Screens
 					else if (ship.ShipState == Ship_States.InTransit)
 					{
 						var arrived = false;
-                        if (ship is SCG { Flight: not null } scg)
-                        {
-                            var result = scg.Flight.Advance(scg, GameCore.SingletonInstance.GameData.ActiveSaveFile);
-                            if (result == InterstellarFlight.Outcome.Lost) { flightLosses.Add(ship.ShipID); continue; }
-                            arrived = result == InterstellarFlight.Outcome.Arrived;
-                            if (arrived) scg.Flight = null;
-                        }
-                        else arrived = ship.TravelTimeRemain() <= 0;
-                        if (arrived)
+
+						if (ship is SCG { Flight: not null } scg)
+						{
+							var result = scg.Flight.Advance(scg, GameCore.SingletonInstance.GameData.ActiveSaveFile);
+
+							if (result == InterstellarFlight.Outcome.Lost) { flightLosses.Add(ship.ShipID); continue; }
+
+							arrived = result == InterstellarFlight.Outcome.Arrived;
+
+							if (arrived)
+								scg.Flight = null;
+						}
+						else
+							arrived = ship.TravelTimeRemain() <= 0;
+
+						if (arrived)
 						{
 							ship.ShipState = Ship_States.UnDocked;
 
@@ -1504,24 +1671,27 @@ namespace Deuteros.Code.Platform.Screens
 							ship.DestinationPlanetLocation = tempDestPlanet;
 							ship.DestinationStarLocation = tempDestStar;
 
-                            if (ship is InterStellarShip asteroidShip && ship.PlanetLocation == StellarBodies.asteroids)
-                            {
-                                ship.EngineEngaged = false;
-                                if (ship.Fuel == 0) { asteroidShip.StrandAtAsteroids(); continue; }
-                            }
+							if (ship is InterStellarShip asteroidShip && ship.PlanetLocation == StellarBodies.asteroids)
+							{
+								ship.EngineEngaged = false;
+
+								if (ship.Fuel == 0) { asteroidShip.StrandAtAsteroids(); continue; }
+							}
+
 							ship.ACC?.Update(Ship_States.InTransit);
-						}	
+						}
 					}
 					else if (ship.ShipState == Ship_States.Docking)
 					{
 						if (ship.ShipType == Ship_Types.Shuttle || ship.PlanetLocation == StellarBodies.asteroids
-                            || !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
+							|| !GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == ship.PlanetLocation && T.ShipType != Ship_Types.Shuttle && T.ShipState == Ship_States.Docked))
 						{
 							ship.ShipState = Ship_States.Docked;
-                            SdmSystem.Docked(ship);
+							SdmSystem.Docked(ship);
 							ship.ACC?.Update(Ship_States.Docking);
 						}
-                        else GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.DockingBlocked(GameCore.SingletonInstance.GameData.ActiveSaveFile, ship);
+						else
+							GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.DockingBlocked(GameCore.SingletonInstance.GameData.ActiveSaveFile, ship);
 					}
 				}
 				else if (ship.ShipState == Ship_States.Docked)
@@ -1532,11 +1702,13 @@ namespace Deuteros.Code.Platform.Screens
 						var asteroid = ((InterStellarShip)ship).AsteroidScanResults;
 						var ama = ship.Modules.First(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
 						var minedAmount = AMA.Mine((InterStellarShip)ship);
+
 						if (minedAmount > 0)
 						{
 							// A partial pod of another mineral cannot accept this ore.
 							var cargo = ship.Modules.FirstOrDefault(T => T.ModuleType == Module_Types.Supply &&
 								T.ItemCount < 250 && (T.ItemCount == 0 || T.ItemStored == asteroid.Type));
+
 							if (cargo == null)
 							{
 								ama.LastMinedDay = 0;
@@ -1581,14 +1753,19 @@ namespace Deuteros.Code.Platform.Screens
 					ship.ACC?.Update(Ship_States.UnDocked);
 				}
 			}
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            save.Ships.RemoveAll(ship =>
-            {
-                var fallLimit = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids ? 7 : 5;
-                var lost = flightLosses.Contains(ship.ShipID) || ship.FallingCount >= fallLimit || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
-                if (lost) save.News.AddShipLoss(ship);
-                return lost;
-            });
+
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			save.Ships.RemoveAll(ship =>
+			{
+				var fallLimit = ship is InterStellarShip && ship.PlanetLocation == StellarBodies.asteroids ? 7 : 5;
+				var lost = flightLosses.Contains(ship.ShipID) || ship.FallingCount >= fallLimit || (ship.ShipType != Ship_Types.Shuttle && ((InterStellarShip)ship).AttackedCount == 2);
+
+				if (lost)
+					save.News.AddShipLoss(ship);
+
+				return lost;
+			});
 		}
 		#endregion
 	}

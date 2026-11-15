@@ -59,7 +59,10 @@ public partial class Bulletins : BaseSubScene
 	{
 		typingGeneration++;
 		skipRequested = false;
-		if (IsInstanceValid(TypeSound)) TypeSound.Stop();
+
+		if (IsInstanceValid(TypeSound))
+			TypeSound.Stop();
+
 		if (ownsScreenLock)
 		{
 			ownsScreenLock = false;
@@ -70,45 +73,54 @@ public partial class Bulletins : BaseSubScene
 	private async Task<bool> TypeText(RichTextLabel label, string fullText)
 	{
 		CancelTyping();
+
 		var generation = typingGeneration;
+
 		GameCore.LockScreen();
 		ownsScreenLock = true;
 		label.Text = fullText;
 		label.VisibleCharacters = 0;
+
 		var parsedText = label.GetParsedText();
 		var characterCount = label.GetTotalCharacterCount();
+
 		try
 		{
 			for (int i = 0; i < characterCount; i++)
 			{
-				if (generation != typingGeneration) return false;
+				if (generation != typingGeneration)
+					return false;
+
 				if (skipRequested)
 				{
 					label.VisibleCharacters = -1;
 					break;
 				}
+
 				label.VisibleCharacters = i + 1;
+
 				if (i < parsedText.Length && !char.IsWhiteSpace(parsedText[i]) && TypeSound != null)
 				{
 					TypeSound.Stop();
 					TypeSound.Play();
 				}
-				if (LetterDelayMs > 0) await WaitMs(LetterDelayMs);
+
+				if (LetterDelayMs > 0)
+					await WaitMs(LetterDelayMs);
 			}
+
 			return generation == typingGeneration;
 		}
 		finally
 		{
-			if (generation == typingGeneration) CancelTyping();
+			if (generation == typingGeneration)
+				CancelTyping();
 		}
 	}
 
 	private async Task WaitMs(int ms)
 	{
-		await ToSignal(
-			GetTree().CreateTimer(ms / 1000.0, false),
-			SceneTreeTimer.SignalName.Timeout
-		);
+		await ToSignal(GetTree().CreateTimer(ms / 1000.0, false), SceneTreeTimer.SignalName.Timeout);
 	}
 
 	public async void DisplayBulletin(BulletinTypes bulletin)
@@ -120,11 +132,14 @@ public partial class Bulletins : BaseSubScene
 	private string DepartmentText(BulletinTypes bulletin)
 	{
 		var bulletinText = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.BulletinTexts[bulletin].BulletinText;
+
 		if (bulletin == BulletinTypes.Mining_Dump)
 		{
 			var news = GameCore.SingletonInstance.GameData.ActiveSaveFile.News;
+
 			bulletinText = string.Format(bulletinText, news.MiningDumpLocation.ToScreenString(" "), news.MiningDumpResource.ToScreenString());
 		}
+
 		return "[color=ff0000]Special Bulletin.[/color]\r\n" +
 			"From: \r\n" +
 			(GameCore.Earth.ResearchStaff?.Leader ?? "Research Department") + "\r\n" +

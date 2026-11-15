@@ -39,6 +39,7 @@ namespace Deuteros.Code.Platform
 				else if (!currentFactory.AOC)
 				{
 					var item = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList.First(T => T.ItemType == ObjectData.ItemType);
+
 					if (currentFactory.Ground && item.OrbitOnly)
 					{
 						AnimationState = Enums.SidePanel_Button_State_Animations.Static_Yellow;

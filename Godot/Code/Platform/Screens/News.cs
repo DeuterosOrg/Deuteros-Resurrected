@@ -22,12 +22,13 @@ namespace Deuteros.Code.Platform.Screens
 
 			for (int i = 0; i < 12; i++)
 			{
-                var label = GetNode<Label>("NewsLines/" + i.ToString().PadLeft(2, '0'));
-                label.ClipText = true;
-                label.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-                label.Size = new Vector2(240, 8);
-                label.MouseFilter = Control.MouseFilterEnum.Pass;
-                NewsLabels.Add(label);
+				var label = GetNode<Label>("NewsLines/" + i.ToString().PadLeft(2, '0'));
+
+				label.ClipText = true;
+				label.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+				label.Size = new Vector2(240, 8);
+				label.MouseFilter = Control.MouseFilterEnum.Pass;
+				NewsLabels.Add(label);
 			}
 
 			ReplayIcon = GetNode<TextureButton>("Images/Icon");
@@ -42,6 +43,7 @@ namespace Deuteros.Code.Platform.Screens
 		private void ReplayIcon_Pressed()
 		{
 			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
 			if (save.News.LastBulletin is Enums.BulletinTypes.Transmission1 or Enums.BulletinTypes.Transmission2
 				&& save.AlienTransmissions?.LastStage is >= 0)
 				GameCore.SingletonInstance.ShowAlienTransmission();
@@ -57,12 +59,13 @@ namespace Deuteros.Code.Platform.Screens
 		public void DrawData()
 		{
 			ReplayIcon.Disabled = GameCore.SingletonInstance.GameData.ActiveSaveFile.News.LastBulletin == Enums.BulletinTypes.None;
+
 			var rowCount = 0;
 
 			foreach (var item in GameCore.SingletonInstance.GameData.ActiveSaveFile.News.GetNews(12).AsEnumerable().Reverse())
 			{
 				NewsLabels[rowCount].Text = item;
-                NewsLabels[rowCount].TooltipText = item;
+				NewsLabels[rowCount].TooltipText = item;
 
 				rowCount++;
 			}
@@ -70,7 +73,7 @@ namespace Deuteros.Code.Platform.Screens
 			while (rowCount < 12)
 			{
 				NewsLabels[rowCount].Text = "";
-                NewsLabels[rowCount].TooltipText = "";
+				NewsLabels[rowCount].TooltipText = "";
 
 				rowCount++;
 			}

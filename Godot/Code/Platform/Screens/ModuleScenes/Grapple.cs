@@ -33,7 +33,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		ShipModule ShipModule { get; set; }
 		Ship Ship { get; set; }
-		
+
 		public Action UpdateParent;
 
 		public override void _Ready()
@@ -65,7 +65,7 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 			Ship = ship;
 			ShipModule = shipModule;
 			GetNode<Label>("Window/Background/Number").Text = (ship.Modules.IndexOf(shipModule) + 1).ToString();
-			
+
 			UpdateState();
 		}
 
@@ -75,21 +75,27 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 				return;
 
 			var scannedItem = ship.ItemScanResults;
+
 			if (scannedItem is Asteroid asteroid)
 			{
-				if (asteroid.Mass > 250) return;
+				if (asteroid.Mass > 250)
+					return;
 			}
 			else if (scannedItem is UnknownItem unknown)
 			{
 				if (unknown.ItemType == UnknownItemTypes.AlienArtifact)
 				{
 					var star = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Stars[Ship.StarLocation];
+
 					// Another ship may already have collected the object since this scan.
-					if (star.ArtifactLocation != Ship.PlanetLocation) return;
+					if (star.ArtifactLocation != Ship.PlanetLocation)
+						return;
+
 					star.ArtifactLocation = StellarBodies.none;
 				}
 			}
-			else return;
+			else
+				return;
 
 			ShipModule.HeldItem = scannedItem;
 			ship.ItemScanResults = null;
@@ -105,7 +111,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		private void ReleaseButton_Pressed()
 		{
-            if (!RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule)) return;
+			if (!RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule))
+				return;
+
 			if (ShipModule.HeldItem != null)
 			{
 				ShipModule.HeldItem = null;
@@ -125,8 +133,9 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 		public void UpdateState()
 		{
-            GrabButton.Disabled = !CanOperate();
-            ReleaseButton.Disabled = !RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule);
+			GrabButton.Disabled = !CanOperate();
+			ReleaseButton.Disabled = !RogueCrew.CanCommand(Ship) || !Ship.Modules.Contains(ShipModule);
+
 			if (!CanOperate())
 			{
 				Disabled.Visible = true;
@@ -140,16 +149,16 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 
 						ToolContentsLabel.Text = heldAsteroid.Mass + " " + heldAsteroid.Type.ToScreenString();
 					}
-                    else if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
+					else if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
 					{
-                        ToolContentsLabel.Text = "Unknown";
-                    }
-                }
+						ToolContentsLabel.Text = "Unknown";
+					}
+				}
 				else
 				{
 					ToolContentsLabel.Text = "None";
 				}
-			} 
+			}
 			else
 			{
 				Disabled.Visible = false;
@@ -167,11 +176,11 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 					else if (ShipModule.HeldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
 					{
 						AsteroidSprite.Texture = null;
-                        ContentsLabel.Text = "Unknown";
-                    }
+						ContentsLabel.Text = "Unknown";
+					}
 
-                }
-                else
+				}
+				else
 				{
 					AsteroidSprite.Texture = null;
 					ContentsLabel.Text = "None";
@@ -180,21 +189,23 @@ namespace Deuteros.Code.Platform.Screens.ModuleScenes
 				if (((InterStellarShip)Ship).AsteroidScanResults != null)
 				{
 					var currentAsteroid = ((InterStellarShip)Ship).AsteroidScanResults;
+
 					ScannerStatusLabel.Text = "Object\r\nAsteroid";
 
 					MassLabel.Text = currentAsteroid.Mass.ToString() + "t.";
 					ElementLabel.Text = "Main Element\r\n" + currentAsteroid.Type.ToScreenString();
 				}
-                else if (((InterStellarShip)Ship).ItemScanResults != null)
-                {
-                    var currentItem = ((InterStellarShip)Ship).ItemScanResults;
-                    ScannerStatusLabel.Text = "Unknown Object";
+				else if (((InterStellarShip)Ship).ItemScanResults != null)
+				{
+					var currentItem = ((InterStellarShip)Ship).ItemScanResults;
 
-                    MassLabel.Text = "";
-                    ElementLabel.Text = "";
-                }
-                else
-                {
+					ScannerStatusLabel.Text = "Unknown Object";
+
+					MassLabel.Text = "";
+					ElementLabel.Text = "";
+				}
+				else
+				{
 					ScannerStatusLabel.Text = "No Object\r\nIn Vicinity";
 					ScannerStatusLabel.Text = "No Object\r\nIn Vicinity";
 					MassLabel.Text = "";

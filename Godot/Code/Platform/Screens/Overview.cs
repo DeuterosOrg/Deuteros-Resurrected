@@ -27,10 +27,10 @@ public partial class Overview : BaseSubScene
 	List<TextureButton> SCGButtons = new List<TextureButton>();
 	Dictionary<TextureButton, string> HoverTexts = new Dictionary<TextureButton, string>();
 	TextureButton HoveredButton;
-    private int page;
-    private HBoxContainer pages;
-    private Button previousPage, nextPage;
-    private Label pageNumber;
+	private int page;
+	private HBoxContainer pages;
+	private Button previousPage, nextPage;
+	private Label pageNumber;
 
 	// Called when the node enters the scene tree for the first time.
 	public override void _Ready()
@@ -40,6 +40,7 @@ public partial class Overview : BaseSubScene
 			for (int j = 0; j < 8; j++)
 			{
 				var curIndex = i * 8 + j;
+
 				StationButtons.Add(GetNode<TextureButton>("Stations/Col" + i.ToString() + "/Station0" + j.ToString()));
 				StationButtons.Last().Pressed += () => Station_Pressed(curIndex);
 
@@ -59,6 +60,7 @@ public partial class Overview : BaseSubScene
 				HoveredButton = button;
 				GameCore.HoverText = HoverTexts.GetValueOrDefault(button, "");
 			};
+
 			button.MouseExited += () =>
 			{
 				if (HoveredButton == button)
@@ -68,6 +70,7 @@ public partial class Overview : BaseSubScene
 				}
 			};
 		}
+
 		foreach (var button in IOSButtons.Concat(SCGButtons))
 		{
 			button.AddChild(new Godot.Label
@@ -82,19 +85,21 @@ public partial class Overview : BaseSubScene
 			});
 		}
 
-        pages = new HBoxContainer { Name = "Pages", Position = new Vector2(64, 18),
-            Size = new Vector2(168, 16), Alignment = BoxContainer.AlignmentMode.Center };
-        previousPage = new Button { Name = "Previous", Text = "Prev", TooltipText = "Previous overview page" };
-        pageNumber = new Label { Name = "Page", MouseFilter = Control.MouseFilterEnum.Ignore };
-        nextPage = new Button { Name = "Next", Text = "Next", TooltipText = "Next overview page" };
-        foreach (var control in new Control[] { previousPage, pageNumber, nextPage })
-        {
-            control.AddThemeFontSizeOverride("font_size", 8);
-            pages.AddChild(control);
-        }
-        AddChild(pages);
-        previousPage.Pressed += () => ChangePage(-1);
-        nextPage.Pressed += () => ChangePage(1);
+		pages = new HBoxContainer { Name = "Pages", Position = new Vector2(64, 18),
+			Size = new Vector2(168, 16), Alignment = BoxContainer.AlignmentMode.Center };
+		previousPage = new Button { Name = "Previous", Text = "Prev", TooltipText = "Previous overview page" };
+		pageNumber = new Label { Name = "Page", MouseFilter = Control.MouseFilterEnum.Ignore };
+		nextPage = new Button { Name = "Next", Text = "Next", TooltipText = "Next overview page" };
+
+		foreach (var control in new Control[] { previousPage, pageNumber, nextPage })
+		{
+			control.AddThemeFontSizeOverride("font_size", 8);
+			pages.AddChild(control);
+		}
+
+		AddChild(pages);
+		previousPage.Pressed += () => ChangePage(-1);
+		nextPage.Pressed += () => ChangePage(1);
 
 		UpdateState();
 
@@ -105,27 +110,32 @@ public partial class Overview : BaseSubScene
 	{
 		if (HoveredButton != null)
 			GameCore.HoverText = "";
+
 		base._ExitTree();
 	}
 
-    private void ChangePage(int delta)
-    {
-        if (!IsInsideTree() || IsQueuedForDeletion() || GetTree().Paused || GlobalInput.UiLocked
-            || OverlayManager.Instance.IsOpen || GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked) return;
-        page += delta;
-        UpdateState();
-    }
+	private void ChangePage(int delta)
+	{
+		if (!IsInsideTree() || IsQueuedForDeletion() || GetTree().Paused || GlobalInput.UiLocked
+			|| OverlayManager.Instance.IsOpen || GameCore.SingletonInstance.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked)
+			return;
+
+		page += delta;
+		UpdateState();
+	}
 
 	private void Station_Pressed(int buttonPressed)
 	{
 		//var planet = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[(StellarBodies)Enum.Parse(typeof(StellarBodies),StationButtons[buttonPressed].GetMeta("planetid").ToString())];
 		var planet = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[(StellarBodies)StationButtons[buttonPressed].GetMeta("planetid").AsInt32()];
 
-		if (!planet.Station.Built) return;
+		if (!planet.Station.Built)
+			return;
 
 		GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = planet.PlanetId;
 
 		var sceneVariables = new List<SceneVariables>();
+
 		sceneVariables.Add(Enums.SceneVariables.Orbit);
 
 		//Underscores in scene names represent a folder
@@ -140,6 +150,7 @@ public partial class Overview : BaseSubScene
 		GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Single<IShip>(s => s.ShipID == GameCore.SingletonInstance.ShipSelected).PlanetLocation;
 
 		var sceneVariables = new List<SceneVariables>();
+
 		sceneVariables.Add(Enums.SceneVariables.Orbit);
 
 		//Underscores in scene names represent a folder
@@ -152,42 +163,45 @@ public partial class Overview : BaseSubScene
 		GameCore.SingletonInstance.ShipSelected = Guid.Parse(SCGButtons[buttonPressed].GetMeta("shipid").ToString());
 		GameCore.SingletonInstance.GameData.ActiveSaveFile.CurrentPlanet = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Single<IShip>(s => s.ShipID == GameCore.SingletonInstance.ShipSelected).PlanetLocation;
 
-
 		//Underscores in scene names represent a folder
 		Deuteros.Code.GameCore.SingletonInstance.ChangeScene(Enums.Scenes.ShipInterior, new List<SceneVariables>());
 	}
-
 
 	//Triggered from gamecore
 	protected override void DayTick(uint previousDay, uint currentDay)
 	{
 		UpdateState();
 	}
-	
+
 	public void UpdateState()
 	{
 		var stationList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets.Values.Where(p => !p.ActiveMethanoid && p.Station.BuildParts > 0)
-            .Select(p => p.Station).OrderBy(s => s.StationOrdinal).ThenBy(s => s.PlanetId).ToList();
+			.Select(p => p.Station).OrderBy(s => s.StationOrdinal).ThenBy(s => s.PlanetId).ToList();
 		var iosList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Where(T => T.ShipType == Ship_Types.IOS).ToList();
 		var scgList = Deuteros.Code.GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Where(T => T.ShipType == Ship_Types.SCG).ToList();
 
-        var pageCount = Math.Max(1, (Math.Max(stationList.Count, Math.Max(iosList.Count, scgList.Count)) + 15) / 16);
-        page = Math.Clamp(page, 0, pageCount - 1);
-        pages.Visible = pageCount > 1;
-        foreach (var name in new[] { "Stations", "IOS", "SCG" })
-        {
-            var group = GetNode<Control>(name);
-            group.Position = new Vector2(group.Position.X, pages.Visible ? 38 : 25);
-            group.Size = new Vector2(group.Size.X, pages.Visible ? 140 : 152);
-            foreach (var column in group.GetChildren().Cast<VBoxContainer>())
-            {
-                column.Size = new Vector2(column.Size.X, pages.Visible ? 140 : 148);
-                column.AddThemeConstantOverride("separation", pages.Visible ? 1 : name == "Stations" ? 5 : 4);
-            }
-        }
-        pageNumber.Text = $"Page {page + 1}/{pageCount}";
-        previousPage.Disabled = page == 0;
-        nextPage.Disabled = page == pageCount - 1;
+		var pageCount = Math.Max(1, (Math.Max(stationList.Count, Math.Max(iosList.Count, scgList.Count)) + 15) / 16);
+
+		page = Math.Clamp(page, 0, pageCount - 1);
+		pages.Visible = pageCount > 1;
+
+		foreach (var name in new[] { "Stations", "IOS", "SCG" })
+		{
+			var group = GetNode<Control>(name);
+
+			group.Position = new Vector2(group.Position.X, pages.Visible ? 38 : 25);
+			group.Size = new Vector2(group.Size.X, pages.Visible ? 140 : 152);
+
+			foreach (var column in group.GetChildren().Cast<VBoxContainer>())
+			{
+				column.Size = new Vector2(column.Size.X, pages.Visible ? 140 : 148);
+				column.AddThemeConstantOverride("separation", pages.Visible ? 1 : name == "Stations" ? 5 : 4);
+			}
+		}
+
+		pageNumber.Text = $"Page {page + 1}/{pageCount}";
+		previousPage.Disabled = page == 0;
+		nextPage.Disabled = page == pageCount - 1;
 
 		StationButtons.ForEach(T => T.Visible = false);
 		IOSButtons.ForEach(T => T.Visible = false);
@@ -229,7 +243,7 @@ public partial class Overview : BaseSubScene
 			UpdateShipDetails(curIOSButton, ios);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[ios.PlanetLocation].ActiveMethanoid ||
-                GameCore.SingletonInstance.GameData.PlanetUnderAttack(ios.PlanetLocation)))
+				GameCore.SingletonInstance.GameData.PlanetUnderAttack(ios.PlanetLocation)))
 				curIOSButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderAttack.png");
 			else if (ios.ShipState == Ship_States.Docking)
 				curIOSButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_Docking.png");
@@ -262,7 +276,7 @@ public partial class Overview : BaseSubScene
 			UpdateShipDetails(curSCGButton, scg);
 
 			if (GameCore.SingletonInstance.GameData.ActiveSaveFile.AtWar && (GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[scg.PlanetLocation].ActiveMethanoid ||
-                GameCore.SingletonInstance.GameData.PlanetUnderAttack(scg.PlanetLocation)))
+				GameCore.SingletonInstance.GameData.PlanetUnderAttack(scg.PlanetLocation)))
 				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_UnderAttack.png");
 			else if (scg.ShipState == Ship_States.Docking)
 				curSCGButton.TextureNormal = SpriteManager.LoadImage(SpriteBasePath + "Ship_Docking.png");
@@ -289,6 +303,7 @@ public partial class Overview : BaseSubScene
 		if (HoveredButton != null)
 		{
 			GameCore.HoverText = HoverTexts.GetValueOrDefault(HoveredButton, "");
+
 			if (!HoveredButton.Visible)
 				HoveredButton = null;
 		}
@@ -297,10 +312,14 @@ public partial class Overview : BaseSubScene
 	private void UpdateShipDetails(TextureButton button, InterStellarShip ship)
 	{
 		var location = ship.PlanetLocation.ToScreenString(" ");
+
 		if (ship.ShipState == Ship_States.InTransit)
 			location += " to " + ship.DestinationPlanetLocation.ToScreenString(" ");
+
 		HoverTexts[button] = ship.Name + ": " + location;
+
 		var count = button.GetNode<Godot.Label>("DroneCount");
+
 		count.Text = ship.DroneCount.ToString();
 		count.Visible = ship.DFCC;
 	}

@@ -140,7 +140,6 @@ namespace Deuteros.Code
 						new List<Action> { () => GameCore.SingletonInstance.ShipSelected = GameData.ActiveSaveFile.Ships.Single(T => T.ShipType == Enums.Ship_Types.Shuttle && T.PlanetLocation == GetCurrentPlanet().PlanetId).ShipID },
 						() => GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Exists(T => T.ShipType == Enums.Ship_Types.Shuttle && T.PlanetLocation == GetCurrentPlanet().PlanetId),
 
-
 						"Shuttle"),
 					null,
 					new Objects.MenuButton(Enums.Menu_Buttons.Shuttle_Bay, Enums.Scenes.ShipBay, true,
@@ -213,7 +212,7 @@ namespace Deuteros.Code
 		public Enums.Scenes currentScene;
 		private bool quitRequested;
 
-		internal long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
+		public long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
 			? scg.AbsoluteClock
 			: 310000000L + (long)GameData.ActiveSaveFile.Clock.DateCentidays + InterstellarFlight.StarOffset(GetCurrentPlanet().ParentStar);
 
@@ -295,6 +294,7 @@ namespace Deuteros.Code
 		public override void _Ready()
 		{
 			GetTree().AutoAcceptQuit = false;
+
 			// Assign instance when the node is ready
 			if (_instance == null)
 				_instance = this;
@@ -333,7 +333,8 @@ namespace Deuteros.Code
 		{
 			if (@event is InputEventKey key)
 			{
-				if (!key.Pressed || key.Echo || StoryDisplayBlocked()) return;
+				if (!key.Pressed || key.Echo || StoryDisplayBlocked())
+					return;
 
 				if (key.IsActionPressed("quick_save", false, true))
 				{
@@ -439,6 +440,7 @@ namespace Deuteros.Code
 			if (save.News.PendingBulletins.Count > 0)
 			{
 				ShowBulletin(save.News.PendingBulletins[0]);
+
 				return;
 			}
 
@@ -466,8 +468,10 @@ namespace Deuteros.Code
 		{
 			// Resolve the active world each day; training precedes Earth and local extraction.
 			var earth = Earth;
+
 			earth.TrainingData.ChildDayTick(previousDay, currentDay);
 			earth.DayTick(previousDay, currentDay);
+
 			foreach (Planet planet in GameData.ActiveSaveFile.BaseGameData.Planets.Values)
 				if (!ReferenceEquals(planet, earth))
 					planet.DayTick(previousDay, currentDay);
@@ -519,6 +523,7 @@ namespace Deuteros.Code
 			// Original bulletin typing blocks the main-loop countdown consumer ($4057A).
 			if (currentScene != Scenes.Bulletins || !_screenLocker.Blocked)
 				SdmSystem.AdvanceTime(delta);
+
 			UpdateTime(delta);
 			UpdateAutosave(delta);
 		}
@@ -528,16 +533,24 @@ namespace Deuteros.Code
 			if (_currentScreen is Overview overview)
 			{
 				overview.UpdateState();
+
 				return;
 			}
-			if (_currentScreen == null || GameData.ActiveSaveFile.CurrentPlanet != planet.PlanetId) return;
+
+			if (_currentScreen == null || GameData.ActiveSaveFile.CurrentPlanet != planet.PlanetId)
+				return;
+
 			if (_currentScreen is ShipInterior interior && GameData.ActiveSaveFile.Ships.Contains(interior.Ship))
 			{
 				interior.UpdateState();
+
 				return;
 			}
+
 			if (currentScene == Scenes.Overview || currentScene == Scenes.News || currentScene == Scenes.SaveScreen
-				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen) return;
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen)
+				return;
+
 			// Exit now so the removed ship/station screen cannot observe the following DayPassed.
 			_currentScreen.GetParent().RemoveChild(_currentScreen);
 			ChangeScene(Scenes.Overview, new List<SceneVariables>());
@@ -547,28 +560,39 @@ namespace Deuteros.Code
 		{
 			var ErrorScreen = GD.Load<PackedScene>("res://Screens/Base/Error.tscn");
 			var overlay = OverlayManager.Instance.ShowOverlay(ErrorScreen, false);
-			var errorLabel = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel"); ;
+			var errorLabel = overlay.GetNode<Label>("ErrorButton/OuterColorRect/InnerColorRect/ErrorLabel");
 
 			errorLabel.Text = ErrorText;
 		}
 
 		private void UpdateTime(double delta)
 		{
-			if (GetTree().Paused) return;
+			if (GetTree().Paused)
+				return;
+
 			var save = GameData.ActiveSaveFile;
 			var speed = SettingsManager.Instance?.CalendarSpeed ?? 1;
 			var manual = save.TimeSkipDay || (save.TimeSkip && Time.GetTicksMsec() - save.TimeSkipStart >= 500 / speed);
-			if (manual) save.Clock.QueueManual();
-			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen) save.Clock.AdvanceNormal(delta * speed);
+
+			if (manual)
+				save.Clock.QueueManual();
+			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen)
+				save.Clock.AdvanceNormal(delta * speed);
+
 			var manualConsumed = save.Clock.PendingIncrement == 100;
-			if ((!manual && StoryDisplayBlocked()) || !save.Clock.Consume()) return;
+
+			if ((!manual && StoryDisplayBlocked()) || !save.Clock.Consume())
+				return;
+
 			save.CurrentDay++;
 			TriggerDay(save.CurrentDay - 1, save.CurrentDay);
+
 			if (manualConsumed)
 			{
 				save.TimeSkipStart = Time.GetTicksMsec();
 				save.TimeSkipDay = false;
 			}
+
 			QueueRedraw();
 		}
 
@@ -595,7 +619,10 @@ namespace Deuteros.Code
 		public void ShowAlienTransmission()
 		{
 			var save = GameData.ActiveSaveFile;
-			if (save.AlienTransmissions?.LastStage is not >= 0) return;
+
+			if (save.AlienTransmissions?.LastStage is not >= 0)
+				return;
+
 			ChangeScene(Scenes.Bulletins, new List<SceneVariables>());
 			_menuScreen.Location.Text = "News Bulletins";
 			((Bulletins)_currentScreen).DisplayAlienTransmission(save, true);
@@ -604,13 +631,19 @@ namespace Deuteros.Code
 		public void ShowBulletin(BulletinTypes bulletin, bool replay = false)
 		{
 			var pending = GameData.ActiveSaveFile.News.PendingBulletins;
-			if (!replay && !pending.Contains(bulletin)) pending.Add(bulletin);
-			if (StoryDisplayBlocked()) return;
+
+			if (!replay && !pending.Contains(bulletin))
+				pending.Add(bulletin);
+
+			if (StoryDisplayBlocked())
+				return;
+
 			if (!replay)
 			{
 				bulletin = pending[0];
 				pending.RemoveAt(0);
 			}
+
 			GameCore.SingletonInstance.ChangeScene(Enums.Scenes.Bulletins, new List<SceneVariables>());
 			_menuScreen.Location.Text = "News Bulletins";
 			((Bulletins)_currentScreen).DisplayBulletin(bulletin);
@@ -628,6 +661,7 @@ namespace Deuteros.Code
 			if (_currentScreen != null && _currentScreen.SceneFilePath.Contains("IntroScreen"))
 			{
 				var newMenuScene = GD.Load<PackedScene>("res://Screens/Base/MenuBase.tscn").Instantiate<MainMenu>();
+
 				GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newMenuScene);
 				_menuScreen = newMenuScene;
 			}
@@ -635,9 +669,11 @@ namespace Deuteros.Code
 			if (_currentScreen != null)
 				_currentScreen.QueueFree();
 
-			if (sceneToLoad == Scenes.Earth_Ground) GameData.ActiveSaveFile.CurrentPlanet = StellarBodies.earth;
+			if (sceneToLoad == Scenes.Earth_Ground)
+				GameData.ActiveSaveFile.CurrentPlanet = StellarBodies.earth;
 
 			var newScene = GD.Load<PackedScene>("res://Screens/" + newSceneName).Instantiate<BaseSubScene>();
+
 			newScene.SceneVariables = sceneVariables;
 			GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newScene);
 			_currentScreen = newScene;
@@ -671,27 +707,34 @@ namespace Deuteros.Code
 		public void UpdateMenuButtons(bool ground, bool orbit)
 		{
 			_menuScreen?.SetMethanoidIndicator(false);
+
 			// The interior stays open while the ship moves; entry flags describe the previous screen.
 			if (_currentScreen is ShipInterior interior)
 			{
 				var ship = interior.Ship;
+
 				GameData.ActiveSaveFile.CurrentPlanet = ship.PlanetLocation;
 				ground = ship is Shuttle shuttle && shuttle.OnGround;
 				orbit = !ground;
+
 				if (_menuScreen != null && ship.ShipState == Ship_States.InTransit)
 				{
 					_menuScreen.MenuButtons = OverviewMenuButtons;
 					_menuScreen.Star.Text = (ship is SCG scg ? scg.ClockStar : ship.StarLocation).ToScreenString(" ");
 					UpdateLocationText(orbit);
 					_menuScreen.SetupMenus();
+
 					return;
 				}
+
 				if (!ground && ship.ShipState == Ship_States.UnDocked)
 				{
 					var planet = GetCurrentPlanet();
+
 					_menuScreen?.SetMethanoidIndicator(planet.ActiveMethanoid && planet.Station.Built);
 				}
 			}
+
 			if (_menuScreen != null && _currentScreen.SceneFilePath.Contains("Overview") && !orbit)
 			{
 				_menuScreen.MenuButtons = OverviewMenuButtons;
@@ -787,12 +830,15 @@ namespace Deuteros.Code
 
 		public override void _Notification(int what)
 		{
-			if (what == NotificationWMCloseRequest) RequestQuit();
+			if (what == NotificationWMCloseRequest)
+				RequestQuit();
 		}
 
-		public void RequestQuit(int exitCode = 0)
+		private void RequestQuit(int exitCode = 0)
 		{
-			if (quitRequested) return;
+			if (quitRequested)
+				return;
+
 			quitRequested = true;
 			// Window-close notifications can arrive during input dispatch.
 			CallDeferred(nameof(FinishQuit), exitCode);
@@ -801,13 +847,17 @@ namespace Deuteros.Code
 		private async void FinishQuit(int exitCode)
 		{
 			var tree = GetTree();
+
 			SetProcess(false);
 			SetProcessInput(false);
 			tree.Paused = true;
 			Platform.Helpers.OverlayManager.Instance?.CloseForShutdown();
+
 			// Scene exit cancels typing and stops background players. Do this
 			// while the mixer and managed runtime are still available.
-			foreach (var scene in GetNode("GameContainer/GameViewport/MainScene").GetChildren()) scene.Free();
+			foreach (var scene in GetNode("GameContainer/GameViewport/MainScene").GetChildren())
+				scene.Free();
+
 			_currentScreen = null;
 			_menuScreen = null;
 
@@ -820,15 +870,21 @@ namespace Deuteros.Code
 			while (observedMixes < 2 && Time.GetTicksMsec() < deadline)
 			{
 				await ToSignal(tree, SceneTree.SignalName.ProcessFrame);
+
 				var mixAge = AudioServer.GetTimeSinceLastMix();
-				if (mixAge < previousMixAge) observedMixes++;
+
+				if (mixAge < previousMixAge)
+					observedMixes++;
+
 				previousMixAge = mixAge;
 			}
 
 			if (observedMixes < 2)
 			{
 				GD.PushError("Audio mixer did not finish shutdown within two seconds.");
-				if (exitCode == 0) exitCode = 1;
+
+				if (exitCode == 0)
+					exitCode = 1;
 			}
 
 			if (OS.IsDebugBuild())
@@ -837,6 +893,7 @@ namespace Deuteros.Code
 				// A native-only replacement releases Godot 4.2.2's debug input
 				// cache before C# bindings are torn down (upstream #92201).
 				using var inputCleanup = GD.Load<GDScript>("res://Code/Utility/ShutdownInput.gd").New().AsGodotObject();
+
 				inputCleanup.Call("release_managed_events", tree.Root);
 			}
 
@@ -900,7 +957,10 @@ namespace Deuteros.Code
 			try
 			{
 				Storage.Write(SaveStorage.QuickSlot, GameData.ActiveSaveFile);
-				if (_currentScreen is Platform.Screens.SaveScreen screen) screen.RefreshSlots();
+
+				if (_currentScreen is Platform.Screens.SaveScreen screen)
+					screen.RefreshSlots();
+
 				ShowStatusText("Quick saved.");
 			}
 			catch (Exception error) when (SaveStorage.IsSaveError(error))

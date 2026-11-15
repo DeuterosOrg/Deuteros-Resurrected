@@ -28,7 +28,9 @@ namespace Deuteros.Code
 
 		public string GetNextPersonName()
 		{
-			if (ActiveSaveFile.NextPersonIndex >= ActiveSaveFile.BaseGameData.PersonNames.Count()) ActiveSaveFile.NextPersonIndex = 1;
+			if (ActiveSaveFile.NextPersonIndex >= ActiveSaveFile.BaseGameData.PersonNames.Count())
+				ActiveSaveFile.NextPersonIndex = 1;
+
 			return ActiveSaveFile.BaseGameData.PersonNames[ActiveSaveFile.NextPersonIndex++];
 		}
 
@@ -37,20 +39,22 @@ namespace Deuteros.Code
 			return ActiveSaveFile.BaseGameData.ItemList.Where(T => T.Locked == false && (T.Research == null || T.Research.Researched));
 		}
 
-        public bool PlanetUnderAttack(Enums.StellarBodies planet)
-        {
-            EnemyFleet enemyFleet = (EnemyFleet)GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.ShipType != Enums.Ship_Types.Shuttle && ((InterStellarShip)s).MethanoidOwned && ((InterStellarShip)s).PlanetLocation == planet);
+		public bool PlanetUnderAttack(Enums.StellarBodies planet)
+		{
+			EnemyFleet enemyFleet = (EnemyFleet)GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.FirstOrDefault(s => s.ShipType != Enums.Ship_Types.Shuttle && ((InterStellarShip)s).MethanoidOwned && ((InterStellarShip)s).PlanetLocation == planet);
 
-            if (enemyFleet != null)
-            {
+			if (enemyFleet != null)
+			{
 				return enemyFleet.Attacking;
-            }
-            return false;
-        }
+			}
 
-        public static SaveFile CreateNewSaveFile()
+			return false;
+		}
+
+		public static SaveFile CreateNewSaveFile()
 		{
 			var newGameSave = new SaveFile();
+
 			newGameSave.BaseGameData = StaticGameData;
 			newGameSave.GameConfig = new Config();
 			newGameSave.CurrentPlanet = Enums.StellarBodies.earth;
@@ -59,71 +63,72 @@ namespace Deuteros.Code
 			newGameSave.News = new News();
 			newGameSave.CurrentDay = 0;
 			newGameSave.Clock = new GameClock();
-            newGameSave.AtWar = false;
-            newGameSave.WarDeclaredDay = 0;
-            newGameSave.AlienTransmissions = new AlienTransmissions();
+			newGameSave.AtWar = false;
+			newGameSave.WarDeclaredDay = 0;
+			newGameSave.AlienTransmissions = new AlienTransmissions();
 			newGameSave.EnemyBuildDay = 0;
-            newGameSave.GameConfig.ShuttleRefuelThreshold = 50;
+			newGameSave.GameConfig.ShuttleRefuelThreshold = 50;
 			newGameSave.GameConfig.IOSRefuelThreshold = 200;
 			newGameSave.NextPersonIndex = Random.Shared.Next(StaticGameData.PersonNames.Count() + 1);
 
-            //create enemy fleets used to attack the player
-            foreach (var star in StaticGameData.Stars.Keys)
-            {
-                var enemyFleet = new EnemyFleet();
+			//create enemy fleets used to attack the player
+			foreach (var star in StaticGameData.Stars.Keys)
+			{
+				var enemyFleet = new EnemyFleet();
 
-                switch (star)
-                {
-                    case Enums.StellarBodies.the_sun:
-                        enemyFleet.AttackTrigger = 40;
-                        break;
+				switch (star)
+				{
+					case Enums.StellarBodies.the_sun:
+						enemyFleet.AttackTrigger = 40;
+						break;
 
-                    case Enums.StellarBodies.proxima:
-                        enemyFleet.AttackTrigger = 100;
-                        break;
+					case Enums.StellarBodies.proxima:
+						enemyFleet.AttackTrigger = 100;
+						break;
 
-                    case Enums.StellarBodies.centauri:
-                        enemyFleet.AttackTrigger = 150;
-                        break;
-                    case Enums.StellarBodies.barnard:
-                        enemyFleet.AttackTrigger = 175;
-                        break;
-                    case Enums.StellarBodies.lalande:
-                    case Enums.StellarBodies.sirius:
-                        enemyFleet.AttackTrigger = 190;
-                        break;
+					case Enums.StellarBodies.centauri:
+						enemyFleet.AttackTrigger = 150;
+						break;
+					case Enums.StellarBodies.barnard:
+						enemyFleet.AttackTrigger = 175;
+						break;
+					case Enums.StellarBodies.lalande:
+					case Enums.StellarBodies.sirius:
+						enemyFleet.AttackTrigger = 190;
+						break;
 
-                    case Enums.StellarBodies.cygni:
-                        enemyFleet.AttackTrigger = 195;
-                        break;
+					case Enums.StellarBodies.cygni:
+						enemyFleet.AttackTrigger = 195;
+						break;
 
-                    case Enums.StellarBodies.procyon:
-                        enemyFleet.AttackTrigger = 200;
-                        break;
+					case Enums.StellarBodies.procyon:
+						enemyFleet.AttackTrigger = 200;
+						break;
 
-                    case Enums.StellarBodies.tau_ceti:
-                        enemyFleet.AttackTrigger = 200;
-                        break;
+					case Enums.StellarBodies.tau_ceti:
+						enemyFleet.AttackTrigger = 200;
+						break;
 
-                }
+				}
 
-                enemyFleet.MethanoidOwned = true;
-                if (star == StellarBodies.the_sun)
-                    enemyFleet.PlanetLocation = StellarBodies.jupiter;
-                else
-                    //pick a random methanoid planet for now
-                    //not sure what the correct behaviour is
-                    enemyFleet.PlanetLocation = newGameSave.BaseGameData.Planets.Values.First(p => p.ParentStar == star && p.ActiveMethanoid).PlanetId;
+				enemyFleet.MethanoidOwned = true;
 
-                enemyFleet.StarLocation = star;
-                enemyFleet.Pilot = new Staff();
+				if (star == StellarBodies.the_sun)
+					enemyFleet.PlanetLocation = StellarBodies.jupiter;
+				else
+					//pick a random methanoid planet for now
+					//not sure what the correct behaviour is
+					enemyFleet.PlanetLocation = newGameSave.BaseGameData.Planets.Values.First(p => p.ParentStar == star && p.ActiveMethanoid).PlanetId;
 
-                //make pilot an admiral
-                enemyFleet.Pilot.AddAction(50);
-                newGameSave.Ships.Add(enemyFleet);
-            }
+				enemyFleet.StarLocation = star;
+				enemyFleet.Pilot = new Staff();
 
-            return newGameSave;
+				//make pilot an admiral
+				enemyFleet.Pilot.AddAction(50);
+				newGameSave.Ships.Add(enemyFleet);
+			}
+
+			return newGameSave;
 		}
 
 		public static void CreateBaseGameData()
@@ -139,6 +144,7 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts = new FrameContainer();
 
 				var stationDeploy = new TextFrame(Enums.ModuleFrameText.Station_Deploy);
+
 				stationDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("Equipment Pod Activating.", Colors.White, false));
 				stationDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("", Colors.White, false));
 				stationDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("Positioning Orbital\r\nFactory Section No. {0} of 8", Colors.White, false));
@@ -149,6 +155,7 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts.Add(stationDeploy);
 
 				var stationDeployComplete = new TextFrame(Enums.ModuleFrameText.Station_Deploy_Complete);
+
 				stationDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("Equipment Pod Activating.", Colors.White, false));
 				stationDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("", Colors.White, false));
 				stationDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("Positioning Orbital\r\nFactory Section No. {0} of 8", Colors.White, false));
@@ -160,6 +167,7 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts.Add(stationDeployComplete);
 
 				var RFrameDeploy = new TextFrame(Enums.ModuleFrameText.RFrame_Deploy);
+
 				RFrameDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("Equipment Pod Activating.", Colors.White, false));
 				RFrameDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("", Colors.White, false));
 				RFrameDeploy.Lines.Add(new Objects.ModuleTextFrame.Line("Station Section {0} Of 2", Colors.White, false));
@@ -170,6 +178,7 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts.Add(RFrameDeploy);
 
 				var RFrameDeployComplete = new TextFrame(Enums.ModuleFrameText.RFrame_Deploy_Complete);
+
 				RFrameDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("Equipment Pod Activating.", Colors.White, false));
 				RFrameDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("", Colors.White, false));
 				RFrameDeployComplete.Lines.Add(new Objects.ModuleTextFrame.Line("Station Section {0} Of 2", Colors.White, false));
@@ -181,7 +190,8 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts.Add(RFrameDeployComplete);
 
 				var MethanoidIntroWithGrapple = new TextFrame(Enums.ModuleFrameText.Methanoid_Intro_With_Grapple);
-                MethanoidIntroWithGrapple.Lines.Add(new Objects.ModuleTextFrame.Line("Wujic Flakra, Tarran Tak", StaticGameData.LightBlue, false, true));
+
+				MethanoidIntroWithGrapple.Lines.Add(new Objects.ModuleTextFrame.Line("Wujic Flakra, Tarran Tak", StaticGameData.LightBlue, false, true));
 				MethanoidIntroWithGrapple.Lines.Add(new Objects.ModuleTextFrame.Line("Gablak, Spligh Caboon.", StaticGameData.LightBlue, false, true));
 				MethanoidIntroWithGrapple.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false));
 				MethanoidIntroWithGrapple.Lines.Add(new Objects.ModuleTextFrame.Line("Barga San 'Grapple' Tak", StaticGameData.LightBlue, false, true));
@@ -195,6 +205,7 @@ namespace Deuteros.Code
 				StaticGameData.ModuleFrameTexts.Add(MethanoidIntroWithGrapple);
 
 				var MethanoidIntro = new TextFrame(Enums.ModuleFrameText.Methanoid_Intro);
+
 				MethanoidIntro.Lines.Add(new Objects.ModuleTextFrame.Line("Wujic Flakra, Tarran Tak", StaticGameData.LightBlue, false, true));
 				MethanoidIntro.Lines.Add(new Objects.ModuleTextFrame.Line("Gablak, Spligh Caboon.", StaticGameData.LightBlue, false, true));
 				MethanoidIntro.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false));
@@ -205,118 +216,126 @@ namespace Deuteros.Code
 
 				StaticGameData.ModuleFrameTexts.Add(MethanoidIntro);
 
-                var MethanoidDeclareWar = new TextFrame(Enums.ModuleFrameText.Methanoid_DeclareWar);
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Thats's Far Enough,", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Earthling !", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("You Have Become Too", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Strong For Your Own", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Good.", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("This Means War !", StaticGameData.LightBlue, false, true));
+				var MethanoidDeclareWar = new TextFrame(Enums.ModuleFrameText.Methanoid_DeclareWar);
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidDeclareWar);
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Thats's Far Enough,", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Earthling !", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("You Have Become Too", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Strong For Your Own", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("Good.", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidDeclareWar.Lines.Add(new Objects.ModuleTextFrame.Line("This Means War !", StaticGameData.LightBlue, false, true));
 
-                var MethanoidWarWarning = new TextFrame(Enums.ModuleFrameText.Methanoid_War_Warning);
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Listen Well, Terran.", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("I Risk My Life Giving", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("You This Information.", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("You Are Being Deceived!", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("My People Have", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Developed A New Laser", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("And Are, As We Speak,", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Preparing For War..", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Take This Prototype And", StaticGameData.LightBlue, false, true));
-                MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Be Gone.     Quickly...", StaticGameData.LightBlue, false, true));
+				StaticGameData.ModuleFrameTexts.Add(MethanoidDeclareWar);
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidWarWarning);
+				var MethanoidWarWarning = new TextFrame(Enums.ModuleFrameText.Methanoid_War_Warning);
 
-                var MethanoidTradeQuestion = new TextFrame(Enums.ModuleFrameText.Methanoid_TradeQuestion);
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Welcome, Terran, To", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Our Humble Station.", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("We See That You Have", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Some Cargo Aboard", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Your Mighty Ship.", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Would You Allow Us", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("To Trade Your Cargo", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("For Some Of Our", StaticGameData.LightBlue, false, true));
-                MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Stocks?", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Listen Well, Terran.", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("I Risk My Life Giving", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("You This Information.", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("You Are Being Deceived!", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("My People Have", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Developed A New Laser", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("And Are, As We Speak,", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Preparing For War..", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Take This Prototype And", StaticGameData.LightBlue, false, true));
+				MethanoidWarWarning.Lines.Add(new Objects.ModuleTextFrame.Line("Be Gone.     Quickly...", StaticGameData.LightBlue, false, true));
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidTradeQuestion);
+				StaticGameData.ModuleFrameTexts.Add(MethanoidWarWarning);
+
+				var MethanoidTradeQuestion = new TextFrame(Enums.ModuleFrameText.Methanoid_TradeQuestion);
+
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Welcome, Terran, To", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Our Humble Station.", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("We See That You Have", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Some Cargo Aboard", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Your Mighty Ship.", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Would You Allow Us", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("To Trade Your Cargo", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("For Some Of Our", StaticGameData.LightBlue, false, true));
+				MethanoidTradeQuestion.Lines.Add(new Objects.ModuleTextFrame.Line("Stocks?", StaticGameData.LightBlue, false, true));
+
+				StaticGameData.ModuleFrameTexts.Add(MethanoidTradeQuestion);
 
 				var MethanoidNoCargo = new TextFrame(Enums.ModuleFrameText.Methanoid_No_Cargo);
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Welcome, Terran, To", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Our Humble Station.", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("We See That You Have", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("No Cargo Aboard", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Your Mighty Ship.", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
-                MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidNoCargo);
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Welcome, Terran, To", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Our Humble Station.", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("We See That You Have", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("No Cargo Aboard", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Your Mighty Ship.", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
+				MethanoidNoCargo.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
 
-                var MethanoidNoTrade = new TextFrame(Enums.ModuleFrameText.Methanoid_No_Trade);
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Vry Well.", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
-                MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
+				StaticGameData.ModuleFrameTexts.Add(MethanoidNoCargo);
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidNoTrade);
+				var MethanoidNoTrade = new TextFrame(Enums.ModuleFrameText.Methanoid_No_Trade);
 
-                var MethanoidTradeTooSlow = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade_Too_Slow);
-                MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("Come On.", StaticGameData.LightBlue, false, true));
-                MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("I Dont Have All day.", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Vry Well.", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
+				MethanoidNoTrade.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidTradeTooSlow);
+				StaticGameData.ModuleFrameTexts.Add(MethanoidNoTrade);
 
-                var MethanoidTrade1 = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade1);
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Our Pleasure, Sir.", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("We Shall Give You", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("{0} For Your", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("{1}.", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
-                MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
+				var MethanoidTradeTooSlow = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade_Too_Slow);
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidTrade1);
+				MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("Come On.", StaticGameData.LightBlue, false, true));
+				MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTradeTooSlow.Lines.Add(new Objects.ModuleTextFrame.Line("I Dont Have All day.", StaticGameData.LightBlue, false, true));
 
-                var MethanoidTrade2 = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade2);
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Our Pleasure, Sir.", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("We Shall Give You", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{0} For Your", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{1} And", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{2} For Your", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{3}.", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
-                MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
+				StaticGameData.ModuleFrameTexts.Add(MethanoidTradeTooSlow);
 
-                StaticGameData.ModuleFrameTexts.Add(MethanoidTrade2);
+				var MethanoidTrade1 = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade1);
 
-                #endregion
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Our Pleasure, Sir.", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("We Shall Give You", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("{0} For Your", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("{1}.", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
+				MethanoidTrade1.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
 
-                #region BulletinText
+				StaticGameData.ModuleFrameTexts.Add(MethanoidTrade1);
 
-                StaticGameData.BulletinTexts = new BulletinContainer();
+				var MethanoidTrade2 = new TextFrame(Enums.ModuleFrameText.Methanoid_Trade2);
+
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Our Pleasure, Sir.", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("We Shall Give You", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{0} For Your", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{1} And", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{2} For Your", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("{3}.", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Forgive Us, But We Must", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Move Your Ship From The", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("Dock As We Are Very Busy", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("At The Moment. Thank You", StaticGameData.LightBlue, false, true));
+				MethanoidTrade2.Lines.Add(new Objects.ModuleTextFrame.Line("For Your Visit.", StaticGameData.LightBlue, false, true));
+
+				StaticGameData.ModuleFrameTexts.Add(MethanoidTrade2);
+
+				#endregion
+
+				#region BulletinText
+
+				StaticGameData.BulletinTexts = new BulletinContainer();
 
 							StaticGameData.BulletinTexts.Add(new Bulletin(BulletinTypes.IOS,
 								"We've made some preliminary\r\n" +
@@ -624,6 +643,7 @@ namespace Deuteros.Code
 				#region Items
 
 				var unknownitem = new Item();
+
 				unknownitem.FullName = "Unknown";
 				unknownitem.ShortName = "Unknown";
 				unknownitem.ItemCategory = Enums.ItemCategory.item;
@@ -641,9 +661,10 @@ namespace Deuteros.Code
 				unknownitem.Research.ResearchLimit = 0;
 				unknownitem.Research.ResearchPercentageComplete = 0;
 
-                StaticGameData.ItemList.Add(unknownitem);
+				StaticGameData.ItemList.Add(unknownitem);
 
 				var derrick = new Item();
+
 				derrick.FullName = "Resource Mining Rig";
 				derrick.ShortName = "Derrick";
 				derrick.ItemCategory = Enums.ItemCategory.item;
@@ -667,11 +688,12 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(derrick);
 
 				var shuttlechas = new Item();
+
 				shuttlechas.FullName = "Shuttle Chassis";
 				shuttlechas.ShortName = "S Chassis";
 				shuttlechas.ItemCategory = Enums.ItemCategory.item;
 				shuttlechas.ItemType = Enums.ItemTypes.s_chassis;
-                shuttlechas.Mass = 130;
+				shuttlechas.Mass = 130;
 
 				shuttlechas.Research = new ResearchItem(Enums.ItemTypes.s_chassis, 3, 1);
 				shuttlechas.Research.Locked = false;
@@ -688,11 +710,12 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(shuttlechas);
 
 				var shuttledrive = new Item();
+
 				shuttledrive.FullName = "Shuttle Drive Unit";
 				shuttledrive.ShortName = "S Drive";
 				shuttledrive.ItemCategory = Enums.ItemCategory.item;
 				shuttledrive.ItemType = Enums.ItemTypes.s_drive;
-                shuttledrive.Mass = 20;
+				shuttledrive.Mass = 20;
 
 				shuttledrive.Research = new ResearchItem(Enums.ItemTypes.s_drive, 4, 1);
 				shuttledrive.Research.Locked = false;
@@ -709,6 +732,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(shuttledrive);
 
 				var ofFrame = new Item();
+
 				ofFrame.FullName = "Orbital Factory Section";
 				ofFrame.ShortName = "OF Frame";
 				ofFrame.ItemCategory = Enums.ItemCategory.item;
@@ -732,6 +756,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(ofFrame);
 
 				var supplyPod = new Item();
+
 				supplyPod.FullName = "Supply Pod";
 				supplyPod.ShortName = "Supply Pod";
 				supplyPod.ItemCategory = Enums.ItemCategory.item;
@@ -751,6 +776,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(supplyPod);
 
 				var toolPod = new Item();
+
 				toolPod.FullName = "Tool and Equipment Mounting";
 				toolPod.ShortName = "Tool Pod";
 				toolPod.ItemCategory = Enums.ItemCategory.item;
@@ -770,6 +796,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(toolPod);
 
 				var cryoPod = new Item();
+
 				cryoPod.FullName = "Cryogenic Holding Pod";
 				cryoPod.ShortName = "Cryo Pod";
 				cryoPod.ItemCategory = Enums.ItemCategory.item;
@@ -798,7 +825,7 @@ namespace Deuteros.Code
 				pulseLaser.ToolPod = true;
 				pulseLaser.ToolPodSingular = true;
 
-                pulseLaser.Research = new ResearchItem(Enums.ItemTypes.pulse_blaster_laser, 10, 3);
+				pulseLaser.Research = new ResearchItem(Enums.ItemTypes.pulse_blaster_laser, 10, 3);
 
 				pulseLaser.Locked = true;
 				pulseLaser.OrbitOnly = true;
@@ -810,13 +837,14 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(pulseLaser);
 
 				var iChassis = new Item();
+
 				iChassis.FullName = "I.O.S Chassis";
 				iChassis.ShortName = "I Chassis";
 				iChassis.ItemCategory = Enums.ItemCategory.item;
 				iChassis.ItemType = Enums.ItemTypes.i_chassis;
 				iChassis.Mass = 650;
 
-                iChassis.Research = new ResearchItem(Enums.ItemTypes.i_chassis, 11, 2);
+				iChassis.Research = new ResearchItem(Enums.ItemTypes.i_chassis, 11, 2);
 
 				iChassis.Locked = true;
 				iChassis.OrbitOnly = true;
@@ -830,14 +858,14 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(iChassis);
 
 				var iDrive = new Item();
+
 				iDrive.FullName = "I.O.S Drive Unit";
 				iDrive.ShortName = "I Drive";
 				iDrive.ItemCategory = Enums.ItemCategory.item;
 				iDrive.ItemType = Enums.ItemTypes.i_drive;
 				iDrive.Mass = 95;
 
-
-                iDrive.Research = new ResearchItem(Enums.ItemTypes.i_drive, 12, 2);
+				iDrive.Research = new ResearchItem(Enums.ItemTypes.i_drive, 12, 2);
 
 				iDrive.Locked = true;
 				iDrive.OrbitOnly = true;
@@ -849,13 +877,14 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(iDrive);
 
 				var gChassis = new Item();
+
 				gChassis.FullName = "S.C.G. Chassis";
 				gChassis.ShortName = "SCG Chassis";
 				gChassis.ItemCategory = Enums.ItemCategory.item;
 				gChassis.ItemType = Enums.ItemTypes.g_chassis;
 				gChassis.Mass = 1685;
 
-                gChassis.Research = new ResearchItem(Enums.ItemTypes.g_chassis, 13, 3);
+				gChassis.Research = new ResearchItem(Enums.ItemTypes.g_chassis, 13, 3);
 
 				gChassis.Locked = true;
 				gChassis.OrbitOnly = true;
@@ -871,13 +900,14 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(gChassis);
 
 				var starDrive = new Item();
+
 				starDrive.FullName = "S.C.G. Drive Unit";
 				starDrive.ShortName = "SCG Drive";
 				starDrive.ItemCategory = Enums.ItemCategory.item;
 				starDrive.ItemType = Enums.ItemTypes.star_drive;
 				starDrive.Mass = 265;
 
-                starDrive.Research = new ResearchItem(Enums.ItemTypes.star_drive, 14, 3);
+				starDrive.Research = new ResearchItem(Enums.ItemTypes.star_drive, 14, 3);
 
 				starDrive.Locked = true;
 				starDrive.OrbitOnly = true;
@@ -892,6 +922,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(starDrive);
 
 				var acc = new Item();
+
 				acc.FullName = "Auto Cargo Computer";
 				acc.ShortName = "A.C.C.";
 				acc.ItemCategory = Enums.ItemCategory.item;
@@ -913,6 +944,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(acc);
 
 				var aoc = new Item();
+
 				aoc.FullName = "Auto Operations Computer";
 				aoc.ShortName = "A.O.C.";
 				aoc.ItemCategory = Enums.ItemCategory.item;
@@ -932,6 +964,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(aoc);
 
 				var BandAid = new Item();
+
 				BandAid.FullName = "Installation Repair Equip";
 				BandAid.ShortName = "Bandaid";
 				BandAid.ItemCategory = Enums.ItemCategory.item;
@@ -954,6 +987,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(BandAid);
 
 				var SelfDestruct = new Item();
+
 				SelfDestruct.FullName = "Self Destruct Mechanism";
 				SelfDestruct.ShortName = "S.D.M.";
 				SelfDestruct.ItemCategory = Enums.ItemCategory.item;
@@ -973,15 +1007,16 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(SelfDestruct);
 
 				var HydraulicGrapple = new Item();
+
 				HydraulicGrapple.FullName = "Hydraulic Grapple";
 				HydraulicGrapple.ShortName = "Grapple";
 				HydraulicGrapple.ItemCategory = Enums.ItemCategory.item;
 				HydraulicGrapple.ItemType = Enums.ItemTypes.grapple;
 				HydraulicGrapple.Mass = 5;
 				HydraulicGrapple.ToolPod = true;
-                HydraulicGrapple.ToolPodSingular = true;
+				HydraulicGrapple.ToolPodSingular = true;
 
-                HydraulicGrapple.Research = new ResearchItem(Enums.ItemTypes.grapple, 20, 3);
+				HydraulicGrapple.Research = new ResearchItem(Enums.ItemTypes.grapple, 20, 3);
 
 				HydraulicGrapple.Locked = true;
 				HydraulicGrapple.OrbitOnly = true;
@@ -993,6 +1028,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(HydraulicGrapple);
 
 				var DFCC = new Item();
+
 				DFCC.FullName = "Drone Fleet Control Computer";
 				DFCC.ShortName = "D.F.C.C.";
 				DFCC.ItemCategory = Enums.ItemCategory.item;
@@ -1016,6 +1052,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(DFCC);
 
 				var AMA = new Item();
+
 				AMA.FullName = "Asteroid Mining Attachment";
 				AMA.ShortName = "A.M.A.";
 				AMA.ItemCategory = Enums.ItemCategory.item;
@@ -1040,6 +1077,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(AMA);
 
 				var Hyperlight = new Item();
+
 				Hyperlight.FullName = "Hyperlight Travel";
 				Hyperlight.ShortName = "Hyperlight";
 				Hyperlight.ItemCategory = Enums.ItemCategory.item;
@@ -1056,6 +1094,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Hyperlight);
 
 				var MTX = new Item();
+
 				MTX.FullName = "Mass Tranceiver";
 				MTX.ShortName = "M.T.X.";
 				MTX.ItemCategory = Enums.ItemCategory.item;
@@ -1075,6 +1114,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(MTX);
 
 				var MFL = new Item();
+
 				MFL.FullName = "Methanoid Fusion Laser";
 				MFL.ShortName = "FuzLaser";
 				MFL.ItemCategory = Enums.ItemCategory.item;
@@ -1093,6 +1133,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(MFL);
 
 				var RFrame = new Item();
+
 				RFrame.FullName = "Resource Station Section";
 				RFrame.ShortName = "R Frame";
 				RFrame.ItemCategory = Enums.ItemCategory.item;
@@ -1118,6 +1159,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(RFrame);
 
 				var PrejudiceTorpedoLauncher = new Item();
+
 				PrejudiceTorpedoLauncher.FullName = "Prejudice Torpedo Launcher";
 				PrejudiceTorpedoLauncher.ShortName = "P.T.L.";
 				PrejudiceTorpedoLauncher.ItemCategory = Enums.ItemCategory.item;
@@ -1136,6 +1178,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(PrejudiceTorpedoLauncher);
 
 				var COMMSPOD = new Item();
+
 				COMMSPOD.FullName = "Communication Adapter";
 				COMMSPOD.ShortName = "CommsPod";
 				COMMSPOD.ItemCategory = Enums.ItemCategory.item;
@@ -1157,6 +1200,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(COMMSPOD);
 
 				var IOSDrone = new Item();
+
 				IOSDrone.FullName = "IOS Battle Drone";
 				IOSDrone.ShortName = "IOS Drone";
 				IOSDrone.ItemCategory = Enums.ItemCategory.item;
@@ -1179,6 +1223,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(IOSDrone);
 
 				var StarDrone = new Item();
+
 				StarDrone.FullName = "SCG Battle Drone";
 				StarDrone.ShortName = "Star Drone";
 				StarDrone.ItemCategory = Enums.ItemCategory.item;
@@ -1202,6 +1247,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(StarDrone);
 
 				var PrisonPod = new Item();
+
 				PrisonPod.FullName = "Prison Pod";
 				PrisonPod.ShortName = "Prison Pod";
 				PrisonPod.ItemCategory = Enums.ItemCategory.item;
@@ -1223,6 +1269,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(PrisonPod);
 
 				var SonicBlaster = new Item();
+
 				SonicBlaster.FullName = "Sonic Blaster";
 				SonicBlaster.ShortName = "Blaster";
 				SonicBlaster.ItemCategory = Enums.ItemCategory.item;
@@ -1252,6 +1299,7 @@ namespace Deuteros.Code
 				#region Materials
 
 				var Iron = new Item();
+
 				Iron.FullName = "Iron";
 				Iron.ShortName = "Iron";
 				Iron.ItemCategory = Enums.ItemCategory.resource;
@@ -1262,6 +1310,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Iron);
 
 				var Titanium = new Item();
+
 				Titanium.FullName = "Titanium";
 				Titanium.ShortName = "Titanium";
 				Titanium.ItemCategory = Enums.ItemCategory.resource;
@@ -1272,6 +1321,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Titanium);
 
 				var Aluminium = new Item();
+
 				Aluminium.FullName = "Aluminium";
 				Aluminium.ShortName = "Aluminium";
 				Aluminium.ItemCategory = Enums.ItemCategory.resource;
@@ -1282,6 +1332,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Aluminium);
 
 				var Carbon = new Item();
+
 				Carbon.FullName = "Carbon";
 				Carbon.ShortName = "Carbon";
 				Carbon.ItemCategory = Enums.ItemCategory.resource;
@@ -1292,6 +1343,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Carbon);
 
 				var Copper = new Item();
+
 				Copper.FullName = "Copper";
 				Copper.ShortName = "Copper";
 				Copper.ItemCategory = Enums.ItemCategory.resource;
@@ -1302,6 +1354,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Copper);
 
 				var Hydrogen = new Item();
+
 				Hydrogen.FullName = "Hydrogen";
 				Hydrogen.ShortName = "Hydrogen";
 				Hydrogen.ItemCategory = Enums.ItemCategory.resource;
@@ -1312,6 +1365,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Hydrogen);
 
 				var Deuterium = new Item();
+
 				Deuterium.FullName = "Deuterium";
 				Deuterium.ShortName = "Deuterium";
 				Deuterium.ItemCategory = Enums.ItemCategory.resource;
@@ -1322,6 +1376,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Deuterium);
 
 				var Methane = new Item();
+
 				Methane.FullName = "Methane";
 				Methane.ShortName = "Methane";
 				Methane.ItemCategory = Enums.ItemCategory.resource;
@@ -1332,6 +1387,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Methane);
 
 				var Helium = new Item();
+
 				Helium.FullName = "Helium";
 				Helium.ShortName = "Helium";
 				Helium.ItemCategory = Enums.ItemCategory.resource;
@@ -1342,6 +1398,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Helium);
 
 				var Paladium = new Item();
+
 				Paladium.FullName = "Paladium";
 				Paladium.ShortName = "Paladium";
 				Paladium.ItemCategory = Enums.ItemCategory.resource;
@@ -1352,6 +1409,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Paladium);
 
 				var Platinum = new Item();
+
 				Platinum.FullName = "Platinum";
 				Platinum.ShortName = "Platinum";
 				Platinum.ItemCategory = Enums.ItemCategory.resource;
@@ -1362,6 +1420,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Platinum);
 
 				var Silver = new Item();
+
 				Silver.FullName = "Silver";
 				Silver.ShortName = "Silver";
 				Silver.ItemCategory = Enums.ItemCategory.resource;
@@ -1372,6 +1431,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Silver);
 
 				var Gold = new Item();
+
 				Gold.FullName = "Gold";
 				Gold.ShortName = "Gold";
 				Gold.ItemCategory = Enums.ItemCategory.resource;
@@ -1382,6 +1442,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Gold);
 
 				var Silica = new Item();
+
 				Silica.FullName = "Silica";
 				Silica.ShortName = "Silica";
 				Silica.ItemCategory = Enums.ItemCategory.resource;
@@ -1392,6 +1453,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(Silica);
 
 				var mehFuel = new Item();
+
 				mehFuel.FullName = "Hydrogen Methanol Fuel";
 				mehFuel.ShortName = "MeH Fuel";
 				mehFuel.ItemCategory = Enums.ItemCategory.resource;
@@ -1412,6 +1474,7 @@ namespace Deuteros.Code
 				StaticGameData.ItemList.Add(mehFuel);
 
 				var hedFuel = new Item();
+
 				hedFuel.FullName = "Helium Deuterium Fuel";
 				hedFuel.ShortName = "HeD";
 				hedFuel.ItemCategory = Enums.ItemCategory.resource;
@@ -1430,55 +1493,54 @@ namespace Deuteros.Code
 
 				StaticGameData.ItemList.Add(hedFuel);
 
-                #endregion
+				#endregion
 
-                #endregion
-
+				#endregion
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.the_sun, new Objects.Star(Enums.StellarBodies.the_sun)
 				{
-                    PlanetDistanceList = new List<int> { 37, 41, 53, 59, 68, 76, 85, 91, 98, 108, 112, 128, 128, 141, 146, 158, 162, 174, 181, 185, 197, 201 }
+					PlanetDistanceList = new List<int> { 37, 41, 53, 59, 68, 76, 85, 91, 98, 108, 112, 128, 128, 141, 146, 158, 162, 174, 181, 185, 197, 201 }
 				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.proxima, new Objects.Star(Enums.StellarBodies.proxima)
 				{
 					PlanetDistanceList = new List<int> { 49, 63, 146, 158 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.centauri, new Objects.Star(Enums.StellarBodies.centauri)
 				{
 					PlanetDistanceList = new List<int> { 37, 43, 82, 94, 132, 140, 162, 174 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.barnard, new Objects.Star(Enums.StellarBodies.barnard)
 				{
 					PlanetDistanceList = new List<int> { 37, 41, 53, 59, 68, 76, 114, 126, 133, 139, 144, 160, 196, 204 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.lalande, new Objects.Star(Enums.StellarBodies.lalande)
 				{
 					PlanetDistanceList = new List<int> { 50, 62, 81, 95 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.sirius, new Objects.Star(Enums.StellarBodies.sirius)
 				{
 					PlanetDistanceList = new List<int> { 52, 60, 68, 76 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.cygni, new Objects.Star(Enums.StellarBodies.cygni)
 				{
 					PlanetDistanceList = new List<int> { 37, 41, 53, 59, 67, 77, 84, 92, 114, 126, 128, 144, 146, 158, 179, 189 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.procyon, new Objects.Star(Enums.StellarBodies.procyon)
 				{
 					PlanetDistanceList = new List<int> { 53, 59, 129, 143, 160, 173 }
-                });
+				});
 
 				StaticGameData.Stars.Add(Enums.StellarBodies.tau_ceti, new Objects.Star(Enums.StellarBodies.tau_ceti)
 				{
 					PlanetDistanceList = new List<int> { 53, 57, 68, 76, 85, 91, 113, 127, 146, 158 }
-                });
+				});
 
 				StaticGameData.Planets.Add(Enums.StellarBodies.mercury, new Objects.Planet(Enums.StellarBodies.mercury, 0)
 				{
@@ -1540,8 +1602,8 @@ namespace Deuteros.Code
 					PlanetStyle = PlanetStyle.lines
 				});
 
-                //Special Earth setup for a new game
-                ((Earth)StaticGameData.Planets[StellarBodies.earth]).Factory.Ground = true;
+				//Special Earth setup for a new game
+				((Earth)StaticGameData.Planets[StellarBodies.earth]).Factory.Ground = true;
 				StaticGameData.Planets[StellarBodies.earth].PlanetResources.Derricks = 1;
 
 				var trainingData = new Objects.Training();
@@ -2945,9 +3007,8 @@ namespace Deuteros.Code
 							new Objects.Material(Enums.ItemTypes.silver, 1),
 							new Objects.Material(Enums.ItemTypes.gold, 1),
 						})
-					
-                });
 
+				});
 
 				StaticGameData.Planets.Add(Enums.StellarBodies.nero, new Objects.Planet(Enums.StellarBodies.nero, 0)
 				{
@@ -3640,7 +3701,6 @@ namespace Deuteros.Code
 					)
 				});
 
-
 				StaticGameData.Planets.Add(Enums.StellarBodies.cambrian, new Objects.Planet(Enums.StellarBodies.cambrian, 0)
 				{
 					IsMoon = false,
@@ -4169,40 +4229,44 @@ namespace Deuteros.Code
 				});
 
 				Dictionary<StellarBodies, int> starCounts = new Dictionary<StellarBodies, int>();
-				starCounts.Add(StellarBodies.proxima, 2);
-                starCounts.Add(StellarBodies.centauri, 8);
-                starCounts.Add(StellarBodies.barnard, 16);
-                starCounts.Add(StellarBodies.lalande, 5);
-                starCounts.Add(StellarBodies.sirius, 2);
-                starCounts.Add(StellarBodies.cygni, 16);
-                starCounts.Add(StellarBodies.procyon, 10);
-                starCounts.Add(StellarBodies.tau_ceti, 16);
 
-                //setup random methanoid locations on all stars
-                //except the sun
-                foreach (var s in StaticGameData.Stars.Values)
+				starCounts.Add(StellarBodies.proxima, 2);
+				starCounts.Add(StellarBodies.centauri, 8);
+				starCounts.Add(StellarBodies.barnard, 16);
+				starCounts.Add(StellarBodies.lalande, 5);
+				starCounts.Add(StellarBodies.sirius, 2);
+				starCounts.Add(StellarBodies.cygni, 16);
+				starCounts.Add(StellarBodies.procyon, 10);
+				starCounts.Add(StellarBodies.tau_ceti, 16);
+
+				//setup random methanoid locations on all stars
+				//except the sun
+				foreach (var s in StaticGameData.Stars.Values)
 				{
 					if (s.StarId != StellarBodies.the_sun)
 					{
 						var planets = StaticGameData.Planets.Values.Where(p => p.ParentStar == s.StarId).ToList();
+
 						for (int i = 0; i<starCounts[s.StarId]; i++)
 						{
 							var p = planets[Random.Shared.Next(planets.Count - 1)];
+
 							p.ActiveMethanoid = true;
-                            p.Station.RefiningSlot = FuelRefining.Capacity(s.StarId) - 1 - i;
+							p.Station.RefiningSlot = FuelRefining.Capacity(s.StarId) - 1 - i;
 							planets.Remove(p);
 						}
 
-                    }
+					}
 				}
 
-                var solStations = new[] { StellarBodies.uranus, StellarBodies.titania, StellarBodies.neptune,
-                    StellarBodies.triton, StellarBodies.pluto, StellarBodies.jupiter };
-                for (var i = 0; i < solStations.Length; i++)
-                    StaticGameData.Planets[solStations[i]].Station.RefiningSlot = 10 + i;
+				var solStations = new[] { StellarBodies.uranus, StellarBodies.titania, StellarBodies.neptune,
+					StellarBodies.triton, StellarBodies.pluto, StellarBodies.jupiter };
 
-                //set up all methanoid owned planets
-                foreach (IPlanet p in StaticGameData.Planets.Values)
+				for (var i = 0; i < solStations.Length; i++)
+					StaticGameData.Planets[solStations[i]].Station.RefiningSlot = 10 + i;
+
+				//set up all methanoid owned planets
+				foreach (IPlanet p in StaticGameData.Planets.Values)
 				{
 					if (p.ActiveMethanoid)
 					{
@@ -4216,7 +4280,7 @@ namespace Deuteros.Code
 					}
 				}
 
-                StaticGameData.ResourceLevels_Survey_Multiplier[Enums.ItemTypes.iron] = 1;
+				StaticGameData.ResourceLevels_Survey_Multiplier[Enums.ItemTypes.iron] = 1;
 				StaticGameData.ResourceLevels_Survey_Multiplier[Enums.ItemTypes.titanium] = 1;
 				StaticGameData.ResourceLevels_Survey_Multiplier[Enums.ItemTypes.aluminium] = 1;
 				StaticGameData.ResourceLevels_Survey_Multiplier[Enums.ItemTypes.carbon] = 1;
@@ -4247,11 +4311,13 @@ namespace Deuteros.Code
 				StaticGameData.ResourceRate_Per_Derrick[Enums.ItemTypes.silica] = 2;
 
 				var saveData = Utility.Serialization.WriteObject<Deuteros.Code.Objects.GameData.BaseData>(StaticGameData);
+
 				System.IO.File.WriteAllText(AppDomain.CurrentDomain.BaseDirectory + "Data\\GameData.dat", saveData);
 			}
 			else
 			{
 				var fileData = System.IO.File.ReadAllText(AppDomain.CurrentDomain.BaseDirectory + "Data\\GameData.dat");
+
 				StaticGameData = Utility.Serialization.ReadObject<Deuteros.Code.Objects.GameData.BaseData>(fileData);
 			}
 		}

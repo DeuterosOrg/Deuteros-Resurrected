@@ -46,12 +46,15 @@ namespace Deuteros.Code.Objects
 
 		public bool Refuel()
 		{
-            if (StopRogue()) return false;
+			if (StopRogue())
+				return false;
+
 			if (Ship.Fuel >= RefuelLimit)
-            {
-                Refuelling = false;
-                return true;
-            }
+			{
+				Refuelling = false;
+
+				return true;
+			}
 
 			var stores = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[Ship.PlanetLocation].Station.Resources.Stores;
 
@@ -65,6 +68,7 @@ namespace Deuteros.Code.Objects
 				stores[Ship.FuelType] -= (RefuelMax - Ship.Fuel) * Ship.FuelUnitCost;
 				Ship.Fuel = RefuelMax;
 				Refuelling = false;
+
 				return true;
 			}
 			else if (availableFuel >= (RefuelLimit - Ship.Fuel))
@@ -72,27 +76,29 @@ namespace Deuteros.Code.Objects
 				Ship.Fuel += availableFuel;
 				stores[Ship.FuelType] -= availableFuel * Ship.FuelUnitCost;
 				Refuelling = false;
+
 				return true;
 			}
 			else
 			{
 				Refuelling = true;
+
 				return false;
 			}
 		}
 
 		public void LoadSupply(bool unloadOnly = false)
 		{
-            if (StopRogue()) return;
+			if (StopRogue())
+				return;
+
 			if (Ship.ShipState != Ship_States.Docked || Ship.PlanetLocation == StellarBodies.asteroids)
 				return;
 
 			var planets = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets;
 			var planet = planets[Ship.PlanetLocation];
-			var atDestination = Ship.ShipType == Ship_Types.Shuttle
-				? !((Shuttle)Ship).OnGround : Ship.PlanetLocation == Destination;
-			var stores = Ship.ShipType == Ship_Types.Shuttle && !atDestination
-				? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
+			var atDestination = Ship.ShipType == Ship_Types.Shuttle ? !((Shuttle)Ship).OnGround : Ship.PlanetLocation == Destination;
+			var stores = Ship.ShipType == Ship_Types.Shuttle && !atDestination ? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
 			var supplyPods = Ship.Modules.Where(m => m.ModuleType == Module_Types.Supply).ToList();
 
 			// Unload every pod before planning new cargo. Full stores leave the remainder aboard.
@@ -101,16 +107,21 @@ namespace Deuteros.Code.Objects
 				if (module.ItemStored != ItemTypes.none && module.ItemCount > 0)
 				{
 					var accepted = Math.Min(module.ItemCount, Math.Max(0, 50000 - stores[module.ItemStored]));
+
 					stores[module.ItemStored] += accepted;
 					module.ItemCount -= accepted;
 				}
-				if (module.ItemCount == 0) module.ItemStored = ItemTypes.none;
+
+				if (module.ItemCount == 0)
+					module.ItemStored = ItemTypes.none;
 			}
 
 			// Asteroid runs return their ore but do not load outbound supplies.
-			if (unloadOnly || Ship.DestinationPlanetLocation == StellarBodies.asteroids) return;
+			if (unloadOnly || Ship.DestinationPlanetLocation == StellarBodies.asteroids)
+				return;
 
 			Store otherStores = null;
+
 			if (Ship.ShipType == Ship_Types.Shuttle)
 				otherStores = atDestination ? planet.PlanetResources.Stores : planet.Station.Resources.Stores;
 			else if (planets.TryGetValue(atDestination ? Source : Destination, out var otherPlanet))
@@ -119,22 +130,26 @@ namespace Deuteros.Code.Objects
 			var selectedItems = atDestination ? DestinationItems : SourceItems;
 			var otherSelectedItems = atDestination ? SourceItems : DestinationItems;
 			var current = atDestination ? CurrentDestination : CurrentSource;
+
 			foreach (var module in supplyPods.Where(m => m.ItemCount == 0))
 			{
 				var first = current;
+
 				do
 				{
 					if (selectedItems.Contains(current) && stores[current] > 0)
 					{
 						var amount = Math.Min(250, stores[current]);
+
 						if (otherSelectedItems.Contains(current))
 						{
 							// Shared selections balance endpoints. Account for cargo already assigned
 							// to other pods so a second pod cannot overshoot the same surplus.
 							var aboard = supplyPods.Where(m => m.ItemStored == current).Sum(m => m.ItemCount);
-							amount = otherStores == null ? 0 : Math.Min(amount,
-								Math.Max(0, (stores[current] - otherStores[current] - aboard) / 2));
+
+							amount = otherStores == null ? 0 : Math.Min(amount, Math.Max(0, (stores[current] - otherStores[current] - aboard) / 2));
 						}
+
 						if (amount > 0)
 						{
 							module.ItemStored = current;
@@ -142,19 +157,30 @@ namespace Deuteros.Code.Objects
 							stores[current] -= amount;
 						}
 					}
+
 					current++;
-					if (current > ItemTypes.hed_fuel) current = ItemTypes.iron;
+
+					if (current > ItemTypes.hed_fuel)
+						current = ItemTypes.iron;
 				} while (current != first && module.ItemCount == 0);
 			}
-			if (atDestination) CurrentDestination = current;
-			else CurrentSource = current;
+
+			if (atDestination)
+				CurrentDestination = current;
+			else
+				CurrentSource = current;
 		}
 
 		public void Update(Ship_States oldState)
 		{
-            if (StopRogue()) return;
-			if (!Active && !CycleMode) return;
-			if (StopInvalidRoute()) return;
+			if (StopRogue())
+				return;
+
+			if (!Active && !CycleMode)
+				return;
+
+			if (StopInvalidRoute())
+				return;
 
 			//We're docked at the asteroids, which means we are running the AMA on an asteroid - Don't bother running checks
 			if (Ship.ShipState == Ship_States.Docked && Ship.PlanetLocation == StellarBodies.asteroids)
@@ -162,19 +188,22 @@ namespace Deuteros.Code.Objects
 				//Do nothing
 			}
 			// Scanning must not intercept a completed launch's normal return-flight transition.
-			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids
-				&& oldState != Ship_States.Launching)
+			else if (Ship.ShipState == Ship_States.UnDocked && Ship.PlanetLocation == StellarBodies.asteroids && oldState != Ship_States.Launching)
 			{
 				// Original scan automation requires Engage, not Complete Cycle.
-				if (CycleMode) return;
+				if (CycleMode)
+					return;
+
 				var scanResults = ((InterStellarShip)Ship).AsteroidScanResults;
 				var selectedItems = Ship.PlanetLocation == Destination ? DestinationItems : SourceItems;
 				var hasAma = Ship.Modules.Any(T => T.ModuleType == Module_Types.Tool && T.ItemStored == ItemTypes.a__m__a);
+
 				// Original engaged ACC stops at a scan without AMA, before mineral/size filters.
 				// Leave the scan for manual grappling; Complete Cycle is a separate command.
 				if (Active && !CycleMode && scanResults != null && !hasAma)
 				{
 					Active = Refuelling = false;
+
 					return;
 				}
 
@@ -233,8 +262,10 @@ namespace Deuteros.Code.Objects
 				{
 					LoadSupply(unloadOnly: true);
 					Active = CycleMode = Refuelling = false;
+
 					return;
 				}
+
 				if (Refuel())
 				{
 					LoadSupply();
@@ -245,13 +276,20 @@ namespace Deuteros.Code.Objects
 
 		public void Activate(bool completeCycle = false)
 		{
-            if (StopRogue()) return;
-			if (StopInvalidRoute() || !Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply)) return;
+			if (StopRogue())
+				return;
+
+			if (StopInvalidRoute() || !Ship.Modules.Any(T => T.ModuleType == Module_Types.Supply))
+				return;
+
 			var wasRunning = Active || CycleMode;
+
 			Active = !completeCycle;
 			CycleMode = completeCycle;
+
 			// Changing commands during a journey or fuel wait preserves the current operation.
-			if (wasRunning) return;
+			if (wasRunning)
+				return;
 
 			// Mining shares Docked in the remake, but is not an original refuelling berth.
 			// Preserve the scan and pending activity; EngageEngine clears it when travel starts.
@@ -262,12 +300,15 @@ namespace Deuteros.Code.Objects
 			}
 		}
 
-        private bool StopRogue()
-        {
-            if (RogueCrew.CanCommand(Ship)) return false;
-            Active = CycleMode = Refuelling = false;
-            return true;
-        }
+		private bool StopRogue()
+		{
+			if (RogueCrew.CanCommand(Ship))
+				return false;
+
+			Active = CycleMode = Refuelling = false;
+
+			return true;
+		}
 
 		private bool StopInvalidRoute()
 		{
@@ -275,7 +316,9 @@ namespace Deuteros.Code.Objects
 			if (Ship.ShipType == Ship_Types.Shuttle ||
 				(Ship.CanTravelTo(Source) && Ship.CanTravelTo(Destination) && Ship.CanTravelTo(Ship.DestinationPlanetLocation)))
 				return false;
+
 			Active = CycleMode = Refuelling = false;
+
 			return true;
 		}
 	}

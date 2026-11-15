@@ -41,11 +41,11 @@ namespace Deuteros.Code.Platform.Screens
 		Control EquipmentStock { get; set; }
 		Control StaffList { get; set; }
 		Control GrappleWindowControl { get; set; }
-        Label GrappleWindowTitle { get; set; }
-        Label GrappleWindowQuantities { get; set; }
-        Label GrappleWindowComplete { get; set; }
+		Label GrappleWindowTitle { get; set; }
+		Label GrappleWindowQuantities { get; set; }
+		Label GrappleWindowComplete { get; set; }
 
-        Label[] EquipmentStockNameLabels { get; set; } = new Label[11];
+		Label[] EquipmentStockNameLabels { get; set; } = new Label[11];
 		Label[] EquipmentStockCountLabels { get; set; } = new Label[11];
 		Label FuelType { get; set; }
 		Label FuelInStock { get; set; }
@@ -67,10 +67,10 @@ namespace Deuteros.Code.Platform.Screens
 
 		public int ScreenState { get; set; }
 
-        private ShipModule prisonView;
-        private ShipModule capturePrison;
-        private SaveFile captureSave;
-        private double captureRemaining;
+		private ShipModule prisonView;
+		private ShipModule capturePrison;
+		private SaveFile captureSave;
+		private double captureRemaining;
 
 		private Control hoveredControl;
 		private Func<string> hoveredLabel;
@@ -126,16 +126,17 @@ namespace Deuteros.Code.Platform.Screens
 
 			GrappleWindow = GetNode<DynamicWindow>("GrappleWindow/GrappleEmptier");
 			GrappleWindowTitle = GetNode<Label>("GrappleWindow/GrappleEmptier/Title");
-            GrappleWindowQuantities = GetNode<Label>("GrappleWindow/GrappleEmptier/Quantites");
-            GrappleWindowComplete = GetNode<Label>("GrappleWindow/GrappleEmptier/Complete");
+			GrappleWindowQuantities = GetNode<Label>("GrappleWindow/GrappleEmptier/Quantites");
+			GrappleWindowComplete = GetNode<Label>("GrappleWindow/GrappleEmptier/Complete");
 
-            for (int i = 0; i < 11; i++)
+			for (int i = 0; i < 11; i++)
 			{
 				EquipmentStockNameLabels[i] = GetNode<Label>("EquipmentStock/BackgroundBox/PanelContainer/GridContainer/NameColumn/" + i.ToString().PadLeft(2, '0'));
 				EquipmentStockCountLabels[i] = GetNode<Label>("EquipmentStock/BackgroundBox/PanelContainer/GridContainer/CountColumn/" + i.ToString().PadLeft(2, '0'));
 				EquipmentStockButtons[i] = GetNode<Button>("EquipmentStock/Buttons/" + i.ToString().PadLeft(2, '0'));
 
 				int index = i;
+
 				EquipmentStockButtons[i].Pressed += () => SelectEquipment(index);
 			}
 
@@ -154,10 +155,10 @@ namespace Deuteros.Code.Platform.Screens
 			CockpitInstance.StaffList.ProductionChanged += CockpitInstance_ProductionChanged;
 
 			TorsoStaffList.StaffClicked += TorsoStaffList_StaffClicked;
-            GetNode<Button>("StaffList/PrisonEquipment").Pressed += PrisonEquipmentPressed;
+			GetNode<Button>("StaffList/PrisonEquipment").Pressed += PrisonEquipmentPressed;
 
 			EngineInstance.EngineInstalled += EngineInstance_EngineInstalled;
-            EngineInstance.MayInstall = () => !RejectShipCommand();
+			EngineInstance.MayInstall = () => !RejectShipCommand();
 
 			foreach (var torso in TorsoInstances)
 			{
@@ -189,14 +190,14 @@ namespace Deuteros.Code.Platform.Screens
 			FuelGaugeMinus.Pressed += FuelGaugeMinus_Pressed;
 			FuelGaugePlus.Pressed += FuelGaugePlus_Pressed;
 
-            GrappleWindow.Closed = GrappleClosed;
+			GrappleWindow.Closed = GrappleClosed;
 
 			CargoService.Visible = false;
 			EquipmentStock.Visible = false;
 			StaffList.Visible = false;
 			GrappleWindowControl.Visible = false;
 
-            ScreenState = GetScreenState();
+			ScreenState = GetScreenState();
 
 			UpdateState();
 
@@ -214,19 +215,38 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			control.MouseEntered += () =>
 			{
-				if (!control.IsVisibleInTree() || (control is BaseButton button && button.Disabled)) return;
+				if (!control.IsVisibleInTree() || (control is BaseButton button && button.Disabled))
+					return;
+
 				hoveredControl = control;
 				hoveredLabel = label;
 				UpdateHover();
 			};
-			control.MouseExited += () => { if (hoveredControl == control) ClearHover(); };
-			control.VisibilityChanged += () => { if (hoveredControl == control && !control.IsVisibleInTree()) ClearHover(); };
-			control.TreeExiting += () => { if (hoveredControl == control) ClearHover(); };
+
+			control.MouseExited += () =>
+			{
+				if (hoveredControl == control)
+					ClearHover();
+			};
+
+			control.VisibilityChanged += () =>
+			{
+				if (hoveredControl == control && !control.IsVisibleInTree())
+					ClearHover();
+			};
+
+			control.TreeExiting += () =>
+			{
+				if (hoveredControl == control)
+					ClearHover();
+			};
 		}
 
 		private void ClearHover()
 		{
-			if (GameCore.HoverText == lastHoverText) GameCore.HoverText = "";
+			if (GameCore.HoverText == lastHoverText)
+				GameCore.HoverText = "";
+
 			hoveredControl = null;
 			hoveredLabel = null;
 			lastHoverText = null;
@@ -234,77 +254,107 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void UpdateHover()
 		{
-			if (hoveredControl == null) return;
+			if (hoveredControl == null)
+				return;
+
 			if (!hoveredControl.IsVisibleInTree() || (hoveredControl is BaseButton button && button.Disabled))
 			{
 				ClearHover();
+
 				return;
 			}
+
 			lastHoverText = hoveredLabel() ?? "";
 			GameCore.HoverText = lastHoverText;
 		}
 
-        public override void _Process(double delta)
-        {
-            UpdateHover();
-            if (capturePrison == null) return;
-            if (!ReferenceEquals(captureSave, GameCore.SingletonInstance.GameData.ActiveSaveFile)) { CancelCapture(); return; }
-            captureRemaining -= delta;
-            if (captureRemaining > 0) return;
-            captureSave.RogueCrew.TryRelease(captureSave, capturePrison, ResourceList);
-            CancelCapture();
-            RefreshPrison();
-        }
+		public override void _Process(double delta)
+		{
+			UpdateHover();
 
-        private void CancelCapture() { capturePrison = null; captureSave = null; captureRemaining = 0; }
+			if (capturePrison == null)
+				return;
 
-        public override void _ExitTree()
-        {
-            CancelCapture();
-            base._ExitTree();
-        }
+			if (!ReferenceEquals(captureSave, GameCore.SingletonInstance.GameData.ActiveSaveFile)) { CancelCapture(); return; }
 
-        private void RefreshPrison()
-        {
-            if (prisonView == null) return;
-            GetNode<Label>("StaffList/PrisonHelp").Text = capturePrison != null ? "Right-click now to lock.\nWaiting releases prisoner."
-                : prisonView.StaffStored != null ? "Choose an empty crew slot\nto release prisoner." : "Select Pirate, then\nright-click within 0.5s.";
-            GetNode<Button>("StaffList/PrisonEquipment").Disabled = prisonView.StaffStored != null;
-            TorsoStaffList.UpdateStaff(ResourceList.Staff);
-            CockpitInstance.UpdateStaff(ResourceList.Staff);
-            if (ScreenState > 0 && ScreenState <= TorsoInstances.Count) TorsoInstances[ScreenState - 1].UpdateState();
-        }
+			captureRemaining -= delta;
 
-        private void PrisonEquipmentPressed()
-        {
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (prisonView == null || prisonView.StaffStored != null || !RogueCrew.CanTransfer(save, Ship, ResourceList)) return;
-            prisonView = null;
-            StaffList.Visible = false;
-            UpdateEquipmentStock();
-            EquipmentStock.Visible = true;
-            GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").LockToRect(EquipmentStock.GetGlobalRect());
-        }
+			if (captureRemaining > 0)
+				return;
+
+			captureSave.RogueCrew.TryRelease(captureSave, capturePrison, ResourceList);
+			CancelCapture();
+			RefreshPrison();
+		}
+
+		private void CancelCapture() { capturePrison = null; captureSave = null; captureRemaining = 0; }
+
+		public override void _ExitTree()
+		{
+			CancelCapture();
+			base._ExitTree();
+		}
+
+		private void RefreshPrison()
+		{
+			if (prisonView == null)
+				return;
+
+			GetNode<Label>("StaffList/PrisonHelp").Text = capturePrison != null ? "Right-click now to lock.\nWaiting releases prisoner."
+				: prisonView.StaffStored != null ? "Choose an empty crew slot\nto release prisoner." : "Select Pirate, then\nright-click within 0.5s.";
+			GetNode<Button>("StaffList/PrisonEquipment").Disabled = prisonView.StaffStored != null;
+			TorsoStaffList.UpdateStaff(ResourceList.Staff);
+			CockpitInstance.UpdateStaff(ResourceList.Staff);
+
+			if (ScreenState > 0 && ScreenState <= TorsoInstances.Count)
+				TorsoInstances[ScreenState - 1].UpdateState();
+		}
+
+		private void PrisonEquipmentPressed()
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			if (prisonView == null || prisonView.StaffStored != null || !RogueCrew.CanTransfer(save, Ship, ResourceList))
+				return;
+
+			prisonView = null;
+			StaffList.Visible = false;
+			UpdateEquipmentStock();
+			EquipmentStock.Visible = true;
+			GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").LockToRect(EquipmentStock.GetGlobalRect());
+		}
 
 		private string StaffHover(int index)
 		{
 			var staff = ResourceList.Staff[index];
-			if (staff == null) return ShipPresent && Ship.Pilot != null ? "Remove ship's crew" : "";
-			if (staff.Type == StaffType.Marines) return ShipPresent ? "Assign ship's crew" : "";
+
+			if (staff == null)
+				return ShipPresent && Ship.Pilot != null ? "Remove ship's crew" : "";
+
+			if (staff.Type == StaffType.Marines)
+				return ShipPresent ? "Assign ship's crew" : "";
+
 			if (staff.Type == StaffType.Production && (Ground
 				? Earth && GameCore.Earth.Factory.Builder == null
 				: !CurrentPlanet.Station.Factory.AOC && CurrentPlanet.Station.Factory.Builder == null))
 				return "Assign crew to production";
+
 			return "";
 		}
 
 		private string PodHover(int index, Module_Types type, string name)
 		{
-			if (!ShipPresent || index >= Ship.Modules.Count) return "";
+			if (!ShipPresent || index >= Ship.Modules.Count)
+				return "";
+
 			var module = Ship.Modules[index];
-			if (module.ModuleType != type) return "Install " + name;
+
+			if (module.ModuleType != type)
+				return "Install " + name;
+
 			if (module.ItemCount > 0 || module.StaffStored != null || module.HeldItem != null)
 				return "Unload pod before removal";
+
 			return "Remove " + name;
 		}
 
@@ -321,16 +371,22 @@ namespace Deuteros.Code.Platform.Screens
 			BindHover(CockpitInstance.GetNode<Control>("Buttons/AddACC"), () => Ship is InterStellarShip { DFCC: true } ? "Fit Torpedo Launcher" : "Fit A.C.C.");
 			BindHover(CockpitInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
 			BindHover(EngineInstance.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
+
 			for (int i = 0; i < 4; i++)
 			{
 				var index = i;
+
 				BindHover(CockpitInstance.StaffList.GetNode<Control>("Staff/Buttons/0" + (i + 1)), () => StaffHover(index));
 			}
+
 			for (int i = 0; i < TorsoInstances.Count; i++)
 			{
 				var index = i;
+
 				BindHover(Nav_Torsos[i], () => ShipPresent && index < Ship.Modules.Count ? "Pod mount " + (index + 1) : "");
+
 				var torso = TorsoInstances[i];
+
 				BindHover(torso.GetNode<Control>("OpenShipInterior"), () => ShipPresent ? "Access ship" : "");
 				BindHover(torso.AddSupplyPod, () => PodHover(index, Module_Types.Supply, "supply pod"));
 				BindHover(torso.AddToolPod, () => PodHover(index, Module_Types.Tool, "tool pod"));
@@ -340,25 +396,38 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void AddACC_Pressed()
 		{
-            var core = GameCore.SingletonInstance;
-            if (GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
-                || core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
-                || core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked) return;
-            if (RejectShipCommand()) return;
-            if (Ship is InterStellarShip { DFCC: true } stellar)
-            {
-                var type = ItemTypes.prejudice_torpedo_launcher;
-                if (stellar.MethanoidOwned || CurrentPlanet.ActiveMethanoid || !core.GameData.GetItem(type).Research.Researched) return;
-                if (stellar.PTL) GameCore.ShowError(this, "P.T.L. Already\nFitted");
-                else if (ResourceList.Stores[type] <= 0) GameCore.ShowError(this, "P.T.L. Not\nAvailable");
-                else
-                {
-                    ResourceList.Stores[type]--;
-                    stellar.PTL = true;
-                }
-                UpdateState();
-                return;
-            }
+			var core = GameCore.SingletonInstance;
+
+			if (GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
+				|| core.GetNode<InputBlocker>("GameContainer/GameViewport/InputBlocker").Blocked
+				|| core.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked)
+				return;
+
+			if (RejectShipCommand())
+				return;
+
+			if (Ship is InterStellarShip { DFCC: true } stellar)
+			{
+				var type = ItemTypes.prejudice_torpedo_launcher;
+
+				if (stellar.MethanoidOwned || CurrentPlanet.ActiveMethanoid || !core.GameData.GetItem(type).Research.Researched)
+					return;
+
+				if (stellar.PTL)
+					GameCore.ShowError(this, "P.T.L. Already\nFitted");
+				else if (ResourceList.Stores[type] <= 0)
+					GameCore.ShowError(this, "P.T.L. Not\nAvailable");
+				else
+				{
+					ResourceList.Stores[type]--;
+					stellar.PTL = true;
+				}
+
+				UpdateState();
+
+				return;
+			}
+
 			Objects.Store stores;
 
 			if (Ground)
@@ -387,7 +456,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void OpenShipInterior_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			if (Ship != null)
 			{
 				GameCore.SingletonInstance.ShipSelected = Ship.ShipID;
@@ -399,9 +470,11 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void FuelGaugePlus_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			var planetStores = this.Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
- 
+
 			if (ShipPresent && Ship.Fuel < 250 && planetStores[Ship.FuelType] >= Ship.FuelUnitCost)
 			{
 				Ship.Fuel++;
@@ -413,7 +486,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void FuelGaugeMinus_Pressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			var planetStores = this.Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
 
 			if (ShipPresent && Ship.Fuel > 0 && planetStores[Ship.FuelType] <= 50000 - Ship.FuelUnitCost)
@@ -427,47 +502,59 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void DismantleShip()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			if (!ShipPresent || Ship == null)
 				return;
 
-            if (Ship.Modules.Any(m => m.ModuleType == Module_Types.Tool && m.ItemStored == ItemTypes.prison_pod && m.StaffStored != null))
-            {
-                GameCore.ShowError(this, "Release Prisoner\nBefore Dismantling");
-                return;
-            }
+			if (Ship.Modules.Any(m => m.ModuleType == Module_Types.Tool && m.ItemStored == ItemTypes.prison_pod && m.StaffStored != null))
+			{
+				GameCore.ShowError(this, "Release Prisoner\nBefore Dismantling");
+
+				return;
+			}
 
 			// Grapple unloading also handles alien discoveries; keep that existing workflow intact.
 			if (Ship.Modules.Any(module => module.HeldItem != null))
 			{
 				GameCore.ShowError(this, "Unload Grapples\nBefore Dismantling");
+
 				return;
 			}
 
-			var returningStaff = Ship.Modules.Where(module => module.StaffStored != null)
-				.Select(module => module.StaffStored).ToList();
+			var returningStaff = Ship.Modules.Where(module => module.StaffStored != null).Select(module => module.StaffStored).ToList();
+
 			if (Ship.Pilot != null)
 				returningStaff.Add(Ship.Pilot);
 
 			if (returningStaff.Count > ResourceList.Staff.Count(staff => staff == null))
 			{
 				GameCore.ShowError(this, "Not Enough Staff Slots\nTo Dismantle Ship");
+
 				return;
 			}
 
 			var returningItems = new Dictionary<ItemTypes, int>();
+
 			void ReturnItem(ItemTypes item, int count)
 			{
-				if (item == ItemTypes.none || count <= 0) return;
+				if (item == ItemTypes.none || count <= 0)
+					return;
+
 				returningItems.TryGetValue(item, out var current);
 				returningItems[item] = current + count;
 			}
 
 			ReturnItem(Ship.FuelType, Ship.Fuel * Ship.FuelUnitCost);
-			if (Ship.ACC != null) ReturnItem(ItemTypes.a__c__c, 1);
+
+			if (Ship.ACC != null)
+				ReturnItem(ItemTypes.a__c__c, 1);
+
 			foreach (var module in Ship.Modules)
 			{
 				ReturnItem(module.ItemStored, module.ItemCount);
+
 				switch (module.ModuleType)
 				{
 					case Module_Types.Supply: ReturnItem(ItemTypes.supply_pod, 1); break;
@@ -475,27 +562,37 @@ namespace Deuteros.Code.Platform.Screens
 					case Module_Types.Cryo: ReturnItem(ItemTypes.cryo_pod, 1); break;
 				}
 			}
+
 			if (Ship is InterStellarShip stellar)
 				ReturnItem(Ship.ShipType == Ship_Types.IOS ? ItemTypes.ios_drone : ItemTypes.star_drone, stellar.DroneCount);
 
 			var chassis = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_chassis : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_chassis : ItemTypes.g_chassis;
 			var drive = Ship.ShipType == Ship_Types.Shuttle ? ItemTypes.s_drive : Ship.ShipType == Ship_Types.IOS ? ItemTypes.i_drive : ItemTypes.star_drive;
+
 			ReturnItem(chassis, 1);
-			if (Ship.Engine && !Ship.EngineDamaged) ReturnItem(drive, 1);
+
+			if (Ship.Engine && !Ship.EngineDamaged)
+				ReturnItem(drive, 1);
+
 			// Check the combined returns first (fuel can also be carried in supply pods).
 			if (returningItems.Any(item => item.Value > 50000 - ResourceList.Stores[item.Key]))
 			{
 				GameCore.ShowError(this, "Not Enough Space In Stores\nTo Dismantle Ship");
+
 				return;
 			}
 
 			foreach (var item in returningItems)
 				ResourceList.Stores[item.Key] += item.Value;
+
 			foreach (var staff in returningStaff)
 				ResourceList.AddStaff(staff);
 
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (save.Ships.Remove(Ship)) save.News.AddNews(Ship.Name + " Scrapped.");
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			if (save.Ships.Remove(Ship))
+				save.News.AddNews(Ship.Name + " Scrapped.");
+
 			Ship = null;
 			UpdateScreenState(0);
 			UpdateState();
@@ -509,11 +606,12 @@ namespace Deuteros.Code.Platform.Screens
 				if (GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(s => s.ShipType == Ship_Types.Shuttle && s.PlanetLocation == CurrentPlanet.PlanetId))
 				{
 					GameCore.ShowError(this, "\nShuttle Is\nAlready Active\nHere !");
+
 					return;
 				}
 
-
 				var newShuttle = new Shuttle();
+
 				newShuttle.StartTravelDay = 0;
 				newShuttle.StarLocation = CurrentPlanet.ParentStar;
 				newShuttle.Modules = new List<ShipModule>();
@@ -568,6 +666,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (!Ground && !ShipPresent && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.i_chassis] > 0)
 			{
 				var newIOS = new IOS();
+
 				newIOS.StartTravelDay = 0;
 				newIOS.StarLocation = CurrentPlanet.ParentStar;
 				newIOS.Modules = new List<ShipModule>();
@@ -623,6 +722,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (!Ground && !ShipPresent && CurrentPlanet.Station.Resources.Stores[Enums.ItemTypes.g_chassis] > 0)
 			{
 				var newSCG = new SCG();
+
 				newSCG.StartTravelDay = 0;
 				newSCG.StarLocation = CurrentPlanet.ParentStar;
 				newSCG.Modules = new List<ShipModule>();
@@ -710,7 +810,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void NavTorsoPressed(int torsoId)
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			if (ScreenState != torsoId)
 			{
 				ScreenState = torsoId;
@@ -723,7 +825,9 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void NavEnginePressed()
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			if (ScreenState != 7)
 			{
 				ScreenState = 7;
@@ -735,17 +839,24 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void GrappleClosed(object DataObject)
 		{
-            GrappleWindowControl.Visible = false;
-            if (RejectShipCommand())
-            {
-                if (IsInsideTree() && !IsQueuedForDeletion() && GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Contains(Ship)) GameCore.UnLockScreen();
-                return;
-            }
+			GrappleWindowControl.Visible = false;
+
+			if (RejectShipCommand())
+			{
+				if (IsInsideTree() && !IsQueuedForDeletion() && GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Contains(Ship))
+					GameCore.UnLockScreen();
+
+				return;
+			}
+
 			var currentModule = Ship.Modules[(int)DataObject];
 			var heldItem = currentModule.HeldItem;
+
 			currentModule.HeldItem = null;
+
 			if (heldItem == null)
 				return;
+
 			if (heldItem.GrappleItemType == GrappleItemTypes.Asteroid)
 			{
 				var heldAsteroid = ((Asteroid)heldItem);
@@ -754,22 +865,23 @@ namespace Deuteros.Code.Platform.Screens
 			}
 			else if (heldItem.GrappleItemType == GrappleItemTypes.UnknownItem)
 			{
-                var unknownItem = ((UnknownItem)heldItem);
+				var unknownItem = ((UnknownItem)heldItem);
+
 				switch (unknownItem.ItemType)
 				{
-                    case UnknownItemTypes.AlienArtifact:
-                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.alien_artifact);
-                        break;
-
-                    case UnknownItemTypes.CommsPod:
-                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.commspod);
+					case UnknownItemTypes.AlienArtifact:
+						GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.alien_artifact);
 						break;
 
-                    case UnknownItemTypes.Blazer:
-                        GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__f__l);
-                        break;
-                }
-            }
+					case UnknownItemTypes.CommsPod:
+						GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.commspod);
+						break;
+
+					case UnknownItemTypes.Blazer:
+						GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__f__l);
+						break;
+				}
+			}
 
 			GameCore.UnLockScreen();
 		}
@@ -836,7 +948,7 @@ namespace Deuteros.Code.Platform.Screens
 		private void UpdateState()
 		{
 			//Detect if there is a ship present
-			ShipPresent = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == CurrentPlanet.PlanetId && T.ShipState == Ship_States.Docked && 
+			ShipPresent = GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.PlanetLocation == CurrentPlanet.PlanetId && T.ShipState == Ship_States.Docked &&
 			(
 			(T.ShipType == Ship_Types.Shuttle && SceneVariables.Contains(Enums.SceneVariables.Shuttle) && (Ground == ((Shuttle)T).OnGround))
 			|| (T.ShipType != Ship_Types.Shuttle && SceneVariables.Contains(Enums.SceneVariables.Ship))
@@ -971,19 +1083,22 @@ namespace Deuteros.Code.Platform.Screens
 						TorsoInstances[index].ChangeModule(Ship.Modules[index]);
 					}
 				}
-                var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
-                Nav_Dismantle.Disabled = Nav_Engine.Disabled = rogue;
-                Nav_Torsos.ForEach(button => button.Disabled = rogue);
-                FuelGaugeMinus.Disabled = FuelGaugePlus.Disabled = rogue;
-                CockpitInstance.GetNode<TextureButton>("Buttons/AddACC").Disabled = rogue;
-                EngineInstance.InstallEngineButton.Disabled = rogue;
-                CockpitInstance.GetNode<Button>("OpenShipInterior").Disabled = rogue;
-                EngineInstance.GetNode<Button>("OpenShipInterior").Disabled = rogue;
-                foreach (var torso in TorsoInstances)
-                {
-                    torso.AddSupplyPod.Disabled = torso.AddToolPod.Disabled = torso.AddCryoPod.Disabled = torso.ActivatePod.Disabled = rogue;
-                    torso.GetNode<Button>("OpenShipInterior").Disabled = rogue;
-                }
+
+				var rogue = GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.Controls(Ship);
+
+				Nav_Dismantle.Disabled = Nav_Engine.Disabled = rogue;
+				Nav_Torsos.ForEach(button => button.Disabled = rogue);
+				FuelGaugeMinus.Disabled = FuelGaugePlus.Disabled = rogue;
+				CockpitInstance.GetNode<TextureButton>("Buttons/AddACC").Disabled = rogue;
+				EngineInstance.InstallEngineButton.Disabled = rogue;
+				CockpitInstance.GetNode<Button>("OpenShipInterior").Disabled = rogue;
+				EngineInstance.GetNode<Button>("OpenShipInterior").Disabled = rogue;
+
+				foreach (var torso in TorsoInstances)
+				{
+					torso.AddSupplyPod.Disabled = torso.AddToolPod.Disabled = torso.AddCryoPod.Disabled = torso.ActivatePod.Disabled = rogue;
+					torso.GetNode<Button>("OpenShipInterior").Disabled = rogue;
+				}
 			}
 		}
 
@@ -993,12 +1108,14 @@ namespace Deuteros.Code.Platform.Screens
 			{
 				((Earth)CurrentPlanet).Factory.Builder = staff;
 				((Earth)CurrentPlanet).PlanetResources.RemoveStaff(staff);
+
 				return ((Earth)CurrentPlanet).PlanetResources.Staff;
 			}
 			else if (!Ground && !CurrentPlanet.Station.Factory.AOC && CurrentPlanet.Station.Factory.Builder == null)
 			{
 				CurrentPlanet.Station.Factory.Builder = staff;
 				CurrentPlanet.Station.Resources.RemoveStaff(staff);
+
 				return CurrentPlanet.Station.Resources.Staff;
 			}
 			else
@@ -1007,38 +1124,59 @@ namespace Deuteros.Code.Platform.Screens
 			}
 		}
 
-        private bool RejectShipCommand()
-        {
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (!IsInsideTree() || IsQueuedForDeletion() || !RogueCrew.CanTransfer(save, Ship, ResourceList)) return true;
-            if (!save.RogueCrew.RejectCommand(save, Ship)) return false;
-            UpdateState();
-            return true;
-        }
+		private bool RejectShipCommand()
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
 
-        private Staff[] CockpitInstance_PilotChanged(Staff staff)
-        {
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (save.RogueCrew.TryTransferPilot(save, Ship, ResourceList, staff)) UpdateState();
-            return ResourceList.Staff;
-        }
+			if (!IsInsideTree() || IsQueuedForDeletion() || !RogueCrew.CanTransfer(save, Ship, ResourceList))
+				return true;
+
+			if (!save.RogueCrew.RejectCommand(save, Ship))
+				return false;
+
+			UpdateState();
+
+			return true;
+		}
+
+		private Staff[] CockpitInstance_PilotChanged(Staff staff)
+		{
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			if (save.RogueCrew.TryTransferPilot(save, Ship, ResourceList, staff))
+				UpdateState();
+
+			return ResourceList.Staff;
+		}
 
 		private Staff[] TorsoStaffList_StaffClicked(Staff staff)
 		{
-            var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
-            if (!RogueCrew.CanTransfer(save, Ship, ResourceList) || ScreenState <= 0 || ScreenState > Ship.Modules.Count) return ResourceList.Staff;
-            if (prisonView != null)
-            {
-                if (capturePrison != null || !ReferenceEquals(prisonView, Ship.Modules[ScreenState - 1])) return ResourceList.Staff;
-                if (staff == null) save.RogueCrew.TryRelease(save, prisonView, ResourceList);
-                else if (save.RogueCrew.TryCapture(save, prisonView, ResourceList, staff))
-                {
-                    captureSave = save; capturePrison = prisonView; captureRemaining = .5;
-                }
-                RefreshPrison();
-                return ResourceList.Staff;
-            }
-            if (staff != null && ReferenceEquals(staff, save.RogueCrew.Crew)) return ResourceList.Staff;
+			var save = GameCore.SingletonInstance.GameData.ActiveSaveFile;
+
+			if (!RogueCrew.CanTransfer(save, Ship, ResourceList) || ScreenState <= 0 || ScreenState > Ship.Modules.Count)
+				return ResourceList.Staff;
+
+			if (prisonView != null)
+			{
+				if (capturePrison != null || !ReferenceEquals(prisonView, Ship.Modules[ScreenState - 1]))
+					return ResourceList.Staff;
+
+				if (staff == null)
+					save.RogueCrew.TryRelease(save, prisonView, ResourceList);
+				else if (save.RogueCrew.TryCapture(save, prisonView, ResourceList, staff))
+				{
+					captureSave = save;
+					capturePrison = prisonView;
+					captureRemaining = .5;
+				}
+
+				RefreshPrison();
+
+				return ResourceList.Staff;
+			}
+
+			if (staff != null && ReferenceEquals(staff, save.RogueCrew.Crew))
+				return ResourceList.Staff;
 
 			if (staff != null && Ship.Modules[ScreenState - 1].StaffStored != null)
 			{
@@ -1064,18 +1202,26 @@ namespace Deuteros.Code.Platform.Screens
 			return ResourceList.Staff;
 		}
 
-        private bool CanReturnToStores(ItemTypes item, int count)
-        {
-            if (count <= 0 || item == ItemTypes.none || count <= 50000 - ResourceList.Stores[item]) return true;
-            GameCore.ShowError(this, "Not Enough\nStore Space");
-            return false;
-        }
+		private bool CanReturnToStores(ItemTypes item, int count)
+		{
+			if (count <= 0 || item == ItemTypes.none || count <= 50000 - ResourceList.Stores[item])
+				return true;
+
+			GameCore.ShowError(this, "Not Enough\nStore Space");
+
+			return false;
+		}
 
 		private bool ShipBay_ModuleChanged(Enums.Module_Types moduleType, int torsoSection)
 		{
-            if (RejectShipCommand()) return false;
+			if (RejectShipCommand())
+				return false;
+
 			var currentModule = Ship.Modules[torsoSection];
-            if (currentModule.StaffStored != null) return false;
+
+			if (currentModule.StaffStored != null)
+				return false;
+
 			var oldType = currentModule.ModuleType;
 
 			var currentStore = Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
@@ -1091,19 +1237,22 @@ namespace Deuteros.Code.Platform.Screens
 				|| (moduleType == Module_Types.Cryo && (GameCore.SingletonInstance.GameData.GetItem(Enums.ItemTypes.cryo_pod).Locked || currentStore[Enums.ItemTypes.cryo_pod] == 0)))
 			{
 				GameCore.ShowError(this, "Pod Not Available");
+
 				return false;
 			}
 
-            var returnedPod = oldType switch
-            {
-                Module_Types.Supply => ItemTypes.supply_pod,
-                Module_Types.Tool => ItemTypes.tool_pod,
-                Module_Types.Cryo => ItemTypes.cryo_pod,
-                _ => ItemTypes.none
-            };
-            if (!CanReturnToStores(returnedPod, 1)) return false;
-            currentModule.ModuleType = moduleType;
+			var returnedPod = oldType switch
+			{
+				Module_Types.Supply => ItemTypes.supply_pod,
+				Module_Types.Tool => ItemTypes.tool_pod,
+				Module_Types.Cryo => ItemTypes.cryo_pod,
+				_ => ItemTypes.none
+			};
 
+			if (!CanReturnToStores(returnedPod, 1))
+				return false;
+
+			currentModule.ModuleType = moduleType;
 
 			switch (moduleType)
 			{
@@ -1136,22 +1285,27 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void ShipBay_ModuleOpened(int torsoSection)
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			var currentModule = Ship.Modules[torsoSection];
 
 			var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
-            prisonView = currentModule.ModuleType == Module_Types.Tool && currentModule.ItemStored == ItemTypes.prison_pod
-                && currentModule.ItemCount == 1 ? currentModule : null;
-            GetNode<Label>("StaffList/PrisonHelp").Visible = prisonView != null;
-            GetNode<Button>("StaffList/PrisonEquipment").Visible = prisonView != null;
-            StaffList.Size = new Vector2(80, prisonView == null ? 116 : 132);
-            if (prisonView != null)
-            {
-                StaffList.Visible = true;
-                RefreshPrison();
-                cursor.LockToRect(StaffList.GetGlobalRect());
-                return;
-            }
+
+			prisonView = currentModule.ModuleType == Module_Types.Tool && currentModule.ItemStored == ItemTypes.prison_pod
+				&& currentModule.ItemCount == 1 ? currentModule : null;
+			GetNode<Label>("StaffList/PrisonHelp").Visible = prisonView != null;
+			GetNode<Button>("StaffList/PrisonEquipment").Visible = prisonView != null;
+			StaffList.Size = new Vector2(80, prisonView == null ? 116 : 132);
+
+			if (prisonView != null)
+			{
+				StaffList.Visible = true;
+				RefreshPrison();
+				cursor.LockToRect(StaffList.GetGlobalRect());
+
+				return;
+			}
 
 			if (currentModule.ModuleType == Enums.Module_Types.Supply)
 			{
@@ -1168,22 +1322,25 @@ namespace Deuteros.Code.Platform.Screens
 				{
 					GrappleWindowControl.Visible = true;
 					GrappleWindow.Visible = true;
+
 					if (currentModule.HeldItem.GrappleItemType == GrappleItemTypes.Asteroid)
 					{
 						var asteroid = (Asteroid)currentModule.HeldItem;
-                        GrappleWindowTitle.Text = "Asteroid Break-Up\r\nSequence.";
-                        GrappleWindowQuantities.Text = $"{asteroid.Mass} {asteroid.Type.ToScreenString()} {Math.Min(50000, ResourceList.Stores[asteroid.Type] + asteroid.Mass)}";
-                        GrappleWindowComplete.Text = "Sequence Complete.";
 
-                    }
-                    else
+						GrappleWindowTitle.Text = "Asteroid Break-Up\r\nSequence.";
+						GrappleWindowQuantities.Text = $"{asteroid.Mass} {asteroid.Type.ToScreenString()} {Math.Min(50000, ResourceList.Stores[asteroid.Type] + asteroid.Mass)}";
+						GrappleWindowComplete.Text = "Sequence Complete.";
+
+					}
+					else
 					{
-                        GrappleWindowTitle.Text = "Object Removed For\r\nResearch Analysis...";
-                        GrappleWindowQuantities.Text = "";
-                        GrappleWindowComplete.Text = "";
+						GrappleWindowTitle.Text = "Object Removed For\r\nResearch Analysis...";
+						GrappleWindowQuantities.Text = "";
+						GrappleWindowComplete.Text = "";
 
-                    }
-                    GrappleWindow.DataObject = torsoSection;
+					}
+
+					GrappleWindow.DataObject = torsoSection;
 					GrappleWindow.StartCloseTimer(5f);
 
 					GameCore.LockScreen();
@@ -1227,6 +1384,7 @@ namespace Deuteros.Code.Platform.Screens
 				ItemTypes.grapple or ItemTypes.d__f__c__c or ItemTypes.commspod or ItemTypes.sonic_blaster => Ship.ShipType is Ship_Types.IOS or Ship_Types.SCG,
 				_ => false
 			};
+
 			return GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.ItemList
 				.Where(item => item.ItemCategory == ItemCategory.item && item.Research?.Researched == true && Fits(item.ItemType))
 				.OrderBy(item => item.Research.Index).ToArray();
@@ -1275,9 +1433,13 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void SelectEquipment(int itemIndex)
 		{
-            if (RejectShipCommand()) return;
+			if (RejectShipCommand())
+				return;
+
 			var equipmentList = EquipmentForShip();
-			if (itemIndex < 0 || itemIndex >= equipmentList.Length) return;
+
+			if (itemIndex < 0 || itemIndex >= equipmentList.Length)
+				return;
 
 			var itemType = equipmentList[itemIndex].ItemType;
 
@@ -1285,28 +1447,35 @@ namespace Deuteros.Code.Platform.Screens
 			if (Ship.Modules[ScreenState - 1].ItemStored != itemType && ResourceList.Stores[itemType] <= 0)
 				return;
 
-            var currentModule = Ship.Modules[ScreenState - 1];
-            if (currentModule.StaffStored != null) return;
-            if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount)) return;
+			var currentModule = Ship.Modules[ScreenState - 1];
 
-            var fittingDfcc = itemType == ItemTypes.d__f__c__c && currentModule.ItemStored != itemType;
-            var removingLastDfcc = currentModule.ItemStored == ItemTypes.d__f__c__c
-                && !Ship.Modules.Any(module => module != currentModule && module.ModuleType == Module_Types.Tool
-                    && module.ItemStored == ItemTypes.d__f__c__c && module.ItemCount > 0);
-            if (Ship is InterStellarShip stellar && ((fittingDfcc && !stellar.DFCC) || removingLastDfcc))
-            {
-                // Validate every return before changing the tank's stock value or hull controls.
-                var returningFuel = Ship.Fuel * Ship.FuelUnitCost;
-                var droneType = Ship.ShipType == Ship_Types.SCG ? ItemTypes.star_drone : ItemTypes.ios_drone;
-                var returningDrones = removingLastDfcc ? stellar.DroneCount : 0;
-                if (!CanReturnToStores(Ship.FuelType, returningFuel)
-                    || !CanReturnToStores(droneType, returningDrones)) return;
-                ResourceList.Stores[Ship.FuelType] += returningFuel;
-                ResourceList.Stores[droneType] += returningDrones;
-                Ship.Fuel = 0;
-                stellar.DroneCount -= returningDrones;
-                stellar.DFCC = fittingDfcc;
-            }
+			if (currentModule.StaffStored != null)
+				return;
+
+			if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount))
+				return;
+
+			var fittingDfcc = itemType == ItemTypes.d__f__c__c && currentModule.ItemStored != itemType;
+			var removingLastDfcc = currentModule.ItemStored == ItemTypes.d__f__c__c
+				&& !Ship.Modules.Any(module => module != currentModule && module.ModuleType == Module_Types.Tool
+					&& module.ItemStored == ItemTypes.d__f__c__c && module.ItemCount > 0);
+
+			if (Ship is InterStellarShip stellar && ((fittingDfcc && !stellar.DFCC) || removingLastDfcc))
+			{
+				// Validate every return before changing the tank's stock value or hull controls.
+				var returningFuel = Ship.Fuel * Ship.FuelUnitCost;
+				var droneType = Ship.ShipType == Ship_Types.SCG ? ItemTypes.star_drone : ItemTypes.ios_drone;
+				var returningDrones = removingLastDfcc ? stellar.DroneCount : 0;
+
+				if (!CanReturnToStores(Ship.FuelType, returningFuel) || !CanReturnToStores(droneType, returningDrones))
+					return;
+
+				ResourceList.Stores[Ship.FuelType] += returningFuel;
+				ResourceList.Stores[droneType] += returningDrones;
+				Ship.Fuel = 0;
+				stellar.DroneCount -= returningDrones;
+				stellar.DFCC = fittingDfcc;
+			}
 
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
 			{
@@ -1362,10 +1531,16 @@ namespace Deuteros.Code.Platform.Screens
 
 		private void SelectMineral(ItemTypes itemType)
 		{
-            if (RejectShipCommand()) return;
-            var currentModule = Ship.Modules[ScreenState - 1];
-            if (currentModule.StaffStored != null) return;
-            if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount)) return;
+			if (RejectShipCommand())
+				return;
+
+			var currentModule = Ship.Modules[ScreenState - 1];
+
+			if (currentModule.StaffStored != null)
+				return;
+
+			if (!CanReturnToStores(currentModule.ItemStored, currentModule.ItemCount))
+				return;
 
 			if (Ship.Modules[ScreenState - 1].ItemCount > 0)
 			{
@@ -1410,7 +1585,8 @@ namespace Deuteros.Code.Platform.Screens
 			if (@event is InputEventMouseButton mb && mb.ButtonIndex == MouseButton.Right && mb.Pressed)
 			{
 				var cursor = GetTree().CurrentScene.GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView");
-                if (capturePrison != null) { CancelCapture(); RefreshPrison(); }
+
+				if (capturePrison != null) { CancelCapture(); RefreshPrison(); }
 
 				if (cursor.IsLocked)
 				{

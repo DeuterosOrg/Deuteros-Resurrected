@@ -14,6 +14,7 @@ namespace Deuteros.Code.Platform.UI.Settings
 			if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan].Station.Built)
 			{
 				var titan = GameCore.SingletonInstance.GameData.ActiveSaveFile.BaseGameData.Planets[StellarBodies.titan];
+
 				titan.PlanetResources.Derricks = 8;
 				titan.BaseBuildParts = 2;
 				titan.Station.Built = true;
@@ -27,7 +28,9 @@ namespace Deuteros.Code.Platform.UI.Settings
 		{
 			if (!GameCore.Earth.Station.Built)
 				ProdInEarthOrbit_Pressed();
+
 			GameCore.Earth.Station.MtxInstalled = true;
+
 			if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
@@ -209,6 +212,7 @@ namespace Deuteros.Code.Platform.UI.Settings
 			if (!earth.PlanetResources.Staff.Any(T => T != null && T.Type == Enums.StaffType.Marines))
 			{
 				var newMarine = new Staff();
+
 				newMarine.Leader = GameCore.SingletonInstance.GameData.GetNextPersonName();
 				newMarine.Count = 41;
 				newMarine.AddAction(30);
@@ -225,6 +229,7 @@ namespace Deuteros.Code.Platform.UI.Settings
 			if (!GameCore.SingletonInstance.GameData.ActiveSaveFile.Ships.Any(T => T.ShipType == Ship_Types.Shuttle && T.PlanetLocation == StellarBodies.earth))
 			{
 				var newShuttle = new Shuttle();
+
 				newShuttle.StartTravelDay = 0;
 				newShuttle.StarLocation = Enums.StellarBodies.the_sun;
 				newShuttle.Modules = new List<ShipModule>();

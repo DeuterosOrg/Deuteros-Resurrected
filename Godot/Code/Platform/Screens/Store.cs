@@ -27,6 +27,7 @@ namespace Deuteros.Code.Platform.Screens
 		public override void _Ready()
 		{
 			var currentPlanet = Deuteros.Code.GameCore.SingletonInstance.GetCurrentPlanet();
+
 			CurrentStore = SceneVariables.Contains(Enums.SceneVariables.Ground) ? currentPlanet.PlanetResources.Stores : currentPlanet.Station.Resources.Stores;
 
 			SwitchStoreType = (Button)GetNode("TradStore/SwitchStoreImage/SwitchStoreType");
@@ -77,6 +78,7 @@ namespace Deuteros.Code.Platform.Screens
 		private bool CanUseMtx()
 		{
 			var planet = GameCore.SingletonInstance.GetCurrentPlanet();
+
 			return !SceneVariables.Contains(Enums.SceneVariables.Ground) && planet.Station.Built
 				&& !planet.ActiveMethanoid && planet.Station.MtxInstalled;
 		}
@@ -85,7 +87,9 @@ namespace Deuteros.Code.Platform.Screens
 		{
 			MTX.Visible = CurrentStore.AlternativeView && CanUseMtx();
 			TradStore.Visible = !MTX.Visible;
-			if (MTX.Visible) MTX.UpdateState();
+
+			if (MTX.Visible)
+				MTX.UpdateState();
 		}
 
 		protected override void ResearchFinished(Objects.ResearchItem researchItem)
@@ -103,6 +107,7 @@ namespace Deuteros.Code.Platform.Screens
 				"/Code/Platform/StoreButton.cs",
 				"StoreButton");
 			SelectedButton = Buttons.FirstOrDefault(button => button.ObjectData?.ItemType == CurrentStore.SelectedRecipe);
+
 			if (SelectedButton != null)
 				SelectedButton.Selected = true;
 		}
@@ -117,6 +122,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (CurrentStore.AlternativeView && CanUseMtx() && !GameCore.SingletonInstance.GameData.ActiveSaveFile.Unlocks.Contains(Enums.Game_Unlocks.Mass_Tranceiver))
 			{
 				GameCore.SingletonInstance.TriggerAlienTechDiscovery(Enums.ItemTypes.m__t__x);
+
 				return; // The discovery bulletin replaces this screen.
 			}
 
@@ -141,9 +147,11 @@ namespace Deuteros.Code.Platform.Screens
 				if (SelectedButton != null)
 				{
 					var recipeItem = SelectedButton.ObjectData as Item;
+
 					if (recipeItem.BuildRequirements.Count(T => T.ItemType == item.ItemType)>0 )
 					{
 						var material = recipeItem.BuildRequirements.First(T => T.ItemType == item.ItemType);
+
 						if (material.ItemCount <= CurrentStore[material.ItemType])
 						{
 							ResourceListLabel.Text += (CurrentStore.AlternativeView ? "[color=#ffff00]" : "[color=#008800]") + CurrentStore[item.ItemType].ToString().PadLeft(padlength) + " [color=#ffffff]" + item.ShortName + "\n";
@@ -163,7 +171,6 @@ namespace Deuteros.Code.Platform.Screens
 					ResourceListLabel.Text += (CurrentStore.AlternativeView ? "[color=#ffff00]" : "[color=#556633]") + CurrentStore[item.ItemType].ToString().PadLeft(padlength) + " [color=#ffffff]" + item.ShortName + "\n";
 				}
 			}
-
 
 			if (SelectedButton != null)
 			{

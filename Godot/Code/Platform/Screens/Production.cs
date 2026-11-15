@@ -77,15 +77,20 @@ namespace Deuteros.Code.Platform.Screens
 
 		public override void _Process(double delta)
 		{
-			if (!CanProcess() || CurrentFactory.CurrentProductionItem() == null) return;
+			if (!CanProcess() || CurrentFactory.CurrentProductionItem() == null)
+				return;
+
 			// $20584: nominal PAL VBlank, draw on even ticks, resource 130 - (counter >> 2).
 			// Manual stepping retains the original short first frame and inactive phase.
 			RodTicks += delta * 50;
+
 			while (RodTicks >= 1)
 			{
 				RodTicks--;
 				RodCounter = (RodCounter + 1) % 12;
-				if ((RodCounter & 1) == 0) ProductionRod.Frame = RodCounter >> 2;
+
+				if ((RodCounter & 1) == 0)
+					ProductionRod.Frame = RodCounter >> 2;
 			}
 		}
 
@@ -98,6 +103,7 @@ namespace Deuteros.Code.Platform.Screens
 
 				// Removing a team pauses paid work; its completed stages and materials remain reserved.
 				var currentItem = CurrentFactory.CurrentProductionItem();
+
 				if (currentItem != null)
 				{
 					currentItem.Production_Value = currentItem.Product.Research.ResearchValue;
@@ -120,7 +126,9 @@ namespace Deuteros.Code.Platform.Screens
 				SelectedButton.Selected = false;
 
 			SelectedButton = clickedButton;
+
 			var recipeStore = Ground ? CurrentPlanet.PlanetResources.Stores : CurrentPlanet.Station.Resources.Stores;
+
 			recipeStore.SelectedRecipe = clickedButton.ObjectData.ItemType;
 			recipeStore.AlternativeView = false;
 
@@ -138,10 +146,14 @@ namespace Deuteros.Code.Platform.Screens
 			if (SelectedButton?.ObjectData?.OrbitOnly == true && CurrentFactory.Ground)
 			{
 				GameCore.ShowError(this, "This Item Can\nOnly BE Made\nIn Orbit.");
+
 				return;
 			}
+
 			if (SelectedButton?.ObjectData != null && IsStationInstallation(SelectedButton.ObjectData.ItemType)
-				&& !CanInstallStationItem(CurrentPlanet, SelectedButton.ObjectData.ItemType, Ground)) return;
+				&& !CanInstallStationItem(CurrentPlanet, SelectedButton.ObjectData.ItemType, Ground))
+				return;
+
 			{
 				//There is no staff
 				if (!CurrentFactory.AOC && (CurrentFactory.Builder == null || CurrentFactory.Builder.Count == 0))
@@ -153,10 +165,10 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						var addedItem = (Item)SelectedButton.ObjectData;
 
-						
 						if (addedItem.Research.TechLevel>CurrentFactory.Builder.GetLevel())
 						{
 							string level="";
+
 							switch (addedItem.Research.TechLevel)
 							{
 								case 2:
@@ -167,7 +179,8 @@ namespace Deuteros.Code.Platform.Screens
 									break;
 							}
 
-							GameCore.ShowError(this, "Team Leader\nMust Be Rated\n" + level + "To\nProduce This\nItem"); ;
+							GameCore.ShowError(this, "Team Leader\nMust Be Rated\n" + level + "To\nProduce This\nItem");
+
 							return;
 
 						}
@@ -191,6 +204,7 @@ namespace Deuteros.Code.Platform.Screens
 								else
 								{
 									var newProdItem = new ProductionItem(addedItem);
+
 									newProdItem.AOCOneTime = false;
 									newProdItem.AOCRepeat = false;
 									newProdItem.Active = true;
@@ -209,12 +223,15 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						var addedItem = (Item)SelectedButton.ObjectData;
 						var production = CurrentFactory.ProductionQueue.SingleOrDefault(T => T.Product.ItemType == addedItem.ItemType);
+
 						// Resolve old manual reservations before changing their AOC selection flags.
-						if (production != null) production.MaterialsPaid = production.MaterialsPaid;
+						if (production != null)
+							production.MaterialsPaid = production.MaterialsPaid;
 
 						if (production == null)
 						{
 							var newProdItem = new ProductionItem(addedItem);
+
 							newProdItem.AOCOneTime = true;
 							newProdItem.AOCRepeat = false;
 							newProdItem.Production_Value = addedItem.Research.ResearchValue;
@@ -240,6 +257,7 @@ namespace Deuteros.Code.Platform.Screens
 						}
 						else
 							production.AOCOneTime = true;
+
 						SelectedButton = null;
 					}
 				}
@@ -281,6 +299,7 @@ namespace Deuteros.Code.Platform.Screens
 			if (factory == CurrentFactory)
 			{
 				SelectedButton = null;
+
 				foreach (var button in Buttons.Where(b => b.ObjectData != null && IsStationInstallation(b.ObjectData.ItemType)))
 					button.Redraw(false);
 			}
@@ -306,6 +325,7 @@ namespace Deuteros.Code.Platform.Screens
 			TeamFrameImage.Visible = !CurrentFactory.AOC;
 			StaffNameLabel.Visible = StaffRankLabel.Visible = StaffCountLabel.Visible = !CurrentFactory.AOC;
 			RemoveStaff.Visible = !CurrentFactory.AOC;
+
 			if (CurrentFactory.Builder != null)
 			{
 				StaffCountLabel.Text = CurrentFactory.Builder.Count.ToString();
@@ -322,17 +342,22 @@ namespace Deuteros.Code.Platform.Screens
 			if (CurrentFactory.CurrentProductionItem() != null)
 			{
 				var currentProductionItem = CurrentFactory.CurrentProductionItem();
+
 				ProductionNameLabel.Text = currentProductionItem.Product.ShortName;
 				SmallItemImageTextureRect = SpriteManager.LoadImageToTextureRect(ProductionIllustrationBasePath + currentProductionItem.Product.ItemType.ToString() + ".png", SmallItemImageTextureRect);
+
 				var progressSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".png";
+
 				// Recovered source-sheet frames use atlas resources; retain the illustration
 				// fallback for items whose supplied sheets still contain placeholder artwork.
 				if (!ResourceLoader.Exists(progressSprite))
 				{
 					var atlasSprite = ProductionProgressSpriteBasePath + currentProductionItem.Product.ItemType.ToString() + "_" + currentProductionItem.Production_Complete + ".tres";
+
 					progressSprite = ResourceLoader.Exists(atlasSprite) ? atlasSprite
 						: ProductionIllustrationBasePath + currentProductionItem.Product.ItemType.ToString() + ".png";
 				}
+
 				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(progressSprite, ItemProgressImageTextureRect);
 			}
 			else
@@ -341,6 +366,7 @@ namespace Deuteros.Code.Platform.Screens
 				SmallItemImageTextureRect.Texture = null;
 				ItemProgressImageTextureRect = SpriteManager.LoadImageToTextureRect(ProductionProgressSpriteBasePath + "idle.png", ItemProgressImageTextureRect);
 			}
+
 			// Source sheets remain byte-for-byte originals. Only their magenta key is
 			// transparent at display time; ordinary PNGs retain their existing alpha.
 			ItemProgressImageTextureRect.Material = ItemProgressImageTextureRect.Texture is AtlasTexture
@@ -391,10 +417,15 @@ namespace Deuteros.Code.Platform.Screens
 					{
 						if (!currentFactory.Ground)
 							currentFactory.ProductionQueue.RemoveAll(order => StationItemInstalled(currentPlanet, order.Product.ItemType));
+
 						var currentItem = currentFactory.CurrentProductionItem()?.Product;
-						if (currentItem?.OrbitOnly == true && currentFactory.Ground) continue;
+
+						if (currentItem?.OrbitOnly == true && currentFactory.Ground)
+							continue;
+
 						if (currentItem != null && IsStationInstallation(currentItem.ItemType)
-							&& !CanInstallStationItem(currentPlanet, currentItem.ItemType, currentFactory.Ground)) continue;
+							&& !CanInstallStationItem(currentPlanet, currentItem.ItemType, currentFactory.Ground))
+							continue;
 
 						if (currentFactory.CurrentProductionItem() == null && currentFactory.AOC)
 						{
@@ -402,7 +433,9 @@ namespace Deuteros.Code.Platform.Screens
 
 							if (productionItem != null)
 							{
-								if (!productionItem.MaterialsPaid) RemoveResourceByItem(currentPlanet, productionItem.Product, currentFactory.Ground);
+								if (!productionItem.MaterialsPaid)
+									RemoveResourceByItem(currentPlanet, productionItem.Product, currentFactory.Ground);
+
 								productionItem.MaterialsPaid = true;
 								productionItem.Active = true;
 							}
@@ -421,16 +454,21 @@ namespace Deuteros.Code.Platform.Screens
 								var installsStationItem = IsStationInstallation(completedType) && !currentFactory.Ground;
 								var wasAutomated = currentFactory.AOC;
 								var builder = currentFactory.Builder;
+
 								if (completedType == Enums.ItemTypes.a__o__c && currentPlanet.Station.Resources.Staff.All(staff => staff != null))
 								{
 									// Original $2337E returns without completing stage three until quarters are free.
 									currentFactory.CurrentProductionItem().Production_Complete = 3;
+
 									continue;
 								}
+
 								if (installsStationItem)
 								{
-									if (completedType == Enums.ItemTypes.m__t__x) currentPlanet.Station.MtxInstalled = true;
-									else if (completedType == Enums.ItemTypes.s__d__m) currentPlanet.Station.SdmInstalled = true;
+									if (completedType == Enums.ItemTypes.m__t__x)
+										currentPlanet.Station.MtxInstalled = true;
+									else if (completedType == Enums.ItemTypes.s__d__m)
+										currentPlanet.Station.SdmInstalled = true;
 									else
 									{
 										currentPlanet.Station.Resources.AddStaff(builder);
@@ -441,7 +479,9 @@ namespace Deuteros.Code.Platform.Screens
 								else
 									outputStore[currentFactory.CurrentProductionItem().Product.ItemType]++;
 
-								if (!wasAutomated) builder.AddAction();
+								if (!wasAutomated)
+									builder.AddAction();
+
 								currentFactory.ProdCycle = 0;
 
 								GameCore.SingletonInstance.TriggerProductionFinished(currentFactory);
@@ -474,18 +514,24 @@ namespace Deuteros.Code.Platform.Screens
 								else if (currentFactory.CurrentProductionItem().AOCRepeat)
 								{
 									var currItem = currentFactory.CurrentProductionItem();
+
 									currItem.Active = false;
 									currItem.MaterialsPaid = false;
+
 									var nextItem = currentFactory.ProductionQueue.FirstOrDefault(T => T != currItem && (T.AOCOneTime || T.AOCRepeat)
 										&& (T.MaterialsPaid || CheckResourceAvailable(currentPlanet, T.Product, currentFactory.Ground)));
+
 									if (nextItem == null && CheckResourceAvailable(currentPlanet, currItem.Product, currentFactory.Ground))
 										nextItem = currItem;
+
 									currItem.Production_Complete = 1;
 									currItem.Production_Value = currItem.Product.Research.ResearchValue;
 
 									if (nextItem != null)
 									{
-										if (!nextItem.MaterialsPaid) RemoveResourceByItem(currentPlanet, nextItem.Product, currentFactory.Ground);
+										if (!nextItem.MaterialsPaid)
+											RemoveResourceByItem(currentPlanet, nextItem.Product, currentFactory.Ground);
+
 										nextItem.MaterialsPaid = true;
 										nextItem.Active = true;
 									}
@@ -504,10 +550,15 @@ namespace Deuteros.Code.Platform.Screens
 		public static bool CheckResourceAvailable(IPlanet productionPlanet, Item productionItem, bool ground)
 		{
 			// Research-only technology is not a manufacturing recipe, including in older saves.
-			if (productionItem.BuildRequirements == null) return false;
-			if (productionItem.OrbitOnly && ground) return false;
+			if (productionItem.BuildRequirements == null)
+				return false;
+
+			if (productionItem.OrbitOnly && ground)
+				return false;
+
 			if (IsStationInstallation(productionItem.ItemType) && !CanInstallStationItem(productionPlanet, productionItem.ItemType, ground))
 				return false;
+
 			Objects.Store currentStore;
 
 			if (productionPlanet.PlanetId == Enums.StellarBodies.earth && ground)

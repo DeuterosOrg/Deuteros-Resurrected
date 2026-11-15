@@ -5,8 +5,8 @@ using System.Collections.Generic;
 
 namespace Deuteros.Code.Objects
 {
-    [Serializable]
-    public partial class StationResource : Deuteros.Code.Platform.Resource
-    {
-    }
+	[Serializable]
+	public partial class StationResource : Deuteros.Code.Platform.Resource
+	{
+	}
 }

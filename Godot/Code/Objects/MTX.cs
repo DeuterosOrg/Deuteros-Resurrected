@@ -14,7 +14,7 @@ namespace Deuteros.Code.Objects
 		public Enums.StellarBodies Target { get; set; }
 		public int CurrentScroll { get; set; }
 
-		public MTX() 
+		public MTX()
 		{
 			CurrentItem = Enums.ItemTypes.iron;
 			CurrentScroll = 0;
@@ -28,6 +28,7 @@ namespace Deuteros.Code.Objects
 		public object Clone()
 		{
 			var newMTX = new MTX();
+
 			newMTX.SendItems = new List<Enums.ItemTypes> (SendItems);
 			newMTX.BalanceItems = new List<Enums.ItemTypes> (BalanceItems);
 			newMTX.CurrentItem = CurrentItem;

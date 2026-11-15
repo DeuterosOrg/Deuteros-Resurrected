@@ -15,8 +15,8 @@ namespace Deuteros.Code.Objects
 		public StellarBodies MiningDumpLocation { get; set; }
 		public ItemTypes MiningDumpResource { get; set; }
 
-		public News() 
-		{ 
+		public News()
+		{
 			NewsItems = new List<string>();
 			LastBulletin = Enums.BulletinTypes.None;
 		}
@@ -24,28 +24,31 @@ namespace Deuteros.Code.Objects
 		public void AddNews(string NewsItem)
 		{
 			NewsItems.Add(GameCore.SingletonInstance.GameData.ActiveSaveFile.Clock.RelativeDate.PadRight(3, ' ') + ": " + NewsItem);
+
 			if (ReferenceEquals(this, GameCore.SingletonInstance.GameData.ActiveSaveFile.News)
 				&& Platform.Helpers.SettingsManager.Instance?.GetSetting("gameplay/event_alerts").AsString() == "On")
 				GameCore.ShowStatusText(NewsItem);
 		}
 
-        public void AddCrewLoss(IEnumerable<Staff> teams)
-        {
-            foreach (var team in teams.Where(t => t != null).Distinct())
-            {
-                AddNews(team.GetLevelString() + " " + team.Leader + " Killed.");
-                GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.CrewLost(team);
-            }
-        }
+		public void AddCrewLoss(IEnumerable<Staff> teams)
+		{
+			foreach (var team in teams.Where(t => t != null).Distinct())
+			{
+				AddNews(team.GetLevelString() + " " + team.Leader + " Killed.");
+				GameCore.SingletonInstance.GameData.ActiveSaveFile.RogueCrew.CrewLost(team);
+			}
+		}
 
-        public void AddShipLoss(Interfaces.IShip ship, string cause = "Destroyed.")
-        {
-            if (ship is EnemyFleet) return;
-            AddCrewLoss((ship.Modules?.Where(m => m.ModuleType == Enums.Module_Types.Cryo
-                || (m.ModuleType == Enums.Module_Types.Tool && m.ItemStored == ItemTypes.prison_pod))
-                .Select(m => m.StaffStored) ?? Enumerable.Empty<Staff>()).Prepend(ship.Pilot));
-            AddNews(ship.Name + " " + cause);
-        }
+		public void AddShipLoss(Interfaces.IShip ship, string cause = "Destroyed.")
+		{
+			if (ship is EnemyFleet)
+				return;
+
+			AddCrewLoss((ship.Modules?.Where(m => m.ModuleType == Enums.Module_Types.Cryo
+				|| (m.ModuleType == Enums.Module_Types.Tool && m.ItemStored == ItemTypes.prison_pod))
+				.Select(m => m.StaffStored) ?? Enumerable.Empty<Staff>()).Prepend(ship.Pilot));
+			AddNews(ship.Name + " " + cause);
+		}
 
 		public List<string> GetNews(int count)
 		{
