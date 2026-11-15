@@ -206,10 +206,15 @@ namespace Deuteros.Code
 		private static GameCore _instance;
 		private Node _currentScreen;
 		private MainMenu _menuScreen;
+		private bool _menuBuilt;
+		private bool _cutsceneReturns;
+		private Scenes _cutsceneReturn;
+		private List<SceneVariables> _cutsceneReturnVars = new();
 		private Unlocker _unlocker;
 		private InputBlocker _screenLocker;
 		private int _lockCount;
 		public Enums.Scenes currentScene;
+		public string CutscenePack { get; set; } = "title";
 		private bool quitRequested;
 
 		public long DisplayClock => _currentScreen is ShipInterior { Ship: SCG scg } && GameData.ActiveSaveFile.Ships.Contains(scg)
@@ -326,7 +331,56 @@ namespace Deuteros.Code
 
 			Input.MouseMode = Input.MouseModeEnum.Hidden;
 
-			ChangeScene(Enums.Scenes.IntroScreen, new List<Enums.SceneVariables>());
+			CutscenePack = "credits";
+			_cutsceneReturns = false;
+			ChangeScene(Enums.Scenes.Cutscene, new List<Enums.SceneVariables>());
+		}
+
+		public override void _Input(InputEvent @event)
+		{
+			if (!OS.IsDebugBuild() || @event is not InputEventKey key || !key.Pressed || key.Echo)
+				return;
+			string pack = null;
+			if (key.Keycode == Key.F4)
+				pack = "defeat";
+			else if (key.Keycode == Key.F6)
+				pack = "mid";
+			else if (key.Keycode == Key.F7)
+				pack = "ending";
+			if (pack == null)
+				return;
+			GetViewport().SetInputAsHandled();
+			if (_currentScreen is CutscenePlayer player)
+			{
+				player.DebugPreview(pack);
+				return;
+			}
+			_cutsceneReturns = true;
+			_cutsceneReturn = currentScene;
+			_cutsceneReturnVars = SceneVariables == null
+				? new List<SceneVariables>()
+				: new List<SceneVariables>(SceneVariables);
+			CutscenePack = pack;
+			ChangeScene(Scenes.Cutscene, new List<SceneVariables>());
+		}
+
+		public void CutsceneFinished()
+		{
+			if (_cutsceneReturns)
+			{
+				var scene = _cutsceneReturn;
+				var vars = _cutsceneReturnVars ?? new List<SceneVariables>();
+				_cutsceneReturns = false;
+				ChangeScene(scene, vars);
+				return;
+			}
+			ChangeScene(Scenes.Earth_Ground, new List<Enums.SceneVariables> { Enums.SceneVariables.Ground });
+		}
+
+		public void SetPlayfieldMenuVisible(bool visible)
+		{
+			if (_menuBuilt && _menuScreen != null && IsInstanceValid(_menuScreen))
+				_menuScreen.Visible = visible;
 		}
 
 		public void HandleGameInput(InputEvent @event)
@@ -427,7 +481,7 @@ namespace Deuteros.Code
 
 		private bool StoryDisplayBlocked() => _screenLocker.Blocked || GlobalInput.UiLocked || GetTree().Paused || OverlayManager.Instance.IsOpen
 				|| GetNode<GlobalInput>("GameContainer/GameViewport/VirtualCursorView").IsLocked
-				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen;
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen || currentScene == Scenes.Cutscene;
 
 		private void PublishPendingStory()
 		{
@@ -548,7 +602,7 @@ namespace Deuteros.Code
 			}
 
 			if (currentScene == Scenes.Overview || currentScene == Scenes.News || currentScene == Scenes.SaveScreen
-				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen)
+				|| currentScene == Scenes.Bulletins || currentScene == Scenes.IntroScreen || currentScene == Scenes.Cutscene)
 				return;
 
 			// Exit now so the removed ship/station screen cannot observe the following DayPassed.
@@ -576,7 +630,7 @@ namespace Deuteros.Code
 
 			if (manual)
 				save.Clock.QueueManual();
-			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen)
+			else if (!save.TimeSkip && currentScene != Scenes.IntroScreen && currentScene != Scenes.Cutscene)
 				save.Clock.AdvanceNormal(delta * speed);
 
 			var manualConsumed = save.Clock.PendingIncrement == 100;
@@ -657,13 +711,15 @@ namespace Deuteros.Code
 
 			var newSceneName = sceneToLoad.ToString().Replace("_", "/") + ".tscn";
 
-			//This is a special case for the loading screen, only happens once on a new game
-			if (_currentScreen != null && _currentScreen.SceneFilePath.Contains("IntroScreen"))
+			// The menu is built once, the first time play starts. The title
+			// and the debug previews are not that moment.
+			if (!_menuBuilt && sceneToLoad != Scenes.Cutscene)
 			{
 				var newMenuScene = GD.Load<PackedScene>("res://Screens/Base/MenuBase.tscn").Instantiate<MainMenu>();
 
 				GetNode<Node>("/root/Master/GameContainer/GameViewport/MainScene").AddChild(newMenuScene);
 				_menuScreen = newMenuScene;
+				_menuBuilt = true;
 			}
 
 			if (_currentScreen != null)

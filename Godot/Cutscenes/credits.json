@@ -1,0 +1,7 @@
+{
+  "pack": "credits",
+  "selector": -1,
+  "static_png": "credits.png",
+  "blanks": 380,
+  "next": "title"
+}

@@ -153,7 +153,7 @@ namespace Deuteros.Code.Platform.Screens
 			var save = core.GameData.ActiveSaveFile;
 			var planet = core.GetCurrentPlanet();
 			var local = core.currentScene is not (Enums.Scenes.Overview or Enums.Scenes.News or Enums.Scenes.SaveScreen
-				or Enums.Scenes.Bulletins or Enums.Scenes.IntroScreen or Enums.Scenes.None
+				or Enums.Scenes.Bulletins or Enums.Scenes.IntroScreen or Enums.Scenes.Cutscene or Enums.Scenes.None
 				or Enums.Scenes.Earth_Ground or Enums.Scenes.Earth_Research or Enums.Scenes.Earth_Training);
 
 			if (planet.PlanetId == Enums.StellarBodies.earth && GameCore.Earth.GroundSelected)
