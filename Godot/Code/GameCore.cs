@@ -340,26 +340,31 @@ namespace Deuteros.Code
 		{
 			if (!OS.IsDebugBuild() || @event is not InputEventKey key || !key.Pressed || key.Echo)
 				return;
+
 			string pack = null;
+
 			if (key.Keycode == Key.F4)
 				pack = "defeat";
 			else if (key.Keycode == Key.F6)
 				pack = "mid";
 			else if (key.Keycode == Key.F7)
 				pack = "ending";
+
 			if (pack == null)
 				return;
+
 			GetViewport().SetInputAsHandled();
+
 			if (_currentScreen is CutscenePlayer player)
 			{
 				player.DebugPreview(pack);
+
 				return;
 			}
+
 			_cutsceneReturns = true;
 			_cutsceneReturn = currentScene;
-			_cutsceneReturnVars = SceneVariables == null
-				? new List<SceneVariables>()
-				: new List<SceneVariables>(SceneVariables);
+			_cutsceneReturnVars = SceneVariables == null ? new List<SceneVariables>() : new List<SceneVariables>(SceneVariables);
 			CutscenePack = pack;
 			ChangeScene(Scenes.Cutscene, new List<SceneVariables>());
 		}
@@ -370,10 +375,13 @@ namespace Deuteros.Code
 			{
 				var scene = _cutsceneReturn;
 				var vars = _cutsceneReturnVars ?? new List<SceneVariables>();
+
 				_cutsceneReturns = false;
 				ChangeScene(scene, vars);
+
 				return;
 			}
+
 			ChangeScene(Scenes.Earth_Ground, new List<Enums.SceneVariables> { Enums.SceneVariables.Ground });
 		}
 
