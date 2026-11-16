@@ -1,22 +1,47 @@
 name: Discord Notifications
 
+# PR notifications use pull_request_target so they also work for fork and
+# Dependabot PRs (plain pull_request runs get no secrets there). Safe: nothing is
+# checked out or executed from the PR. Untrusted text (titles, commit messages)
+# is passed only through env vars and jq, never interpolated into the script or
+# a template, and mentions are disabled so nobody can ping @everyone.
+
 on:
   push:
-    branches:
-      - develop  # or whichever branches you want
-  pull_request:
+    branches: [develop]
+  pull_request_target:
     types: [opened, closed]
+
+permissions:
+  contents: read
 
 jobs:
   discord:
     runs-on: ubuntu-latest
     steps:
-      - name: Send to Discord
-        uses: Ilshidur/action-discord@master
-        with:
-          args: |
-            📢 New commit pushed by ${{ github.actor }} on branch `${{ github.ref_name }}`:
-            - ${{ github.event.head_commit.message }}
-            🔗 ${{ github.event.head_commit.url }}
+      - name: Post to Discord
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          EVENT: ${{ github.event_name }}
+          ACTOR: ${{ github.actor }}
+          BRANCH: ${{ github.ref_name }}
+          COMMIT_MSG: ${{ github.event.head_commit.message }}
+          COMMIT_URL: ${{ github.event.head_commit.url }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_URL: ${{ github.event.pull_request.html_url }}
+          PR_STATE: ${{ github.event.pull_request.merged && 'merged' || github.event.action }}
+        run: |
+          if [ -z "$DISCORD_WEBHOOK" ]; then
+            echo "DISCORD_WEBHOOK is not set; skipping."
+            exit 0
+          fi
+          if [ "$EVENT" = push ]; then
+            text=$(printf "📢 New commit pushed by %s on branch \`%s\`:\n- %s\n🔗 %s" \
+              "$ACTOR" "$BRANCH" "$COMMIT_MSG" "$COMMIT_URL")
+          else
+            text=$(printf '🔀 PR #%s %s by %s: %s\n🔗 %s' \
+              "$PR_NUMBER" "$PR_STATE" "$ACTOR" "$PR_TITLE" "$PR_URL")
+          fi
+          jq -n --arg content "${text:0:1900}" '{content: $content, allowed_mentions: {parse: []}}' \
+            | curl -fsS -H 'Content-Type: application/json' -d @- "$DISCORD_WEBHOOK"
